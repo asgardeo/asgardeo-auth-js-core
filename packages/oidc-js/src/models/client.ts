@@ -51,6 +51,7 @@ export interface WebWorkerConfigInterface extends BaseConfigInterface {
     baseUrls: string[];
     session?: SessionData;
     storage: Storage.WebWorker;
+    requestTimeout?: number;
 }
 
 export interface HttpClient {
