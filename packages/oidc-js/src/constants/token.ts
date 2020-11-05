@@ -32,3 +32,4 @@ export const REQUEST_PARAMS = "request_params";
 export const TENANT_DOMAIN = "tenant_domain";
 export const ISSUER = "issuer";
 export const LOGOUT_URL = "logout_url";
+export const REFRESH_TOKEN_TIMER = "refresh_token_timer";
