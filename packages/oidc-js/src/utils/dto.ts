@@ -40,7 +40,7 @@ export const generateSuccessDTO = (data?: any): ResponseMessage<string> => {
  * @return {ResponseMessage<string>} JSON string.
  */
 export const generateFailureDTO = (error?: any): ResponseMessage<string> => {
-    if (error.toJSON) {
+    if (error?.toJSON) {
         delete error.toJSON;
     }
 
