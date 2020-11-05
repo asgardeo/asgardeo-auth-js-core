@@ -27,3 +27,4 @@ export * from "./web-worker";
 export * from "./session";
 export * from "./endpoints";
 export * from "./token-response";
+export * from "./open-id-config";
