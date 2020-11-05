@@ -201,12 +201,15 @@ export function validateIdToken(
             }
 
             const jwk = getJWKForTheIdToken(idToken.split(".")[0], response.data.keys);
+            const issuer = getIssuer(requestParams);
+            const issuerFromURL = requestParams.serverOrigin + SERVICE_RESOURCES.wellKnown.split("/.well-known")[ 0 ];
 
-            let issuer = getIssuer(requestParams);
-
-            if (!issuer || issuer.trim().length === 0) {
-                issuer = requestParams.serverOrigin + SERVICE_RESOURCES.token;
+            // Return false if the issuer in the open id config doesn't match
+            // the issuer in the well known endpoint URL.
+            if (!issuer || issuer !== issuerFromURL) {
+                return Promise.resolve(false);
             }
+
 
             return Promise.resolve(
                 isValidIdToken(idToken, jwk, requestParams.clientID, issuer, getAuthenticatedUser(idToken).username)
@@ -295,9 +298,7 @@ export function sendTokenRequest(
                             return Promise.resolve(tokenResponse);
                         }
 
-                        return Promise.reject(
-                            new Error("Invalid id_token in the token response: " + response.data.id_token)
-                        );
+                        return Promise.reject("Invalid id_token in the token response: " + response.data.id_token);
                     })
                     .catch((error) => {
                         return Promise.reject(error);
