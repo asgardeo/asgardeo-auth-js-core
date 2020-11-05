@@ -38,3 +38,4 @@ export const TENANT = "tenant";
 export const SIGN_IN_REDIRECT_URL = "sign_in_redirect_url";
 export const SIGN_OUT_REDIRECT_URL = "sign_out_redirect_url";
 export const OIDC_SESSION_IFRAME_ENDPOINT = "oidc_session_iframe_endpoint";
+export const OPEN_ID_CONFIG = "open_id_config";
