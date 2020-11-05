@@ -375,7 +375,7 @@ export function sendRefreshTokenRequest(
                     }
 
                     return Promise.reject(
-                        new Error("Invalid id_token in the token response: " + response.data.id_token)
+                        "Invalid id_token in the token response: " + response.data.id_token
                     );
                 });
             } else {
