@@ -229,7 +229,8 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
                                     });
                             })
                             .catch((error) => {
-                                return Promise.reject(error);
+                                return Promise.reject("An error occurred while refreshing the access token. " +
+                                    "The access token is no more valid and re-authentication is required.");
                             });
                     }
 
@@ -280,7 +281,10 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
                                     });
                             })
                             .catch((error) => {
-                                return Promise.reject(error);
+                                return Promise.reject(
+                                    "An error occurred while refreshing the access token. " +
+                                        "The access token is no more valid and re-authentication is required."
+                                );
                             });
                     }
 
