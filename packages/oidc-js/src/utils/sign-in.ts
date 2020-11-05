@@ -369,7 +369,7 @@ export function sendRefreshTokenRequest(
                             tokenType: response.data.token_type
                         };
 
-                        initUserSession(response.data, getAuthenticatedUser(response.data.idToken), requestParams);
+                        initUserSession(tokenResponse, getAuthenticatedUser(response.data.id_token), requestParams);
 
                         return Promise.resolve(tokenResponse);
                     }
@@ -388,7 +388,7 @@ export function sendRefreshTokenRequest(
                     tokenType: response.data.token_type
                 };
 
-                initUserSession(response.data, getAuthenticatedUser(response.data.idToken), requestParams);
+                initUserSession(tokenResponse, getAuthenticatedUser(response.data.id_token), requestParams);
 
                 return Promise.resolve(tokenResponse);
             }
@@ -448,7 +448,7 @@ export function sendRevokeTokenRequest(
  * @returns {AuthenticatedUserInterface} authenticated user.
  */
 export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterface => {
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken.split(".")[1]));
+    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken?.split(".")[1]));
     const emailAddress: string = payload.email ? payload.email : null;
     const tenantDomain: string = getTenantDomainFromIdTokenPayload(payload);
 
