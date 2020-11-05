@@ -25,7 +25,7 @@ export const SERVICE_RESOURCES: ServiceResourcesType = {
     oidcSessionIFrame: "/oidc/checksession",
     revoke: "/oauth2/revoke",
     token: "/oauth2/token",
-    wellKnown: "/oauth2/oidcdiscovery/.well-known/openid-configuration"
+    wellKnown: "/oauth2/token/.well-known/openid-configuration"
 };
 
 export const AUTHORIZATION_ENDPOINT = "authorization_endpoint";
