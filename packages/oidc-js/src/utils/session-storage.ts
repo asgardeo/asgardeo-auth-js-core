@@ -241,7 +241,9 @@ export function getAccessToken(requestParams: ConfigInterface | WebWorkerConfigI
 }
 
 const refreshTokenAutomatically = (config: ConfigInterface | WebWorkerConfigInterface): void => {
-    const time = parseInt(getSessionParameter(ACCESS_TOKEN_EXPIRE_IN, config));
+    // Refresh 10 seconds before the expiry time
+    const expiryTime = parseInt(getSessionParameter(ACCESS_TOKEN_EXPIRE_IN, config));
+    const time = expiryTime <= 10 ? expiryTime: expiryTime - 10;
     clearRefreshTokenTimer(config);
     const timer = setTimeout(() => {
         sendRefreshTokenRequest(config, getSessionParameter(REFRESH_TOKEN, config));
