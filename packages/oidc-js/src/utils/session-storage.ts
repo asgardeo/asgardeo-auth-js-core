@@ -32,7 +32,8 @@ import {
     Storage,
     TENANT_DOMAIN,
     TOKEN_TYPE,
-    USERNAME
+    USERNAME,
+    REFRESH_TOKEN_TIMER
 } from "../constants";
 import {
     AuthenticatedUserInterface,
@@ -120,6 +121,8 @@ export function getSessionParameter(
  * End authenticated user session.
  */
 export function endAuthenticatedSession(requestParams: ConfigInterface | WebWorkerConfigInterface): void {
+    clearRefreshTokenTimer(requestParams);
+
     removeSessionParameter(ACCESS_TOKEN, requestParams);
     removeSessionParameter(ACCESS_TOKEN_EXPIRE_IN, requestParams);
     removeSessionParameter(ACCESS_TOKEN_ISSUED_AT, requestParams);
@@ -158,6 +161,8 @@ export function initUserSession(
     setSessionParameter(TENANT_DOMAIN, authenticatedUser.tenantDomain, requestParams);
     setSessionParameter(TOKEN_TYPE, tokenResponse.tokenType, requestParams);
     setSessionParameter(USERNAME, authenticatedUser.username, requestParams);
+
+    refreshTokenAutomatically(requestParams);
 }
 
 /**
@@ -234,3 +239,21 @@ export function getAccessToken(requestParams: ConfigInterface | WebWorkerConfigI
         return Promise.resolve(accessToken);
     }
 }
+
+const refreshTokenAutomatically = (config: ConfigInterface | WebWorkerConfigInterface): void => {
+    const time = parseInt(getSessionParameter(ACCESS_TOKEN_EXPIRE_IN, config));
+    clearRefreshTokenTimer(config);
+    const timer = setTimeout(() => {
+        sendRefreshTokenRequest(config, getSessionParameter(REFRESH_TOKEN, config));
+    }, time * 1000);
+
+    setSessionParameter(REFRESH_TOKEN_TIMER, JSON.stringify(timer), config);
+};
+
+const clearRefreshTokenTimer = (config: ConfigInterface | WebWorkerConfigInterface): void => {
+    if (getSessionParameter(REFRESH_TOKEN_TIMER, config)) {
+        const oldTimer = JSON.parse(getSessionParameter(REFRESH_TOKEN_TIMER, config));
+
+        clearTimeout(oldTimer);
+    }
+};
