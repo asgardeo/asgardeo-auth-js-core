@@ -33,9 +33,10 @@ import {
     Storage,
     TENANT,
     TOKEN_ENDPOINT,
-    USERNAME
+    USERNAME,
+    OPEN_ID_CONFIG
 } from "../constants";
-import { ConfigInterface, ServiceResourcesType, WebWorkerConfigInterface } from "../models";
+import { ConfigInterface, ServiceResourcesType, WebWorkerConfigInterface, OpenIDConfig } from "../models";
 
 /**
  * Checks whether openid configuration initiated.
@@ -66,6 +67,27 @@ export const setAuthorizeEndpoint = (
 ): void => {
     setSessionParameter(AUTHORIZATION_ENDPOINT, authorizationEndpoint, requestParams);
 };
+
+/**
+ * Sets the open id config data on the session.
+ *
+ * @param {OpenIDConfig} data - The Open ID Config.
+ * @param {ConfigInterface} requestParams - Initial Config.
+ */
+export const setOPConfig = (data: OpenIDConfig, requestParams: ConfigInterface | WebWorkerConfigInterface): void => {
+    setSessionParameter(OPEN_ID_CONFIG, JSON.stringify(data), requestParams)
+}
+
+/**
+ * Returns the Open ID config from the session.
+ *
+ * @param {ConfigInterface} requestParams - Initial Config.
+ *
+ * @return {OpenIDConfig} - Open ID Config.
+ */
+export const getOPConfig = (requestParams: ConfigInterface | WebWorkerConfigInterface): OpenIDConfig => {
+    return JSON.parse(getSessionParameter(OPEN_ID_CONFIG, requestParams));
+}
 
 /**
  * Set OAuth2 token endpoint.
@@ -175,7 +197,7 @@ export const initOPConfiguration = (
 
     return axios
         .get(serverHost + SERVICE_RESOURCES.wellKnown)
-        .then((response) => {
+        .then((response: { data: OpenIDConfig; status: number}) => {
             if (response.status !== 200) {
                 return Promise.reject(
                     new Error(
@@ -184,6 +206,7 @@ export const initOPConfiguration = (
                 );
             }
 
+            setOPConfig(response.data, requestParams);
             setAuthorizeEndpoint(response.data.authorization_endpoint, requestParams);
             setTokenEndpoint(response.data.token_endpoint, requestParams);
             setEndSessionEndpoint(response.data.end_session_endpoint, requestParams);
