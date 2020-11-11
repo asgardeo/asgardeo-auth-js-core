@@ -41,6 +41,7 @@ export interface ResponseMessage<T> {
     success: boolean;
     error?: string;
     data?: T;
+    blob?: Blob;
 }
 
 export interface Message<T> {

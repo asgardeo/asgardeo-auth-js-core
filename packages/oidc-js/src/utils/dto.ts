@@ -27,6 +27,7 @@ import { ResponseMessage } from "../models";
  */
 export const generateSuccessDTO = (data?: any): ResponseMessage<string> => {
     return {
+        blob: data?.data instanceof Blob ? data?.data : null,
         data: JSON.stringify(data ?? ""),
         success: true
     };
