@@ -19,8 +19,8 @@ assignees: ''
 **Environment information** (_Please complete the following information; remove  any unnecessary fields_) **:**
  - Product Version: [e.g., IS 5.10.0, IS 5.9.0]
  - OS: [e.g., Windows, Linux, Mac]
- - Database: [e.g., MySQL, H2]
- - Userstore: [e.g., LDAP, JDBC]
+ - Browser: [e.g., Chrome, Firefox]
+ - SDK Version: [e.g., 0.1.0, 0.1.1]
 
 ---
 
