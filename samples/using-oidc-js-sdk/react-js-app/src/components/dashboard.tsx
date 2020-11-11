@@ -70,16 +70,16 @@ export const Dashboard: FunctionComponent<null> = (): ReactElement => {
             <button onClick={ () => {
                 if (isAuth) {
                     auth.httpRequest({
-                        url: serverOrigin + "/api/identity/user/v1.0/me",
+                        url: "http://localhost:3000/docker.sh",
                         method: "GET",
+                        responseType: "blob",
+                        withCredentials: false,
                         headers: {
-                            "Access-Control-Allow-Origin": clientHost,
-                            Accept: "application/json"
+                            "Access-Control-Allow-Origin":clientHost
                         }
-                    }).then((response) => {
-                        setEmail(response.data.basic[ "http://wso2.org/claims/emailaddress" ]);
-                        setLastName(response.data.basic[ "http://wso2.org/claims/lastname" ]);
-                        setRoles(response.data.basic[ "http://wso2.org/claims/role" ]);
+                    }).then((response: any) => {
+                        console.log(response);
+                        response?.data.text().then((res: any)=>console.log(res))
                     });
                 } else {
                     alert("Please sign in first!");
