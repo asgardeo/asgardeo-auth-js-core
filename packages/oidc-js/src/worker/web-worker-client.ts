@@ -176,7 +176,17 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
 
             return (channel.port1.onmessage = ({ data }: { data: ResponseMessage<string> }) => {
                 clearTimeout(timer);
-                data.success ? resolve(JSON.parse(data.data)) : reject(JSON.parse(data.error));
+
+                if (data?.success) {
+                    const responseData = JSON.parse(data?.data);
+                    if (data?.blob) {
+                        responseData.data = data?.blob;
+                    }
+
+                    resolve(responseData);
+                } else {
+                    reject(JSON.parse(data.error));
+                }
             });
         });
     };
