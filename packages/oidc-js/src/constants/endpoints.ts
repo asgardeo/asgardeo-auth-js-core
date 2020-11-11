@@ -25,7 +25,7 @@ export const SERVICE_RESOURCES: ServiceResourcesType = {
     oidcSessionIFrame: "/oidc/checksession",
     revoke: "/oauth2/revoke",
     token: "/oauth2/token",
-    wellKnown: "/oauth2/oidcdiscovery/.well-known/openid-configuration"
+    wellKnown: "/oauth2/token/.well-known/openid-configuration"
 };
 
 export const AUTHORIZATION_ENDPOINT = "authorization_endpoint";
@@ -38,3 +38,4 @@ export const TENANT = "tenant";
 export const SIGN_IN_REDIRECT_URL = "sign_in_redirect_url";
 export const SIGN_OUT_REDIRECT_URL = "sign_out_redirect_url";
 export const OIDC_SESSION_IFRAME_ENDPOINT = "oidc_session_iframe_endpoint";
+export const OPEN_ID_CONFIG = "open_id_config";

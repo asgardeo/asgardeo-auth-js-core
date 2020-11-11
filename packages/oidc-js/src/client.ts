@@ -17,7 +17,7 @@
  */
 
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { ACCESS_TOKEN, AUTHORIZATION_CODE_TYPE, Hooks, OIDC_SCOPE, Storage } from "./constants";
+import { ACCESS_TOKEN, AUTHORIZATION_CODE_TYPE, Hooks, OIDC_SCOPE, Storage, REFRESH_TOKEN } from "./constants";
 import { isWebWorkerConfig } from "./helpers";
 import { AxiosHttpClient, AxiosHttpClientInstance } from "./http-client";
 import {
@@ -41,7 +41,8 @@ import {
     handleSignOut,
     isLoggedOut,
     resetOPConfiguration,
-    sendRevokeTokenRequest
+    sendRevokeTokenRequest,
+    sendRefreshTokenRequest
 } from "./utils";
 import { WebWorkerClient } from "./worker";
 
@@ -365,6 +366,14 @@ export class IdentityClient {
         }
 
         return getAccessTokenUtil(this._authConfig);
+    }
+
+    public refreshToken(): Promise<string> {
+        if (this._storage === Storage.WebWorker) {
+            return Promise.reject("The token is automatically refreshed when the storage type is set to webWorker.");
+        }
+
+        return sendRefreshTokenRequest(this._authConfig, getSessionParameter(REFRESH_TOKEN, this._authConfig));
     }
 
     public on(hook: Hooks.CustomGrant, callback: (response?: any) => void, id: string): void;

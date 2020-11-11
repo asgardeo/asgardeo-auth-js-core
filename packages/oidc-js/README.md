@@ -27,6 +27,7 @@
     - [getServiceEndpoints](#getserviceendpoints)
     - [getDecodedIDToken](#getdecodedidtoken)
     - [getAccessToken](#getaccesstoken)
+    - [refreshToken](#refreshtoken)
     - [on](#on)
 - [Using the `form_post` Response Mode](#using-the-form_post-response-mode)
 - [Develop](#develop)
@@ -339,13 +340,19 @@ auth.getAccessToken().then((token) => {
     // console.error(error);
 });
 ```
+
+### refreshToken
+This refreshes the access token and stores the refreshed session information in either the session or local storage as per your configuration. Note that this method cannot be used when the storage type is set to `webWorker` since the web worker automatically refreshes the token and there is no need for the developer to do it.
+```javascript
+auth.refreshToken();
+```
 ### on
 
 The `on` method is used to hook callback functions to authentication methods. The method accepts a hook name and a callback function as the only arguments except when the hook name is "custom-grant", in which case the id of the custom grant should be passed as the third argument. The following hooks are available.
 
 |Hook|Method to which the callback function is attached| Returned Response|
 |:--|:--|:--|
-|`"sign-in"`|`signIn()`| The user information|
+|`"sign-in"`|`signIn()`| The user information. See [getUserInfo()](#getuserinfo)'s return type for more details.|
 |`"sign-out"`|`signOut()`||
 |`"initialize"`|`initialize()`|A boolean value indicating if the initialization was successful or not.|
 |`"http-request-start"`| `httpRequest()` (Called before an http request is sent)|
