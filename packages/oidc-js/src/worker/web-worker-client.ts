@@ -119,6 +119,10 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      * HttpClient handlers
      */
     let httpClientHandlers: HttpClient;
+    /**
+     * API request time out.
+     */
+    let requestTimeout: number;
 
     /**
      * @private
@@ -160,7 +164,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *
      * @returns {Promise<R>} A promise that resolves with the obtained data.
      */
-    const communicate = <T, R>(message: Message<T>, timeout?: number): Promise<R> => {
+    const communicate = <T, R>(message: Message<T>, timeout: number = 60000): Promise<R> => {
         const channel = new MessageChannel();
 
         worker.postMessage(message, [channel.port2]);
@@ -168,7 +172,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
                 reject("Operation timed out");
-            }, timeout ?? 10000);
+            }, timeout);
 
             return (channel.port1.onmessage = ({ data }: { data: ResponseMessage<string> }) => {
                 clearTimeout(timer);
@@ -235,7 +239,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             type: API_CALL
         };
 
-        return communicate<AxiosRequestConfig, AxiosResponse<T>>(message)
+        return communicate<AxiosRequestConfig, AxiosResponse<T>>(message, requestTimeout)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -267,7 +271,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             type: API_CALL_ALL
         };
 
-        return communicate<AxiosRequestConfig[], AxiosResponse<T>[]>(message)
+        return communicate<AxiosRequestConfig[], AxiosResponse<T>[]>(message, requestTimeout)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -285,22 +289,23 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *
      * The `config` object has the following attributes:
      * ```
-     * 	var config = {
-     * 		authorizationType?: string //optional
-     * 		clientHost: string
-     * 		clientID: string
-     *    	clientSecret?: string //optional
-     * 		consentDenied?: boolean //optional
-     * 		enablePKCE?: boolean //optional
-     *		prompt?: string //optional
-     *		responseMode?: "query" | "form-post" //optional
-     *		scope?: string[] //optional
-     *		serverOrigin: string
-     *		tenant?: string //optional
-     *		tenantPath?: string //optional
-     *		baseUrls: string[]
-     *		callbackURL: string
-     *	}
+     *  var config = {
+     *    authorizationType?: string //optional
+     *    clientHost: string
+     *    clientID: string
+     *    clientSecret?: string //optional
+     *    consentDenied?: boolean //optional
+     *    enablePKCE?: boolean //optional
+     *    prompt?: string //optional
+     *    responseMode?: "query" | "form-post" //optional
+     *    scope?: string[] //optional
+     *    serverOrigin: string
+     *    tenant?: string //optional
+     *    tenantPath?: string //optional
+     *    baseUrls: string[]
+     *    callbackURL: string
+     *    requestTimeout: number //optional
+     *  }
      * ```
      */
     const initialize = (config: WebWorkerConfigInterface): Promise<boolean> => {
@@ -375,6 +380,8 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             requestStartCallback: null,
             requestSuccessCallback: null
         };
+
+        requestTimeout = config?.requestTimeout;
 
         worker.onmessage = ({ data }) => {
             switch (data.type) {
