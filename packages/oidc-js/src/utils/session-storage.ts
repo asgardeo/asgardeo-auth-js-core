@@ -149,7 +149,6 @@ export function initUserSession(
     authenticatedUser: AuthenticatedUserInterface,
     requestParams: ConfigInterface | WebWorkerConfigInterface
 ): void {
-    endAuthenticatedSession(requestParams);
     setSessionParameter(ACCESS_TOKEN, tokenResponse.accessToken, requestParams);
     setSessionParameter(ACCESS_TOKEN_EXPIRE_IN, tokenResponse.expiresIn, requestParams);
     setSessionParameter(ACCESS_TOKEN_ISSUED_AT, (Date.now() / 1000).toString(), requestParams);
