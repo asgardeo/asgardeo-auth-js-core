@@ -34,7 +34,7 @@ export interface AuthenticatedUserInterface {
      */
     email?: string;
     /**
-     * Available scopes. 
+     * Available scopes.
      */
     scope?: string;
     /**
@@ -45,4 +45,8 @@ export interface AuthenticatedUserInterface {
      * Authenticated user's username.
      */
     username: string;
+    /**
+     * The session state.
+     */
+    sessionState?: string;
 }
