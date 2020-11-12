@@ -129,11 +129,9 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
                     return Promise.resolve({
                         data: {
                             allowedScopes: session.get(SCOPE),
-                            authorizationEndpoint: session.get(AUTHORIZATION_ENDPOINT),
                             displayName: session.get(DISPLAY_NAME),
                             email: session.get(EMAIL),
                             logoutUrl: logoutCallback,
-                            oidcSessionIframe: session.get(OIDC_SESSION_IFRAME_ENDPOINT),
                             tenantDomain: session.get(TENANT_DOMAIN),
                             username: session.get(USERNAME),
                             sessionState: session.get(SESSION_STATE)
