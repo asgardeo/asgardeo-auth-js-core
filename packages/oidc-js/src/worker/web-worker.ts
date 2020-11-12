@@ -135,7 +135,8 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
                             logoutUrl: logoutCallback,
                             oidcSessionIframe: session.get(OIDC_SESSION_IFRAME_ENDPOINT),
                             tenantDomain: session.get(TENANT_DOMAIN),
-                            username: session.get(USERNAME)
+                            username: session.get(USERNAME),
+                            sessionState: session.get(SESSION_STATE)
                         },
                         type: response.type
                     });
