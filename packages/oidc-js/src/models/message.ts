@@ -66,6 +66,7 @@ export interface UserInfo {
     displayName: string;
     allowedScopes: string;
     tenantDomain: string;
+    sessionState: string;
 }
 
 export interface UserInfoWorker extends UserInfo {
