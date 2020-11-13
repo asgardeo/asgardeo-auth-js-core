@@ -33,10 +33,11 @@ module.exports = [{
             },
             {
                 exclude: {
-                    not: [
-                        /await-semaphore/
-                    ],
-                    test: / (node_modules | dist) /
+                    test: [
+						/@babel(?:\/|\\{1,2})runtime|core-js/,
+						/node_modules\/(?!(await_semaphore))/,
+						/dist/
+					]
                 },
                 test: /\.(ts|js)?$/,
                 use: "babel-loader"
