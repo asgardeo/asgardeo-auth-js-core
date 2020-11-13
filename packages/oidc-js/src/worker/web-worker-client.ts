@@ -164,7 +164,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *
      * @returns {Promise<R>} A promise that resolves with the obtained data.
      */
-    const communicate = <T, R>(message: Message<T>, timeout: number = 60000): Promise<R> => {
+    const communicate = <T, R>(message: Message<T>): Promise<R> => {
         const channel = new MessageChannel();
 
         worker.postMessage(message, [channel.port2]);
@@ -172,7 +172,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
                 reject("Operation timed out");
-            }, timeout);
+            }, requestTimeout);
 
             return (channel.port1.onmessage = ({ data }: { data: ResponseMessage<string> }) => {
                 clearTimeout(timer);
@@ -249,7 +249,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             type: API_CALL
         };
 
-        return communicate<AxiosRequestConfig, AxiosResponse<T>>(message, requestTimeout)
+        return communicate<AxiosRequestConfig, AxiosResponse<T>>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -281,7 +281,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             type: API_CALL_ALL
         };
 
-        return communicate<AxiosRequestConfig[], AxiosResponse<T>[]>(message, requestTimeout)
+        return communicate<AxiosRequestConfig[], AxiosResponse<T>[]>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -391,7 +391,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             requestSuccessCallback: null
         };
 
-        requestTimeout = config?.requestTimeout;
+        requestTimeout = config?.requestTimeout ?? 60000;
 
         worker.onmessage = ({ data }) => {
             switch (data.type) {
