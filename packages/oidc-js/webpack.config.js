@@ -32,7 +32,13 @@ module.exports = [{
                 }
             },
             {
-                exclude: /(node_modules|dist)/,
+                exclude: {
+                    test: [
+                        /@babel(?:\/|\\{1,2})runtime|core-js/,
+                        /node_modules\/(?!(await_semaphore))/,
+                        /dist/
+                    ]
+                },
                 test: /\.(ts|js)?$/,
                 use: "babel-loader"
             },
@@ -78,7 +84,7 @@ module.exports = [{
                 test: /\.tsx?$/,
                 use: [{
                     loader: "awesome-typescript-loader?tsconfig=tsconfig.umd.json"
-                }],  
+                }],
                 exclude: /node_modules/
             }
         ]
@@ -93,5 +99,5 @@ module.exports = [{
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js"]
-    } 
+    }
 }];

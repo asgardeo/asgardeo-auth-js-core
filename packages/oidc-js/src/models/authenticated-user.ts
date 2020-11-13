@@ -45,8 +45,4 @@ export interface AuthenticatedUserInterface {
      * Authenticated user's username.
      */
     username: string;
-    /**
-     * The session state.
-     */
-    sessionState?: string;
 }
