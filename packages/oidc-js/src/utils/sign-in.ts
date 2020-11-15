@@ -92,8 +92,12 @@ export function hasAuthorizationCode(requestParams: ConfigInterface | WebWorkerC
  */
 export function getAuthorizationCode(requestParams?: ConfigInterface | WebWorkerConfigInterface): string {
     if (!requestParams || !isWebWorkerConfig(requestParams)) {
-        if (new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE)) {
-            return new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE);
+        if (!requestParams || requestParams.responseMode !== "form_post") {
+            if (new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE)) {
+                return new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE);
+            }
+        } else {
+            return requestParams.authorizationCode;
         }
     } else {
         if (requestParams.session.get(AUTHORIZATION_CODE)) {
@@ -227,7 +231,7 @@ export function validateIdToken(
  * @returns {Promise<TokenResponseInterface>} token response data or error.
  */
 export function sendTokenRequest(
-    requestParams: ConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface
+    requestParams: ConfigInterface | WebWorkerConfigInterface
 ): Promise<TokenResponseInterface> {
     const tokenEndpoint = getTokenEndpoint(requestParams);
 
