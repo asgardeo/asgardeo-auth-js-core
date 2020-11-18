@@ -500,17 +500,17 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *
      * @returns {Promise<UserInfo>} A promise that resolves when authentication is successful.
      */
-    const signIn = (): Promise<UserInfo> => {
+    const signIn = (fidp?: string): Promise<UserInfo> => {
         if (initialized) {
             if (hasAuthorizationCode() || sessionStorage.getItem(PKCE_CODE_VERIFIER)) {
                 return sendAuthorizationCode();
             } else {
-                const message: Message<null> = {
-                    data: null,
+                const message: Message<string> = {
+                    data: fidp,
                     type: SIGN_IN
                 };
 
-                return communicate<null, SignInResponseWorker>(message)
+                return communicate<string, SignInResponseWorker>(message)
                     .then((response) => {
                         if (response.type === SIGNED_IN) {
                             signedIn = true;

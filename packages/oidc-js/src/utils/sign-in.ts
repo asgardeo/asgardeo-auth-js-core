@@ -129,7 +129,8 @@ export const getTokenRequestHeaders = (clientHost: string): TokenRequestHeader =
  * request parameters required for authorization request.
  */
 export function sendAuthorizationRequest(
-    requestParams: ConfigInterface | WebWorkerConfigInterface
+    requestParams: ConfigInterface | WebWorkerConfigInterface,
+    fidp?: string
 ): Promise<SignInResponse | never> {
     const authorizeEndpoint = getAuthorizeEndpoint(requestParams);
 
@@ -164,6 +165,10 @@ export function sendAuthorizationRequest(
 
     if (requestParams.prompt) {
         authorizeRequest += "&prompt=" + requestParams.prompt;
+    }
+
+    if (fidp) {
+        authorizeRequest += "&fidp=" + fidp;
     }
 
     if (requestParams.storage === Storage.WebWorker) {
@@ -472,7 +477,8 @@ export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterfac
  * @returns {Promise<any>} sign out request status
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function sendSignInRequest(requestParams: ConfigInterface | WebWorkerConfigInterface): Promise<SignInResponse> {
+export function sendSignInRequest(
+    requestParams: ConfigInterface | WebWorkerConfigInterface, fidp?: string): Promise<SignInResponse> {
     if (hasAuthorizationCode(requestParams)) {
         return sendTokenRequest(requestParams)
             .then((response) => {
@@ -489,11 +495,11 @@ export function sendSignInRequest(requestParams: ConfigInterface | WebWorkerConf
                 return Promise.reject(error);
             });
     } else {
-        return sendAuthorizationRequest(requestParams);
+        return sendAuthorizationRequest(requestParams, fidp);
     }
 }
 
-export function handleSignIn(requestParams: ConfigInterface | WebWorkerConfigInterface): Promise<any> {
+export function handleSignIn(requestParams: ConfigInterface | WebWorkerConfigInterface, fidp?: string): Promise<any> {
     if (getSessionParameter(ACCESS_TOKEN, requestParams)) {
         if (!isValidOPConfig(requestParams)) {
             endAuthenticatedSession(requestParams);
@@ -503,7 +509,7 @@ export function handleSignIn(requestParams: ConfigInterface | WebWorkerConfigInt
 
             return initOPConfiguration(requestParams, true)
                 .then(() => {
-                    return sendSignInRequest(requestParams);
+                    return sendSignInRequest(requestParams, fidp);
                 })
                 .catch((error) => {
                     return Promise.reject(error);
@@ -516,7 +522,7 @@ export function handleSignIn(requestParams: ConfigInterface | WebWorkerConfigInt
     } else {
         return initOPConfiguration(requestParams, false)
             .then(() => {
-                return sendSignInRequest(requestParams);
+                return sendSignInRequest(requestParams, fidp);
             })
             .catch((error) => {
                 return Promise.reject(error);

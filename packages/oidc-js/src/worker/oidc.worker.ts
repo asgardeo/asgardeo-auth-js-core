@@ -77,7 +77,7 @@ ctx.onmessage = ({ data, ports }) => {
                     webWorker.setAuthCode(data.data.code, data?.data?.sessionState, data?.data?.pkce);
                 }
                 webWorker
-                    .signIn()
+                    .signIn(typeof data?.data === "string" && data?.data)
                     .then((response: SignInResponseWorker) => {
                         if (response.type === SIGNED_IN) {
                             port.postMessage(

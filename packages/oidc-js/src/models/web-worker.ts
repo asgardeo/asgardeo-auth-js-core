@@ -27,7 +27,7 @@ export interface WebWorkerInterface {
     isSignedIn(): boolean;
     doesTokenExist(): boolean;
     setAuthCode(authCode: string, sessionState: string, pkce?: string): void;
-    signIn(): Promise<SignInResponse>;
+    signIn(fidp?: string): Promise<SignInResponse>;
     refreshAccessToken(): Promise<boolean>;
     signOut(): Promise<string>;
     httpRequest(config: AxiosRequestConfig): Promise<AxiosResponse>;

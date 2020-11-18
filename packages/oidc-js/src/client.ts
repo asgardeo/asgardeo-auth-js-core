@@ -167,7 +167,7 @@ export class IdentityClient {
      * @returns {Promise<any>} promise.
      * @memberof IdentityClient
      */
-    public async signIn(): Promise<any> {
+    public async signIn(fidp?: string): Promise<any> {
         if (!this._startedInitialize) {
             return Promise.reject("The object has not been initialized yet.");
         }
@@ -189,7 +189,7 @@ export class IdentityClient {
 
         if (this._storage === Storage.WebWorker) {
             return this._client
-                .signIn()
+                .signIn(fidp)
                 .then((response) => {
                     if (this._onSignInCallback) {
                         if (response.allowedScopes || response.displayName || response.email || response.username) {
@@ -204,7 +204,7 @@ export class IdentityClient {
                 });
         }
 
-        return handleSignIn(this._authConfig)
+        return handleSignIn(this._authConfig, fidp)
             .then(() => {
                 if (this._onSignInCallback) {
                     const userInfo = getUserInfoUtil(this._authConfig);
