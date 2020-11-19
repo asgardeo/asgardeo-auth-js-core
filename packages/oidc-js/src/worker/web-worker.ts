@@ -101,8 +101,8 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
      *
      * @returns {Promise<SignInResponse>} A promise that resolves with the Sign In response.
      */
-    const signIn = (): Promise<SignInResponseWorker> => {
-        return handleSignIn(authConfig)
+    const signIn = (fidp?: string): Promise<SignInResponseWorker> => {
+        return handleSignIn(authConfig, fidp)
             .then((response) => {
                 if (response.type === SIGNED_IN) {
                     const logoutEndpoint = getEndSessionEndpoint(authConfig);

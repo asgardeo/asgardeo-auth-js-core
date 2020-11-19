@@ -133,13 +133,20 @@ You can try out the Java Webapp Sample App from the [samples/java-webapp](sample
 ## APIs
 
 ### getInstance
+```typescript
+getInstance(): IdentityClient;
+```
 
 This returns an instance of the `IdentityClient`. Since the `IdentityClient` is a singleton, this method returns the same instance no matter how many times it is called.
 
 This allows the developers the flexibility of using multiple files to implement the authentication logic. That is, you can have the sign in logic implemented on one page and the sign out logic on another.
-
+```javascript
+const auth = IdentityClient.getInstance();
+```
 ### initialize
-
+```typescript
+initialize(config);
+```
 The `initialize` method is used to the initialize the client. This *MUST* be called soon after instantiating the `IdentityClient` and before calling another methods.
 
 This method takes a `config` object as the only argument. The attributes of the `config` object is as follows.
@@ -192,8 +199,10 @@ auth.initialize(config);
 ```
 
 ### getUserInfo
-
-This method returns the information about the authenticated user as an object. The object has the following attributes.
+```typescript
+getUserInfo(): Promise;
+```
+This method returns a promise that resolves with the information about the authenticated user as an object. The object has the following attributes.
 
 |Attribute| Type | Description|
 |:--|:--|:--|
@@ -211,7 +220,9 @@ auth.getUserInfo().then((response) => {
 ```
 
 ### signIn
-
+```typescript
+signIn(fidp?: string);
+```
 This method initiates the authentication flow.
 
 The `sign-in` hook is used to fire a callback function after signing in is successful. Check the [on()](#on) section for more information.
@@ -221,14 +232,24 @@ The `sign-in` hook is used to fire a callback function after signing in is succe
 auth.signIn();
 ```
 
-### signOut
+Additionally, the `signIn()` method also accepts an argument to set the `FIDP` parameter. This allows the user to be taken directly to the login page of a federated Identity Provider instead of being taken to the SSO page.
 
+```javascript
+auth.signIn("fb");
+```
+
+### signOut
+```typescript
+signOut();
+```
 This method ends the user session at the Identity Server and logs the user out.
 
 The `sign-out` hook is used to fire a callback function after signing out is successful. Check the [on()](#on) section for more information.
 
 ### httpRequest
-
+```typescript
+httpRequest(config): Promise;
+```
 This method  is used to send http requests to the Identity Server. The developer doesn't need to manually attach the access token since this method does it automatically.
 
 If the `storage` type is set to `sessionStorage` or `localStorage`, the developer may choose to implement their own ways of sending http requests by obtaining the access token from the relevant storage medium and attaching it to the header. However, if the `storage` is set to `webWorker`, this is the *ONLY* way http requests can be sent.
@@ -260,7 +281,9 @@ return auth.httpRequest(requestConfig)
 ```
 
 ### httpRequestAll
-
+```typescript
+httpRequestAll(config[]): Promise<[]>;
+```
 This method is used to send multiple http requests at the same time. This works similar to `axios.all()`. An array of config objects need to be passed as the argument and an array of responses will be returned in a `Promise` in the order in which the configs were passed.
 
 ```javascript
@@ -274,7 +297,9 @@ auth.httpRequestAll(configs).then((responses) => {
 ```
 
 ### customGrant
-
+```typescript
+customGrant(config): Promise;
+```
 This method allows developers to use custom grants provided by their Identity Servers. This method accepts an object that has the following attributes as the argument.
 |Attribute|Type|Description|
 |:--|:--|:--|
@@ -318,20 +343,44 @@ return auth.customGrant({
 ```
 
 ### endUserSession
-
+```typescript
+endUserSession();
+```
 This method revokes the access token and clears the session information from the storage.
 
 The `end-user-session` hook is used to fire a callback function after end user session is successful. Check the [on()](#on) section for more information.
-
+```javascript
+auth.endUserSession();
+```
 ### getServiceEndpoints
+```typescript
+getServiceEndpoints(): Promise;
+```
+This method returns a promise that resolves with an object containing the OIDC endpoints obtained from the `.well-known` endpoint.
 
-This method returns an object containing the OIDC endpoints obtained from the `.well-known` endpoint.
-
+```javascript
+auth.getServiceEndpoints().then((endpoints) => {
+    // console.log(endpoints);
+}).error((error) => {
+    // console.error(error);
+});
+```
 ### getDecodedIDToken
-
-This method returns the decoded payload of the JWT ID token.
-
+```typescript
+getDecodedIDToken(): Promise;
+```
+This method returns a promise that resolves with the decoded payload of the JWT ID token.
+```javascript
+auth.getDecodedIDToken().then((idToken) => {
+    // console.log(idToken);
+}).error((error) => {
+    // console.error(error);
+});
+```
 ### getAccessToken
+```typescript
+getAccessToken(): Promise;
+```
 This returns a promise that resolves with the access token. The promise resolves successfully only if the storage type is set to a type other than `webWorker`. Otherwise an error is thrown.
 ```javascript
 auth.getAccessToken().then((token) => {
@@ -342,12 +391,17 @@ auth.getAccessToken().then((token) => {
 ```
 
 ### refreshToken
+```typescript
+refreshToken();
+```
 This refreshes the access token and stores the refreshed session information in either the session or local storage as per your configuration. Note that this method cannot be used when the storage type is set to `webWorker` since the web worker automatically refreshes the token and there is no need for the developer to do it.
 ```javascript
 auth.refreshToken();
 ```
 ### on
-
+```typescript
+on(hook: string, callback: () => void, id?: string);
+```
 The `on` method is used to hook callback functions to authentication methods. The method accepts a hook name and a callback function as the only arguments except when the hook name is "custom-grant", in which case the id of the custom grant should be passed as the third argument. The following hooks are available.
 
 |Hook|Method to which the callback function is attached| Returned Response|
@@ -363,7 +417,11 @@ The `on` method is used to hook callback functions to authentication methods. Th
 |`"custom-grant"`| `customGrant()`|Returns the response from the custom grant request.
 
 **When the user signs out, the user is taken to the identity server's logout page and then redirected back to the SPA on successful log out. Hence, developers should ensure that the `"sign-out"` hook is called when the page the user is redirected to loads.**
-
+```javascript
+auth.on("sign-in", () => {
+    //called after signing in.
+});
+```
 ## Using the `form_post` response mode
 
 When the `responseMode` is set to `form_post`, the authorization code is sent in the body of a `POST` request as opposed to in the URL. So, the Single Page Application should have a backend to receive the authorization code and send it back to the Single Page Application.

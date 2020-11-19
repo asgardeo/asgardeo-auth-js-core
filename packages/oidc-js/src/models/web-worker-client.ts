@@ -26,7 +26,7 @@ export interface WebWorkerClientInterface {
     httpRequest<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>>;
     httpRequestAll<T = any>(configs: AxiosRequestConfig[]): Promise<AxiosResponse<T>[]>;
     signOut(): Promise<boolean>;
-    signIn(): Promise<UserInfo>;
+    signIn(fidp?: string): Promise<UserInfo>;
     initialize(config: WebWorkerConfigInterface): Promise<boolean>;
     customGrant(requestParams: CustomGrantRequestParams): Promise<AxiosResponse | boolean | SignInResponse>;
     endUserSession(): Promise<boolean>;
