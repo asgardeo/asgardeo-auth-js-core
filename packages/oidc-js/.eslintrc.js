@@ -26,6 +26,8 @@ module.exports = {
         rules: {
             "@typescript-eslint/explicit-function-return-type": 0,
             "@typescript-eslint/no-explicit-any": 0,
+            "@typescript-eslint/no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars-experimental": "warn",
             "@typescript-eslint/no-inferrable-types": "off",
             "@typescript-eslint/no-use-before-define": ["warn", {
                 classes: false,
