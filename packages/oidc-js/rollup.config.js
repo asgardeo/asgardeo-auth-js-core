@@ -28,7 +28,7 @@ export default {
     input: "src/index.ts",
     output: {
         format: "cjs",
-        dir: "dist"
+        dir: "dist/main.js"
     },
     plugins: [ resolve(), typescript(), commonjs(), json(), babel(), eslint(), webWorkerLoader() ]
 };
