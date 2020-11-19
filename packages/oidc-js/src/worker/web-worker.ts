@@ -20,11 +20,9 @@ import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } fr
 import {
     ACCESS_TOKEN,
     AUTHORIZATION_CODE,
-    AUTHORIZATION_ENDPOINT,
     DISPLAY_NAME,
     EMAIL,
     ID_TOKEN,
-    OIDC_SESSION_IFRAME_ENDPOINT,
     PKCE_CODE_VERIFIER,
     SCOPE,
     SESSION_STATE,
@@ -132,9 +130,9 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
                             displayName: session.get(DISPLAY_NAME),
                             email: session.get(EMAIL),
                             logoutUrl: logoutCallback,
+                            sessionState: session.get(SESSION_STATE),
                             tenantDomain: session.get(TENANT_DOMAIN),
-                            username: session.get(USERNAME),
-                            sessionState: session.get(SESSION_STATE)
+                            username: session.get(USERNAME)
                         },
                         type: response.type
                     });
@@ -227,7 +225,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
                                         return Promise.reject(error);
                                     });
                             })
-                            .catch((error) => {
+                            .catch(() => {
                                 return Promise.reject("An error occurred while refreshing the access token. " +
                                     "The access token is no more valid and re-authentication is required.");
                             });
@@ -279,7 +277,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
                                         return Promise.reject(error);
                                     });
                             })
-                            .catch((error) => {
+                            .catch(() => {
                                 return Promise.reject(
                                     "An error occurred while refreshing the access token. " +
                                         "The access token is no more valid and re-authentication is required."

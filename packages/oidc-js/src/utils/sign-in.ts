@@ -679,9 +679,9 @@ export const getUserInfo = (config: ConfigInterface | WebWorkerConfigInterface):
         allowedScopes: getSessionParameter(SCOPE, config),
         displayName: getSessionParameter(DISPLAY_NAME, config),
         email: getSessionParameter(EMAIL, config),
+        sessionState: getSessionParameter(SESSION_STATE, config),
         tenantDomain: getSessionParameter(TENANT_DOMAIN, config),
-        username: getSessionParameter(USERNAME, config),
-        sessionState: getSessionParameter(SESSION_STATE, config)
+        username: getSessionParameter(USERNAME, config)
     };
 };
 

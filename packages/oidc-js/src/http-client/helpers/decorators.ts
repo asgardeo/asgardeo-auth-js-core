@@ -26,5 +26,5 @@
  * @return {<U extends T>(constructor: U) => void}
  */
 export function staticDecorator<T>() {
-    return <U extends T>(constructor: U) => {};
+    return <U extends T>(_constructor: U): any => {};
 }

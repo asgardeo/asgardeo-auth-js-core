@@ -80,12 +80,12 @@ module.exports = [{
                     }
                 }
             },
-            {
+           {
+                exclude: /node_modules/,
                 test: /\.tsx?$/,
                 use: [{
                     loader: "awesome-typescript-loader?tsconfig=tsconfig.umd.json"
-                }],
-                exclude: /node_modules/
+                }]
             }
         ]
     },

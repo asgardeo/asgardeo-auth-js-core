@@ -473,9 +473,9 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
                         allowedScopes: "",
                         displayName: "",
                         email: "",
+                        sessionState: "",
                         tenantDomain: "",
-                        username: "",
-                        sessionState: ""
+                        username: ""
                     });
                 } else if (response.type === AUTH_REQUIRED && !response.code) {
                     return Promise.reject(
@@ -531,9 +531,9 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
                                 allowedScopes: "",
                                 displayName: "",
                                 email: "",
+                                sessionState: "",
                                 tenantDomain: "",
-                                username: "",
-                                sessionState: ""
+                                username: ""
                             });
                         } else {
                             if (response.type === AUTH_REQUIRED && !response.code) {

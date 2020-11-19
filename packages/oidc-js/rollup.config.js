@@ -27,8 +27,8 @@ import webWorkerLoader from "rollup-plugin-web-worker-loader";
 export default {
     input: "src/index.ts",
     output: {
-        format: "cjs",
-        dir: "dist/main.js"
+        dir: "dist/main.js",
+        format: "cjs"
     },
     plugins: [ resolve(), typescript(), commonjs(), json(), babel(), eslint(), webWorkerLoader() ]
 };
