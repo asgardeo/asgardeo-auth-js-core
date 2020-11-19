@@ -29,6 +29,7 @@ module.exports = {
             "@typescript-eslint/no-unused-vars": "off",
             "@typescript-eslint/no-unused-vars-experimental": "warn",
             "@typescript-eslint/no-inferrable-types": "off",
+            "@typescript-eslint/explicit-module-boundary-types": "off",
             "@typescript-eslint/no-use-before-define": ["warn", {
                 classes: false,
                 functions: false,
