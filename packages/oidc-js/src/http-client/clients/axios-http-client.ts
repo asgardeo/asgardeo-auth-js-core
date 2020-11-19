@@ -204,14 +204,14 @@ export class AxiosHttpClient implements HttpClient<AxiosRequestConfig, AxiosResp
     /**
      * Enables the handler.
      */
-    public enableHandler() {
+    public enableHandler(): void {
         AxiosHttpClient.isHandlerEnabled = true;
     }
 
     /**
      * Disables the handler.
      */
-    public disableHandler() {
+    public disableHandler(): void {
         AxiosHttpClient.isHandlerEnabled = false;
     }
 
@@ -220,7 +220,7 @@ export class AxiosHttpClient implements HttpClient<AxiosRequestConfig, AxiosResp
      *
      * @param {number} timeout - Timeout in milliseconds.
      */
-    public disableHandlerWithTimeout(timeout: number = AxiosHttpClient.DEFAULT_HANDLER_DISABLE_TIMEOUT) {
+    public disableHandlerWithTimeout(timeout: number = AxiosHttpClient.DEFAULT_HANDLER_DISABLE_TIMEOUT): void {
         AxiosHttpClient.isHandlerEnabled = false;
 
         setTimeout(() => {
