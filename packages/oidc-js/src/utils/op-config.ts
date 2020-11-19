@@ -25,6 +25,7 @@ import {
     ISSUER,
     JWKS_ENDPOINT,
     OIDC_SESSION_IFRAME_ENDPOINT,
+    OPEN_ID_CONFIG,
     OP_CONFIG_INITIATED,
     REVOKE_TOKEN_ENDPOINT,
     SERVICE_RESOURCES,
@@ -33,10 +34,9 @@ import {
     Storage,
     TENANT,
     TOKEN_ENDPOINT,
-    USERNAME,
-    OPEN_ID_CONFIG
+    USERNAME
 } from "../constants";
-import { ConfigInterface, ServiceResourcesType, WebWorkerConfigInterface, OpenIDConfig } from "../models";
+import { ConfigInterface, OpenIDConfig, ServiceResourcesType, WebWorkerConfigInterface } from "../models";
 
 /**
  * Checks whether openid configuration initiated.

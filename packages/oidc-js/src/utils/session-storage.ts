@@ -26,14 +26,14 @@ import {
     EMAIL,
     ID_TOKEN,
     REFRESH_TOKEN,
+    REFRESH_TOKEN_TIMER,
     REQUEST_PARAMS,
     SCOPE,
     SESSION_STATE,
     Storage,
     TENANT_DOMAIN,
     TOKEN_TYPE,
-    USERNAME,
-    REFRESH_TOKEN_TIMER
+    USERNAME
 } from "../constants";
 import {
     AuthenticatedUserInterface,
