@@ -17,7 +17,7 @@ module.exports = {
             "plugin:@typescript-eslint/eslint-recommended",
             "plugin:@typescript-eslint/recommended"
         ],
-        files: ["**/*.tsx", "**/*.ts"],
+        files: ["**/*.ts"],
         parser: "@typescript-eslint/parser",
         parserOptions: {
             ecmaVersion: 9,
