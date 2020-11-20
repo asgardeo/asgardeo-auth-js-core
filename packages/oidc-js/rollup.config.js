@@ -45,7 +45,7 @@ export default [
             json(),
             eslint(),
             typescript(),
-            autoExternal(),
+            //autoExternal(),
             workerLoader({
                 targetPlatform: "browser"
             }),
