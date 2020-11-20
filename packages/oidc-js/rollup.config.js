@@ -47,7 +47,6 @@ export default [
             typescript(),
             autoExternal(),
             workerLoader({
-                inline: false,
                 targetPlatform: "browser"
             }),
             babel({
