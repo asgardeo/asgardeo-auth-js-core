@@ -43,7 +43,9 @@ export default [
             eslint(),
             typescript(),
             autoExternal(),
-            workerLoader(),
+            workerLoader({
+                targetPlatform: "browser"
+            }),
             babel({
                 babelHelpers: "runtime",
                 extensions: [
@@ -82,7 +84,9 @@ export default [
             eslint(),
             typescript(),
             nodePolyfills(),
-            workerLoader(),
+            workerLoader({
+                targetPlatform: "browser"
+            }),
             babel({
                 babelHelpers: "runtime",
                 extensions: [
@@ -121,7 +125,9 @@ export default [
             eslint(),
             typescript(),
             nodePolyfills(),
-            workerLoader(),
+            workerLoader({
+                targetPlatform: "browser"
+            }),
             babel({
                 babelHelpers: "runtime",
                 extensions: [
