@@ -11,7 +11,6 @@
         "noLib": false,
         "suppressImplicitAnyIndexErrors": true,
         "experimentalDecorators": true,
-        "declaration": true,
         "composite": true,
         "declarationMap": true,
         "baseUrl": "/",
