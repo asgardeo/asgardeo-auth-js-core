@@ -22,6 +22,8 @@ import commonjs from "@rollup/plugin-commonjs";
 import eslint from "@rollup/plugin-eslint";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
+import autoExternal from "rollup-plugin-auto-external";
+import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
 import webWorkerLoader from "rollup-plugin-web-worker-loader";
 
@@ -37,14 +39,27 @@ export default {
         json(),
         eslint(),
         typescript(),
+        autoExternal(),
         webWorkerLoader(),
         babel({
-            babelHelpers: "bundled",
+            babelHelpers: "runtime",
             extensions: [
                 ...DEFAULT_EXTENSIONS,
                 ".ts",
                 ".tsx"
             ]
+        }),
+        terser({
+            output: {
+                comments: function (node, comment) {
+                    var text = comment.value;
+                    var type = comment.type;
+                    if (type == "comment2") {
+                        // multiline comment
+                        return /@preserve/i.test(text);
+                    }
+                }
+            }
         })
     ]
 };
