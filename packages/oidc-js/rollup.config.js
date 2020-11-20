@@ -37,13 +37,17 @@ export default [
             format: "esm"
         },
         plugins: [
-            resolve(),
+            resolve({
+                browser: true,
+                preferBuiltins: true
+            }),
             commonjs(),
             json(),
             eslint(),
             typescript(),
             autoExternal(),
             workerLoader({
+                inline: false,
                 targetPlatform: "browser"
             }),
             babel({
@@ -77,6 +81,7 @@ export default [
         },
         plugins: [
             resolve({
+                browser: true,
                 preferBuiltins: true
             }),
             commonjs(),
@@ -112,12 +117,13 @@ export default [
     {
         input: "src/index.ts",
         output: {
-            file: pkg.browser,
+            file: "dist/asgardio-oidc.production.min.js",
             format: "iife",
             name: "AsgardioOIDC"
         },
         plugins: [
             resolve({
+                browser: true,
                 preferBuiltins: true
             }),
             commonjs(),
