@@ -108,6 +108,15 @@ export class IdentityClient {
         return this._instance;
     }
 
+    /**
+     * This method initializes the `IdentityClient` instance.
+     *
+     * @preserve
+     *
+     * @param {ConfigInterface | WebWorkerConfigInterface} config The config object to initialize with.
+     *
+     * @return {Promise<boolean>} Resolves to true if initialization is successful.
+     */
     public initialize(config: ConfigInterface | WebWorkerConfigInterface): Promise<boolean> {
         this._storage = config.storage ?? Storage.SessionStorage;
         this._initialized = false;
