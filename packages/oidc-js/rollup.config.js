@@ -37,15 +37,15 @@ export default [
             format: "esm"
         },
         plugins: [
-            autoExternal(),
             resolve({
                 preferBuiltins: true
             }),
             commonjs(),
             json(),
             eslint(),
-            workerLoader(),
             typescript(),
+            autoExternal(),
+            workerLoader(),
             babel({
                 babelHelpers: "runtime",
                 extensions: [
@@ -95,7 +95,14 @@ export default [
             }),
             terser({
                 output: {
-                    comments: false
+                    comments: function (node, comment) {
+                        var text = comment.value;
+                        var type = comment.type;
+                        if (type == "comment2") {
+                            // multiline comment
+                            return /@preserve/i.test(text);
+                        }
+                    }
                 }
             })
         ]
