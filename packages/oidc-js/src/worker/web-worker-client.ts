@@ -17,7 +17,7 @@
  */
 
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import WorkerFile from "web-worker:./oidc.worker";
+import WorkerFile from "web-worker:./oidc.worker.ts";
 import {
     API_CALL,
     API_CALL_ALL,
