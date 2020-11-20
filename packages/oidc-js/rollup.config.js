@@ -37,9 +37,7 @@ export default [
             format: "esm"
         },
         plugins: [
-            resolve({
-                preferBuiltins: true
-            }),
+            resolve(),
             commonjs(),
             json(),
             eslint(),
