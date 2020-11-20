@@ -8,7 +8,9 @@
         "oidc",
         "oauth2"
     ],
-    "main": "dist/main.js",
+    "main": "dist/asgardio-oidc.production.js",
+    "module": "dist/asgardio-oidc.production.esm.js",
+    "browser": "dist/asgardio-oidc.production.min.js",
     "types": "dist/src/index.d.ts",
     "scripts": {
         "lint": "eslint --ext .js,.ts .",
