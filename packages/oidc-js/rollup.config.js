@@ -23,63 +23,29 @@ import eslint from "@rollup/plugin-eslint";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import autoExternal from "rollup-plugin-auto-external";
+import nodePolyfills from "rollup-plugin-node-polyfills";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
-import webWorkerLoader from "rollup-plugin-web-worker-loader";
+import workerLoader  from "rollup-plugin-web-worker-loader";
 import pkg from "./package.json";
 
 export default [
     {
-    input: "src/index.ts",
-    output: {
-        file: pkg.module,
-        format: "esm"
-    },
-    plugins: [
-        resolve(),
-        commonjs(),
-        json(),
-        eslint(),
-        typescript(),
-        autoExternal(),
-        webWorkerLoader(),
-        babel({
-            babelHelpers: "runtime",
-            extensions: [
-                ...DEFAULT_EXTENSIONS,
-                ".ts",
-                ".tsx"
-            ]
-        }),
-        terser({
-            output: {
-                comments: function (node, comment) {
-                    var text = comment.value;
-                    var type = comment.type;
-                    if (type == "comment2") {
-                        // multiline comment
-                        return /@preserve/i.test(text);
-                    }
-                }
-            }
-        })
-    ]
-    },
-    {
         input: "src/index.ts",
         output: {
-            file: pkg.main,
-            format: "umd",
-            name: "AsgardioOIDC"
+            file: pkg.module,
+            format: "esm"
         },
         plugins: [
-            resolve(),
+            autoExternal(),
+            resolve({
+                preferBuiltins: true
+            }),
             commonjs(),
             json(),
             eslint(),
+            workerLoader(),
             typescript(),
-            autoExternal(),
-            webWorkerLoader(),
             babel({
                 babelHelpers: "runtime",
                 extensions: [
@@ -105,17 +71,20 @@ export default [
     {
         input: "src/index.ts",
         output: {
-            file: pkg.browser,
-            format: "iife",
+            file: pkg.main,
+            format: "umd",
             name: "AsgardioOIDC"
         },
         plugins: [
-            resolve(),
+            resolve({
+                preferBuiltins: true
+            }),
             commonjs(),
             json(),
             eslint(),
             typescript(),
-            webWorkerLoader(),
+            nodePolyfills(),
+            workerLoader(),
             babel({
                 babelHelpers: "runtime",
                 extensions: [
@@ -124,7 +93,43 @@ export default [
                     ".tsx"
                 ]
             }),
-            terser()
+            terser({
+                output: {
+                    comments: false
+                }
+            })
+        ]
+    },
+    {
+        input: "src/index.ts",
+        output: {
+            file: pkg.browser,
+            format: "iife",
+            name: "AsgardioOIDC"
+        },
+        plugins: [
+            resolve({
+                preferBuiltins: true
+            }),
+            commonjs(),
+            json(),
+            eslint(),
+            typescript(),
+            nodePolyfills(),
+            workerLoader(),
+            babel({
+                babelHelpers: "runtime",
+                extensions: [
+                    ...DEFAULT_EXTENSIONS,
+                    ".ts",
+                    ".tsx"
+                ]
+            }),
+            terser({
+                output: {
+                    comments: false
+                }
+            })
         ]
     }
 ];
