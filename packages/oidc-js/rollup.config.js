@@ -16,19 +16,35 @@
  * under the License.
  */
 
+import { DEFAULT_EXTENSIONS } from "@babel/core";
 import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
+import eslint from "@rollup/plugin-eslint";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
-import typescript from "@rollup/plugin-typescript";
-import { eslint } from "rollup-plugin-eslint";
+import typescript from "rollup-plugin-typescript2";
 import webWorkerLoader from "rollup-plugin-web-worker-loader";
 
 export default {
     input: "src/index.ts",
     output: {
-        dir: "dist/main.js",
-        format: "cjs"
+        dir: "dist",
+        format: "esm"
     },
-    plugins: [ resolve(), typescript(), commonjs(), json(), babel(), eslint(), webWorkerLoader() ]
+    plugins: [
+        resolve(),
+        commonjs(),
+        json(),
+        eslint(),
+        typescript(),
+        webWorkerLoader(),
+        babel({
+            babelHelpers: "bundled",
+            extensions: [
+                ...DEFAULT_EXTENSIONS,
+                ".ts",
+                ".tsx"
+            ]
+        })
+    ]
 };
