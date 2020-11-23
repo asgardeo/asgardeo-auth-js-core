@@ -22,6 +22,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import eslint from "@rollup/plugin-eslint";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
+import analyze from "rollup-plugin-analyzer"
 import autoExternal from "rollup-plugin-auto-external";
 import nodePolyfills from "rollup-plugin-node-polyfills";
 import { terser } from "rollup-plugin-terser";
@@ -53,8 +54,7 @@ export default [
                 babelHelpers: "runtime",
                 extensions: [
                     ...DEFAULT_EXTENSIONS,
-                    ".ts",
-                    ".tsx"
+                    ".ts"
                 ]
             }),
             terser({
