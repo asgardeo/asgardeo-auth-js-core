@@ -20,20 +20,16 @@ import { DEFAULT_EXTENSIONS } from "@babel/core";
 import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import eslint from "@rollup/plugin-eslint";
-import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import analyze from "rollup-plugin-analyzer"
-import autoExternal from "rollup-plugin-auto-external";
-import nodePolyfills from "rollup-plugin-node-polyfills";
+import sourcemaps from "rollup-plugin-sourcemaps";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
 import workerLoader  from "rollup-plugin-web-worker-loader";
 import pkg from "./package.json";
-import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default [
     {
-        exports: "named",
         input: "src/index.ts",
         output: {
             file: pkg.module,
@@ -45,11 +41,10 @@ export default [
                 preferBuiltins: true
             }),
             commonjs(),
-            json(),
             eslint(),
             typescript(),
-            //autoExternal(),
             workerLoader({
+                extensions: [ ".ts" ],
                 targetPlatform: "browser"
             }),
             babel({
@@ -59,20 +54,9 @@ export default [
                     ".ts"
                 ]
             }),
-/*             terser({
-                output: {
-                    comments: function (node, comment) {
-                        var text = comment.value;
-                        var type = comment.type;
-                        if (type == "comment2") {
-                            // multiline comment
-                            return /@preserve/i.test(text);
-                        }
-                    }
-                }
-            }), */
+            terser(),
             analyze({ limit: 10 }),
-            sourcemaps()
+            //sourcemaps()
         ]
     },
     {
@@ -88,10 +72,8 @@ export default [
                 preferBuiltins: true
             }),
             commonjs(),
-            json(),
             eslint(),
             typescript(),
-            nodePolyfills(),
             workerLoader({
                 targetPlatform: "browser"
             }),
@@ -103,18 +85,7 @@ export default [
                     ".tsx"
                 ]
             }),
-            terser({
-                output: {
-                    comments: function (node, comment) {
-                        var text = comment.value;
-                        var type = comment.type;
-                        if (type == "comment2") {
-                            // multiline comment
-                            return /@preserve/i.test(text);
-                        }
-                    }
-                }
-            })
+            terser()
         ]
     },
     {
@@ -130,10 +101,8 @@ export default [
                 preferBuiltins: true
             }),
             commonjs(),
-            json(),
             eslint(),
             typescript(),
-            nodePolyfills(),
             workerLoader({
                 targetPlatform: "browser"
             }),
