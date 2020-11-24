@@ -6,8 +6,7 @@
     },
     "packages": [
         "packages/*",
-        "samples/*/*",
-        "plugins/*"
+        "samples/*/*"
     ],
     "version": "0.1.25"
 }
