@@ -52,7 +52,7 @@
         "babel-loader": "^8.1.0",
         "core-js": "^3.6.5",
         "crypto-js": "^3.1.9-1",
-        "jose": "^3.1.0",
+        "jose": "^3.1.2",
         "jsrsasign": "^8.0.12",
         "jwk-to-pem": "^2.0.4",
         "rimraf": "^3.0.2",
