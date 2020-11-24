@@ -17,6 +17,7 @@
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { KeyLike } from "jose/webcrypto/types";
 import { getCodeChallenge, getCodeVerifier, getJWKForTheIdToken, isValidIdToken } from "./crypto";
 import {
     getAuthorizeEndpoint,
@@ -72,7 +73,6 @@ import {
     UserInfo,
     WebWorkerConfigInterface
 } from "../models";
-import { KeyLike } from "jose/webcrypto/types";
 
 /**
  * Checks whether authorization code is present.
