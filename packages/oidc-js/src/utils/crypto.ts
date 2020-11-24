@@ -19,7 +19,6 @@
 import Base64 from "crypto-js/enc-base64";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
-import {KJUR} from "jsrsasign/lib/jsrsasign-jwths-min.js";
 import { JWKInterface } from "../models";
 import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
 import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
