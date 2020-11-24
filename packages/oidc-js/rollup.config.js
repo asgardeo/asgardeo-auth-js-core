@@ -33,6 +33,7 @@ import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default [
     {
+        exports: "named",
         input: "src/index.ts",
         output: {
             file: pkg.module,
