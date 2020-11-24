@@ -29,6 +29,7 @@ import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
 import workerLoader  from "rollup-plugin-web-worker-loader";
 import pkg from "./package.json";
+import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default [
     {
@@ -57,7 +58,7 @@ export default [
                     ".ts"
                 ]
             }),
-            terser({
+/*             terser({
                 output: {
                     comments: function (node, comment) {
                         var text = comment.value;
@@ -68,8 +69,9 @@ export default [
                         }
                     }
                 }
-            }),
-            analyze({ limit: 10 })
+            }), */
+            analyze({ limit: 10 }),
+            sourcemaps()
         ]
     },
     {
