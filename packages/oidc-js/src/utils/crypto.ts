@@ -21,8 +21,8 @@ import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
 import {KJUR} from "jsrsasign/lib/jsrsasign-jwths-min.js";
 import { JWKInterface } from "../models";
-import jwkToPem from "jwk-to-pem";
-
+import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
+import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
 
 /**
  * Get URL encoded string.
@@ -73,20 +73,20 @@ export const getSupportedSignatureAlgorithms = (): string[] => {
  * @returns {any} public key.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Error | any => {
+export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Promise<KeyLike> => {
     const headerJSON = JSON.parse(atob(jwtHeader));
 
     for (const key of keys) {
         if (headerJSON.kid === key.kid) {
-            return jwkToPem({
-                e: key.e,
+            return parseJwk({
                 kty: key.kty,
+                e: key.e,
                 n: key.n
             });
         }
     }
 
-    throw new Error(
+    return Promise.reject(
         "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
             headerJSON.kid +
             ", Expected values: " +
@@ -101,21 +101,23 @@ export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Er
  * @param jwk public key used for signing.
  * @param {string} clientID app identification.
  * @param {string} issuer id_token issuer.
- * @returns {any} whether the id_token is valid.
+ * @returns {Promise<boolean>} whether the id_token is valid.
  */
 export const isValidIdToken = (
     idToken: string,
-    jwk: string,
+    jwk: KeyLike,
     clientID: string,
     issuer: string,
     username: string
-): boolean => {
-    return KJUR.jws.JWS.verifyJWT(idToken, jwk, {
-        alg: getSupportedSignatureAlgorithms(),
-        // `jsrsasign` typings only allow string[] as aud but string should also be possible.
-        // TODO: Remove any casting once the @types/jsrsasign contains a fix.
-        aud: clientID as any,
-        iss: [issuer],
-        sub: [username]
-    });
+): Promise<boolean> => {
+    return jwtVerify(idToken, jwk, {
+        issuer: issuer,
+        audience: clientID,
+        subject: username,
+        algorithms: getSupportedSignatureAlgorithms()
+    }).then(() => {
+        return Promise.resolve(true)
+    }).catch((error) => {
+        return Promise.reject(error);
+    })
 };

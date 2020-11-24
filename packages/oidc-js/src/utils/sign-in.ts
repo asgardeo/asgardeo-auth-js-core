@@ -72,6 +72,7 @@ import {
     UserInfo,
     WebWorkerConfigInterface
 } from "../models";
+import { KeyLike } from "jose/webcrypto/types";
 
 /**
  * Checks whether authorization code is present.
@@ -209,7 +210,6 @@ export function validateIdToken(
                 return Promise.reject(new Error("Failed to load public keys from JWKS URI: " + jwksEndpoint));
             }
 
-            const jwk = getJWKForTheIdToken(idToken.split(".")[0], response.data.keys);
             const issuer = getIssuer(requestParams);
             const issuerFromURL = requestParams.serverOrigin + SERVICE_RESOURCES.wellKnown.split("/.well-known")[ 0 ];
 
@@ -219,10 +219,21 @@ export function validateIdToken(
                 return Promise.resolve(false);
             }
 
+            getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
+                .then((jwk: KeyLike) => {
+                    return isValidIdToken(
+                        idToken,
+                        jwk,
+                        requestParams.clientID,
+                        issuer,
+                        getAuthenticatedUser(idToken).username
+                    );
+                })
+                .catch((error) => {
+                    return Promise.reject(error);
+                });
 
-            return Promise.resolve(
-                isValidIdToken(idToken, jwk, requestParams.clientID, issuer, getAuthenticatedUser(idToken).username)
-            );
+
         })
         .catch((error) => {
             return Promise.reject(error);
