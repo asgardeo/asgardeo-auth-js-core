@@ -25,7 +25,7 @@ import "./index.css";
 
 const auth = IdentityClient.getInstance();
 const serverOrigin = "https://localhost:9443";
-const clientHost = "http://localhost:3000";
+const clientHost = origin;
 
 // Initialize the client
 auth.initialize({
