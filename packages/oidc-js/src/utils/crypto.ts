@@ -19,9 +19,9 @@
 import Base64 from "crypto-js/enc-base64";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
-import { KEYUTIL, KJUR } from "jsrsasign";
+import {KJUR} from "jsrsasign/lib/jsrsasign-jwths-min.js";
 import { JWKInterface } from "../models";
-
+import jwkToPem from "jwk-to-pem";
 
 
 /**
@@ -78,7 +78,7 @@ export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Er
 
     for (const key of keys) {
         if (headerJSON.kid === key.kid) {
-            return KEYUTIL.getKey({
+            return jwkToPem({
                 e: key.e,
                 kty: key.kty,
                 n: key.n
