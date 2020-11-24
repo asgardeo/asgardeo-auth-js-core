@@ -19,9 +19,10 @@
 import Base64 from "crypto-js/enc-base64";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
-import { JWKInterface } from "../models";
-import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
+// Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
 import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
+import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
+import { JWKInterface } from "../models";
 
 /**
  * Get URL encoded string.
@@ -78,10 +79,10 @@ export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Pr
     for (const key of keys) {
         if (headerJSON.kid === key.kid) {
             return parseJwk({
-                kty: key.kty,
+                alg: key.alg,
                 e: key.e,
-                n: key.n,
-                alg: key.alg
+                kty: key.kty,
+                n: key.n
             });
         }
     }
@@ -111,10 +112,10 @@ export const isValidIdToken = (
     username: string
 ): Promise<boolean> => {
     return jwtVerify(idToken, jwk, {
-        issuer: issuer,
+        algorithms: getSupportedSignatureAlgorithms(),
         audience: clientID,
-        subject: username,
-        algorithms: getSupportedSignatureAlgorithms()
+        issuer: issuer,
+        subject: username
     }).then(() => {
         return Promise.resolve(true)
     }).catch((error) => {
