@@ -68,7 +68,8 @@ export default [
                         }
                     }
                 }
-            })
+            }),
+            analyze({ limit: 10 })
         ]
     },
     {
