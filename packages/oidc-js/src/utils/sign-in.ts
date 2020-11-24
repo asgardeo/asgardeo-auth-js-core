@@ -219,7 +219,7 @@ export function validateIdToken(
                 return Promise.resolve(false);
             }
 
-            getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
+            return getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
                 .then((jwk: KeyLike) => {
                     return isValidIdToken(
                         idToken,
@@ -232,8 +232,6 @@ export function validateIdToken(
                 .catch((error) => {
                     return Promise.reject(error);
                 });
-
-
         })
         .catch((error) => {
             return Promise.reject(error);
