@@ -81,7 +81,8 @@ export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Pr
             return parseJwk({
                 kty: key.kty,
                 e: key.e,
-                n: key.n
+                n: key.n,
+                alg: key.alg
             });
         }
     }
