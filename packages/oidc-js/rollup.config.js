@@ -44,7 +44,8 @@ export default [
             eslint(),
             typescript(),
             workerLoader({
-                extensions: [ ".ts" ],
+                extensions: [".ts"],
+                sourcemap: false,
                 targetPlatform: "browser"
             }),
             babel({
@@ -75,6 +76,8 @@ export default [
             eslint(),
             typescript(),
             workerLoader({
+                extensions: [ ".ts" ],
+                sourcemap: false,
                 targetPlatform: "browser"
             }),
             babel({
@@ -104,6 +107,8 @@ export default [
             eslint(),
             typescript(),
             workerLoader({
+                extensions: [ ".ts" ],
+                sourcemap: false,
                 targetPlatform: "browser"
             }),
             babel({
