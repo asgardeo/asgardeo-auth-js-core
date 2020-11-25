@@ -17,8 +17,5 @@
  *
  */
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-
 // Export the public API.
 export * from "./public-api";
