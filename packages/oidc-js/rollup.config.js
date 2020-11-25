@@ -42,11 +42,11 @@ export default [
                 preferBuiltins: true
             }),
             commonjs(),
+            eslint(),
             typescript(),
             replace({
                 "process.env.NODE_ENV": JSON.stringify("production")
             }),
-            eslint(),
             workerLoader({
                 extensions: [".ts"],
                 sourcemap: false,
