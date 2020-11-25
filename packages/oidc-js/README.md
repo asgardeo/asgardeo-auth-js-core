@@ -10,6 +10,8 @@
 - [Introduction](#introduction)
 - [Install](#install)
 - [Getting Started](#getting-started)
+    - [Using Embedded Scripts](#using-embedded-scripts)
+    - [Using modules](#using-modules)
 - [Try Out the Sample Apps](#try-out-the-sample-apps)
 - [APIs](#apis)
     - [getInstance](#getinstance)
@@ -54,6 +56,31 @@ var auth = AsgardioAuth.IdentityClient.getInstance();
 ```
 
 ## Getting Started
+### Using Embedded Scripts
+```javascript
+// This client is a singleton and can be instantiated as follows.
+var auth = AsgardioAuth.IdentityClient.getInstance();
+
+// Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
+auth.initialize({
+     signInRedirectURL: "http://localhost:9443/myaccount/login",
+     signOutRedirectURL: "http://localhost:9443/myaccount/login",
+     clientHost: "http://localhost:9443/myaccount/",
+     clientID: "client ID",
+     serverOrigin: "http://localhost:9443"
+});
+
+// To sign in, simply call the `signIn()` method.
+auth.signIn();
+
+// The `sign-in` hook is used to fire a callback function after signing in is successful.
+auth.on("sign-in", (response) => {
+    alert("You have successfully signed in!");
+});
+
+```
+
+### Using modules
 ```javascript
 // The SDK provides a client that can be used to carry out the authentication.
 import { IdentityClient } from "@asgardio/oidc-js";
