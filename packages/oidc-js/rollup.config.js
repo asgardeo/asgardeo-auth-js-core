@@ -21,8 +21,8 @@ import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import eslint from "@rollup/plugin-eslint";
 import resolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
 import analyze from "rollup-plugin-analyzer"
-import injectProcessEnv from "rollup-plugin-inject-process-env";
 import sourcemaps from "rollup-plugin-sourcemaps";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
@@ -42,11 +42,11 @@ export default [
                 preferBuiltins: true
             }),
             commonjs(),
-            injectProcessEnv({
-                NODE_ENV: "production"
+            typescript(),
+            replace({
+                "process.env.NODE_ENV": JSON.stringify("production")
             }),
             eslint(),
-            typescript(),
             workerLoader({
                 extensions: [".ts"],
                 sourcemap: false,
@@ -70,8 +70,8 @@ export default [
                 preferBuiltins: true
             }),
             commonjs(),
-            injectProcessEnv({
-                NODE_ENV: "production"
+            replace({
+                "process.env.NODE_ENV": JSON.stringify("production")
             }),
             eslint(),
             typescript(),
