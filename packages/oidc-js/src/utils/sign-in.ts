@@ -49,6 +49,7 @@ import {
     OIDC_SCOPE,
     PKCE_CODE_VERIFIER,
     REQUEST_PARAMS,
+    ResponseMode,
     SCOPE,
     SCOPE_TAG,
     SERVICE_RESOURCES,
@@ -93,7 +94,7 @@ export function hasAuthorizationCode(requestParams: ConfigInterface | WebWorkerC
  */
 export function getAuthorizationCode(requestParams?: ConfigInterface | WebWorkerConfigInterface): string {
     if (!requestParams || !isWebWorkerConfig(requestParams)) {
-        if (!requestParams || requestParams.responseMode !== "form_post") {
+        if (!requestParams || requestParams.responseMode !== ResponseMode.formPost) {
             if (new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE)) {
                 return new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE);
             }
