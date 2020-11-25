@@ -10,12 +10,12 @@
     ],
     "main": "dist/asgardio-oidc.production.js",
     "module": "dist/asgardio-oidc.production.esm.js",
-    "types": "dist/src/index.d.ts",
+    "types": "src/index.ts",
     "scripts": {
         "lint": "eslint --ext .js,.ts .",
         "fix-lint": "eslint --ext .js,.ts . --fix",
         "build": "rimraf dist && rimraf umd && npm run type-check && rollup -c",
-        "type-check": "tsc --emitDeclarationOnly",
+        "type-check": "tsc",
         "type-check:watch": "npm run type-check -- --watch",
         "clean": "rimraf dist && rimraf umd && rimraf node_modules",
         "prepublish": "npm run build"
