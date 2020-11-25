@@ -16,7 +16,9 @@
  * under the License.
  */
 
-// TODO: Remove this when the authenticate component removes/refactor from the core module 
+import { ResponseMode } from "../constants";
+
+// TODO: Remove this when the authenticate component removes/refactor from the core module
 /**
  * OIDC request parameters.
  */
@@ -27,7 +29,7 @@ export interface OIDCRequestParamsInterface {
     enablePKCE: boolean;
     prompt?: string;
     redirectUri: string;
-    responseMode?: ResponseModeTypes;
+    responseMode?: ResponseMode;
     scope?: string[];
     serverOrigin: string;
 }
@@ -47,8 +49,3 @@ export interface AccountSwitchRequestParams {
     clientHost: string;
     serverOrigin: string;
 }
-
-/**
- * Supported OAuth2 response types.
- */
-export type ResponseModeTypes = "query" | "form_post";
