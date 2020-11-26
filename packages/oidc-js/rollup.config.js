@@ -22,11 +22,11 @@ import commonjs from "@rollup/plugin-commonjs";
 import eslint from "@rollup/plugin-eslint";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
-import analyze from "rollup-plugin-analyzer"
+import analyze from "rollup-plugin-analyzer";
 import sourcemaps from "rollup-plugin-sourcemaps";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
-import workerLoader  from "rollup-plugin-web-worker-loader";
+import workerLoader from "rollup-plugin-web-worker-loader";
 import pkg from "./package.json";
 
 /**
@@ -110,7 +110,7 @@ const resolveFileName = (bundleType) => {
         default:
             return pkg.main;
     }
-}
+};
 /**
  * This generates a rollup config object.
  *
@@ -144,7 +144,9 @@ const generateConfig = (bundleType, polyfill, env) => {
     const config = {
         input: `src/${ polyfill ? "index-polyfill.ts" : "index.ts" }`,
         output: {
-            file: polyfill?`${fileName.split("/").shift()}/${POLYFILLED_DIR}/${fileName.split("/").pop()}`:fileName,
+            file: polyfill
+                ? `${ fileName.split("/").shift() }/${ POLYFILLED_DIR }/${ fileName.split("/").pop() }`
+                : fileName,
             format: bundleType
         },
         plugins: [
@@ -156,7 +158,9 @@ const generateConfig = (bundleType, polyfill, env) => {
             eslint(),
             typescript(),
             replace({
-                "process.env.NODE_ENV": env===JSON.stringify("production")
+                "process.env.NODE_ENV": env === PRODUCTION
+                    ? JSON.stringify("production")
+                    : JSON.stringify("development")
             }),
             workerLoader({
                 extensions: [ ".ts" ],
@@ -164,7 +168,7 @@ const generateConfig = (bundleType, polyfill, env) => {
                 targetPlatform: "browser"
             })
         ]
-    }
+    };
 
     if (bundleType === UMD_BUNDLE || bundleType === BROWSER_BUNDLE) {
         config.output.name = GLOBAL_VARIABLE;
@@ -186,14 +190,14 @@ const generateConfig = (bundleType, polyfill, env) => {
     }
 
     return config;
-}
+};
 
 export default [
-    generateConfig(ESM_BUNDLE, false, process.env.NODE_ENV ),
-    generateConfig(ESM_BUNDLE, true, process.env.NODE_ENV ),
-    generateConfig(UMD_BUNDLE, false, process.env.NODE_ENV ),
-    generateConfig(UMD_BUNDLE, true, process.env.NODE_ENV ),
-    generateConfig(BROWSER_BUNDLE, false, process.env.NODE_ENV ),
-    generateConfig(BROWSER_BUNDLE, true, process.env.NODE_ENV ),
-    generateConfig(ESM_BUNDLE, false, process.env.NODE_ENV )
+    generateConfig(ESM_BUNDLE, false, process.env.NODE_ENV),
+    generateConfig(ESM_BUNDLE, true, process.env.NODE_ENV),
+    generateConfig(UMD_BUNDLE, false, process.env.NODE_ENV),
+    generateConfig(UMD_BUNDLE, true, process.env.NODE_ENV),
+    generateConfig(BROWSER_BUNDLE, false, process.env.NODE_ENV),
+    generateConfig(BROWSER_BUNDLE, true, process.env.NODE_ENV),
+    generateConfig(ESM_BUNDLE, false, process.env.NODE_ENV)
 ];
