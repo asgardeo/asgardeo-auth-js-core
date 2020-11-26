@@ -29,40 +29,123 @@ import typescript from "rollup-plugin-typescript2";
 import workerLoader  from "rollup-plugin-web-worker-loader";
 import pkg from "./package.json";
 
-export default [
-    {
-        input: "src/index.ts",
-        output: {
-            file: pkg.module,
-            format: "esm"
-        },
-        plugins: [
-            resolve({
-                browser: true,
-                preferBuiltins: true
-            }),
-            commonjs(),
-            eslint(),
-            typescript(),
-            replace({
-                "process.env.NODE_ENV": JSON.stringify("production")
-            }),
-            workerLoader({
-                extensions: [".ts"],
-                sourcemap: false,
-                targetPlatform: "browser"
-            }),
-            terser(),
-            analyze({ limit: 10 }),
-            //sourcemaps()
-        ]
-    },
+/**
+ * UMD bundle type.
+ *
+ * @constant
+ * @type {string}
+ * @default
+ */
+const UMD_BUNDLE = "umd";
 
-    {
-        input: "src/index-polyfill.ts",
+/**
+ * ESM bundle type.
+ *
+ * @constant
+ * @type {string}
+ * @default
+ */
+const ESM_BUNDLE = "esm";
+
+/**
+ * Browser bundle type.
+ *
+ * @constant
+ * @type {string}
+ * @default
+ */
+const BROWSER_BUNDLE = "iife";
+
+/**
+ * The directory where polyfilled files should be placed.
+ *
+ * @constant
+ * @type {string}
+ * @default
+ */
+const POLYFILLED_DIR = "polyfilled";
+
+/**
+ * The global variable to be used in UMD and IIFE bundles.
+ *
+ * @constant
+ * @type {string}
+ * @default
+ */
+const GLOBAL_VARIABLE = "AsgardioOIDC";
+
+/**
+ * Production environment.
+ *
+ * @constant
+ * @type {string}
+ * @default
+ */
+const PRODUCTION = "production";
+
+/**
+ * Development environment.
+ *
+ * @constant
+ * @type {string}
+ * @default
+ */
+const DEVELOPMENT = "development";
+
+/**
+ * This returns the name of the bundle file.
+ *
+ * @param {UMD_BUNDLE | ESM_BUNDLE | BROWSER_BUNDLE} bundleType - Specifies the type of the bundle.
+ *
+ * @return {string} The name of the output file.
+ */
+const resolveFileName = (bundleType) => {
+    switch (bundleType) {
+        case UMD_BUNDLE:
+            return pkg.main;
+        case ESM_BUNDLE:
+            return pkg.module;
+        case BROWSER_BUNDLE:
+            return "dist/asgardio-oidc.production.min.js";
+        default:
+            return pkg.main;
+    }
+}
+/**
+ * This generates a rollup config object.
+ *
+ * @param {UMD_BUNDLE | ESM_BUNDLE | BROWSER_BUNDLE} bundleType - Specifies the type of the bundle.
+ * @param {boolean} polyfill - Specifies if the bundle should be polyfilled or not.
+ * @param {PRODUCTION | DEVELOPMENT} env - Specifies if the bundle is for production or development.
+ *
+ * @return Rollup config object.
+ */
+const generateConfig = (bundleType, polyfill, env) => {
+    if (!env) {
+        env = PRODUCTION;
+    }
+
+    const fileName = resolveFileName(bundleType);
+
+    const babelPlugin = babel({
+        babelHelpers: "runtime",
+        extensions: [
+            ...DEFAULT_EXTENSIONS,
+            ".ts"
+        ]
+    });
+
+    const terserCommentsOffPlugin = terser({
         output: {
-            file: pkg.module.split("/").shift() + "/polyfilled/" + pkg.module.split("/").pop(),
-            format: "esm"
+            comments: false
+        }
+    });
+
+    const config = {
+        input: `src/${ polyfill ? "index-polyfill.ts" : "index.ts" }`,
+        output: {
+            file: polyfill?`${fileName.split("/").shift()}/${POLYFILLED_DIR}/${fileName.split("/").pop()}`:fileName,
+            format: bundleType
         },
         plugins: [
             resolve({
@@ -70,142 +153,47 @@ export default [
                 preferBuiltins: true
             }),
             commonjs(),
+            eslint(),
+            typescript(),
             replace({
-                "process.env.NODE_ENV": JSON.stringify("production")
+                "process.env.NODE_ENV": env===JSON.stringify("production")
             }),
-            eslint(),
-            typescript(),
             workerLoader({
                 extensions: [ ".ts" ],
-                sourcemap: false,
+                sourcemap: env === PRODUCTION ? false : true,
                 targetPlatform: "browser"
-            }),
-            babel({
-                babelHelpers: "runtime",
-                extensions: [
-                    ...DEFAULT_EXTENSIONS,
-                    ".ts"
-                ]
-            }),
-            terser(),
-            analyze({ limit: 10 }),
-            //sourcemaps()
-        ]
-    },
-    {
-        input: "src/index-polyfill.ts",
-        output: {
-            file: pkg.main.split("/").shift() + "/polyfilled/" + pkg.main.split("/").pop(),
-            format: "umd",
-            name: "AsgardioOIDC"
-        },
-        plugins: [
-            resolve({
-                browser: true,
-                preferBuiltins: true
-            }),
-            commonjs(),
-            eslint(),
-            typescript(),
-            workerLoader({
-                extensions: [ ".ts" ],
-                sourcemap: false,
-                targetPlatform: "browser"
-            }),
-            babel({
-                babelHelpers: "runtime",
-                extensions: [
-                    ...DEFAULT_EXTENSIONS,
-                    ".ts",
-                    ".tsx"
-                ]
-            }),
-            terser()
-        ]
-    },
-    {
-        input: "src/index.ts",
-        output: {
-            file: pkg.main,
-            format: "umd",
-            name: "AsgardioOIDC"
-        },
-        plugins: [
-            resolve({
-                browser: true,
-                preferBuiltins: true
-            }),
-            commonjs(),
-            eslint(),
-            typescript(),
-            workerLoader({
-                extensions: [ ".ts" ],
-                sourcemap: false,
-                targetPlatform: "browser"
-            }),
-            terser()
-        ]
-    },
-    {
-        input: "src/index.ts",
-        output: {
-            file: "dist/asgardio-oidc.production.min.js",
-            format: "iife",
-            name: "AsgardioOIDC"
-        },
-        plugins: [
-            resolve({
-                browser: true,
-                preferBuiltins: true
-            }),
-            commonjs(),
-            eslint(),
-            typescript(),
-            workerLoader({
-                extensions: [ ".ts" ],
-                sourcemap: false,
-                targetPlatform: "browser"
-            }),
-            terser({
-                output: {
-                    comments: false
-                }
-            })
-        ]
-    },
-    {
-        input: "src/index-polyfill.ts",
-        output: {
-            file: "dist/polyfilled/asgardio-oidc.production.min.js",
-            format: "iife",
-            name: "AsgardioOIDC"
-        },
-        plugins: [
-            resolve({
-                browser: true,
-                preferBuiltins: true
-            }),
-            commonjs(),
-            eslint(),
-            typescript(),
-            workerLoader({
-                extensions: [ ".ts" ],
-                sourcemap: false,
-                targetPlatform: "browser"
-            }),
-            babel({
-                babelHelpers: "runtime",
-                extensions: [
-                    ...DEFAULT_EXTENSIONS,
-                    ".ts",
-                    ".tsx"
-                ]
-            }),
-            terser({
-                output: {
-                    comments: false
-                }
             })
         ]
     }
+
+    if (bundleType === UMD_BUNDLE || bundleType === BROWSER_BUNDLE) {
+        config.output.name = GLOBAL_VARIABLE;
+    }
+
+    if (polyfill) {
+        config.plugins.push(babelPlugin);
+    }
+
+    if (bundleType === BROWSER_BUNDLE) {
+        config.plugins.push(terserCommentsOffPlugin);
+    } else {
+        config.plugins.push(terser());
+    }
+
+    if (env === DEVELOPMENT) {
+        config.plugins.push(sourcemaps());
+        config.plugins.push(analyze());
+    }
+
+    return config;
+}
+
+export default [
+    generateConfig(ESM_BUNDLE, false, process.env.NODE_ENV ),
+    generateConfig(ESM_BUNDLE, true, process.env.NODE_ENV ),
+    generateConfig(UMD_BUNDLE, false, process.env.NODE_ENV ),
+    generateConfig(UMD_BUNDLE, true, process.env.NODE_ENV ),
+    generateConfig(BROWSER_BUNDLE, false, process.env.NODE_ENV ),
+    generateConfig(BROWSER_BUNDLE, true, process.env.NODE_ENV ),
+    generateConfig(ESM_BUNDLE, false, process.env.NODE_ENV )
 ];
