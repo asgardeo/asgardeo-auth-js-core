@@ -62,6 +62,7 @@ import { WebWorkerClient } from "./worker";
  */
 const DefaultConfig = {
     authorizationType: AUTHORIZATION_CODE_TYPE,
+    clientHost: origin,
     clientSecret: null,
     consentDenied: false,
     enablePKCE: true,
@@ -85,7 +86,7 @@ export class IdentityClient {
     private _initialized: boolean;
     private _startedInitialize: boolean = false;
     private _onSignInCallback: (response: UserInfo) => void;
-    private _onSignOutCallback: (response: any) => void;
+    private _onSignOutCallback: () => void;
     private _onEndUserSession: (response: any) => void;
     private _onInitialize: (response: boolean) => void;
     private _onCustomGrant: Map<string, (response: any) => void> = new Map();
@@ -416,7 +417,7 @@ export class IdentityClient {
                 case Hooks.SignOut:
                     this._onSignOutCallback = callback;
                     if (isLoggedOut()) {
-                        callback();
+                        this._onSignOutCallback();
                     }
                     break;
                 case Hooks.EndUserSession:
