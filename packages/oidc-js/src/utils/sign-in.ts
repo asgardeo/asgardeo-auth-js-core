@@ -116,10 +116,9 @@ export function getAuthorizationCode(requestParams?: ConfigInterface | WebWorker
  * @param {string} clientHost
  * @returns {TokenRequestHeader}
  */
-export const getTokenRequestHeaders = (clientHost: string): TokenRequestHeader => {
+export const getTokenRequestHeaders = (): TokenRequestHeader => {
     return {
         Accept: "application/json",
-        "Access-Control-Allow-Origin": clientHost,
         "Content-Type": "application/x-www-form-urlencoded"
     };
 };
@@ -291,7 +290,7 @@ export function sendTokenRequest(
     }
 
     return axios
-        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders(requestParams.clientHost) })
+        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders() })
         .then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(
@@ -368,7 +367,7 @@ export function sendRefreshTokenRequest(
     }
 
     return axios
-        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders(requestParams.clientHost) })
+        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders() })
         .then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(
@@ -443,7 +442,7 @@ export function sendRevokeTokenRequest(
 
     return axios
         .post(revokeTokenEndpoint, body.join("&"), {
-            headers: getTokenRequestHeaders(requestParams.clientHost),
+            headers: getTokenRequestHeaders(),
             withCredentials: true
         })
         .then((response) => {
@@ -597,7 +596,7 @@ export const customGrant = (
     const requestConfig: AxiosRequestConfig = {
         data: data,
         headers: {
-            ...getTokenRequestHeaders(authConfig.clientHost)
+            ...getTokenRequestHeaders()
         },
         method: "POST",
         url: getSessionParameter(TOKEN_ENDPOINT, authConfig)

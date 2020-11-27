@@ -291,7 +291,6 @@ const auth = IdentityClient.getInstance();
 const requestConfig = {
     headers: {
         "Accept": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:9443/myaccount",
         "Content-Type": "application/scim+json"
     },
     method: "GET",
