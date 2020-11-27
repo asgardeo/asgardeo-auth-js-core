@@ -24,8 +24,8 @@ import { ResponseMode, Storage } from "../constants";
 interface BaseConfigInterface {
     authorizationType?: string;
     signInRedirectURL: string;
-    signOutRedirectURL: string;
-    clientHost: string;
+    signOutRedirectURL?: string;
+    clientHost?: string;
     clientID: string;
     clientSecret?: string;
     consentDenied?: boolean;
