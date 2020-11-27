@@ -370,7 +370,7 @@ export function sendTokenRequest(
 export function sendRefreshTokenRequest(
     requestParams: ConfigInterface,
     refreshToken: string
-): Promise<any> {
+): Promise<TokenResponseInterface> {
     const tokenEndpoint = getTokenEndpoint(requestParams);
 
     if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
@@ -412,9 +412,7 @@ export function sendRefreshTokenRequest(
                         return Promise.resolve(tokenResponse);
                     }
 
-                    return Promise.reject(
-                        "Invalid id_token in the token response: " + response.data.id_token
-                    );
+                    return Promise.reject("Invalid id_token in the token response: " + response.data.id_token);
                 });
             } else {
                 const tokenResponse: TokenResponseInterface = {

@@ -155,7 +155,11 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
      * @returns {Promise<boolean>} A promise that resolves with `true` if refreshing is successful.
      */
     const refreshAccessToken = (): Promise<boolean> => {
-        return sendRefreshTokenRequestUtil(authConfig, session.get(ACCESS_TOKEN));
+        return sendRefreshTokenRequestUtil(authConfig, session.get(ACCESS_TOKEN)).then(() => {
+            return Promise.resolve(true);
+        }).catch((error) => {
+            return Promise.reject(error);
+        });
     };
 
     /**
