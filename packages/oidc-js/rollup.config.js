@@ -23,7 +23,6 @@ import eslint from "@rollup/plugin-eslint";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import analyze from "rollup-plugin-analyzer";
-import sourcemaps from "rollup-plugin-sourcemaps";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
 import workerLoader from "rollup-plugin-web-worker-loader";
@@ -124,7 +123,7 @@ const generateConfig = (bundleType, polyfill, env) => {
     if (!env) {
         env = PRODUCTION;
     }
-
+    env = DEVELOPMENT;
     const fileName = resolveFileName(bundleType);
 
     const babelPlugin = babel({
@@ -132,7 +131,8 @@ const generateConfig = (bundleType, polyfill, env) => {
         extensions: [
             ...DEFAULT_EXTENSIONS,
             ".ts"
-        ]
+        ],
+        sourceMaps: true
     });
 
     const terserCommentsOffPlugin = terser({
@@ -147,7 +147,8 @@ const generateConfig = (bundleType, polyfill, env) => {
             file: polyfill
                 ? `${ fileName.split("/").shift() }/${ POLYFILLED_DIR }/${ fileName.split("/").pop() }`
                 : fileName,
-            format: bundleType
+            format: bundleType,
+            sourcemap: true
         },
         plugins: [
             resolve({
@@ -185,7 +186,6 @@ const generateConfig = (bundleType, polyfill, env) => {
     }
 
     if (env === DEVELOPMENT) {
-        config.plugins.push(sourcemaps());
         config.plugins.push(analyze());
     }
 
