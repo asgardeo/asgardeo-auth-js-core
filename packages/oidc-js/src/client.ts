@@ -119,6 +119,10 @@ export class IdentityClient {
      * @return {Promise<boolean>} Resolves to true if initialization is successful.
      */
     public initialize(config: ConfigInterface | WebWorkerConfigInterface): Promise<boolean> {
+        if (!config.signOutRedirectURL) {
+            config.signOutRedirectURL = config.signInRedirectURL;
+        }
+
         this._storage = config.storage ?? Storage.SessionStorage;
         this._initialized = false;
         this._startedInitialize = true;
