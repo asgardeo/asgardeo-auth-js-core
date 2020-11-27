@@ -35,8 +35,7 @@ import {
     HttpResponse,
     ServiceResourcesType,
     UserInfo,
-    WebWorkerClientInterface,
-    WebWorkerConfigInterface
+    WebWorkerClientInterface
 } from "./models";
 import {
     customGrant as customGrantUtil,
@@ -78,7 +77,7 @@ const DefaultConfig = {
  * @implements {ConfigInterface} - Configuration interface.
  */
 export class IdentityClient {
-    private _authConfig: ConfigInterface | WebWorkerConfigInterface;
+    private _authConfig: ConfigInterface;
     private static _instance: IdentityClient;
     private _client: WebWorkerClientInterface;
     private _storage: Storage;
@@ -98,6 +97,21 @@ export class IdentityClient {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
+    /**
+     * This method returns the instance of the singleton class.
+     *
+     *
+     * @return {IdentityClient} - Returns the instance of the singleton class.
+     *
+     * @example
+     * ```
+     * const auth = IdentityClient.getInstance();
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getinstance
+     *
+     * @preserve
+     */
     public static getInstance(): IdentityClient {
         if (this._instance) {
             return this._instance;
@@ -111,13 +125,13 @@ export class IdentityClient {
     /**
      * This method initializes the `IdentityClient` instance.
      *
+     * @param {ConfigInterface} config The config object to initialize with.
+     *
+     * @return {Promise<boolean>} - Resolves to true if initialization is successful.
+     *
      * @preserve
-     *
-     * @param {ConfigInterface | WebWorkerConfigInterface} config The config object to initialize with.
-     *
-     * @return {Promise<boolean>} Resolves to true if initialization is successful.
      */
-    public initialize(config: ConfigInterface | WebWorkerConfigInterface): Promise<boolean> {
+    public initialize(config: ConfigInterface): Promise<boolean> {
         if (!config.signOutRedirectURL) {
             config.signOutRedirectURL = config.signInRedirectURL;
         }
