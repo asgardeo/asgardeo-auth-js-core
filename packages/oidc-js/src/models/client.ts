@@ -48,7 +48,7 @@ interface BaseConfigInterface {
 /**
  * SDK Client config parameters.
  */
-export interface ConfigInterface extends BaseConfigInterface{
+export interface NonWebWorkerConfigInterface extends BaseConfigInterface{
     storage?: Storage.SessionStorage | Storage.LocalStorage;
 }
 
@@ -58,6 +58,8 @@ export interface WebWorkerConfigInterface extends BaseConfigInterface {
     storage: Storage.WebWorker;
     requestTimeout?: number;
 }
+
+export type ConfigInterface = NonWebWorkerConfigInterface | WebWorkerConfigInterface;
 
 export interface HttpClient {
     isHandlerEnabled: boolean;
