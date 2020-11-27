@@ -379,7 +379,7 @@ The following template tags are at your disposal.
 `"{{clientSecret}}"`|The client secret|
 
 ```javascript
-return auth.customGrant({
+auth.customGrant({
     attachToken: false,
     data: {
         client_id: "{{clientId}}",
@@ -452,7 +452,7 @@ auth.getAccessToken().then((token) => {
 
 ### refreshToken
 ```typescript
-refreshToken();
+refreshToken(): Promise;
 ```
 This refreshes the access token and stores the refreshed session information in either the session or local storage as per your configuration. Note that this method cannot be used when the storage type is set to `webWorker` since the web worker automatically refreshes the token and there is no need for the developer to do it.
 
@@ -467,7 +467,11 @@ This method also returns a Promise that resolves with an object containing the a
 `"tokenType"`| The type of the token. E.g.: Bearer|
 
 ```javascript
-auth.refreshToken();
+auth.refreshToken().then((response)=>{
+      // console.log(response);
+ }).catch((error)=>{
+      // console.error(error);
+});
 ```
 ### on
 ```typescript
