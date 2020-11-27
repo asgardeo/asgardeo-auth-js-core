@@ -123,7 +123,7 @@ const generateConfig = (bundleType, polyfill, env) => {
     if (!env) {
         env = PRODUCTION;
     }
-    env = DEVELOPMENT;
+
     const fileName = resolveFileName(bundleType);
 
     const babelPlugin = babel({
