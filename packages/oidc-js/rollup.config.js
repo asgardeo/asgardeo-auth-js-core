@@ -71,7 +71,7 @@ const POLYFILLED_DIR = "polyfilled";
  * @type {string}
  * @default
  */
-const GLOBAL_VARIABLE = "AsgardioOIDC";
+const GLOBAL_VARIABLE = "AsgardioAuth";
 
 /**
  * Production environment.

@@ -52,7 +52,7 @@ Or simply load the SDK by importing the script into the header of your HTML file
 <script src="https://unpkg.com/@asgardio/oidc-js@0.1.26/dist/asgardio-oidc.production.min.js.js"></script>
 
 <script>
-var auth = AsgardioOIDC.IdentityClient.getInstance();
+var auth = AsgardioAuth.IdentityClient.getInstance();
 </script>
 ```
 
@@ -60,7 +60,7 @@ var auth = AsgardioOIDC.IdentityClient.getInstance();
 ### Using Embedded Scripts
 ```javascript
 // This client is a singleton and can be instantiated as follows.
-var auth = AsgardioOIDC.IdentityClient.getInstance();
+var auth = AsgardioAuth.IdentityClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
