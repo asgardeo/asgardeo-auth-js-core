@@ -78,7 +78,7 @@
     <script src="/asgardeo-oidc.production.min.js"></script>
     <script>
         var serverOrigin = "https://localhost:9443";
-        var clientHost = "http://localhost:3000";
+        var clientHost = origin;
         var isAuthenticated = false;
 
         // Instantiate the `AsgardeoSPAClient` singleton
@@ -90,19 +90,28 @@
             signInRedirectURL: clientHost,
             signOutRedirectURL: clientHost,
             clientHost: clientHost,
-            clientID: "client-id",
-            enablePKCE: true,
+            clientID: "7EnDzEnLFMF0Bjuy2ok3wzrPrFQa",
             serverOrigin: serverOrigin,
             storage: "webWorker"
         });
 
         //Sign in function
         function signIn() {
+            if (isAuthenticated) {
+                alert("You are already signed in. Sign out first and then sign in again.");
+                return;
+            }
+
             auth.signIn();
         }
 
         //Sign out function
         function signOut() {
+            if (!isAuthenticated) {
+                alert("You need to sign in first!");
+                return;
+            }
+
             auth.signOut();
         }
 
@@ -110,6 +119,11 @@
         auth.on("sign-in", function (response) {
             document.getElementById("greeting").innerHTML = "Hello, " + response.displayName + "!";
             isAuthenticated = true;
+        });
+
+        debugger
+        auth.on("sign-out", function (){
+            document.getElementById("greeting").innerHTML = "You have successfully signed out!";
         });
 
         // call the signIn() method if the URL contains the authorization code.
