@@ -16,19 +16,18 @@
  * under the License.
  */
 
-import { ReactElement, FunctionComponent, useEffect } from "react";
 import { IdentityClient } from "@asgardio/oidc-js";
+import { FunctionComponent, ReactElement, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
 export const SignOut: FunctionComponent<null> = (): ReactElement => {
-
     const history = useHistory();
 
     useEffect(() => {
         const auth = IdentityClient.getInstance();
 
         auth.signOut();
-    }, [history]);
+    }, [ history ]);
 
     return null;
 };

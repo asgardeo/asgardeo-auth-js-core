@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import React, { ReactNode, FunctionComponent } from "react";
-import { Route, Redirect } from "react-router-dom";
-import { SIGN_IN } from "../constants";
+import React, { FunctionComponent, ReactNode } from "react";
+import { Redirect, Route } from "react-router-dom";
 import { useRecoilState } from "recoil";
+import { SIGN_IN } from "../constants";
 import { authState } from "../recoil";
 
 interface ProtectedRoutePropsInterface {

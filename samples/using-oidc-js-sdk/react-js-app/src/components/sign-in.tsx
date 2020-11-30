@@ -16,14 +16,14 @@
  * under the License.
  */
 
-import { ReactElement, FunctionComponent, useEffect } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { authState, displayName } from "../recoil";
+import { Hooks, IdentityClient } from "@asgardio/oidc-js";
+import { FunctionComponent, ReactElement, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { DASHBOARD } from "../constants";
-import { IdentityClient, Hooks } from "@asgardio/oidc-js";
-export const SignIn: FunctionComponent<null> = (): ReactElement => {
+import { authState, displayName } from "../recoil";
 
+export const SignIn: FunctionComponent<null> = (): ReactElement => {
     const [ auth, setAuth ] = useRecoilState(authState);
     const setDisplayName = useSetRecoilState(displayName);
 
@@ -40,7 +40,7 @@ export const SignIn: FunctionComponent<null> = (): ReactElement => {
             });
             auth.signIn();
         }
-    }, [auth, history, setAuth, setDisplayName]);
+    }, [ auth, history, setAuth, setDisplayName ]);
 
     return null;
 };
