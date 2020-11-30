@@ -5,8 +5,7 @@
     "main": "index.js",
     "scripts": {},
     "dependencies": {
-        "@asgardio/oidc-js": "^0.1.25",
-        "express": "^4.17.1"
+        "@asgardio/oidc-js": "^0.1.25"
     },
     "author": "Asgardio",
     "license": "Apache-2.0"
