@@ -110,6 +110,7 @@ const resolveFileName = (bundleType) => {
             return pkg.main;
     }
 };
+
 /**
  * This generates a rollup config object.
  *
