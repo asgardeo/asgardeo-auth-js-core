@@ -29,7 +29,7 @@ fs.copyFile(
     "node_modules/@asgardio/oidc-js/dist/asgardio-oidc.production.min.js",
     "assets/asgardio-oidc.production.min.js",
     (err) => {
-        if (err) throw err;
+        if (err) console.error(err);
         console.log("asgardio-oidc.production.min.js was copied to the assets directory");
     }
 );
