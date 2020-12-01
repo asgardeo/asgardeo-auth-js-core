@@ -116,11 +116,21 @@
 
         //Sign in function
         function signIn() {
+            if (isAuthenticated) {
+                alert("You are already signed in. Sign out first and then sign in again.");
+                return;
+            }
+
             auth.signIn();
         }
 
         //Sign out function
         function signOut() {
+            if (!isAuthenticated) {
+                alert("You need to sign in first!");
+                return;
+            }
+
             auth.signOut();
         }
 
@@ -128,6 +138,10 @@
         auth.on("sign-in", function (response) {
             document.getElementById("greeting").innerHTML = "Hello, " + response.displayName + "!";
             isAuthenticated = true;
+        });
+
+        auth.on("sign-out", function (){
+            document.getElementById("greeting").innerHTML = "You have successfully signed out!";
         });
 
         //Get user profile function
