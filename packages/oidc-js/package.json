@@ -1,6 +1,6 @@
 {
     "name": "@asgardio/oidc-js",
-    "version": "0.1.26",
+    "version": "0.1.27",
     "description": "Authentication module for Asgardio SPA",
     "keywords": [
         "Asgardio",
