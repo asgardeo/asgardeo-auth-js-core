@@ -98,8 +98,6 @@
             auth.initialize({
                 baseUrls: [ serverOrigin ],
                 signInRedirectURL: clientHost,
-                signOutRedirectURL: clientHost,
-                clientHost: "client-host",
                 clientID: "client-id",
                 enablePKCE: true,
                 serverOrigin: serverOrigin,
