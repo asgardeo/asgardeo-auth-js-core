@@ -3,7 +3,9 @@
     "version": "0.1.26",
     "description": "A sample java web app demonstrating OIDC authentication using Asgardio's SDK",
     "main": "index.js",
-    "scripts": {},
+    "scripts": {
+        "postinstall": "node scripts/post-install.js"
+    },
     "dependencies": {
         "@asgardio/oidc-js": "^0.1.26"
     },
