@@ -1,3 +1,8 @@
+<%
+    session.setAttribute("authCode", request.getParameter("code"));
+    session.setAttribute("sessionState", request.getParameter("session_state"));
+%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -77,7 +82,7 @@
     </body>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.20.0/dist/axios.min.js"></script>
     <!-- This script tag is only meant for development -->
-    <script src="node_modules/@asgardio/oidc-js/dist/main.js"></script>
+    <script src="assets/asgardio-oidc.production.min.js"></script>
     <!-- In production, use this script tag: -->
     <!-- <script src="https://unpkg.com/@asgardio/oidc-js@0.1.26/dist/asgardio-oidc.production.min.js.js"></script> -->
 
@@ -85,21 +90,15 @@
         var serverOrigin = "https://localhost:9443";
         var isAuthenticated = false;
 
-        <%
-            session.setAttribute("authCode",request.getParameter("code"));
-            session.setAttribute("sessionState", request.getParameter("session_state"));
-        %>
-
         // Instantiate the `IdentityClient` singleton
         var auth = AsgardioAuth.IdentityClient.getInstance();
 
-        axios.get("/auth.jsp").then((response)=>{
+        axios.get("auth").then((response)=>{
             // Initialize the client
             auth.initialize({
                 baseUrls: [ serverOrigin ],
-                signInRedirectURL: clientHost,
+                signInRedirectURL: origin + "/java-webapp",
                 clientID: "client-id",
-                enablePKCE: true,
                 serverOrigin: serverOrigin,
                 storage: "webWorker",
                 responseMode: "form_post",
