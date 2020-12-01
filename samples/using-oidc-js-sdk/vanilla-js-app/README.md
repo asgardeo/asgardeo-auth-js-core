@@ -10,10 +10,9 @@ Paste the copied `OAuth Client Key` in front of the `clientID` attribute of `aut
  // Initialize the client
 auth.initialize({
     baseUrls: [ serverOrigin ],
-    callbackURL: clientHost,
+    signInRedirectURL: clientHost,
     clientHost: clientHost,
-    clientID: "oNYe7ML9smdwuR5olarViTTL_iga",
-    enablePKCE: true,
+    clientID: "client-id",
     serverOrigin: serverOrigin,
     storage: "webWorker"
 });
