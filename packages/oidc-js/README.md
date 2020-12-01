@@ -407,8 +407,16 @@ auth.endUserSession();
 ```typescript
 getServiceEndpoints(): Promise;
 ```
-This method returns a promise that resolves with an object containing the OIDC endpoints obtained from the `.well-known` endpoint.
+This method returns a promise that resolves with an object containing the OIDC endpoints obtained from the `.well-known` endpoint. The object contains the following attributes.
 
+|Attribute| Description|
+|---|--|
+|`"authorize"`| The endpoint to which the authorization request should be sent. |
+|`"jwks"`| The endpoint from which JSON Web Key Set can be obtained.|
+|`"oidcSessionIFrame"`| The URL of the page that should be loaded in an IFrame to get session information. |
+|`"revoke"`| The endpoint to which the revoke-token request should be sent. |
+|`"token"`| The endpoint to which the token request should be sent. |
+|`"wellKnown"`|The well-known endpoint from which OpenID endpoints of the server can be obtained. |
 ```javascript
 auth.getServiceEndpoints().then((endpoints) => {
     // console.log(endpoints);
@@ -446,6 +454,17 @@ auth.getAccessToken().then((token) => {
 refreshToken();
 ```
 This refreshes the access token and stores the refreshed session information in either the session or local storage as per your configuration. Note that this method cannot be used when the storage type is set to `webWorker` since the web worker automatically refreshes the token and there is no need for the developer to do it.
+
+This method also returns a Promise that resolves with an object containing the attributes mentioned in the table below.
+|Attribute|Description|
+|--|--|
+`"accessToken"`| The new access token |
+`"expiresIn"`| The expiry time in seconds|
+`"idToken"`| The ID token|
+`"refreshToken"`| The refresh token|
+`"scope"`| The scope of teh access token|
+`"tokenType"`| The type of the token. E.g.: Bearer|
+
 ```javascript
 auth.refreshToken();
 ```
