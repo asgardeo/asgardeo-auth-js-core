@@ -13,10 +13,8 @@ Replace the `"client-host"` value of the `clientHost` attribute with the applica
  // Initialize the client
 auth.initialize({
     baseUrls: [ serverOrigin ],
-    callbackURL: clientHost,
-    clientHost: "client-host",
-    clientID: "oNYe7ML9smdwuR5olarViTTL_iga",
-    enablePKCE: true,
+    signInRedirectURL: clientHost,
+    clientID: "client-id",
     serverOrigin: serverOrigin,
     storage: "webWorker",
     responseMode:"form_post",
