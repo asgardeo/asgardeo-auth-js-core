@@ -76,7 +76,11 @@
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.20.0/dist/axios.min.js"></script>
+    <!-- This script tag is only meant for development -->
     <script src="node_modules/@asgardio/oidc-js/dist/main.js"></script>
+    <!-- In production, use this script tag: -->
+    <!-- <script src="https://unpkg.com/@asgardio/oidc-js@0.1.26/dist/asgardio-oidc.production.min.js.js"></script> -->
+
     <script>
         var serverOrigin = "https://localhost:9443";
         var isAuthenticated = false;
