@@ -16,26 +16,26 @@
  * under the License.
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
 import { IdentityClient, Storage } from "@asgardio/oidc-js";
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
 import "./index.css";
 
 const auth = IdentityClient.getInstance();
 const serverOrigin = "https://localhost:9443";
-const clientHost = "http://localhost:3000";
+const clientHost = origin;
 
 // Initialize the client
 auth.initialize({
-    baseUrls: [ serverOrigin ],
-    signInRedirectURL: clientHost + "/sign-in",
-    signOutRedirectURL: clientHost + "/dashboard",
+    baseUrls: [serverOrigin],
     clientHost: clientHost,
     clientID: "client-id",
     enablePKCE: true,
     serverOrigin: serverOrigin,
+    signInRedirectURL: clientHost + "/sign-in",
+    signOutRedirectURL: clientHost + "/dashboard",
     storage: Storage.WebWorker
 });
 
@@ -43,7 +43,7 @@ ReactDOM.render(
     <React.StrictMode>
         <App />
     </React.StrictMode>,
-    document.getElementById('root')
+    document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change

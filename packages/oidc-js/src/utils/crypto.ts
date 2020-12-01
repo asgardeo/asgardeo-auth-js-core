@@ -19,10 +19,10 @@
 import Base64 from "crypto-js/enc-base64";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
-import { KEYUTIL, KJUR } from "jsrsasign";
+// Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
+import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
+import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
 import { JWKInterface } from "../models";
-
-
 
 /**
  * Get URL encoded string.
@@ -73,12 +73,13 @@ export const getSupportedSignatureAlgorithms = (): string[] => {
  * @returns {any} public key.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Error | any => {
+export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Promise<KeyLike> => {
     const headerJSON = JSON.parse(atob(jwtHeader));
 
     for (const key of keys) {
         if (headerJSON.kid === key.kid) {
-            return KEYUTIL.getKey({
+            return parseJwk({
+                alg: key.alg,
                 e: key.e,
                 kty: key.kty,
                 n: key.n
@@ -86,7 +87,7 @@ export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Er
         }
     }
 
-    throw new Error(
+    return Promise.reject(
         "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
             headerJSON.kid +
             ", Expected values: " +
@@ -101,21 +102,23 @@ export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Er
  * @param jwk public key used for signing.
  * @param {string} clientID app identification.
  * @param {string} issuer id_token issuer.
- * @returns {any} whether the id_token is valid.
+ * @returns {Promise<boolean>} whether the id_token is valid.
  */
 export const isValidIdToken = (
     idToken: string,
-    jwk: string,
+    jwk: KeyLike,
     clientID: string,
     issuer: string,
     username: string
-): boolean => {
-    return KJUR.jws.JWS.verifyJWT(idToken, jwk, {
-        alg: getSupportedSignatureAlgorithms(),
-        // `jsrsasign` typings only allow string[] as aud but string should also be possible.
-        // TODO: Remove any casting once the @types/jsrsasign contains a fix.
-        aud: clientID as any,
-        iss: [issuer],
-        sub: [username]
-    });
+): Promise<boolean> => {
+    return jwtVerify(idToken, jwk, {
+        algorithms: getSupportedSignatureAlgorithms(),
+        audience: clientID,
+        issuer: issuer,
+        subject: username
+    }).then(() => {
+        return Promise.resolve(true)
+    }).catch((error) => {
+        return Promise.reject(error);
+    })
 };

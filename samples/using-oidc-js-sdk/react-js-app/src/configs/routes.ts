@@ -16,24 +16,24 @@
  * under the License.
  */
 
-import { SignIn, SignOut, Dashboard } from "../components";
+import { Dashboard, SignIn, SignOut } from "../components";
+import { DASHBOARD, SIGN_IN, SIGN_OUT } from "../constants";
 import { Route } from "../models";
-import { SIGN_IN, SIGN_OUT, DASHBOARD } from "../constants";
 
 export const routes: Route[] = [
-    {
-        path: SIGN_IN,
+   {
         component: SignIn,
+        path: SIGN_IN,
         protected: false
     },
-    {
-        path: SIGN_OUT,
+   {
         component: SignOut,
+        path: SIGN_OUT,
         protected: false
     },
-    {
-        path: DASHBOARD,
+   {
         component: Dashboard,
+        path: DASHBOARD,
         protected: false
     }
 ];

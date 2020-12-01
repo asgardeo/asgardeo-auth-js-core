@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -14,17 +14,10 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
-/**
- * A decorator to supplement static interface support.
- *
- * @return {<U extends T>(constructor: U) => void}
- */
-export function staticDecorator<T>() {
-    return <U extends T>(_constructor: U): any => {};
-}
+// Export the public API.
+export * from "./public-api";

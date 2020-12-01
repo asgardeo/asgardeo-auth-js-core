@@ -25,6 +25,7 @@ import { ResponseMessage } from "../models";
  *
  * @return {ResponseMessage<string>} JSON string.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const generateSuccessDTO = (data?: any): ResponseMessage<string> => {
     return {
         blob: data?.data instanceof Blob ? data?.data : null,
@@ -40,6 +41,7 @@ export const generateSuccessDTO = (data?: any): ResponseMessage<string> => {
  *
  * @return {ResponseMessage<string>} JSON string.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const generateFailureDTO = (error?: any): ResponseMessage<string> => {
     if (error?.toJSON) {
         delete error.toJSON;

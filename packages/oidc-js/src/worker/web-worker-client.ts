@@ -17,7 +17,7 @@
  */
 
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import WorkerFile from "./oidc.worker";
+import WorkerFile from "web-worker:./oidc.worker.ts";
 import {
     API_CALL,
     API_CALL_ALL,
@@ -36,6 +36,7 @@ import {
     REQUEST_FINISH,
     REQUEST_START,
     REQUEST_SUCCESS,
+    ResponseMode,
     SESSION_STATE,
     SIGNED_IN,
     SIGN_IN
@@ -367,7 +368,9 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             return Promise.reject("The responseMode must be a string");
         }
 
-        if (config.responseMode && config.responseMode !== "form_post" && config.responseMode !== "query") {
+        if (config.responseMode
+            && config.responseMode !== ResponseMode.formPost
+            && config.responseMode !== ResponseMode.query) {
             return Promise.reject("The responseMode is invalid");
         }
 
@@ -473,9 +476,9 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
                         allowedScopes: "",
                         displayName: "",
                         email: "",
+                        sessionState: "",
                         tenantDomain: "",
-                        username: "",
-                        sessionState: ""
+                        username: ""
                     });
                 } else if (response.type === AUTH_REQUIRED && !response.code) {
                     return Promise.reject(
@@ -531,9 +534,9 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
                                 allowedScopes: "",
                                 displayName: "",
                                 email: "",
+                                sessionState: "",
                                 tenantDomain: "",
-                                username: "",
-                                sessionState: ""
+                                username: ""
                             });
                         } else {
                             if (response.type === AUTH_REQUIRED && !response.code) {

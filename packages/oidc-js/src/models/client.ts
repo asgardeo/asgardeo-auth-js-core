@@ -18,9 +18,8 @@
 
 import { AxiosError, AxiosResponse } from "axios";
 import { ServiceResourcesType } from ".";
-import { ResponseModeTypes } from "./oidc-request-params";
 import { SessionData } from "./web-worker-client";
-import { Storage } from "../constants";
+import { ResponseMode, Storage } from "../constants";
 
 interface BaseConfigInterface {
     authorizationType?: string;
@@ -32,7 +31,7 @@ interface BaseConfigInterface {
     consentDenied?: boolean;
     enablePKCE?: boolean;
     prompt?: string;
-    responseMode?: ResponseModeTypes;
+    responseMode?: ResponseMode;
     scope?: string[];
     serverOrigin: string;
     endpoints?: ServiceResourcesType;

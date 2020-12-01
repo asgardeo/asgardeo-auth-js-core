@@ -25,6 +25,7 @@ import {
     ISSUER,
     JWKS_ENDPOINT,
     OIDC_SESSION_IFRAME_ENDPOINT,
+    OPEN_ID_CONFIG,
     OP_CONFIG_INITIATED,
     REVOKE_TOKEN_ENDPOINT,
     SERVICE_RESOURCES,
@@ -33,10 +34,9 @@ import {
     Storage,
     TENANT,
     TOKEN_ENDPOINT,
-    USERNAME,
-    OPEN_ID_CONFIG
+    USERNAME
 } from "../constants";
-import { ConfigInterface, ServiceResourcesType, WebWorkerConfigInterface, OpenIDConfig } from "../models";
+import { ConfigInterface, OpenIDConfig, ServiceResourcesType, WebWorkerConfigInterface } from "../models";
 
 /**
  * Checks whether openid configuration initiated.
@@ -94,7 +94,8 @@ export const getOPConfig = (requestParams: ConfigInterface | WebWorkerConfigInte
  *
  * @param {string} tokenEndpoint
  */
-export const setTokenEndpoint = (tokenEndpoint: string, requestParams): void => {
+export const setTokenEndpoint = (
+    tokenEndpoint: string, requestParams: ConfigInterface | WebWorkerConfigInterface): void => {
     setSessionParameter(TOKEN_ENDPOINT, tokenEndpoint, requestParams);
 };
 
@@ -103,7 +104,10 @@ export const setTokenEndpoint = (tokenEndpoint: string, requestParams): void => 
  *
  * @param {string} endSessionEndpoint
  */
-export const setEndSessionEndpoint = (endSessionEndpoint: string, requestParams): void => {
+export const setEndSessionEndpoint = (
+    endSessionEndpoint: string,
+    requestParams: ConfigInterface | WebWorkerConfigInterface
+): void => {
     setSessionParameter(END_SESSION_ENDPOINT, endSessionEndpoint, requestParams);
 };
 
@@ -112,7 +116,7 @@ export const setEndSessionEndpoint = (endSessionEndpoint: string, requestParams)
  *
  * @param jwksEndpoint
  */
-export const setJwksUri = (jwksEndpoint, requestParams: ConfigInterface | WebWorkerConfigInterface): void => {
+export const setJwksUri = (jwksEndpoint: string, requestParams: ConfigInterface | WebWorkerConfigInterface): void => {
     setSessionParameter(JWKS_ENDPOINT, jwksEndpoint, requestParams);
 };
 
@@ -164,7 +168,7 @@ export const setOIDCSessionIFrameURL = (
  *
  * @param issuer id_token issuer.
  */
-export const setIssuer = (issuer, requestParams: ConfigInterface | WebWorkerConfigInterface): void => {
+export const setIssuer = (issuer: string, requestParams: ConfigInterface | WebWorkerConfigInterface): void => {
     setSessionParameter(ISSUER, issuer, requestParams);
 };
 
@@ -365,7 +369,7 @@ export const getUsername = (requestParams: ConfigInterface | WebWorkerConfigInte
  *
  * @returns {any}
  */
-export const getTenant = (requestParams): string | null => {
+export const getTenant = (requestParams: ConfigInterface | WebWorkerConfigInterface): string | null => {
     return getSessionParameter(TENANT, requestParams);
 };
 

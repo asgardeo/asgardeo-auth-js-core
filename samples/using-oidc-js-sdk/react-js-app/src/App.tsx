@@ -17,10 +17,10 @@
  */
 
 import React, { FunctionComponent } from "react";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { RecoilRoot } from "recoil";
-import { BrowserRouter, Switch, Redirect, Route } from "react-router-dom";
+import { ProtectedRoute, routes } from "./configs";
 import { DASHBOARD } from "./constants";
-import { routes, ProtectedRoute } from "./configs";
 import { Route as RouteInterface } from "./models";
 function App() {
     return (

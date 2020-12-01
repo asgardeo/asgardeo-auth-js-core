@@ -16,18 +16,18 @@
  * under the License.
  */
 
-import { IdentityClient } from "@asgardio/oidc-js";
-import { FunctionComponent, ReactElement, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+const { resolveModuleName } = require("ts-pnp");
 
-export const SignOut: FunctionComponent<null> = (): ReactElement => {
-    const history = useHistory();
+exports.resolveModuleName = (typescript, moduleName, containingFile, compilerOptions, resolutionHost) => {
+  return resolveModuleName(moduleName, containingFile, compilerOptions, resolutionHost, typescript.resolveModuleName);
+};
 
-    useEffect(() => {
-        const auth = IdentityClient.getInstance();
-
-        auth.signOut();
-    }, [ history ]);
-
-    return null;
+exports.resolveTypeReferenceDirective = (typescript, moduleName, containingFile, compilerOptions, resolutionHost) => {
+  return resolveModuleName(
+    moduleName,
+    containingFile,
+    compilerOptions,
+    resolutionHost,
+    typescript.resolveTypeReferenceDirective
+  );
 };

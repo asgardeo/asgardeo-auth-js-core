@@ -30,7 +30,6 @@ export interface TokenResponseInterface {
 
 export interface TokenRequestHeader {
     Accept: string;
-    "Access-Control-Allow-Origin": string;
     "Content-Type": string;
 }
 

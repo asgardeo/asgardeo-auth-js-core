@@ -10,7 +10,10 @@
 - [Introduction](#introduction)
 - [Install](#install)
 - [Getting Started](#getting-started)
+    - [Using Embedded Scripts](#using-embedded-scripts)
+    - [Using modules](#using-modules)
 - [Try Out the Sample Apps](#try-out-the-sample-apps)
+- [Browser Compatibility](#browser-compatibility)
 - [APIs](#apis)
     - [getInstance](#getinstance)
     - [initialize](#initialize)
@@ -46,7 +49,7 @@ npm install --save @asgardio/oidc-js
 ```
 Or simply load the SDK by importing the script into the header of your HTML file.
 ```html
-<script src="https://unpkg.com/@asgardio/oidc-js@0.1.12/dist/main.js"></script>
+<script src="https://unpkg.com/@asgardio/oidc-js@0.1.26/dist/asgardio-oidc.production.min.js.js"></script>
 
 <script>
 var auth = AsgardioAuth.IdentityClient.getInstance();
@@ -54,6 +57,31 @@ var auth = AsgardioAuth.IdentityClient.getInstance();
 ```
 
 ## Getting Started
+### Using Embedded Scripts
+```javascript
+// This client is a singleton and can be instantiated as follows.
+var auth = AsgardioAuth.IdentityClient.getInstance();
+
+// Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
+auth.initialize({
+     signInRedirectURL: "http://localhost:9443/myaccount/login",
+     signOutRedirectURL: "http://localhost:9443/myaccount/login",
+     clientHost: "http://localhost:9443/myaccount/",
+     clientID: "client ID",
+     serverOrigin: "http://localhost:9443"
+});
+
+// To sign in, simply call the `signIn()` method.
+auth.signIn();
+
+// The `sign-in` hook is used to fire a callback function after signing in is successful.
+auth.on("sign-in", (response) => {
+    alert("You have successfully signed in!");
+});
+
+```
+
+### Using modules
 ```javascript
 // The SDK provides a client that can be used to carry out the authentication.
 import { IdentityClient } from "@asgardio/oidc-js";
@@ -130,6 +158,30 @@ The *Callback URL* of this app is the URL of this app on the server. For instanc
 
 You can try out the Java Webapp Sample App from the [samples/java-webapp](samples/java-webapp). The instructions to run the app can  be found [here](/samples/java-webapp/README.md)
 
+## Browser Compatibility
+The SDK supports all major browsers and provides polyfills to support incompatible browsers. If you want the SDK to run on Internet Explorer or any other old browser, you can use the polyfilled script instead of the default one.
+
+To embed a polyfilled script in an HTML page:
+```html
+<script src="https://unpkg.com/@asgardio/oidc-js@0.1.26/dist/polyfilled/asgardio-oidc.production.min.js.js"></script>
+```
+
+You can also import a polyfilled module into your modular app. Asgardio provides two different modules each supporting UMD and ESM.
+You can specify the preferred module type by appending the type to the module name as follows.
+
+To import a polyfilled ESM module:
+```javascript
+import { IdentityClient } from "@asgardio/oidc-js/polyfilled/esm";
+```
+
+To import a polyfilled UMD module:
+```javascript
+import { IdentityClient } from "@asgardio/oidc-js/polyfilled/umd";
+```
+
+**Note that using a polyfilled modules comes at the cost of the bundle size being twice as big as the default, non-polyfilled bundle.**
+
+***A Web Worker cannot be used as a storage option in Internet Explorer as the browser doesn't fully support some of the modern features of web workers.***
 ## APIs
 
 ### getInstance
@@ -264,7 +316,6 @@ const auth = IdentityClient.getInstance();
 const requestConfig = {
     headers: {
         "Accept": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:9443/myaccount",
         "Content-Type": "application/scim+json"
     },
     method: "GET",

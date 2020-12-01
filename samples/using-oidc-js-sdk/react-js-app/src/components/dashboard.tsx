@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import React, { ReactElement, FunctionComponent, useState, useEffect } from "react";
-import { SIGN_OUT, SIGN_IN } from "../constants";
+import { Hooks, IdentityClient } from "@asgardio/oidc-js";
+import React, { FunctionComponent, ReactElement, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { IdentityClient, Hooks } from '@asgardio/oidc-js';
 import { useRecoilState } from "recoil";
+import { SIGN_IN, SIGN_OUT } from "../constants";
 import { authState, displayName } from "../recoil";
 
 export const Dashboard: FunctionComponent<null> = (): ReactElement => {
@@ -41,71 +41,68 @@ export const Dashboard: FunctionComponent<null> = (): ReactElement => {
         auth.on(Hooks.SignOut, () => {
             setIsLoggedOut(true);
         });
-    }, [auth]);
+    }, [ auth ]);
 
-    return <div className="wrapper">
-        <div className="menu">
-            <button onClick={ () => {
-                if (isAuth) {
-                    alert("You have already signed in!");
-                } else {
-                    setIsLoggedOut(false);
-                    history.push(SIGN_IN);
-                }
-            } }>
-                Sign In
-            </button>
-
-            <button onClick={ () => {
-                if (isAuth) {
-                    history.push(SIGN_OUT);
-                } else {
-                    alert("You haven't signed in!");
-                }
-            }
-            }>
-                Sign Out
-            </button>
-
-            <button onClick={ () => {
-                if (isAuth) {
-                    auth.httpRequest({
-                        url: serverOrigin + "/api/identity/user/v1.0/me",
-                        method: "GET",
-                        headers: {
-                            "Access-Control-Allow-Origin": clientHost,
-                            Accept: "application/json"
+    return (
+        <div className="wrapper">
+            <div className="menu">
+                <button
+                    onClick={ () => {
+                        if (isAuth) {
+                            alert("You have already signed in!");
+                        } else {
+                            setIsLoggedOut(false);
+                            history.push(SIGN_IN);
                         }
-                    }).then((response) => {
-                        setEmail(response.data.basic[ "http://wso2.org/claims/emailaddress" ]);
-                        setLastName(response.data.basic[ "http://wso2.org/claims/lastname" ]);
-                        setRoles(response.data.basic[ "http://wso2.org/claims/role" ]);
-                    });
-                } else {
-                    alert("Please sign in first!");
-                }
-            } }>Get user info</button>
-        </div>
-        <div id="greeting">
-            { isAuth && "Hi, " + displayNameState + "!" }
-            { isLoggedOut && "You have logged out!" }
-        </div>
-        <div className="details">
-            <div id="email">
-                {
-                    email && "Email: " + email
-                }
+                    } }
+                >
+                    Sign In
+                </button>
+
+                <button
+                    onClick={ () => {
+                        if (isAuth) {
+                            history.push(SIGN_OUT);
+                        } else {
+                            alert("You haven't signed in!");
+                        }
+                    } }
+                >
+                    Sign Out
+                </button>
+
+                <button
+                    onClick={ () => {
+                        if (isAuth) {
+                            auth.httpRequest({
+                                headers: {
+                                    Accept: "application/json",
+                                    "Access-Control-Allow-Origin": clientHost
+                                },
+                                method: "GET",
+                                url: serverOrigin + "/api/identity/user/v1.0/me"
+                            }).then((response) => {
+                                setEmail(response.data.basic[ "http://wso2.org/claims/emailaddress" ]);
+                                setLastName(response.data.basic[ "http://wso2.org/claims/lastname" ]);
+                                setRoles(response.data.basic[ "http://wso2.org/claims/role" ]);
+                            });
+                        } else {
+                            alert("Please sign in first!");
+                        }
+                    } }
+                >
+                    Get user info
+                </button>
             </div>
-            <div id="lastName">
-                {
-                    lastName && "Last Name: " + lastName
-                }
+            <div id="greeting">
+                { isAuth && "Hi, " + displayNameState + "!" }
+                { isLoggedOut && "You have logged out!" }
             </div>
-            <div id="roles">
-                {
-                    roles && "Roles: " + roles
-                }
+            <div className="details">
+                <div id="email">{ email && "Email: " + email }</div>
+                <div id="lastName">{ lastName && "Last Name: " + lastName }</div>
+                <div id="roles">{ roles && "Roles: " + roles }</div>
             </div>
         </div>
-    </div>;
+    );
 };

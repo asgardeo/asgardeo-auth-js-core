@@ -19,11 +19,11 @@
 import { atom } from "recoil";
 
 export const authState = atom<boolean>({
-    key: "authState",
-    default: false
+    default: false,
+    key: "authState"
 });
 
 export const displayName = atom<string>({
-    key: "displayName",
-    default: ""
+    default: "",
+    key: "displayName"
 });

@@ -17,6 +17,7 @@
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { KeyLike } from "jose/webcrypto/types";
 import { getCodeChallenge, getCodeVerifier, getJWKForTheIdToken, isValidIdToken } from "./crypto";
 import {
     getAuthorizeEndpoint,
@@ -48,6 +49,7 @@ import {
     OIDC_SCOPE,
     PKCE_CODE_VERIFIER,
     REQUEST_PARAMS,
+    ResponseMode,
     SCOPE,
     SCOPE_TAG,
     SERVICE_RESOURCES,
@@ -92,7 +94,7 @@ export function hasAuthorizationCode(requestParams: ConfigInterface | WebWorkerC
  */
 export function getAuthorizationCode(requestParams?: ConfigInterface | WebWorkerConfigInterface): string {
     if (!requestParams || !isWebWorkerConfig(requestParams)) {
-        if (!requestParams || requestParams.responseMode !== "form_post") {
+        if (!requestParams || requestParams.responseMode !== ResponseMode.formPost) {
             if (new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE)) {
                 return new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE);
             }
@@ -114,10 +116,9 @@ export function getAuthorizationCode(requestParams?: ConfigInterface | WebWorker
  * @param {string} clientHost
  * @returns {TokenRequestHeader}
  */
-export const getTokenRequestHeaders = (clientHost: string): TokenRequestHeader => {
+export const getTokenRequestHeaders = (): TokenRequestHeader => {
     return {
         Accept: "application/json",
-        "Access-Control-Allow-Origin": clientHost,
         "Content-Type": "application/x-www-form-urlencoded"
     };
 };
@@ -209,7 +210,6 @@ export function validateIdToken(
                 return Promise.reject(new Error("Failed to load public keys from JWKS URI: " + jwksEndpoint));
             }
 
-            const jwk = getJWKForTheIdToken(idToken.split(".")[0], response.data.keys);
             const issuer = getIssuer(requestParams);
             const issuerFromURL = requestParams.serverOrigin + SERVICE_RESOURCES.wellKnown.split("/.well-known")[ 0 ];
 
@@ -219,10 +219,19 @@ export function validateIdToken(
                 return Promise.resolve(false);
             }
 
-
-            return Promise.resolve(
-                isValidIdToken(idToken, jwk, requestParams.clientID, issuer, getAuthenticatedUser(idToken).username)
-            );
+            return getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
+                .then((jwk: KeyLike) => {
+                    return isValidIdToken(
+                        idToken,
+                        jwk,
+                        requestParams.clientID,
+                        issuer,
+                        getAuthenticatedUser(idToken).username
+                    );
+                })
+                .catch((error) => {
+                    return Promise.reject(error);
+                });
         })
         .catch((error) => {
             return Promise.reject(error);
@@ -281,7 +290,7 @@ export function sendTokenRequest(
     }
 
     return axios
-        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders(requestParams.clientHost) })
+        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders() })
         .then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(
@@ -358,7 +367,7 @@ export function sendRefreshTokenRequest(
     }
 
     return axios
-        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders(requestParams.clientHost) })
+        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders() })
         .then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(
@@ -433,7 +442,7 @@ export function sendRevokeTokenRequest(
 
     return axios
         .post(revokeTokenEndpoint, body.join("&"), {
-            headers: getTokenRequestHeaders(requestParams.clientHost),
+            headers: getTokenRequestHeaders(),
             withCredentials: true
         })
         .then((response) => {
@@ -587,7 +596,7 @@ export const customGrant = (
     const requestConfig: AxiosRequestConfig = {
         data: data,
         headers: {
-            ...getTokenRequestHeaders(authConfig.clientHost)
+            ...getTokenRequestHeaders()
         },
         method: "POST",
         url: getSessionParameter(TOKEN_ENDPOINT, authConfig)
@@ -679,9 +688,9 @@ export const getUserInfo = (config: ConfigInterface | WebWorkerConfigInterface):
         allowedScopes: getSessionParameter(SCOPE, config),
         displayName: getSessionParameter(DISPLAY_NAME, config),
         email: getSessionParameter(EMAIL, config),
+        sessionState: getSessionParameter(SESSION_STATE, config),
         tenantDomain: getSessionParameter(TENANT_DOMAIN, config),
-        username: getSessionParameter(USERNAME, config),
-        sessionState: getSessionParameter(SESSION_STATE, config)
+        username: getSessionParameter(USERNAME, config)
     };
 };
 

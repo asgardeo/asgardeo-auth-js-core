@@ -16,8 +16,19 @@
  * under the License.
  */
 
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { ACCESS_TOKEN, AUTHORIZATION_CODE_TYPE, Hooks, OIDC_SCOPE, Storage, REFRESH_TOKEN } from "./constants";
+import {
+    AxiosError,
+    AxiosRequestConfig,
+    AxiosResponse
+} from "axios";
+import {
+    ACCESS_TOKEN,
+    AUTHORIZATION_CODE_TYPE,
+    Hooks,
+    OIDC_SCOPE,
+    REFRESH_TOKEN,
+    Storage
+}from "./constants";
 import { isWebWorkerConfig } from "./helpers";
 import { AxiosHttpClient, AxiosHttpClientInstance } from "./http-client";
 import {
@@ -41,8 +52,8 @@ import {
     handleSignOut,
     isLoggedOut,
     resetOPConfiguration,
-    sendRevokeTokenRequest,
-    sendRefreshTokenRequest
+    sendRefreshTokenRequest,
+    sendRevokeTokenRequest
 } from "./utils";
 import { WebWorkerClient } from "./worker";
 
@@ -55,7 +66,7 @@ const DefaultConfig = {
     consentDenied: false,
     enablePKCE: true,
     responseMode: null,
-    scope: [ OIDC_SCOPE ],
+    scope: [OIDC_SCOPE],
     validateIDToken: true
 };
 
@@ -87,7 +98,7 @@ export class IdentityClient {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
-    public static getInstance() {
+    public static getInstance(): IdentityClient {
         if (this._instance) {
             return this._instance;
         }
@@ -97,6 +108,15 @@ export class IdentityClient {
         return this._instance;
     }
 
+    /**
+     * This method initializes the `IdentityClient` instance.
+     *
+     * @preserve
+     *
+     * @param {ConfigInterface | WebWorkerConfigInterface} config The config object to initialize with.
+     *
+     * @return {Promise<boolean>} Resolves to true if initialization is successful.
+     */
     public initialize(config: ConfigInterface | WebWorkerConfigInterface): Promise<boolean> {
         this._storage = config.storage ?? Storage.SessionStorage;
         this._initialized = false;
@@ -155,7 +175,7 @@ export class IdentityClient {
         return Promise.resolve(getUserInfoUtil(this._authConfig));
     }
 
-    public validateAuthentication() {
+    public validateAuthentication(): null {
         // TODO: Implement
         return;
     }
@@ -232,7 +252,6 @@ export class IdentityClient {
             return this._client
                 .signOut()
                 .then((response) => {
-
                     return Promise.resolve(response);
                 })
                 .catch((error) => {
@@ -242,7 +261,6 @@ export class IdentityClient {
 
         return handleSignOut(this._authConfig)
             .then((response) => {
-
                 return Promise.resolve(response);
             })
             .catch((error) => {
@@ -388,7 +406,7 @@ export class IdentityClient {
             | Hooks.SignIn
             | Hooks.SignOut,
         callback: (response?: any) => void
-    );
+    ): void;
     public on(hook: Hooks, callback: (response?: any) => void, id?: string): void {
         if (callback && typeof callback === "function") {
             switch (hook) {

@@ -17,7 +17,7 @@ module.exports = {
             "plugin:@typescript-eslint/eslint-recommended",
             "plugin:@typescript-eslint/recommended"
         ],
-        files: ["**/*.tsx", "**/*.ts"],
+        files: ["**/*.ts"],
         parser: "@typescript-eslint/parser",
         parserOptions: {
             ecmaVersion: 9,
@@ -27,6 +27,8 @@ module.exports = {
             "@typescript-eslint/explicit-function-return-type": 0,
             "@typescript-eslint/no-explicit-any": 0,
             "@typescript-eslint/no-inferrable-types": "off",
+            "@typescript-eslint/no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars-experimental": "warn",
             "@typescript-eslint/no-use-before-define": ["warn", {
                 classes: false,
                 functions: false,
