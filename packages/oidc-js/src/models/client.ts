@@ -38,6 +38,7 @@ interface BaseConfigInterface {
     authorizationCode?: string;
     sessionState?: string;
     validateIDToken?: boolean;
+    customParams?: Map<string, string>;
 }
 /**
  * SDK Client config parameters.
