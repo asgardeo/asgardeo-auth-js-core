@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { WebWorkerClientConfigInterface } from "./client";
 import { ServiceResourcesType } from "./endpoints";
 import { Message, SignInResponse, UserInfo } from "./message";
 import { DecodedIdTokenPayloadInterface } from "./token-response";
 import { CustomGrantRequestParams } from "./web-worker-client";
+import { HttpRequestConfig, HttpResponse } from "../models";
 
 export interface WebWorkerInterface {
     isSignedIn(): boolean;
@@ -30,9 +30,9 @@ export interface WebWorkerInterface {
     signIn(fidp?: string): Promise<SignInResponse>;
     refreshAccessToken(): Promise<boolean>;
     signOut(): Promise<string>;
-    httpRequest(config: AxiosRequestConfig): Promise<AxiosResponse>;
-    httpRequestAll(configs: AxiosRequestConfig[]): Promise<AxiosResponse[]>;
-    customGrant(requestParams: CustomGrantRequestParams): Promise<AxiosResponse | boolean | SignInResponse>;
+    httpRequest(config: HttpRequestConfig): Promise<HttpResponse>;
+    httpRequestAll(configs: HttpRequestConfig[]): Promise<HttpResponse[]>;
+    customGrant(requestParams: CustomGrantRequestParams): Promise<HttpResponse | boolean | SignInResponse>;
     getUserInfo(): UserInfo;
     endUserSession(): Promise<boolean>;
     getServiceEndpoints(): Promise<ServiceResourcesType>;
