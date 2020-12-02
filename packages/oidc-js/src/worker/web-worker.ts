@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
 import {
     ACCESS_TOKEN,
     AUTHORIZATION_CODE,
@@ -31,10 +31,14 @@ import {
     TENANT_DOMAIN,
     USERNAME
 } from "../constants";
-import { AxiosHttpClient, AxiosHttpClientInstance } from "../http-client";
+import { HttpClient, HttpClientInstance } from "../http-client";
 import {
     CustomGrantRequestParams,
     DecodedIdTokenPayloadInterface,
+    HttpError,
+    HttpPromise,
+    HttpRequestConfig,
+    HttpResponse,
     ServiceResourcesType,
     SessionData,
     SignInResponse,
@@ -66,7 +70,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
      */
     let authConfig: WebWorkerConfigInterface;
 
-    let httpClient: AxiosHttpClientInstance;
+    let httpClient: HttpClientInstance;
 
     let instance: WebWorkerInterface;
 
@@ -195,11 +199,11 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
     /**
      * Makes api calls.
      *
-     * @param {AxiosRequestConfig} config API request data.
+     * @param {HttpRequestConfig} config API request data.
      *
-     * @returns {AxiosResponse} A promise that resolves with the response.
+     * @returns {HttpResponse} A promise that resolves with the response.
      */
-    const httpRequest = (config: AxiosRequestConfig): Promise<AxiosResponse> => {
+    const httpRequest = (config: HttpRequestConfig): Promise<HttpResponse> => {
         let matches = false;
         authConfig.baseUrls.forEach((baseUrl) => {
             if (config?.url?.startsWith(baseUrl)) {
@@ -209,10 +213,10 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
 
         if (matches) {
             return httpClient.request(config)
-                .then((response: AxiosResponse) => {
+                .then((response: HttpResponse) => {
                     return Promise.resolve(response);
                 })
-                .catch((error: AxiosError) => {
+                .catch((error: HttpError) => {
                     if (error?.response?.status === 401) {
 
                         return refreshAccessToken()
@@ -241,11 +245,11 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
     /**
      * Makes multiple api calls. Wraps `axios.spread`.
      *
-     * @param {AxiosRequestConfig[]} configs - API request data.
+     * @param {HttpRequestConfig[]} configs - API request data.
      *
-     * @returns {AxiosResponse[]} A promise that resolves with the response.
+     * @returns {HttpResponse[]} A promise that resolves with the response.
      */
-    const httpRequestAll = (configs: AxiosRequestConfig[]): Promise<AxiosResponse[]> => {
+    const httpRequestAll = (configs: HttpRequestConfig[]): Promise<HttpResponse[]> => {
         let matches = false;
         authConfig.baseUrls.forEach((baseUrl) => {
             if (configs.every((config) => config.url.startsWith(baseUrl))) {
@@ -253,17 +257,17 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
             }
         });
 
-        const httpRequests: AxiosPromise[] = configs.map((config: AxiosRequestConfig) => {
+        const httpRequests: HttpPromise[] = configs.map((config: HttpRequestConfig) => {
             return httpClient.request(config);
         });
 
         if (matches) {
             return axios
                 .all(httpRequests)
-                .then((responses: AxiosResponse[]) => {
+                .then((responses: HttpResponse[]) => {
                     return Promise.resolve(responses);
                 })
-                .catch((error: AxiosError) => {
+                .catch((error: HttpError) => {
                     if (error?.response?.status === 401) {
 
                         return refreshAccessToken()
@@ -294,7 +298,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
 
     const customGrant = (
         requestParams: CustomGrantRequestParams
-    ): Promise<SignInResponse | boolean | AxiosResponse> => {
+    ): Promise<SignInResponse | boolean | HttpResponse> => {
         return customGrantUtil(requestParams, authConfig);
     };
 
@@ -332,9 +336,9 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
             session.set(SESSION_STATE, authConfig.sessionState);
         }
 
-        httpClient = AxiosHttpClient.getInstance();
+        httpClient = HttpClient.getInstance();
 
-        const startCallback = (request: AxiosRequestConfig): void => {
+        const startCallback = (request: HttpRequestConfig): void => {
             request.headers = {
                 ...request.headers,
                 Authorization: `Bearer ${ session?.get(ACCESS_TOKEN) }`

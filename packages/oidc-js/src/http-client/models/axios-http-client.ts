@@ -18,21 +18,21 @@
  */
 
 import {
-    AxiosError,
-    AxiosInstance,
-    AxiosRequestConfig,
-    AxiosResponse
-} from "axios";
+    HttpError,
+    HttpInstance,
+    HttpRequestConfig,
+    HttpResponse
+}from "../..";
 
 /**
  * Axios Http Client model
  */
-export interface AxiosHttpClientInstance extends AxiosInstance {
+export interface HttpClientInstance extends HttpInstance {
     init?(
         isHandlerEnabled: boolean,
-        requestStartCallback: (request: AxiosRequestConfig) => void,
-        requestSuccessCallback: (response: AxiosResponse) => void,
-        requestErrorCallback: (error: AxiosError) => void,
+        requestStartCallback: (request: HttpRequestConfig) => void,
+        requestSuccessCallback: (response: HttpResponse) => void,
+        requestErrorCallback: (error: HttpError) => void,
         requestFinishCallback: () => void
     ): void;
     disableHandler?: () => void;

@@ -16,16 +16,17 @@
  * under the License.
  */
 
-export * from "./client";
-export * from "./message";
-export * from "./oidc-request-params";
-export * from "./token-response";
-export * from "./crypto";
-export * from "./authenticated-user";
-export * from "./web-worker-client";
-export * from "./web-worker";
-export * from "./session";
-export * from "./endpoints";
-export * from "./token-response";
-export * from "./open-id-config";
-export * from "./http-client";
+export {
+    AxiosRequestConfig as HttpRequestConfig,
+    AxiosResponse as HttpResponse,
+    Method,
+    AxiosTransformer as HttpTransformer,
+    AxiosAdapter as HttpAdapter,
+    AxiosBasicCredentials as HttpBasicCredentials,
+    ResponseType,
+    AxiosProxyConfig as HttpProxyConfig,
+    CancelToken,
+    AxiosError as HttpError,
+    AxiosPromise as HttpPromise,
+    AxiosInstance as HttpInstance
+} from "axios";

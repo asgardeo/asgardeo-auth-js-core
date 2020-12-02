@@ -17,11 +17,6 @@
  */
 
 import {
-    AxiosError,
-    AxiosRequestConfig,
-    AxiosResponse
-} from "axios";
-import {
     ACCESS_TOKEN,
     AUTHORIZATION_CODE_TYPE,
     Hooks,
@@ -30,11 +25,14 @@ import {
     Storage
 }from "./constants";
 import { isWebWorkerConfig } from "./helpers";
-import { AxiosHttpClient, AxiosHttpClientInstance } from "./http-client";
+import { HttpClient, HttpClientInstance } from "./http-client";
 import {
     ConfigInterface,
     CustomGrantRequestParams,
     DecodedIdTokenPayloadInterface,
+    HttpError,
+    HttpRequestConfig,
+    HttpResponse,
     ServiceResourcesType,
     UserInfo,
     WebWorkerClientInterface,
@@ -91,10 +89,10 @@ export class IdentityClient {
     private _onInitialize: (response: boolean) => void;
     private _onCustomGrant: Map<string, (response: any) => void> = new Map();
     private _onHttpRequestStart: () => void;
-    private _onHttpRequestSuccess: (response: AxiosResponse) => void;
+    private _onHttpRequestSuccess: (response: HttpResponse) => void;
     private _onHttpRequestFinish: () => void;
-    private _onHttpRequestError: (error: AxiosError) => void;
-    private _httpClient: AxiosHttpClientInstance;
+    private _onHttpRequestError: (error: HttpError) => void;
+    private _httpClient: HttpClientInstance;
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
@@ -127,7 +125,7 @@ export class IdentityClient {
         this._initialized = false;
         this._startedInitialize = true;
 
-        const startCallback = (request: AxiosRequestConfig): void => {
+        const startCallback = (request: HttpRequestConfig): void => {
             request.headers = {
                 ...request.headers,
                 Authorization: `Bearer ${getSessionParameter(ACCESS_TOKEN, config)}`
@@ -139,7 +137,7 @@ export class IdentityClient {
         if (!isWebWorkerConfig(config)) {
             this._authConfig = { ...DefaultConfig, ...config };
             this._initialized = true;
-            this._httpClient = AxiosHttpClient.getInstance();
+            this._httpClient = HttpClient.getInstance();
             this._httpClient.init(
                 true,
                 startCallback,
@@ -273,7 +271,7 @@ export class IdentityClient {
             });
     }
 
-    public async httpRequest(config: AxiosRequestConfig): Promise<AxiosResponse> {
+    public async httpRequest(config: HttpRequestConfig): Promise<HttpResponse> {
         if (this._storage === Storage.WebWorker) {
             return this._client.httpRequest(config);
         }
@@ -281,12 +279,12 @@ export class IdentityClient {
         return this._httpClient.request(config);
     }
 
-    public async httpRequestAll(config: AxiosRequestConfig[]): Promise<AxiosResponse[]> {
+    public async httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]> {
         if (this._storage === Storage.WebWorker) {
             return this._client.httpRequestAll(config);
         }
 
-        const requests: Promise<AxiosResponse<any>>[] = [];
+        const requests: Promise<HttpResponse<any>>[] = [];
         config.forEach((request) => {
             requests.push(this._httpClient.request(request));
         });
@@ -367,7 +365,7 @@ export class IdentityClient {
         return Promise.resolve(getServiceEndpoints(this._authConfig));
     }
 
-    public getHttpClient(): AxiosHttpClientInstance {
+    public getHttpClient(): HttpClientInstance {
         if (this._initialized) {
             return this._httpClient;
         }
