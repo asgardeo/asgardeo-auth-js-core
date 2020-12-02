@@ -77,7 +77,6 @@ export const Dashboard: FunctionComponent<null> = (): ReactElement => {
                             auth.httpRequest({
                                 headers: {
                                     Accept: "application/json",
-                                    "Access-Control-Allow-Origin": clientHost
                                 },
                                 method: "GET",
                                 url: serverOrigin + "/api/identity/user/v1.0/me"
