@@ -30,9 +30,7 @@ const clientHost = origin;
 // Initialize the client
 auth.initialize({
     baseUrls: [serverOrigin],
-    clientHost: clientHost,
     clientID: "client-id",
-    enablePKCE: true,
     serverOrigin: serverOrigin,
     signInRedirectURL: clientHost + "/sign-in",
     signOutRedirectURL: clientHost + "/dashboard",

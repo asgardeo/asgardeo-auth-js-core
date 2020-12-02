@@ -205,16 +205,16 @@ This method takes a `config` object as the only argument. The attributes of the 
 
 |Attribute| Type | Default Value| Description|
 |:-----|:----|:----|:----|
-|`signInRedirectURL`|`string`||The URL to redirect to after the user authorizes the client app. eg: `https://conotoso.com/login` |
-|`signOutRedirectURL`|`string`||The URL to redirect to after the user signs out. eg: `https://conotoso.com/logout` |
-|`clientHost`|`string`||The hostname of the client app.  eg: `https://contoso.com`|
-|`clientID`| `string` ||The client ID of the OIDC application hosted in the Asgardio.
+|`signInRedirectURL`|`string`|""|The URL to redirect to after the user authorizes the client app. eg: `https://conotoso.com/login` |
+|`clientID`| `string` |""|The client ID of the OIDC application hosted in the Asgardio.|
+|`serverOrigin`|`string`|""|The origin of the Identity Provider. eg: `https://www.asgardio.io`|
+|`signOutRedirectURL` (optional)|`string`|`signInRedirectURL` |The URL to redirect to after the user signs out. eg: `https://conotoso.com/logout` |
+|`clientHost` (optional)|`string`|The origin of the client app obtained using `window.origin`|The hostname of the client app.  eg: `https://contoso.com`|
 |`clientSecret` (optional)|`string`|""|The client secret of the OIDC application|
 |`enablePKCE` (optional)|`boolean`|`true`|Specifies if a PKCE should be sent with the request for the authorization code. |
 |`prompt` (optional)|`string`|""|Specifies the prompt type of an OIDC request|
 |`responseMode` (optional)|`string`|`"query"`| Specifies the response mode. The value can either be `query` or `form_post`|
 |`scope` (optional)|`string[]`|`["openid"]`|Specifies the requested scopes|
-|`serverOrigin`|`string`|""|The origin of the Identity Provider. eg: `https://www.asgardio.io`|
 |[`storage`](#storage) (optional)| `"sessionStorage"`, `"webWorker"`, `"localStorage"`|`"sessionStorage"`| The storage medium where the session information such as the access token should be stored.|
 |`baseUrls` (required if the `storage` is set to `webWorker`|`string[]`|""|The URLs of the API endpoints. This is needed only if the storage method is set to `webWorker`. When API calls are made through the [`httpRequest`](#httprequest) or the [`httpRequestAll`](#httprequestall) method, only the calls to the endpoints specified in the `baseURL` attribute will be allowed. Everything else will be denied.|
 |`endpoints` (optional)|[`ServiceResourceTypes`](#serviceresourcetypes)|[ServiceResource Default Values](#serviceresourcetypes)| The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be used.|
