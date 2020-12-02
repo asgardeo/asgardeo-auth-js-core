@@ -10,7 +10,7 @@
     ],
     "main": "dist/asgardio-oidc.production.js",
     "module": "dist/asgardio-oidc.production.esm.js",
-    "types": "src/index.ts",
+    "types": "dist/src/index.d.ts",
     "scripts": {
         "lint": "eslint --ext .js,.ts .",
         "fix-lint": "eslint --ext .js,.ts . --fix",
