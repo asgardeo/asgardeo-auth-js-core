@@ -27,7 +27,7 @@ export interface HttpClientStatic<S> {
 /**
  * Http client interface.
  */
-export interface HttpClient<T, U, V> {
+export interface HttpClientInterface<T, U, V> {
     init(isHandlerEnabled: boolean,
          requestStartCallback: () => void,
          requestSuccessCallback: (response: U) => void,
