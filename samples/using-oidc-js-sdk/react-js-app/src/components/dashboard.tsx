@@ -27,7 +27,6 @@ export const Dashboard: FunctionComponent<null> = (): ReactElement => {
     const history = useHistory();
     const auth = IdentityClient.getInstance();
     const serverOrigin = "https://localhost:9443";
-    const clientHost = "http://localhost:3000";
 
     const [ email, setEmail ] = useState("");
     const [ lastName, setLastName ] = useState("");
@@ -76,7 +75,7 @@ export const Dashboard: FunctionComponent<null> = (): ReactElement => {
                         if (isAuth) {
                             auth.httpRequest({
                                 headers: {
-                                    Accept: "application/json",
+                                    Accept: "application/json"
                                 },
                                 method: "GET",
                                 url: serverOrigin + "/api/identity/user/v1.0/me"
