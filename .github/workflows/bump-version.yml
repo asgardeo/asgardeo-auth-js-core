@@ -30,7 +30,7 @@ jobs:
           git config --global user.name "asgardio-github-bot"
           npm run bump-patch-version
           git push --follow-tags
-        if: github.repository == 'asgardio/asgardio-js-oidc-sdk'&& github.event.inputs.type === 'patch'
+        if: github.repository == 'asgardio/asgardio-js-oidc-sdk'&& github.event.inputs.type == 'patch'
       
       - name: Bump Minor Version
         run: |
@@ -38,7 +38,7 @@ jobs:
           git config --global user.name "asgardio-github-bot"
           npm run bump-minor-version
           git push --follow-tags
-        if: github.repository == 'asgardio/asgardio-js-oidc-sdk'&& github.event.inputs.type === 'minor'
+        if: github.repository == 'asgardio/asgardio-js-oidc-sdk'&& github.event.inputs.type == 'minor'
         
       - name: Bump Major Version
         run: |
@@ -46,4 +46,4 @@ jobs:
           git config --global user.name "asgardio-github-bot"
           npm run bump-major-version
           git push --follow-tags
-        if: github.repository == 'asgardio/asgardio-js-oidc-sdk'&& github.event.inputs.type === 'major'
+        if: github.repository == 'asgardio/asgardio-js-oidc-sdk'&& github.event.inputs.type == 'major'
