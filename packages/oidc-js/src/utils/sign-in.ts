@@ -471,8 +471,8 @@ export function sendRevokeTokenRequest(
  * @param idToken id_token received from the IdP.
  * @returns {AuthenticatedUserInterface} authenticated user.
  */
-export const getAuthenticatedUser = (config: ConfigInterface): AuthenticatedUserInterface => {
-    const payload: DecodedIdTokenPayloadInterface = getDecodedIDToken(config);
+export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterface => {
+    const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
     const emailAddress: string = payload.email ? payload.email : null;
     const tenantDomain: string = getTenantDomainFromIdTokenPayload(payload);
 
@@ -701,6 +701,17 @@ export const getUserInfo = (config: ConfigInterface | WebWorkerConfigInterface):
 };
 
 /**
+ * This function decodes teh payload of an id token and returns it.
+ *
+ * @param {string} idToken - The id token to be decoded.
+ *
+ * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
+ */
+const decodeIDToken = (idToken: string): DecodedIdTokenPayloadInterface => {
+    return JSON.parse(base64URLDecode(idToken.split(".")[1]));
+}
+
+/**
  *
  * @param {ConfigInterface} config - The configuration parameters.
  *
@@ -710,7 +721,7 @@ export const getDecodedIDToken = (
     config: ConfigInterface | WebWorkerConfigInterface
 ): DecodedIdTokenPayloadInterface => {
     const idToken = getSessionParameter(ID_TOKEN, config);
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(base64URLDecode(idToken.split(".")[1]));
+    const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
 
     return payload;
 };
