@@ -18,7 +18,13 @@
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { KeyLike } from "jose/webcrypto/types";
-import { getCodeChallenge, getCodeVerifier, getJWKForTheIdToken, isValidIdToken } from "./crypto";
+import {
+    base64URLDecode,
+    getCodeChallenge,
+    getCodeVerifier,
+    getJWKForTheIdToken,
+    isValidIdToken
+} from "./crypto";
 import {
     getAuthorizeEndpoint,
     getIssuer,
@@ -465,8 +471,8 @@ export function sendRevokeTokenRequest(
  * @param idToken id_token received from the IdP.
  * @returns {AuthenticatedUserInterface} authenticated user.
  */
-export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterface => {
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken?.split(".")[1]));
+export const getAuthenticatedUser = (config: ConfigInterface): AuthenticatedUserInterface => {
+    const payload: DecodedIdTokenPayloadInterface = getDecodedIDToken(config);
     const emailAddress: string = payload.email ? payload.email : null;
     const tenantDomain: string = getTenantDomainFromIdTokenPayload(payload);
 
@@ -704,7 +710,7 @@ export const getDecodedIDToken = (
     config: ConfigInterface | WebWorkerConfigInterface
 ): DecodedIdTokenPayloadInterface => {
     const idToken = getSessionParameter(ID_TOKEN, config);
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken.split(".")[1]));
+    const payload: DecodedIdTokenPayloadInterface = JSON.parse(base64URLDecode(idToken.split(".")[1]));
 
     return payload;
 };
