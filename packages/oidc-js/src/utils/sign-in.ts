@@ -174,9 +174,11 @@ export function sendAuthorizationRequest(
 
     const customParams = requestParams.customParams;
     if (customParams) {
-        customParams.forEach((value: string, key: string) => {
-            authorizeRequest += "&" + key + "=" + value;
-        });
+        for (const [ key, value ] of Object.entries(customParams)) {
+            if (key != "" && value != "") {
+                authorizeRequest += "&" + key + "=" + value;
+            }
+        }
     }
 
     if (requestParams.storage === Storage.WebWorker) {
