@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import Base64 from "crypto-js/enc-base64";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
@@ -31,10 +30,23 @@ import { JWKInterface } from "../models";
  * @returns {string} base 64 url encoded value.
  */
 export const base64URLEncode = (value: CryptoJS.WordArray): string => {
-    return Base64.stringify(value)
+    return btoa(value.toString())
         .replace(/\+/g, "-")
         .replace(/\//g, "_")
         .replace(/=/g, "");
+};
+
+/**
+ * Get URL encoded string.
+ *
+ * @param {string} value.
+ * @returns {string} base 64 url encoded value.
+ */
+export const base64URLDecode = (value: string): string => {
+    const base64URL: string = value.replace(/-/g, "+")
+        .replace(/_/g, "/")
+        .replace(/\s/g, "=");
+    return atob(base64URL);
 };
 
 /**
