@@ -17,9 +17,10 @@
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import base64URLDecode from "crypto-js/enc-base64";
+import utf8 from "crypto-js/enc-utf8";
 import { KeyLike } from "jose/webcrypto/types";
 import {
-    base64URLDecode,
     getCodeChallenge,
     getCodeVerifier,
     getJWKForTheIdToken,
@@ -701,14 +702,17 @@ export const getUserInfo = (config: ConfigInterface | WebWorkerConfigInterface):
 };
 
 /**
- * This function decodes teh payload of an id token and returns it.
+ * This function decodes the payload of an id token and returns it.
  *
  * @param {string} idToken - The id token to be decoded.
  *
  * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
  */
 const decodeIDToken = (idToken: string): DecodedIdTokenPayloadInterface => {
-    return JSON.parse(base64URLDecode(idToken.split(".")[1]));
+    const words = base64URLDecode.parse(idToken.split(".")[ 1 ]);
+    const utf8String = utf8.stringify(words);
+    const payload = JSON.parse(utf8String);
+    return payload;
 }
 
 /**
