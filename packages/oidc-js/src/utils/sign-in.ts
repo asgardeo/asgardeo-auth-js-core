@@ -709,10 +709,16 @@ export const getUserInfo = (config: ConfigInterface | WebWorkerConfigInterface):
  * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
  */
 const decodeIDToken = (idToken: string): DecodedIdTokenPayloadInterface => {
-    const words = base64URLDecode.parse(idToken.split(".")[ 1 ]);
-    const utf8String = utf8.stringify(words);
-    const payload = JSON.parse(utf8String);
-    return payload;
+    try {
+        const words = base64URLDecode.parse(idToken.split(".")[ 1 ]);
+        const utf8String = utf8.stringify(words);
+        const payload = JSON.parse(utf8String);
+
+        return payload;
+
+    } catch (error) {
+        throw Error(error)
+    }
 }
 
 /**
