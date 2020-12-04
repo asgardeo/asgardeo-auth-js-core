@@ -172,6 +172,15 @@ export function sendAuthorizationRequest(
         authorizeRequest += "&fidp=" + fidp;
     }
 
+    const customParams = requestParams.customParams;
+    if (customParams) {
+        for (const [ key, value ] of Object.entries(customParams)) {
+            if (key != "" && value != "") {
+                authorizeRequest += "&" + key + "=" + value;
+            }
+        }
+    }
+
     if (requestParams.storage === Storage.WebWorker) {
         return Promise.resolve({
             code: authorizeRequest,

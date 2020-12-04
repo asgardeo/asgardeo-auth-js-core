@@ -38,6 +38,7 @@ interface BaseConfigInterface {
     authorizationCode?: string;
     sessionState?: string;
     validateIDToken?: boolean;
+    customParams?: CustomParamsInterface;
 }
 /**
  * SDK Client config parameters.
@@ -63,4 +64,8 @@ export interface HttpClient {
 
 export interface WebWorkerClientConfigInterface extends WebWorkerConfigInterface {
     httpClient: HttpClient;
+}
+
+interface CustomParamsInterface {
+    [ key: string ]: string
 }
