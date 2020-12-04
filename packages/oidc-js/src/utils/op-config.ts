@@ -36,7 +36,7 @@ import {
     TOKEN_ENDPOINT,
     USERNAME
 } from "../constants";
-import { ConfigInterface, OpenIDConfig, ServiceResourcesType } from "../models";
+import { ConfigInterface, OpenIDConfig, OIDCProviderMetaData, WebWorkerConfigInterface } from "../models";
 
 /**
  * Checks whether openid configuration initiated.
@@ -259,30 +259,33 @@ export const initOPConfiguration = (
         })
         .catch(() => {
             setAuthorizeEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.authorize || SERVICE_RESOURCES.authorize),
+                requestParams.serverOrigin + (requestParams?.endpoints?.authorization_endpoint
+                    || SERVICE_RESOURCES.authorize),
                 requestParams
             );
             setTokenEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.token || SERVICE_RESOURCES.token),
+                requestParams.serverOrigin + (requestParams?.endpoints?.token_endpoint || SERVICE_RESOURCES.token),
                 requestParams
             );
             setRevokeTokenEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.revoke || SERVICE_RESOURCES.revoke),
+                requestParams.serverOrigin + (requestParams?.endpoints?.revocation_endpoint
+                    || SERVICE_RESOURCES.revoke),
                 requestParams
             );
             setEndSessionEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.logout || SERVICE_RESOURCES.logout),
+                requestParams.serverOrigin + (requestParams?.endpoints?.end_session_endpoint
+                    || SERVICE_RESOURCES.logout),
                 requestParams
             );
-            setJwksUri(serverHost + (requestParams?.endpoints?.jwks || SERVICE_RESOURCES.jwks), requestParams);
+            setJwksUri(serverHost + (requestParams?.endpoints?.jwks_uri || SERVICE_RESOURCES.jwks), requestParams);
             setIssuer(
-                requestParams.serverOrigin + (requestParams?.endpoints?.token || SERVICE_RESOURCES.token),
+                requestParams.serverOrigin + (requestParams?.endpoints?.issuer || SERVICE_RESOURCES.token),
                 requestParams
             );
             setClientID(requestParams);
             setOIDCSessionIFrameURL(
                 requestParams.serverOrigin +
-                    (requestParams?.endpoints?.oidcSessionIFrame || SERVICE_RESOURCES.oidcSessionIFrame),
+                    (requestParams?.endpoints?.check_session_iframe || SERVICE_RESOURCES.oidcSessionIFrame),
                 requestParams
             );
             setSignInRedirectURL(requestParams.signInRedirectURL, requestParams);
