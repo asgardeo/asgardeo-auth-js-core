@@ -102,6 +102,8 @@ export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Pr
  * @param jwk public key used for signing.
  * @param {string} clientID app identification.
  * @param {string} issuer id_token issuer.
+ * @param {string} username Username.
+ * @param {number} clockTolerance - Allowed leeway for id_tokens (in seconds).
  * @returns {Promise<boolean>} whether the id_token is valid.
  */
 export const isValidIdToken = (
@@ -109,11 +111,13 @@ export const isValidIdToken = (
     jwk: KeyLike,
     clientID: string,
     issuer: string,
-    username: string
+    username: string,
+    clockTolerance: number
 ): Promise<boolean> => {
     return jwtVerify(idToken, jwk, {
         algorithms: getSupportedSignatureAlgorithms(),
         audience: clientID,
+        clockTolerance: clockTolerance,
         issuer: issuer,
         subject: username
     }).then(() => {

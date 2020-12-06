@@ -235,7 +235,8 @@ export function validateIdToken(
                         jwk,
                         requestParams.clientID,
                         issuer,
-                        getAuthenticatedUser(idToken).username
+                        getAuthenticatedUser(idToken).username,
+                        requestParams.clockTolerance
                     );
                 })
                 .catch((error) => {
