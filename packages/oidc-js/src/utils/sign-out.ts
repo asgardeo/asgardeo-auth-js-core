@@ -25,7 +25,7 @@ import {
 } from "../constants";
 import { Storage } from "../constants/storage";
 import { isWebWorkerConfig } from "../helpers";
-import { ConfigInterface, WebWorkerConfigInterface } from "../models";
+import { ConfigInterface } from "../models";
 
 /**
  * Execute user sign out request
@@ -35,7 +35,7 @@ import { ConfigInterface, WebWorkerConfigInterface } from "../models";
  * @returns {Promise<any>} sign out request status
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function sendSignOutRequest(requestParams: ConfigInterface | WebWorkerConfigInterface): Promise<any> {
+export function sendSignOutRequest(requestParams: ConfigInterface): Promise<any> {
     const logoutEndpoint = getEndSessionEndpoint(requestParams);
 
     if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
@@ -78,7 +78,7 @@ export function sendSignOutRequest(requestParams: ConfigInterface | WebWorkerCon
  * @returns {Promise<any>} sign out status
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function handleSignOut(requestParams: ConfigInterface | WebWorkerConfigInterface): Promise<any> {
+export function handleSignOut(requestParams: ConfigInterface): Promise<any> {
     if (
         (requestParams.storage === Storage.SessionStorage && sessionStorage.length === 0) ||
         (requestParams.storage === Storage.LocalStorage && localStorage.length === 0)

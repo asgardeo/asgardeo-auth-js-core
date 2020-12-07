@@ -34,10 +34,11 @@ import {
     HttpRequestConfig,
     HttpResponse,
     ServiceResourcesType,
+    SignInResponse,
+    TokenResponseInterface,
     UserInfo,
-    WebWorkerClientInterface,
-    WebWorkerConfigInterface
-} from "./models";
+    WebWorkerClientInterface
+}from "./models";
 import {
     customGrant as customGrantUtil,
     endAuthenticatedSession,
@@ -78,7 +79,7 @@ const DefaultConfig = {
  * @implements {ConfigInterface} - Configuration interface.
  */
 export class IdentityClient {
-    private _authConfig: ConfigInterface | WebWorkerConfigInterface;
+    private _authConfig: ConfigInterface;
     private static _instance: IdentityClient;
     private _client: WebWorkerClientInterface;
     private _storage: Storage;
@@ -98,6 +99,22 @@ export class IdentityClient {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
+    /**
+     * This method returns the instance of the singleton class.
+     *
+     * @return {IdentityClient} - Returns the instance of the singleton class.
+     *
+     * @example
+     * ```
+     * const auth = IdentityClient.getInstance();
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getinstance
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public static getInstance(): IdentityClient {
         if (this._instance) {
             return this._instance;
@@ -111,13 +128,27 @@ export class IdentityClient {
     /**
      * This method initializes the `IdentityClient` instance.
      *
+     * @param {ConfigInterface} config The config object to initialize with.
+     *
+     * @return {Promise<boolean>} - Resolves to `true` if initialization is successful.
+     *
+     * @example
+     * ```
+     * auth.initialize({
+     *     signInRedirectURL: "http://localhost:9443/myaccount/login",
+     *     clientHost: "http://localhost:9443/myaccount/",
+     *     clientID: "client ID",
+     *     serverOrigin: "http://localhost:9443"
+     * });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#initialize
+     *
+     * @memberof IdentityClient
+     *
      * @preserve
-     *
-     * @param {ConfigInterface | WebWorkerConfigInterface} config The config object to initialize with.
-     *
-     * @return {Promise<boolean>} Resolves to true if initialization is successful.
      */
-    public initialize(config: ConfigInterface | WebWorkerConfigInterface): Promise<boolean> {
+    public initialize(config: ConfigInterface): Promise<boolean> {
         if (!config.signOutRedirectURL) {
             config.signOutRedirectURL = config.signInRedirectURL;
         }
@@ -171,6 +202,26 @@ export class IdentityClient {
         }
     }
 
+    /**
+     * This method returns a Promise that resolves with the user information obtained from the ID token.
+     *
+     * @return {Promise<UserInfo} - A promise that resolves with the user information.
+     *
+     * @example
+     * ```
+     * auth.getUserInfo().then((response) => {
+     *    // console.log(response);
+     * }).catch((error) => {
+     *    // console.error(error);
+     * });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getuserinfo
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public getUserInfo(): Promise<UserInfo> {
         if (this._storage === Storage.WebWorker) {
             return this._client.getUserInfo();
@@ -179,19 +230,36 @@ export class IdentityClient {
         return Promise.resolve(getUserInfoUtil(this._authConfig));
     }
 
-    public validateAuthentication(): null {
-        // TODO: Implement
-        return;
-    }
-
     /**
-     * Sign-in method.
+     * This method initiates the authentication flow. This should be called twice.
+     *  1. To initiate the authentication flow.
+     *  2. To obtain the access token after getting the authorization code.
      *
-     * @param {() => void} [callback] - Callback method to run on successful sign-in
-     * @returns {Promise<any>} promise.
+     * To satisfy the second condition, one of the two strategies mentioned below can be used:
+     *  1. Redirect the user back to the same login page that initiated the authentication flow.
+     *  2. Call the `signIn()` method in the page the user is redirected to after authentication.
+     *
+     * **To fire a callback function after signing in, use the `on()` method.**
+     * **To learn more about the `on()` method:**
+     * @see {@link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     *
+     * @param {string} fidp - Specifies the FIDP parameter
+     * to direct the user directly to the IdP's sign-in page instead of the Single-Sign-On page.
+     *
+     * @return {Promise<UserInfo>} - A promise that resolves with the user information.
+     *
+     * @example
+     * ```
+     * auth.signIn();
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#signin
+     *
      * @memberof IdentityClient
+     *
+     * @preserve
      */
-    public async signIn(fidp?: string): Promise<any> {
+    public async signIn(fidp?: string): Promise<UserInfo> {
         if (!this._startedInitialize) {
             return Promise.reject("The object has not been initialized yet.");
         }
@@ -245,13 +313,26 @@ export class IdentityClient {
     }
 
     /**
-     * Sign-out method.
+     * This method initiates the sign-out flow.
      *
-     * @param {() => void} [callback] - Callback method to run on successful sign-in
-     * @returns {Promise<any>} promise.
+     * **To fire a callback function after signing out, use the `on()` method.**
+     * **To learn more about the `on()` method:**
+     * @see {@link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     *
+     * @return {Promise<boolean>} - Returns a promise that resolves with `true` if sign out is successful.
+     *
+     * @example
+     * ```
+     * auth.signOut();
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#signout
+     *
      * @memberof IdentityClient
+     *
+     * @preserve
      */
-    public async signOut(): Promise<any> {
+    public async signOut(): Promise<boolean> {
         if (this._storage === Storage.WebWorker) {
             return this._client
                 .signOut()
@@ -272,6 +353,43 @@ export class IdentityClient {
             });
     }
 
+    /**
+     * This method sends an API request to a protected endpoint.
+     * The access token is automatically attached to the header of the request.
+     * This is the only way by which protected endpoints can be accessed
+     * when the web worker is used to store session information.
+     *
+     * @param {HttpRequestConfig} config -  The config object containing attributes necessary to send a request.
+     *
+     * @return {Promise<HttpResponse>} - Returns a Promise that resolves with the response to the request.
+     *
+     * @example
+     * ```
+     *  const requestConfig = {
+     *      headers: {
+     *          "Accept": "application/json",
+     *          "Access-Control-Allow-Origin": "https://localhost:9443/myaccount",
+     *          "Content-Type": "application/scim+json"
+     *      },
+     *      method: "GET",
+     *      url: "https://localhost:9443/scim2/me"
+     *  };
+     *
+     *  return auth.httpRequest(requestConfig)
+     *     .then((response) => {
+     *           // console.log(response);
+     *      })
+     *      .catch((error) => {
+     *           // console.error(error);
+     *      });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#httprequest
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public async httpRequest(config: HttpRequestConfig): Promise<HttpResponse> {
         if (this._storage === Storage.WebWorker) {
             return this._client.httpRequest(config);
@@ -280,6 +398,53 @@ export class IdentityClient {
         return this._httpClient.request(config);
     }
 
+    /**
+     * This method sends multiple API requests to a protected endpoint.
+     * The access token is automatically attached to the header of the request.
+     * This is the only way by which multiple requests can be sent to protected endpoints
+     * when the web worker is used to store session information.
+     *
+     * @param {HttpRequestConfig[]} config -  The config object containing attributes necessary to send a request.
+     *
+     * @return {Promise<HttpResponse[]>} - Returns a Promise that resolves with the responses to the requests.
+     *
+     * @example
+     * ```
+     *  const requestConfig = {
+     *      headers: {
+     *          "Accept": "application/json",
+     *          "Content-Type": "application/scim+json"
+     *      },
+     *      method: "GET",
+     *      url: "https://localhost:9443/scim2/me"
+     *  };
+     *
+     *  const requestConfig2 = {
+     *      headers: {
+     *          "Accept": "application/json",
+     *          "Content-Type": "application/scim+json"
+     *      },
+     *      method: "GET",
+     *      url: "https://localhost:9443/scim2/me"
+     *  };
+     *
+     *  return auth.httpRequest([requestConfig, requestConfig2])
+     *     .then((responses) => {
+     *           response.forEach((response)=>{
+     *              // console.log(response);
+     *           });
+     *      })
+     *      .catch((error) => {
+     *           // console.error(error);
+     *      });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#httprequestall
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public async httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]> {
         if (this._storage === Storage.WebWorker) {
             return this._client.httpRequestAll(config);
@@ -293,7 +458,40 @@ export class IdentityClient {
         return this._httpClient.all(requests);
     }
 
-    public async customGrant(requestParams: CustomGrantRequestParams): Promise<any> {
+    /**
+     * This method allows you to send a request with a custom grant.
+     *
+     * @param {CustomGrantRequestParams} requestParams - The request parameters.
+     *
+     * @return {Promise< boolean | HttpResponse<any> | SignInResponse>} - A Promise that resolves with
+     * the value returned by the custom grant request.
+     *
+     * @example
+     * ```
+     * auth.customGrant({
+     *   attachToken: false,
+     *   data: {
+     *       client_id: "{{clientId}}",
+     *       grant_type: "account_switch",
+     *       scope: "{{scope}}",
+     *       token: "{{token}}",
+     *   },
+     *   id: "account-switch",
+     *   returnResponse: true,
+     *   returnsSession: true,
+     *   signInRequired: true
+     * });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#customgrant
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
+    public async customGrant(
+        requestParams: CustomGrantRequestParams
+    ): Promise<boolean | HttpResponse<any> | SignInResponse> {
         if (!requestParams.id) {
             throw Error("No ID specified for the custom grant.");
         }
@@ -326,7 +524,27 @@ export class IdentityClient {
             });
     }
 
-    public async endUserSession(): Promise<any> {
+    /**
+     * This method ends a user session. The access token is revoked and the session information is destroyed.
+     *
+     * **To fire a callback function after ending user session, use the `on()` method.**
+     * **To learn more about the `on()` method:**
+     * @see {@link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     *
+     * @return {Promise<boolean>} - A promise that resolves with `true` if the process is successful.
+     *
+     * @example
+     * ```
+     * auth.endUserSession();
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#endusersession
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
+    public async endUserSession(): Promise<boolean> {
         if (this._storage === Storage.WebWorker) {
             return this._client
                 .endUserSession()
@@ -358,6 +576,26 @@ export class IdentityClient {
             });
     }
 
+    /**
+     * This method returns a Promise that resolves with an object containing the service endpoints.
+     *
+     * @return {Promise<ServiceResourcesType} - A Promise that resolves with an object containing the service endpoints.
+     *
+     * @example
+     * ```
+     * auth.getServiceEndpoints().then((endpoints) => {
+     *      // console.log(endpoints);
+     *  }).error((error) => {
+     *      // console.error(error);
+     *  });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getserviceendpoints
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public async getServiceEndpoints(): Promise<ServiceResourcesType> {
         if (this._storage === Storage.WebWorker) {
             return this._client.getServiceEndpoints();
@@ -366,6 +604,15 @@ export class IdentityClient {
         return Promise.resolve(getServiceEndpoints(this._authConfig));
     }
 
+    /**
+     * This methods returns the Axios http client.
+     *
+     * @return {HttpClientInstance} - The Axios HTTP client.
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public getHttpClient(): HttpClientInstance {
         if (this._initialized) {
             return this._httpClient;
@@ -374,6 +621,26 @@ export class IdentityClient {
         throw Error("Identity Client has not been initialized yet");
     }
 
+    /**
+     * This method decodes the payload of the id token and returns it.
+     *
+     * @return {Promise<DecodedIdTokenPayloadInterface>} - A Promise that resolves with
+     * the decoded payload of the id token.
+     *
+     * @example
+     * ```
+     * auth.getDecodedIDToken().then((response)=>{
+     *     // console.log(response);
+     * }).catch((error)=>{
+     *     // console.error(error);
+     * });
+     * ```
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getdecodedidtoken
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public getDecodedIDToken(): Promise<DecodedIdTokenPayloadInterface> {
         if (this._storage === Storage.WebWorker) {
             return this._client.getDecodedIDToken();
@@ -382,6 +649,28 @@ export class IdentityClient {
         return Promise.resolve(getDecodedIDToken(this._authConfig));
     }
 
+    /**
+     * This method return a Promise that resolves with the access token.
+     *
+     * **This method will not return the access token if the storage type is set to `webWorker`.**
+     *
+     * @return {Promise<string>} - A Promise that resolves with the access token.
+     *
+     * @example
+     * ```
+     *   auth.getAccessToken().then((token) => {
+     *       // console.log(token);
+     *   }).catch((error) => {
+     *       // console.error(error);
+     *   });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getaccesstoken
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public getAccessToken(): Promise<string> {
         if (this._storage === Storage.WebWorker) {
             return Promise.reject("The access token cannot be obtained when the storage type is set to webWorker.");
@@ -390,7 +679,28 @@ export class IdentityClient {
         return getAccessTokenUtil(this._authConfig);
     }
 
-    public refreshToken(): Promise<string> {
+    /**
+     * This method refreshes the access token.
+     *
+     * @return {TokenResponseInterface} - A Promise that resolves with an object containing
+     * information about the refreshed access token.
+     *
+     * @example
+     * ```
+     * auth.refreshToken().then((response)=>{
+     *      // console.log(response);
+     * }).catch((error)=>{
+     *      // console.error(error);
+     * });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#refreshtoken
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
+    public refreshToken(): Promise<TokenResponseInterface> {
         if (this._storage === Storage.WebWorker) {
             return Promise.reject("The token is automatically refreshed when the storage type is set to webWorker.");
         }
@@ -398,6 +708,26 @@ export class IdentityClient {
         return sendRefreshTokenRequest(this._authConfig, getSessionParameter(REFRESH_TOKEN, this._authConfig));
     }
 
+    /**
+     * This method attaches a callback function to an event hook that fires the callback when the event happens.
+     *
+     * @param {Hooks.CustomGrant} hook - The name of the hook.
+     * @param {(response?: any) => void} callback - The callback function.
+     * @param {string} id (optional) - The id of the hook. This is used when multiple custom grants are used.
+     *
+     * @example
+     * ```
+     * auth.on("sign-in", (response)=>{
+     *      // console.log(response);
+     * });
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
     public on(hook: Hooks.CustomGrant, callback: (response?: any) => void, id: string): void;
     public on(
         hook:

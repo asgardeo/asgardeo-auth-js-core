@@ -39,8 +39,7 @@ import {
     AuthenticatedUserInterface,
     ConfigInterface,
     SessionInterface,
-    TokenResponseInterface,
-    WebWorkerConfigInterface
+    TokenResponseInterface
 } from "../models";
 
 /**
@@ -53,7 +52,7 @@ const semaphore = new Semaphore(1);
  *
  * @param {string} key.
  */
-export function removeSessionParameter(key: string, requestParams: ConfigInterface | WebWorkerConfigInterface): void {
+export function removeSessionParameter(key: string, requestParams: ConfigInterface): void {
     switch (requestParams.storage) {
         case Storage.WebWorker:
             requestParams.session.delete(key);
@@ -78,7 +77,7 @@ export function removeSessionParameter(key: string, requestParams: ConfigInterfa
 export function setSessionParameter(
     key: string,
     value: string,
-    requestParams: ConfigInterface | WebWorkerConfigInterface
+    requestParams: ConfigInterface
 ): void {
     switch (requestParams.storage) {
         case Storage.WebWorker:
@@ -103,7 +102,7 @@ export function setSessionParameter(
  */
 export function getSessionParameter(
     key: string,
-    requestParams: ConfigInterface | WebWorkerConfigInterface
+    requestParams: ConfigInterface
 ): string | null {
     switch (requestParams.storage) {
         case Storage.WebWorker:
@@ -120,7 +119,7 @@ export function getSessionParameter(
 /**
  * End authenticated user session.
  */
-export function endAuthenticatedSession(requestParams: ConfigInterface | WebWorkerConfigInterface): void {
+export function endAuthenticatedSession(requestParams: ConfigInterface): void {
     clearRefreshTokenTimer(requestParams);
 
     removeSessionParameter(ACCESS_TOKEN, requestParams);
@@ -147,7 +146,7 @@ export function endAuthenticatedSession(requestParams: ConfigInterface | WebWork
 export function initUserSession(
     tokenResponse: TokenResponseInterface,
     authenticatedUser: AuthenticatedUserInterface,
-    requestParams: ConfigInterface | WebWorkerConfigInterface
+    requestParams: ConfigInterface
 ): void {
     setSessionParameter(ACCESS_TOKEN, tokenResponse.accessToken, requestParams);
     setSessionParameter(ACCESS_TOKEN_EXPIRE_IN, tokenResponse.expiresIn, requestParams);
@@ -169,7 +168,7 @@ export function initUserSession(
  *
  * @returns {SessionInterface} session object.
  */
-export function getAllSessionParameters(requestParams: ConfigInterface | WebWorkerConfigInterface): SessionInterface {
+export function getAllSessionParameters(requestParams: ConfigInterface): SessionInterface {
     return {
         accessToken: getSessionParameter(ACCESS_TOKEN, requestParams),
         displayName: getSessionParameter(DISPLAY_NAME, requestParams),
@@ -189,7 +188,7 @@ export function getAllSessionParameters(requestParams: ConfigInterface | WebWork
  *
  * @returns {Promise<string>} access token.
  */
-export function getAccessToken(requestParams: ConfigInterface | WebWorkerConfigInterface): Promise<string> {
+export function getAccessToken(requestParams: ConfigInterface): Promise<string> {
     const accessToken = getSessionParameter(ACCESS_TOKEN, requestParams);
     const expiresIn = getSessionParameter(ACCESS_TOKEN_EXPIRE_IN, requestParams);
     const issuedAt = getSessionParameter(ACCESS_TOKEN_ISSUED_AT, requestParams);
@@ -242,9 +241,9 @@ export function getAccessToken(requestParams: ConfigInterface | WebWorkerConfigI
 /**
  * This refreshes the access token automatically.
  *
- * @param {ConfigInterface | WebWorkerConfigInterface} config - The init config.
+ * @param {ConfigInterface} config - The init config.
  */
-const refreshTokenAutomatically = (config: ConfigInterface | WebWorkerConfigInterface): void => {
+const refreshTokenAutomatically = (config: ConfigInterface): void => {
     // Refresh 10 seconds before the expiry time
     const expiryTime = parseInt(getSessionParameter(ACCESS_TOKEN_EXPIRE_IN, config));
     const time = expiryTime <= 10 ? expiryTime: expiryTime - 10;
@@ -259,9 +258,9 @@ const refreshTokenAutomatically = (config: ConfigInterface | WebWorkerConfigInte
 /**
  * This clears the refresh token timer.
  *
- * @param {ConfigInterface | WebWorkerConfigInterface} config - The init config.
+ * @param {ConfigInterface} config - The init config.
  */
-const clearRefreshTokenTimer = (config: ConfigInterface | WebWorkerConfigInterface): void => {
+const clearRefreshTokenTimer = (config: ConfigInterface): void => {
     if (getSessionParameter(REFRESH_TOKEN_TIMER, config)) {
         const oldTimer = JSON.parse(getSessionParameter(REFRESH_TOKEN_TIMER, config));
 
