@@ -39,7 +39,12 @@ interface BaseConfigInterface {
     sessionState?: string;
     validateIDToken?: boolean;
     customParams?: CustomParamsInterface;
+    /**
+     * Allowed leeway for id_tokens (in seconds).
+     */
+    clockTolerance?: number;
 }
+
 /**
  * SDK Client config parameters.
  */

@@ -221,6 +221,7 @@ This method takes a `config` object as the only argument. The attributes of the 
 |`authorizationCode` (optional)| `string`|""|When the `responseMode` is set to `from_post`, the authorization code is returned as a `POST` request. Apps can use this attribute to pass the obtained authorization code to the SDK. Since client applications can't handle `POST` requests, the application's backend should implement the logic to receive the authorization code and send it back to the SDK.|
 | `sessionState` (optional) | `string`|""| When the `responseMode` is set to `from_post`, the session state is returned as a `POST` request. Apps can use this attribute to pass the obtained session state to the SDK. Since client applications can't handle `POST` requests, the application's backend should implement the logic to receive the session state and send it back to the SDK.|
 |`validateIDToken`(optional)|`boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
+|`clockTolerance`(optional)|`number`|`60`|Allows you to configure the leeway when validating the id_token.|
 
 The `initialize` hook is used to fire a callback function after initializing is successful. Check the [on()](#on) section for more information.
 

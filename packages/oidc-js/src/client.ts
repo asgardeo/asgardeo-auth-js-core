@@ -62,6 +62,7 @@ const DefaultConfig = {
     authorizationType: AUTHORIZATION_CODE_TYPE,
     clientHost: origin,
     clientSecret: null,
+    clockTolerance: 60,
     consentDenied: false,
     enablePKCE: true,
     responseMode: null,
