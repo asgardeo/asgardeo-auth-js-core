@@ -17,7 +17,7 @@
  */
 
 import { WebWorkerConfigInterface } from ".";
-import { ServiceResourcesType } from "./endpoints";
+import { OIDCEndpointConstantsInterface } from "./endpoints";
 import { SignInResponse, UserInfo } from "./message";
 import { DecodedIdTokenPayloadInterface } from "./token-response";
 import { HttpError, HttpRequestConfig, HttpResponse } from "../models";
@@ -30,7 +30,7 @@ export interface WebWorkerClientInterface {
     initialize(config: WebWorkerConfigInterface): Promise<boolean>;
     customGrant(requestParams: CustomGrantRequestParams): Promise<HttpResponse | boolean | SignInResponse>;
     endUserSession(): Promise<boolean>;
-    getServiceEndpoints(): Promise<ServiceResourcesType>;
+    getServiceEndpoints(): Promise<OIDCEndpointConstantsInterface>;
     onHttpRequestSuccess(callback: (response: HttpResponse) => void): void;
     onHttpRequestError(callback: (response: HttpError) => void): void;
 
