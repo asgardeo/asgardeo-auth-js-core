@@ -36,6 +36,7 @@ module.exports = {
                 variables: false
             }],
             "eol-last": "error",
+            "no-debugger": "warn",
             "no-use-before-define": "off"
         }
     }],
