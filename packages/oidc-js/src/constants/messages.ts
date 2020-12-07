@@ -35,3 +35,5 @@ export const GET_SERVICE_ENDPOINTS = "get-service-endpoints";
 export const GET_USER_INFO = "get-user-info";
 export const GET_DECODED_ID_TOKEN = "get-decoded-id-token";
 export const LOGOUT_SUCCESS = "logout_success";
+export const ENABLE_HTTP_HANDLER = "enable_http_handler";
+export const DISABLE_HTTP_HANDLER = "disable_http_handler";
