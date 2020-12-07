@@ -22,6 +22,8 @@ import {
     API_CALL_ALL,
     AUTH_REQUIRED,
     CUSTOM_GRANT,
+    DISABLE_HTTP_HANDLER,
+    ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
     GET_DECODED_ID_TOKEN,
     GET_SERVICE_ENDPOINTS,
@@ -267,6 +269,28 @@ ctx.onmessage = ({ data, ports }) => {
             } catch (error) {
                 port.postMessage(generateFailureDTO(error));
             }
+
+            break;
+        case ENABLE_HTTP_HANDLER:
+            if (!webWorker) {
+                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+
+                break;
+            }
+
+            webWorker.enableHttpHandler();
+            port.postMessage(generateSuccessDTO());
+
+            break;
+        case DISABLE_HTTP_HANDLER:
+            if (!webWorker) {
+                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+
+                break;
+            }
+
+            webWorker.disableHttpHandler();
+            port.postMessage(generateSuccessDTO());
 
             break;
         default:
