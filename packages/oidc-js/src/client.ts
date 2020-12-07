@@ -34,6 +34,8 @@ import {
     HttpRequestConfig,
     HttpResponse,
     OIDCEndpointConstantsInterface,
+    SignInResponse,
+    TokenResponseInterface,
     UserInfo,
     WebWorkerClientInterface
 }from "./models";
