@@ -1,8 +1,8 @@
 {
   "name": "@asgardio/oidc-sample-react",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "dependencies": {
-    "@asgardio/oidc-js": "^0.1.30",
+    "@asgardio/oidc-js": "^0.1.31",
     "@babel/core": "7.9.0",
     "@svgr/webpack": "4.3.3",
     "@testing-library/jest-dom": "^4.2.4",
