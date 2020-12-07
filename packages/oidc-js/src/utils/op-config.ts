@@ -22,11 +22,13 @@ import {
     AUTHORIZATION_ENDPOINT,
     CLIENT_ID,
     END_SESSION_ENDPOINT,
+    INTROSPECTION_ENDPOINT,
     ISSUER,
     JWKS_ENDPOINT,
     OIDC_SESSION_IFRAME_ENDPOINT,
     OPEN_ID_CONFIG,
     OP_CONFIG_INITIATED,
+    REGISTRATION_ENDPOINT,
     REVOKE_TOKEN_ENDPOINT,
     SERVICE_RESOURCES,
     SIGN_IN_REDIRECT_URL,
@@ -34,9 +36,16 @@ import {
     Storage,
     TENANT,
     TOKEN_ENDPOINT,
+    USERINFO_ENDPOINT,
     USERNAME
 } from "../constants";
-import { ConfigInterface, OpenIDConfig, OIDCProviderMetaData, WebWorkerConfigInterface } from "../models";
+import {
+    ConfigInterface,
+    OIDCEndpointConstantsInterface,
+    OIDCProviderMetaData,
+    OpenIDConfig,
+    WebWorkerConfigInterface
+} from "../models";
 
 /**
  * Checks whether openid configuration initiated.
@@ -181,6 +190,35 @@ export const setClientID = (requestParams: ConfigInterface): void => {
     setSessionParameter(CLIENT_ID, requestParams.clientID, requestParams);
 };
 
+const resolveEndpoint = (
+    config: ConfigInterface | WebWorkerConfigInterface,
+    endpointName: string,
+    response: OIDCProviderMetaData
+): string => {
+    const camelCasedName = endpointName.split("_").map((name: string, index: number) => {
+
+        if (index !== 0) {
+            return name[ 0 ].toUpperCase() + name.substring(1);
+        }
+
+        return name;
+    }).join("");
+
+    if (config.overrideWellEndpointConfig && config.endpoints[camelCasedName]) {
+        return config.serverOrigin + config.endpoints[camelCasedName];
+    }
+
+    return response[endpointName];
+}
+
+export const resolveWellKnownEndpoint = (config: ConfigInterface | WebWorkerConfigInterface): string => {
+    if (config.wellKnownEndpoint) {
+        return config.serverOrigin + config.wellKnownEndpoint;
+    }
+
+    return config.serverOrigin + SERVICE_RESOURCES.wellKnownEndpoint;
+}
+
 /**
  * Initialize openid provider configuration.
  *
@@ -198,94 +236,92 @@ export const initOPConfiguration = (
     }
 
     const serverHost = requestParams.serverOrigin;
-    let wellKnownEndpoint = serverHost + SERVICE_RESOURCES.wellKnown;
-    if (requestParams?.endpoints?.wellKnown) {
-        wellKnownEndpoint = requestParams.endpoints.wellKnown;
-    }
+    const wellKnownEndpoint = resolveWellKnownEndpoint(requestParams);
 
     return axios
         .get(wellKnownEndpoint)
-        .then((response: { data: OpenIDConfig; status: number}) => {
+        .then((response: { data: OpenIDConfig; status: number; }) => {
             if (response.status !== 200) {
                 return Promise.reject(
                     new Error(
-                        "Failed to load OpenID provider configuration from: " + serverHost + SERVICE_RESOURCES.wellKnown
+                        "Failed to load OpenID provider configuration from: "
+                        + serverHost + SERVICE_RESOURCES.wellKnownEndpoint
                     )
                 );
             }
 
             setOPConfig(response.data, requestParams);
-            if (requestParams?.endpoints?.authorize) {
-                setAuthorizeEndpoint(requestParams?.endpoints?.authorize, requestParams);
-            } else {
-                setAuthorizeEndpoint(response.data.authorization_endpoint, requestParams);
-            }
-            if (requestParams?.endpoints?.token) {
-                setTokenEndpoint(requestParams?.endpoints?.token, requestParams);
-            } else {
-                setTokenEndpoint(response.data.token_endpoint, requestParams);
-            }
-            if (requestParams?.endpoints?.jwks) {
-                setJwksUri(requestParams?.endpoints?.jwks, requestParams);
-            } else {
-                setJwksUri(response.data.jwks_uri, requestParams);
-            }
-            if (requestParams?.endpoints?.logout) {
-                setEndSessionEndpoint(requestParams?.endpoints?.logout, requestParams);
-            } else {
-                setEndSessionEndpoint(response.data.end_session_endpoint, requestParams);
-            }
-            if (requestParams?.endpoints?.revoke) {
-                setRevokeTokenEndpoint(requestParams?.endpoints?.revoke, requestParams);
-            } else {
-                setRevokeTokenEndpoint(
-                    response.data.token_endpoint.substring(0, response.data.token_endpoint.lastIndexOf("token")) +
-                    "revoke", requestParams
-                );
-            }
-            setIssuer(response.data.issuer, requestParams);
+            setAuthorizeEndpoint(
+                resolveEndpoint(requestParams, AUTHORIZATION_ENDPOINT, response.data), requestParams
+            );
+            setTokenEndpoint(resolveEndpoint(requestParams, TOKEN_ENDPOINT, response.data), requestParams);
+            setEndSessionEndpoint(resolveEndpoint(requestParams, END_SESSION_ENDPOINT, response.data), requestParams);
+            setJwksUri(resolveEndpoint(requestParams, JWKS_ENDPOINT, response.data), requestParams);
+            setRevokeTokenEndpoint(
+                 resolveEndpoint(requestParams, REVOKE_TOKEN_ENDPOINT, response.data),
+                requestParams
+            );
+            setIssuer(resolveEndpoint(requestParams, ISSUER, response.data), requestParams);
             setClientID(requestParams);
-            if (requestParams?.endpoints?.oidcSessionIFrame) {
-                setOIDCSessionIFrameURL(requestParams?.endpoints?.oidcSessionIFrame, requestParams);
-            } else {
-                setOIDCSessionIFrameURL(response.data.check_session_iframe, requestParams);
-            }
+            setOIDCSessionIFrameURL(
+                resolveEndpoint(requestParams, OIDC_SESSION_IFRAME_ENDPOINT, response.data), requestParams);
             setSignInRedirectURL(requestParams.signInRedirectURL, requestParams);
             setSignOutRedirectURL(requestParams.signOutRedirectURL, requestParams);
             setOPConfigInitiated(requestParams);
+
+            setSessionParameter(
+                INTROSPECTION_ENDPOINT,
+                resolveEndpoint(requestParams, INTROSPECTION_ENDPOINT, response.data),
+                requestParams
+            );
+
+            setSessionParameter(
+                REGISTRATION_ENDPOINT,
+                resolveEndpoint(requestParams, REGISTRATION_ENDPOINT, response.data),
+                requestParams
+            );
+
+            setSessionParameter(
+                USERINFO_ENDPOINT,
+                resolveEndpoint(requestParams, USERINFO_ENDPOINT, response.data),
+                requestParams
+            );
+
             return Promise.resolve(
-                "Initialized OpenID Provider configuration from: " + serverHost + SERVICE_RESOURCES.wellKnown
+                "Initialized OpenID Provider configuration from: " + serverHost + SERVICE_RESOURCES.wellKnownEndpoint
             );
         })
         .catch(() => {
             setAuthorizeEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.authorization_endpoint
-                    || SERVICE_RESOURCES.authorize),
+                requestParams.serverOrigin + (requestParams?.endpoints?.authorizationEndpoint
+                    || SERVICE_RESOURCES.authorizationEndpoint),
                 requestParams
             );
             setTokenEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.token_endpoint || SERVICE_RESOURCES.token),
+                requestParams.serverOrigin + (requestParams?.endpoints?.tokenEndpoint
+                    || SERVICE_RESOURCES.tokenEndpoint),
                 requestParams
             );
             setRevokeTokenEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.revocation_endpoint
-                    || SERVICE_RESOURCES.revoke),
+                requestParams.serverOrigin + (requestParams?.endpoints?.revocationEndpoint
+                    || SERVICE_RESOURCES.revocationEndpoint),
                 requestParams
             );
             setEndSessionEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.end_session_endpoint
-                    || SERVICE_RESOURCES.logout),
+                requestParams.serverOrigin + (requestParams?.endpoints?.endSessionEndpoint
+                    || SERVICE_RESOURCES.endSessionEndpoint),
                 requestParams
             );
-            setJwksUri(serverHost + (requestParams?.endpoints?.jwks_uri || SERVICE_RESOURCES.jwks), requestParams);
+            setJwksUri(serverHost + (requestParams?.endpoints?.jwksUri || SERVICE_RESOURCES.jwksUri), requestParams);
             setIssuer(
-                requestParams.serverOrigin + (requestParams?.endpoints?.issuer || SERVICE_RESOURCES.token),
+                requestParams.serverOrigin + (requestParams?.endpoints?.issuer || SERVICE_RESOURCES.tokenEndpoint),
                 requestParams
             );
             setClientID(requestParams);
             setOIDCSessionIFrameURL(
                 requestParams.serverOrigin +
-                    (requestParams?.endpoints?.check_session_iframe || SERVICE_RESOURCES.oidcSessionIFrame),
+                (requestParams?.endpoints?.checkSessionIframe
+                    || SERVICE_RESOURCES.checkSessionIframe),
                 requestParams
             );
             setSignInRedirectURL(requestParams.signInRedirectURL, requestParams);
@@ -297,7 +333,7 @@ export const initOPConfiguration = (
                     "Initialized OpenID Provider configuration from default configuration." +
                         "Because failed to access wellknown endpoint: " +
                         serverHost +
-                        SERVICE_RESOURCES.wellKnown
+                        SERVICE_RESOURCES.wellKnownEndpoint
                 )
             );
         });
@@ -325,15 +361,20 @@ export const resetOPConfiguration = (requestParams: ConfigInterface): void => {
     }
 };
 
-export const getServiceEndpoints = (authConfig: ConfigInterface): ServiceResourcesType => {
+export const getServiceEndpoints =
+    (authConfig: ConfigInterface): OIDCEndpointConstantsInterface => {
     return {
-        authorize: getAuthorizeEndpoint(authConfig),
-        jwks: getJwksUri(authConfig),
-        logout: getEndSessionEndpoint(authConfig),
-        oidcSessionIFrame: getOIDCSessionIFrameURL(authConfig),
-        revoke: getRevokeTokenEndpoint(authConfig),
-        token: getTokenEndpoint(authConfig),
-        wellKnown: SERVICE_RESOURCES.wellKnown
+        authorizationEndpoint: getAuthorizeEndpoint(authConfig),
+        checkSessionIframe: getOIDCSessionIFrameURL(authConfig),
+        endSessionEndpoint: getEndSessionEndpoint(authConfig),
+        introspectionEndpoint: getSessionParameter(INTROSPECTION_ENDPOINT, authConfig),
+        issuer: getSessionParameter(ISSUER, authConfig),
+        jwksUri: getJwksUri(authConfig),
+        registrationEndpoint: getSessionParameter(REGISTRATION_ENDPOINT, authConfig),
+        revocationEndpoint: getRevokeTokenEndpoint(authConfig),
+        tokenEndpoint: getTokenEndpoint(authConfig),
+        userinfoEndpoint: getSessionParameter(USERINFO_ENDPOINT, authConfig),
+        wellKnownEndpoint: authConfig.serverOrigin + SERVICE_RESOURCES.wellKnownEndpoint
     };
 };
 
