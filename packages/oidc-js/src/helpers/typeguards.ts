@@ -20,7 +20,7 @@ import { Storage } from "../constants";
 import { ConfigInterface, WebWorkerConfigInterface } from "../models";
 
 export const isWebWorkerConfig = (
-    config: ConfigInterface | WebWorkerConfigInterface
+    config: ConfigInterface
 ): config is WebWorkerConfigInterface => {
     return config.storage === Storage.WebWorker;
 };

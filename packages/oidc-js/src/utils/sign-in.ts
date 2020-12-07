@@ -87,7 +87,7 @@ import {
  *
  * @returns {boolean} true if authorization code is present.
  */
-export function hasAuthorizationCode(requestParams: ConfigInterface | WebWorkerConfigInterface): boolean {
+export function hasAuthorizationCode(requestParams: ConfigInterface): boolean {
     return !!getAuthorizationCode(requestParams);
 }
 
@@ -99,7 +99,7 @@ export function hasAuthorizationCode(requestParams: ConfigInterface | WebWorkerC
  *
  * @returns {string} Resolved authorization code.
  */
-export function getAuthorizationCode(requestParams?: ConfigInterface | WebWorkerConfigInterface): string {
+export function getAuthorizationCode(requestParams?: ConfigInterface): string {
     if (!requestParams || !isWebWorkerConfig(requestParams)) {
         if (!requestParams || requestParams.responseMode !== ResponseMode.formPost) {
             if (new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE)) {
@@ -133,11 +133,11 @@ export const getTokenRequestHeaders = (): TokenRequestHeader => {
 /**
  * Send authorization request.
  *
- * @param {ConfigInterface | WebWorkerConfigInterface} requestParams
+ * @param {ConfigInterface} requestParams
  * request parameters required for authorization request.
  */
 export function sendAuthorizationRequest(
-    requestParams: ConfigInterface | WebWorkerConfigInterface,
+    requestParams: ConfigInterface,
     fidp?: string
 ): Promise<SignInResponse | never> {
     const authorizeEndpoint = getAuthorizeEndpoint(requestParams);
@@ -211,7 +211,7 @@ export function sendAuthorizationRequest(
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function validateIdToken(
     idToken: string,
-    requestParams: ConfigInterface | WebWorkerConfigInterface
+    requestParams: ConfigInterface
 ): Promise<any> {
     const jwksEndpoint = getJwksUri(requestParams);
 
@@ -261,11 +261,11 @@ export function validateIdToken(
 /**
  * Send token request.
  *
- * @param {ConfigInterface | WebWorkerConfigInterface} requestParams request parameters required for token request.
+ * @param {ConfigInterface} requestParams request parameters required for token request.
  * @returns {Promise<TokenResponseInterface>} token response data or error.
  */
 export function sendTokenRequest(
-    requestParams: ConfigInterface | WebWorkerConfigInterface
+    requestParams: ConfigInterface
 ): Promise<TokenResponseInterface> {
     const tokenEndpoint = getTokenEndpoint(requestParams);
 
@@ -363,14 +363,14 @@ export function sendTokenRequest(
 /**
  * Send refresh token request.
  *
- * @param {ConfigInterface | WebWorkerConfigInterface} requestParams request parameters required for token request.
+ * @param {ConfigInterface} requestParams request parameters required for token request.
  * @param {string} refreshToken
  * @returns {Promise<TokenResponseInterface>} refresh token response data or error.
  */
 export function sendRefreshTokenRequest(
-    requestParams: ConfigInterface | WebWorkerConfigInterface,
+    requestParams: ConfigInterface,
     refreshToken: string
-): Promise<any> {
+): Promise<TokenResponseInterface> {
     const tokenEndpoint = getTokenEndpoint(requestParams);
 
     if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
@@ -412,9 +412,7 @@ export function sendRefreshTokenRequest(
                         return Promise.resolve(tokenResponse);
                     }
 
-                    return Promise.reject(
-                        "Invalid id_token in the token response: " + response.data.id_token
-                    );
+                    return Promise.reject("Invalid id_token in the token response: " + response.data.id_token);
                 });
             } else {
                 const tokenResponse: TokenResponseInterface = {
@@ -439,14 +437,14 @@ export function sendRefreshTokenRequest(
 /**
  * Send revoke token request.
  *
- * @param {ConfigInterface | WebWorkerConfigInterface} requestParams
+ * @param {ConfigInterface} requestParams
  * request parameters required for revoke token request.
  * @param {string} accessToken access token
  * @returns {any}
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function sendRevokeTokenRequest(
-    requestParams: ConfigInterface | WebWorkerConfigInterface,
+    requestParams: ConfigInterface,
     accessToken: string
 ): Promise<any> {
     const revokeTokenEndpoint = getRevokeTokenEndpoint(requestParams);
@@ -507,7 +505,7 @@ export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterfac
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function sendSignInRequest(
-    requestParams: ConfigInterface | WebWorkerConfigInterface, fidp?: string): Promise<SignInResponse> {
+    requestParams: ConfigInterface, fidp?: string): Promise<SignInResponse> {
     if (hasAuthorizationCode(requestParams)) {
         return sendTokenRequest(requestParams)
             .then((response) => {
@@ -528,7 +526,7 @@ export function sendSignInRequest(
     }
 }
 
-export function handleSignIn(requestParams: ConfigInterface | WebWorkerConfigInterface, fidp?: string): Promise<any> {
+export function handleSignIn(requestParams: ConfigInterface, fidp?: string): Promise<any> {
     if (getSessionParameter(ACCESS_TOKEN, requestParams)) {
         if (!isValidOPConfig(requestParams)) {
             endAuthenticatedSession(requestParams);
@@ -562,13 +560,13 @@ export function handleSignIn(requestParams: ConfigInterface | WebWorkerConfigInt
  * Replaces template tags with actual values.
  *
  * @param {string} text Input string.
- * @param {ConfigInterface | WebWorkerConfigInterface} authConfig - Auth config object.
+ * @param {ConfigInterface} authConfig - Auth config object.
  *
  * @return {string} String with template tags replaced with actual values.
  */
 const replaceTemplateTags = (
     text: string,
-    authConfig: ConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface
+    authConfig: ConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface
 ): string => {
     let scope = OIDC_SCOPE;
 
@@ -591,13 +589,13 @@ const replaceTemplateTags = (
  * Allows using custom grant types.
  *
  * @param {CustomGrantRequestParams} requestParams - The request parameters.
- * @param {ConfigInterface | WebWorkerConfigInterface} authConfig - Auth config object.
+ * @param {ConfigInterface} authConfig - Auth config object.
  * @returns {Promise<boolean|AxiosResponse>} A promise that resolves with a boolean value or the request response
  * if the the `returnResponse` attribute in the `requestParams` object is set to `true`.
  */
 export const customGrant = (
     requestParams: CustomGrantRequestParams,
-    authConfig: ConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface
+    authConfig: ConfigInterface | WebWorkerConfigInterface | WebWorkerConfigInterface
 ): Promise<SignInResponse | boolean | AxiosResponse> => {
     if (
         !getSessionParameter(TOKEN_ENDPOINT, authConfig) ||
@@ -703,7 +701,7 @@ export const customGrant = (
  *
  * @returns {UserInfo} User information.
  */
-export const getUserInfo = (config: ConfigInterface | WebWorkerConfigInterface): UserInfo => {
+export const getUserInfo = (config: ConfigInterface): UserInfo => {
     return {
         allowedScopes: getSessionParameter(SCOPE, config),
         displayName: getSessionParameter(DISPLAY_NAME, config),
@@ -741,7 +739,7 @@ const decodeIDToken = (idToken: string): DecodedIdTokenPayloadInterface => {
  * @return {DecodedIdTokenPayloadInterface} The decoded ID Token payload.
  */
 export const getDecodedIDToken = (
-    config: ConfigInterface | WebWorkerConfigInterface
+    config: ConfigInterface
 ): DecodedIdTokenPayloadInterface => {
     const idToken = getSessionParameter(ID_TOKEN, config);
     const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
