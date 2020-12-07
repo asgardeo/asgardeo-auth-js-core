@@ -39,7 +39,7 @@ import {
     HttpPromise,
     HttpRequestConfig,
     HttpResponse,
-    ServiceResourcesType,
+    OIDCEndpointConstantsInterface,
     SessionData,
     SignInResponse,
     SignInResponseWorker,
@@ -310,7 +310,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
         return getUserInfoUtil(authConfig);
     };
 
-    const getServiceEndpoints = (): Promise<ServiceResourcesType> => {
+    const getServiceEndpoints = (): Promise<OIDCEndpointConstantsInterface> => {
         return Promise.resolve(getServiceEndpointsUtil(authConfig));
     };
 

@@ -33,9 +33,7 @@ import {
     HttpError,
     HttpRequestConfig,
     HttpResponse,
-    ServiceResourcesType,
-    SignInResponse,
-    TokenResponseInterface,
+    OIDCEndpointConstantsInterface,
     UserInfo,
     WebWorkerClientInterface
 }from "./models";
@@ -596,7 +594,7 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async getServiceEndpoints(): Promise<ServiceResourcesType> {
+    public async getServiceEndpoints(): Promise<OIDCEndpointConstantsInterface> {
         if (this._storage === Storage.WebWorker) {
             return this._client.getServiceEndpoints();
         }
