@@ -42,6 +42,8 @@ The `@asgardio/oidc-js` SDK has been deprecated in favor of the following SDKs.
     - [getAccessToken](#getaccesstoken)
     - [refreshToken](#refreshtoken)
     - [on](#on)
+    - [enableHttpHandler](#enableHttpHandler)
+    - [disableHttpHandler](#disableHttpHandler)
 - [Using the `form_post` Response Mode](#using-the-form_post-response-mode)
 - [Develop](#develop)
     - [Prerequisites](#prerequisites)
@@ -508,6 +510,28 @@ auth.on("sign-in", (response) => {
     // console.log(response);
 });
 ```
+
+### enableHttpHandler
+```typescript
+enableHttpHandler(): Promise<boolean>;
+```
+
+This enables the callback functions attached to the http client. The callback functions are enabled by default. This needs to be called only if the [disableHttpHandler](#disableHttpHandler) method was called previously.
+
+```javascript
+auth.enableHttpHandler();
+```
+
+### disableHttpHandler
+```typescript
+disableHttpHandler(): Promise<boolean>;
+```
+This disables the callback functions attached to the http client.
+
+```javascript
+auth.disableHttpHandler();
+```
+
 ## Using the `form_post` response mode
 
 When the `responseMode` is set to `form_post`, the authorization code is sent in the body of a `POST` request as opposed to in the URL. So, the Single Page Application should have a backend to receive the authorization code and send it back to the Single Page Application.
