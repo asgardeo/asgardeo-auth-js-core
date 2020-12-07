@@ -39,6 +39,8 @@ export interface WebWorkerClientInterface {
     onHttpRequestFinish(callback: () => void): void;
     getUserInfo(): Promise<UserInfo>;
     getDecodedIDToken(): Promise<DecodedIdTokenPayloadInterface>;
+    enableHttpHandler(): Promise<boolean>;
+    disableHttpHandler(): Promise<boolean>;
 }
 
 export interface WebWorkerSingletonClientInterface {
