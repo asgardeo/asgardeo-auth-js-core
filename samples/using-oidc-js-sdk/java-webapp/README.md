@@ -12,7 +12,7 @@ Replace the `"client-host"` value of the `clientHost` attribute with the applica
 ```javascript
  // Initialize the client
 auth.initialize({
-    baseUrls: [ serverOrigin ],
+    resourceServerURLs: [ serverOrigin ],
     callbackURL: clientHost,
     clientHost: "client-host",
     clientID: "oNYe7ML9smdwuR5olarViTTL_iga",

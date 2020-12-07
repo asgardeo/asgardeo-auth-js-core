@@ -209,7 +209,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
      */
     const httpRequest = (config: HttpRequestConfig): Promise<HttpResponse> => {
         let matches = false;
-        authConfig.baseUrls.forEach((baseUrl) => {
+        authConfig.resourceServerURLs.forEach((baseUrl) => {
             if (config?.url?.startsWith(baseUrl)) {
                 matches = true;
             }
@@ -255,7 +255,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
      */
     const httpRequestAll = (configs: HttpRequestConfig[]): Promise<HttpResponse[]> => {
         let matches = false;
-        authConfig.baseUrls.forEach((baseUrl) => {
+        authConfig.resourceServerURLs.forEach((baseUrl) => {
             if (configs.every((config) => config.url.startsWith(baseUrl))) {
                 matches = true;
             }

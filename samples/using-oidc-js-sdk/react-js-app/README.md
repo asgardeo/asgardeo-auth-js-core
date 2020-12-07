@@ -9,7 +9,7 @@ Paste the copied `OAuth Client Key` in front of the `clientID` attribute of `aut
 ```javascript
  // Initialize the client
 auth.initialize({
-    baseUrls: [ serverOrigin ],
+    resourceServerURLs: [ serverOrigin ],
     callbackURL: clientHost,
     clientHost: clientHost,
     clientID: "oNYe7ML9smdwuR5olarViTTL_iga",
