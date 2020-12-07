@@ -389,7 +389,6 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
         }
 
         httpClientHandlers = {
-            isHandlerEnabled: true,
             requestErrorCallback: null,
             requestFinishCallback: null,
             requestStartCallback: null,
