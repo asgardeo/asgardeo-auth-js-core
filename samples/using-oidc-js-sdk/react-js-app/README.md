@@ -20,8 +20,7 @@ Read more about the SDK configurations [here](../../../packages/oidc-js/README.m
 {
     "clientID": "<ADD_CLIENT_ID_HERE>",
     "serverOrigin": "https://localhost:9443",
-    "signInRedirectURL": "https://localhost:5000",
-    "signOutRedirectURL": "https://localhost:5000"
+    "signInRedirectURL": "https://localhost:5000"
 }
 ```
 
@@ -30,9 +29,24 @@ Read more about the SDK configurations [here](../../../packages/oidc-js/README.m
 ```bash
 npm start
 ```
+The app should open at `http://localhost:3000`
 
-The app should open at `https://localhost:5000`
+## Available Scripts
 
-## License
+In the project directory, you can run:
 
-Licenses this source under the Apache License, Version 2.0 ([LICENSE](../../../LICENSE)), You may not use this file except in compliance with the License.
+### `npm start`
+
+Runs the app in the development mode.<br />
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.<br />
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.<br />
+Your app is ready to be deployed!
