@@ -157,13 +157,11 @@ export class IdentityClient {
         this._initialized = false;
         this._startedInitialize = true;
 
-        const startCallback = (request: HttpRequestConfig): void => {
+        const attachToken = (request: HttpRequestConfig): void => {
             request.headers = {
                 ...request.headers,
                 Authorization: `Bearer ${getSessionParameter(ACCESS_TOKEN, config)}`
             };
-
-            this._onHttpRequestStart && typeof this._onHttpRequestStart === "function" && this._onHttpRequestStart();
         };
 
         if (!isWebWorkerConfig(config)) {
@@ -172,7 +170,8 @@ export class IdentityClient {
             this._httpClient = HttpClient.getInstance();
             this._httpClient.init(
                 true,
-                startCallback,
+                attachToken,
+                this._onHttpRequestStart,
                 this._onHttpRequestSuccess,
                 this._onHttpRequestError,
                 this._onHttpRequestFinish
@@ -795,6 +794,58 @@ export class IdentityClient {
             }
         } else {
             throw Error("The callback function is not a valid function.");
+        }
+    }
+
+    /**
+     * This method enables callback functions attached to the http client.
+     *
+     * @return {Promise<boolean>} - A promise that resolves with True.
+     *
+     * @example
+     * ```
+     * auth.enableHttpHandler();
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#enableHttpHandler
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
+    public enableHttpHandler(): Promise<boolean> {
+        if (this._storage === Storage.WebWorker) {
+            return this._client.enableHttpHandler();
+        } else {
+            this._httpClient.enableHandler();
+
+            return Promise.resolve(true);
+        }
+    }
+
+    /**
+     * This method disables callback functions attached to the http client.
+     *
+     * @return {Promise<boolean>} - A promise that resolves with True.
+     *
+     * @example
+     * ```
+     * auth.disableHttpHandler();
+     * ```
+     *
+     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#disableHttpHandler
+     *
+     * @memberof IdentityClient
+     *
+     * @preserve
+     */
+    public disableHttpHandler(): Promise<boolean> {
+        if (this._storage === Storage.WebWorker) {
+            return this._client.disableHttpHandler();
+        } else {
+            this._httpClient.disableHandler();
+
+            return Promise.resolve(true);
         }
     }
 }
