@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { AxiosError, AxiosResponse } from "axios";
 import { WebWorker } from "./web-worker";
 import {
     API_CALL,
@@ -37,6 +36,8 @@ import {
     SIGN_IN
 } from "../constants";
 import {
+    HttpError,
+    HttpResponse,
     SignInResponseWorker,
     WebWorkerClass,
     WebWorkerClientConfigInterface,
@@ -277,7 +278,7 @@ const onRequestStartCallback = () => {
     ctx.postMessage({ type: REQUEST_START });
 };
 
-const onRequestSuccessCallback = (response: AxiosResponse) => {
+const onRequestSuccessCallback = (response: HttpResponse) => {
     ctx.postMessage({ data: JSON.stringify(response ?? ""), type: REQUEST_SUCCESS });
 };
 
@@ -285,7 +286,7 @@ const onRequestFinishCallback = () => {
     ctx.postMessage({ type: REQUEST_FINISH });
 };
 
-const onRequestErrorCallback = (error: AxiosError) => {
+const onRequestErrorCallback = (error: HttpError) => {
     const errorObject = { ...error };
     delete errorObject.toJSON;
     ctx.postMessage({ data: JSON.stringify(errorObject ?? ""), type: REQUEST_ERROR });

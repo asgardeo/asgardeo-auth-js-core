@@ -16,23 +16,23 @@
  * under the License.
  */
 
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { WebWorkerConfigInterface } from ".";
 import { ServiceResourcesType } from "./endpoints";
 import { SignInResponse, UserInfo } from "./message";
 import { DecodedIdTokenPayloadInterface } from "./token-response";
+import { HttpError, HttpRequestConfig, HttpResponse } from "../models";
 
 export interface WebWorkerClientInterface {
-    httpRequest<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>>;
-    httpRequestAll<T = any>(configs: AxiosRequestConfig[]): Promise<AxiosResponse<T>[]>;
+    httpRequest<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>>;
+    httpRequestAll<T = any>(configs: HttpRequestConfig[]): Promise<HttpResponse<T>[]>;
     signOut(): Promise<boolean>;
     signIn(fidp?: string): Promise<UserInfo>;
     initialize(config: WebWorkerConfigInterface): Promise<boolean>;
-    customGrant(requestParams: CustomGrantRequestParams): Promise<AxiosResponse | boolean | SignInResponse>;
+    customGrant(requestParams: CustomGrantRequestParams): Promise<HttpResponse | boolean | SignInResponse>;
     endUserSession(): Promise<boolean>;
     getServiceEndpoints(): Promise<ServiceResourcesType>;
-    onHttpRequestSuccess(callback: (response: AxiosResponse) => void): void;
-    onHttpRequestError(callback: (response: AxiosError) => void): void;
+    onHttpRequestSuccess(callback: (response: HttpResponse) => void): void;
+    onHttpRequestError(callback: (response: HttpError) => void): void;
 
     onHttpRequestStart(callback: () => void): void;
 

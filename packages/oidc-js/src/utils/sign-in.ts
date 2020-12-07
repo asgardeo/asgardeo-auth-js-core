@@ -17,8 +17,15 @@
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import base64URLDecode from "crypto-js/enc-base64";
+import utf8 from "crypto-js/enc-utf8";
 import { KeyLike } from "jose/webcrypto/types";
-import { getCodeChallenge, getCodeVerifier, getJWKForTheIdToken, isValidIdToken } from "./crypto";
+import {
+    getCodeChallenge,
+    getCodeVerifier,
+    getJWKForTheIdToken,
+    isValidIdToken
+} from "./crypto";
 import {
     getAuthorizeEndpoint,
     getIssuer,
@@ -479,7 +486,7 @@ export function sendRevokeTokenRequest(
  * @returns {AuthenticatedUserInterface} authenticated user.
  */
 export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterface => {
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken?.split(".")[1]));
+    const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
     const emailAddress: string = payload.email ? payload.email : null;
     const tenantDomain: string = getTenantDomainFromIdTokenPayload(payload);
 
@@ -708,6 +715,26 @@ export const getUserInfo = (config: ConfigInterface | WebWorkerConfigInterface):
 };
 
 /**
+ * This function decodes the payload of an id token and returns it.
+ *
+ * @param {string} idToken - The id token to be decoded.
+ *
+ * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
+ */
+const decodeIDToken = (idToken: string): DecodedIdTokenPayloadInterface => {
+    try {
+        const words = base64URLDecode.parse(idToken.split(".")[ 1 ]);
+        const utf8String = utf8.stringify(words);
+        const payload = JSON.parse(utf8String);
+
+        return payload;
+
+    } catch (error) {
+        throw Error(error)
+    }
+}
+
+/**
  *
  * @param {ConfigInterface} config - The configuration parameters.
  *
@@ -717,7 +744,7 @@ export const getDecodedIDToken = (
     config: ConfigInterface | WebWorkerConfigInterface
 ): DecodedIdTokenPayloadInterface => {
     const idToken = getSessionParameter(ID_TOKEN, config);
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken.split(".")[1]));
+    const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
 
     return payload;
 };

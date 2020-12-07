@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { AxiosError, AxiosResponse } from "axios";
 import { ServiceResourcesType } from ".";
 import { SessionData } from "./web-worker-client";
 import { ResponseMode, Storage } from "../constants";
+import { HttpError, HttpResponse } from "../models";
 
 interface BaseConfigInterface {
     authorizationType?: string;
@@ -62,8 +62,8 @@ export interface WebWorkerConfigInterface extends BaseConfigInterface {
 export interface HttpClient {
     isHandlerEnabled: boolean;
     requestStartCallback: () => void;
-    requestSuccessCallback: (response: AxiosResponse) => void;
-    requestErrorCallback: (error: AxiosError) => void;
+    requestSuccessCallback: (response: HttpResponse) => void;
+    requestErrorCallback: (error: HttpError) => void;
     requestFinishCallback: () => void;
 }
 

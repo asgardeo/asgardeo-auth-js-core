@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import WorkerFile from "web-worker:./oidc.worker.ts";
 import {
     API_CALL,
@@ -46,6 +45,9 @@ import {
     CustomGrantRequestParams,
     DecodedIdTokenPayloadInterface,
     HttpClient,
+    HttpError,
+    HttpRequestConfig,
+    HttpResponse,
     Message,
     ResponseMessage,
     ServiceResourcesType,
@@ -197,12 +199,12 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *
      * @param {CustomGrantRequestParams} requestParams Request Parameters.
      *
-     * @returns {Promise<AxiosResponse|boolean>} A promise that resolves with a boolean value or the request
+     * @returns {Promise<HttpResponse|boolean>} A promise that resolves with a boolean value or the request
      * response if the the `returnResponse` attribute in the `requestParams` object is set to `true`.
      */
     const customGrant = (
         requestParams: CustomGrantRequestParams
-    ): Promise<typeof requestParams["returnResponse"] extends true ? AxiosResponse : boolean | SignInResponse> => {
+    ): Promise<typeof requestParams["returnResponse"] extends true ? HttpResponse : boolean | SignInResponse> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
         }
@@ -218,7 +220,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
 
         return communicate<
             CustomGrantRequestParams,
-            typeof requestParams["returnResponse"] extends true ? AxiosResponse : boolean | SignInResponse
+            typeof requestParams["returnResponse"] extends true ? HttpResponse : boolean | SignInResponse
         >(message)
             .then((response) => {
                 return Promise.resolve(response);
@@ -232,11 +234,11 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *
      * Send the API request to the web worker and returns the response.
      *
-     * @param {AxiosRequestConfig} config The Axios Request Config object
+     * @param {HttpRequestConfig} config The Http Request Config object
      *
-     * @returns {Promise<AxiosResponse>} A promise that resolves with the response data.
+     * @returns {Promise<HttpResponse>} A promise that resolves with the response data.
      */
-    const httpRequest = <T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+    const httpRequest = <T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
         }
@@ -245,12 +247,12 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             return Promise.reject("You have not signed in yet");
         }
 
-        const message: Message<AxiosRequestConfig> = {
+        const message: Message<HttpRequestConfig> = {
             data: config,
             type: API_CALL
         };
 
-        return communicate<AxiosRequestConfig, AxiosResponse<T>>(message)
+        return communicate<HttpRequestConfig, HttpResponse<T>>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -264,11 +266,11 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      * Send multiple API requests to the web worker and returns the response.
      * Similar `axios.spread` in functionality.
      *
-     * @param {AxiosRequestConfig[]} configs - The Axios Request Config object
+     * @param {HttpRequestConfig[]} configs - The Http Request Config object
      *
-     * @returns {Promise<AxiosResponse<T>[]>} A promise that resolves with the response data.
+     * @returns {Promise<HttpResponse<T>[]>} A promise that resolves with the response data.
      */
-    const httpRequestAll = <T = any>(configs: AxiosRequestConfig[]): Promise<AxiosResponse<T>[]> => {
+    const httpRequestAll = <T = any>(configs: HttpRequestConfig[]): Promise<HttpResponse<T>[]> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
         }
@@ -277,12 +279,12 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             return Promise.reject("You have not signed in yet");
         }
 
-        const message: Message<AxiosRequestConfig[]> = {
+        const message: Message<HttpRequestConfig[]> = {
             data: configs,
             type: API_CALL_ALL
         };
 
-        return communicate<AxiosRequestConfig[], AxiosResponse<T>[]>(message)
+        return communicate<HttpRequestConfig[], HttpResponse<T>[]>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -646,13 +648,13 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             });
     };
 
-    const onHttpRequestSuccess = (callback: (response: AxiosResponse) => void): void => {
+    const onHttpRequestSuccess = (callback: (response: HttpResponse) => void): void => {
         if (callback && typeof callback === "function") {
             httpClientHandlers.requestSuccessCallback = callback;
         }
     };
 
-    const onHttpRequestError = (callback: (response: AxiosError) => void): void => {
+    const onHttpRequestError = (callback: (response: HttpError) => void): void => {
         if (callback && typeof callback === "function") {
             httpClientHandlers.requestErrorCallback = callback;
         }
