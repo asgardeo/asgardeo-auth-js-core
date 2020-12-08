@@ -62,7 +62,6 @@ export interface WebWorkerConfigInterface extends BaseConfigInterface {
 export type ConfigInterface = NonWebWorkerConfigInterface | WebWorkerConfigInterface;
 
 export interface HttpClient {
-    isHandlerEnabled: boolean;
     requestStartCallback: () => void;
     requestSuccessCallback: (response: HttpResponse) => void;
     requestErrorCallback: (error: HttpError) => void;

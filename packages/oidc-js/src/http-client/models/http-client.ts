@@ -29,6 +29,7 @@ export interface HttpClientStatic<S> {
  */
 export interface HttpClientInterface<T, U, V> {
     init(isHandlerEnabled: boolean,
+         attachToken: () => void,
          requestStartCallback: () => void,
          requestSuccessCallback: (response: U) => void,
          requestErrorCallback: (error: V) => void,
