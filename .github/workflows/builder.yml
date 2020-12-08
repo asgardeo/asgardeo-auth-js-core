@@ -38,12 +38,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        token: ${{secrets.ASGARDIO_GITHUB_BOT_TOKEN}}
-      if: github.repository == 'asgardeo/asgardeo-auth-js-sdk'
-
-    - uses: actions/checkout@v2
-      if: github.repository != 'asgardeo/asgardeo-auth-js-sdk'
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
