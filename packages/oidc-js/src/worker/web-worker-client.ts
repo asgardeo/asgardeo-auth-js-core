@@ -83,7 +83,7 @@ import { getAuthorizationCode } from "../utils";
  * 			clientHost: "https://localhost:9443/",
  * 			clientID: "70gph7I55ioGi5FqhLPz8JvxZCEa",
  * 			serverOrigin: "https://localhost:9443",
- * 			baseUrls: ["https://localhost:9443"],
+ * 			resourceServerURLs: ["https://localhost:9443"],
  * 			origin: origin,
  * 			callbackURL: "https://localhost:9443/worker",
  * 			enablePKCE: true,
@@ -343,7 +343,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *    serverOrigin: string
      *    tenant?: string //optional
      *    tenantPath?: string //optional
-     *    baseUrls: string[]
+     *    resourceServerURLs: string[]
      *    callbackURL: string
      *    requestTimeout: number //optional
      *  }
@@ -354,12 +354,12 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             return Promise.reject("The authorizationType must be a string");
         }
 
-        if (!(config.baseUrls instanceof Array)) {
-            return Promise.reject("baseUrls must be an array");
+        if (!(config.resourceServerURLs instanceof Array)) {
+            return Promise.reject("resourceServerURLs must be an array");
         }
 
-        if (config.baseUrls.find((baseUrl) => typeof baseUrl !== "string")) {
-            return Promise.reject("Array elements of baseUrls must all be string values");
+        if (config.resourceServerURLs.find((baseUrl) => typeof baseUrl !== "string")) {
+            return Promise.reject("Array elements of resourceServerURLs must all be string values");
         }
 
         if (typeof config.signInRedirectURL !== "string") {
