@@ -71,7 +71,7 @@ var auth = AsgardioAuth.IdentityClient.getInstance();
 ## Getting Started
 ### Using Embedded Scripts
 ```javascript
-// This client is a singleton and can be instantiated as follows.
+// This client is a class and can be instantiated as follows.
 var auth = AsgardioAuth.IdentityClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
@@ -97,7 +97,7 @@ auth.on("sign-in", (response) => {
 // The SDK provides a client that can be used to carry out the authentication.
 import { IdentityClient } from "@asgardio/oidc-js";
 
-// This client is a singleton and can be instantiated as follows.
+// This client is a class and can be instantiated as follows.
 const auth = IdentityClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
@@ -196,15 +196,22 @@ import { IdentityClient } from "@asgardio/oidc-js/polyfilled/umd";
 
 ### getInstance
 ```typescript
-getInstance(): IdentityClient;
+getInstance(id?: string): IdentityClient;
 ```
 
-This returns an instance of the `IdentityClient`. Since the `IdentityClient` is a singleton, this method returns the same instance no matter how many times it is called.
+This returns a static instance of the `IdentityClient`. The SDK allows you to create multiple instances of the `IdentityClient`. To do so, you can pass an `id` into the `getInstance` method. If no instance has been created for the provided `id`, a new instance will be created and returned by this method. If an instance exists, then that instance will be returned. If no `id` is provided, the default instance will be returned. This allows the SDK to talk to multiple identity servers through the same app.
 
-This allows the developers the flexibility of using multiple files to implement the authentication logic. That is, you can have the sign in logic implemented on one page and the sign out logic on another.
+Creating a static instance affords the developers the flexibility of using multiple files to implement the authentication logic. That is, you can have the sign in logic implemented on one page and the sign out logic on another.
+
 ```javascript
 const auth = IdentityClient.getInstance();
 ```
+To create another instance,
+
+```javascript
+const auth2 = IdentityClient.getInstance("primary");
+```
+
 ### initialize
 ```typescript
 initialize(config);
