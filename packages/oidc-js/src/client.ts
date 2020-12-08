@@ -71,6 +71,8 @@ const DefaultConfig = {
     validateIDToken: true
 };
 
+const PRIMARY_INSTANCE = "primaryInstance";
+
 /**
  * IdentityClient class constructor.
  *
@@ -80,7 +82,7 @@ const DefaultConfig = {
  */
 export class IdentityClient {
     private _authConfig: ConfigInterface;
-    private static _instance: IdentityClient;
+    private static _instances: Map<string, IdentityClient> = new Map<string, IdentityClient>();
     private _client: WebWorkerClientInterface;
     private _storage: Storage;
     private _initialized: boolean;
@@ -115,14 +117,22 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public static getInstance(): IdentityClient {
-        if (this._instance) {
-            return this._instance;
+    public static getInstance(id?: string): IdentityClient {
+        if (id && this._instances?.get(id)) {
+            return this._instances.get(id);
+        } else if (!id && this._instances?.get(PRIMARY_INSTANCE)) {
+            return this._instances.get(PRIMARY_INSTANCE);
         }
 
-        this._instance = new IdentityClient();
+        if (id) {
+            this._instances.set(id, new IdentityClient());
 
-        return this._instance;
+            return this._instances.get(id);
+        }
+
+        this._instances.set(PRIMARY_INSTANCE, new IdentityClient());
+
+        return this._instances.get(PRIMARY_INSTANCE);
     }
 
     /**
