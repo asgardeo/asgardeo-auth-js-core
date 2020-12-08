@@ -16,26 +16,29 @@
  * under the License.
  */
 
-import { ServiceResourcesType } from "../models";
+import { OIDCEndpointConstantsInterface } from "../models";
 
-export const SERVICE_RESOURCES: ServiceResourcesType = {
-    authorize: "/oauth2/authorize",
-    jwks: "/oauth2/jwks",
-    logout: "/oidc/logout",
-    oidcSessionIFrame: "/oidc/checksession",
-    revoke: "/oauth2/revoke",
-    token: "/oauth2/token",
-    wellKnown: "/oauth2/token/.well-known/openid-configuration"
+export const SERVICE_RESOURCES: OIDCEndpointConstantsInterface  = {
+    authorizationEndpoint: "/oauth2/authorize",
+    checkSessionIframe: "/oidc/checksession",
+    endSessionEndpoint: "/oidc/logout",
+    jwksUri: "/oauth2/jwks",
+    revocationEndpoint: "/oauth2/revoke",
+    tokenEndpoint: "/oauth2/token",
+    wellKnownEndpoint: "/oauth2/token/.well-known/openid-configuration"
 };
 
 export const AUTHORIZATION_ENDPOINT = "authorization_endpoint";
 export const TOKEN_ENDPOINT = "token_endpoint";
-export const REVOKE_TOKEN_ENDPOINT = "revoke_token_endpoint";
+export const REVOKE_TOKEN_ENDPOINT = "revocation_endpoint";
 export const END_SESSION_ENDPOINT = "end_session_endpoint";
 export const JWKS_ENDPOINT = "jwks_uri";
 export const OP_CONFIG_INITIATED = "op_config_initiated";
 export const TENANT = "tenant";
 export const SIGN_IN_REDIRECT_URL = "sign_in_redirect_url";
 export const SIGN_OUT_REDIRECT_URL = "sign_out_redirect_url";
-export const OIDC_SESSION_IFRAME_ENDPOINT = "oidc_session_iframe_endpoint";
+export const OIDC_SESSION_IFRAME_ENDPOINT = "check_session_iframe";
 export const OPEN_ID_CONFIG = "open_id_config";
+export const REGISTRATION_ENDPOINT = "registration_endpoint";
+export const USERINFO_ENDPOINT = "userinfo_endpoint";
+export const INTROSPECTION_ENDPOINT = "introspection_endpoint";

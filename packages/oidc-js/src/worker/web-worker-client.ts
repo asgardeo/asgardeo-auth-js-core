@@ -51,8 +51,8 @@ import {
     HttpRequestConfig,
     HttpResponse,
     Message,
+    OIDCProviderMetaData,
     ResponseMessage,
-    ServiceResourcesType,
     SignInResponse,
     SignInResponseWorker,
     UserInfo,
@@ -633,12 +633,12 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             });
     };
 
-    const getServiceEndpoints = (): Promise<ServiceResourcesType> => {
+    const getServiceEndpoints = (): Promise<OIDCProviderMetaData> => {
         const message: Message<null> = {
             type: GET_SERVICE_ENDPOINTS
         };
 
-        return communicate<null, ServiceResourcesType>(message)
+        return communicate<null, OIDCProviderMetaData>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })

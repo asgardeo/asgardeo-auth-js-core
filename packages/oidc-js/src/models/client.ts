@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ServiceResourcesType } from ".";
+import { OIDCEndpoints } from "./endpoints";
 import { SessionData } from "./web-worker-client";
 import { ResponseMode, Storage } from "../constants";
 import { HttpError, HttpResponse } from "../models";
@@ -34,7 +34,9 @@ interface BaseConfigInterface {
     responseMode?: ResponseMode;
     scope?: string[];
     serverOrigin: string;
-    endpoints?: ServiceResourcesType;
+    endpoints?: OIDCEndpoints;
+    overrideWellEndpointConfig?: boolean;
+    wellKnownEndpoint?: string;
     authorizationCode?: string;
     sessionState?: string;
     validateIDToken?: boolean;

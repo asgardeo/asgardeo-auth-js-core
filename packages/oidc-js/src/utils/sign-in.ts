@@ -34,7 +34,8 @@ import {
     getTokenEndpoint,
     initOPConfiguration,
     isValidOPConfig,
-    resetOPConfiguration
+    resetOPConfiguration,
+    resolveWellKnownEndpoint
 } from "./op-config";
 import {
     endAuthenticatedSession,
@@ -59,7 +60,6 @@ import {
     ResponseMode,
     SCOPE,
     SCOPE_TAG,
-    SERVICE_RESOURCES,
     SESSION_STATE,
     SIGNED_IN,
     Storage,
@@ -227,10 +227,7 @@ export function validateIdToken(
             }
 
             const issuer = getIssuer(requestParams);
-            let issuerFromURL = requestParams.serverOrigin + SERVICE_RESOURCES.wellKnown.split("/.well-known")[ 0 ];
-            if (requestParams.endpoints?.wellKnown) {
-                issuerFromURL = requestParams.endpoints.wellKnown.split("/.well-known")[ 0 ];
-            }
+            const issuerFromURL = resolveWellKnownEndpoint(requestParams).split("/.well-known")[ 0 ];
 
             // Return false if the issuer in the open id config doesn't match
             // the issuer in the well known endpoint URL.
