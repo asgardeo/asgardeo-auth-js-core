@@ -53,6 +53,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
     private static axiosInstance: HttpClientInstance;
     private static clientInstance: HttpClient;
     private static isHandlerEnabled: boolean;
+    private attachToken: (request: HttpRequestConfig) => void;
     private requestStartCallback: (request: HttpRequestConfig) => void;
     private requestSuccessCallback: (response: HttpResponse) => void;
     private requestErrorCallback: (error: HttpError) => void;
@@ -123,6 +124,8 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
      * @return {HttpRequestConfig}
      */
     public requestHandler(request: HttpRequestConfig): HttpRequestConfig {
+        this.attachToken(request);
+
         if (HttpClient.isHandlerEnabled) {
             if (this.requestStartCallback && typeof this.requestStartCallback === "function") {
                 this.requestStartCallback(request);
@@ -182,6 +185,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
      */
     public init(
         isHandlerEnabled = true,
+        attachToken: (request: HttpRequestConfig) => void,
         requestStartCallback: (request: HttpRequestConfig) => void,
         requestSuccessCallback: (response: HttpResponse) => void,
         requestErrorCallback: (error: HttpError) => void,
@@ -190,12 +194,16 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
         HttpClient.isHandlerEnabled = isHandlerEnabled;
 
         if (this.requestStartCallback
+            && this.attachToken
             && this.requestSuccessCallback
             && this.requestErrorCallback
             && this.requestFinishCallback) {
             return;
         }
 
+        if (!this.attachToken) {
+            this.attachToken = attachToken;
+        }
         if (!this.requestStartCallback) {
             this.requestStartCallback = requestStartCallback;
         }

@@ -318,6 +318,14 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
         return getDecodedIDTokenUtil(authConfig);
     };
 
+    const enableHttpHandler = (): void => {
+        httpClient.enableHandler();
+    }
+
+    const disableHttpHandler = (): void => {
+        httpClient.disableHandler();
+    }
+
     /**
      * @constructor
      *
@@ -342,19 +350,17 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
 
         httpClient = HttpClient.getInstance();
 
-        const startCallback = (request: HttpRequestConfig): void => {
+        const attachToken = (request: HttpRequestConfig): void => {
             request.headers = {
                 ...request.headers,
                 Authorization: `Bearer ${ session?.get(ACCESS_TOKEN) }`
             };
-
-            config.httpClient?.requestStartCallback && config.httpClient?.requestStartCallback();
-
         };
 
         httpClient.init(
             true,
-            startCallback,
+            attachToken,
+            config.httpClient?.requestStartCallback ?? null,
             config.httpClient?.requestSuccessCallback ?? null,
             config.httpClient?.requestErrorCallback ?? null,
             config.httpClient?.requestFinishCallback ?? null
@@ -362,7 +368,9 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
 
         return {
             customGrant,
+            disableHttpHandler,
             doesTokenExist,
+            enableHttpHandler,
             endUserSession,
             getDecodedIDToken,
             getServiceEndpoints,

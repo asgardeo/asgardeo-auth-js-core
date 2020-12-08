@@ -37,6 +37,8 @@ export interface WebWorkerInterface {
     endUserSession(): Promise<boolean>;
     getServiceEndpoints(): Promise<ServiceResourcesType>;
     getDecodedIDToken(): DecodedIdTokenPayloadInterface;
+    enableHttpHandler(): void;
+    disableHttpHandler(): void;
 }
 
 export interface WebWorkerSingletonInterface {

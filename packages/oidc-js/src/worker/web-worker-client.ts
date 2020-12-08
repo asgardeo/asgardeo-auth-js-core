@@ -23,6 +23,8 @@ import {
     AUTHORIZATION_CODE,
     AUTH_REQUIRED,
     CUSTOM_GRANT,
+    DISABLE_HTTP_HANDLER,
+    ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
     GET_DECODED_ID_TOKEN,
     GET_SERVICE_ENDPOINTS,
@@ -293,6 +295,32 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
             });
     };
 
+    const enableHttpHandler = (): Promise<boolean> => {
+        const message: Message<null> = {
+            type: ENABLE_HTTP_HANDLER
+        };
+        return communicate<null, null>(message)
+            .then(() => {
+                return Promise.resolve(true);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
+    };
+
+    const disableHttpHandler = (): Promise<boolean> => {
+        const message: Message<null> = {
+            type: DISABLE_HTTP_HANDLER
+        };
+        return communicate<null, null>(message)
+            .then(() => {
+                return Promise.resolve(true);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
+    };
+
     /**
      * Initializes the object with authentication parameters.
      *
@@ -389,7 +417,6 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
         }
 
         httpClientHandlers = {
-            isHandlerEnabled: true,
             requestErrorCallback: null,
             requestFinishCallback: null,
             requestStartCallback: null,
@@ -684,6 +711,8 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
 
         return {
             customGrant,
+            disableHttpHandler,
+            enableHttpHandler,
             endUserSession,
             getDecodedIDToken,
             getServiceEndpoints,

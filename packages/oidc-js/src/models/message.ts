@@ -22,6 +22,8 @@ import {
     AUTH_CODE,
     AUTH_REQUIRED,
     CUSTOM_GRANT,
+    DISABLE_HTTP_HANDLER,
+    ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
     GET_DECODED_ID_TOKEN,
     GET_SERVICE_ENDPOINTS,
@@ -95,4 +97,6 @@ export type MessageType =
     | typeof REQUEST_SUCCESS
     | typeof GET_SERVICE_ENDPOINTS
     | typeof GET_USER_INFO
-    | typeof GET_DECODED_ID_TOKEN;
+    | typeof GET_DECODED_ID_TOKEN
+    | typeof ENABLE_HTTP_HANDLER
+    | typeof DISABLE_HTTP_HANDLER;
