@@ -53,7 +53,7 @@ export interface NonWebWorkerConfigInterface extends BaseConfigInterface{
 }
 
 export interface WebWorkerConfigInterface extends BaseConfigInterface {
-    baseUrls: string[];
+    resourceServerURLs: string[];
     session?: SessionData;
     storage: Storage.WebWorker;
     requestTimeout?: number;

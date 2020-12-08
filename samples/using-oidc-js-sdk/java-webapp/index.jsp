@@ -92,7 +92,7 @@
         axios.get("/auth.jsp").then((response)=>{
             // Initialize the client
             auth.initialize({
-                baseUrls: [ serverOrigin ],
+                resourceServerURLs: [ serverOrigin ],
                 signInRedirectURL: clientHost,
                 signOutRedirectURL: clientHost,
                 clientHost: "client-host",
