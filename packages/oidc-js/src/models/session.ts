@@ -23,3 +23,13 @@ import { TokenResponseInterface } from "./token-response";
  * Interface of the user session.
  */
 export interface SessionInterface extends Omit<AuthenticatedUserInterface, "scope">, TokenResponseInterface { }
+
+export interface SessionDataRaw {
+    access_token: string;
+    id_token: string;
+    expires_in: string;
+    scope: string;
+    refresh_token?: string;
+    token_type: string;
+    session_state: string;
+}
