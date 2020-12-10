@@ -18,11 +18,13 @@
 
 import Base64 from "crypto-js/enc-base64";
 import WordArray from "crypto-js/lib-typedarrays";
+import base64URLDecode from "crypto-js/enc-base64";
+import utf8 from "crypto-js/enc-utf8";
 import sha256 from "crypto-js/sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
 import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
 import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
-import { JWKInterface } from "../models";
+import { JWKInterface, DecodedIdTokenPayloadInterface } from "../models";
 
 /**
  * Get URL encoded string.
@@ -126,3 +128,23 @@ export const isValidIdToken = (
         return Promise.reject(error);
     })
 };
+
+/**
+ * This function decodes the payload of an id token and returns it.
+ *
+ * @param {string} idToken - The id token to be decoded.
+ *
+ * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
+ */
+export const decodeIDToken = (idToken: string): DecodedIdTokenPayloadInterface => {
+    try {
+        const words = base64URLDecode.parse(idToken.split(".")[ 1 ]);
+        const utf8String = utf8.stringify(words);
+        const payload = JSON.parse(utf8String);
+
+        return payload;
+
+    } catch (error) {
+        throw Error(error)
+    }
+}
