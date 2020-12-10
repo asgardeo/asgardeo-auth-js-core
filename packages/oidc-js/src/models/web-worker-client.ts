@@ -53,7 +53,6 @@ export interface CustomGrantRequestParams {
     signInRequired: boolean;
     attachToken: boolean;
     returnsSession: boolean;
-    returnResponse: boolean;
 }
 
 export type SessionData = Map<string, string>;
