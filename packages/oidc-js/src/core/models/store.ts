@@ -17,25 +17,26 @@
 */
 
 import {
-    Config,
     OIDCProviderMetaData,
     SessionDataRaw,
-    OIDCEndpointsInternal
+    OIDCEndpointsInternal,
+    OIDCEndpoints
 } from "../../models";
+import { Config } from "./config";
 
 export interface Store {
     setSessionData(sessionData: SessionDataRaw): void;
     setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData | OIDCEndpointsInternal): void;
     setConfigData(config: Config): void;
-    setTemporaryData(data: { [key: string]: StoreValue }): void;
+    setTemporaryData(data: TemporaryData): void;
     getSessionData(): SessionDataRaw;
     getOIDCProviderMetaData(): OIDCProviderMetaData;
     getConfigData(): Config;
     getTemporaryData(): { [key: string]: StoreValue };
-    removeSessionData(): SessionDataRaw;
-    removeOIDCProviderMetaData(): OIDCProviderMetaData;
-    removeConfigData(): Config;
-    removeTemporaryData(): { [key: string]: StoreValue };
+    removeSessionData(): void;
+    removeOIDCProviderMetaData(): void;
+    removeConfigData(): void;
+    removeTemporaryData(): void;
     setSessionDataParameter(key: keyof SessionDataRaw, value: StoreValue): void;
     setOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData, value: StoreValue): void;
     setConfigDataParameter(key: keyof Config, value: StoreValue): void;
@@ -44,10 +45,11 @@ export interface Store {
     getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue;
     getConfigDataParameter(key: keyof Config): StoreValue;
     getTemporaryDataParameter(key: string): StoreValue;
-    removeSessionDataParameter(key: keyof SessionDataRaw): StoreValue;
-    removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue;
-    removeConfigDataParameter(key: keyof Config): StoreValue;
-    removeTemporaryDataParameter(key: string): StoreValue;
+    removeSessionDataParameter(key: keyof SessionDataRaw): void;
+    removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): void;
+    removeConfigDataParameter(key: keyof Config): void;
+    removeTemporaryDataParameter(key: string): void;
 }
 
-type StoreValue = string | string[] | boolean | number;
+export type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
+export type TemporaryData = { [ key: string ]: StoreValue; };
