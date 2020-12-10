@@ -40,7 +40,6 @@ interface BaseConfigInterface {
     authorizationCode?: string;
     sessionState?: string;
     validateIDToken?: boolean;
-    customParams?: CustomParamsInterface;
     /**
      * Allowed leeway for id_tokens (in seconds).
      */
@@ -74,6 +73,10 @@ export interface WebWorkerClientConfigInterface extends WebWorkerConfigInterface
     httpClient: HttpClient;
 }
 
-interface CustomParamsInterface {
-    [ key: string ]: string
+export type SendAuthorizationRequestParameter = Omit<GetAuthorizationURLParameter, "forceInit">
+
+export interface GetAuthorizationURLParameter {
+    fidp?: string;
+    forceInit?: boolean;
+    [ key: string ]: string | boolean;
 }
