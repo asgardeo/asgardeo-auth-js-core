@@ -46,7 +46,7 @@ export class AuthenticationClient {
         });
     }
 
-    public getAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponseInterface> {
+    public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponseInterface> {
         return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
     }
 
@@ -72,6 +72,10 @@ export class AuthenticationClient {
 
     public refreshToken(): Promise<TokenResponseInterface>{
         return this._authenticationCore.sendRefreshTokenRequest();
+    }
+
+    public getRefreshToken(): string {
+        return this._authenticationCore.getRefreshToken();
     }
 
     public sendCustomGrantRequest(config: CustomGrantRequestParams): Promise<TokenResponseInterface | AxiosResponse>{
