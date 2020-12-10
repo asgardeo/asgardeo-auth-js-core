@@ -463,4 +463,8 @@ export class AuthenticationCore {
 
 
     }
+
+    public getRefreshToken(): string{
+        return this._store.getSessionData().access_token;
+    }
 }
