@@ -35,7 +35,7 @@ export interface OIDCProviderMetaData {
     /**
      * URL of the OP's UserInfo Endpoint.
      */
-    userinfo_endpoint: string;
+    userinfo_endpoint?: string;
     /**
      * URL of the OP's JSON Web Key Set [JWK] document.
      * This contains the signing key(s) the RP uses to validate signatures from the OP.
@@ -246,6 +246,18 @@ export interface OIDCProviderMetaData {
     backchannel_logout_session_supported?: boolean;
 }
 
+export interface OIDCEndpointsInternal {
+    authorization_endpoint?: string;
+    token_endpoint?: string;
+    userinfo_endpoint?: string;
+    jwks_uri?: string;
+    registration_endpoint?: string;
+    revocation_endpoint?: string;
+    introspection_endpoint?: string;
+    checkSession_iframe?: string;
+    endSession_endpoint?: string;
+    issuer?: string;
+}
 export interface OIDCEndpoints {
     authorizationEndpoint?: string;
     tokenEndpoint?: string;
