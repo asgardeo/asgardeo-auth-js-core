@@ -388,7 +388,7 @@ export class AuthenticationCore {
             .then((response: { data: OpenIDConfig; status: number }) => {
                 if (response.status !== 200) {
                     return Promise.reject(
-                        new Error("Failed to load OpenID provider configuration from: " + wellKnownEndpoint)
+                        "Failed to load OpenID provider configuration from: " + wellKnownEndpoint
                     );
                 }
 
@@ -406,12 +406,10 @@ export class AuthenticationCore {
                 this._store.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
                 return Promise.resolve(
-                    new Error(
                         "Initialized OpenID Provider configuration from default configuration." +
                             "Because failed to access wellknown endpoint: " +
                             serverHost +
                             SERVICE_RESOURCES.wellKnownEndpoint
-                    )
                 );
             });
     }
