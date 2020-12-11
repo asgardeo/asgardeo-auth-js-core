@@ -29,8 +29,7 @@ export class LocalStore implements Store {
 
         const dataToBeSaved = { ...existingData, ...data };
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
-
-        localStorage.setItem(Stores.ConfigData, dataToBeSavedJSON);
+        localStorage.setItem(key, dataToBeSavedJSON);
     }
 
     private setValue(
@@ -44,7 +43,7 @@ export class LocalStore implements Store {
         const dataToBeSaved = { ...existingData, [attribute]: value };
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
 
-        localStorage.setItem(Stores.ConfigData, dataToBeSavedJSON);
+        localStorage.setItem(key, dataToBeSavedJSON);
     }
 
     private removeValue(
@@ -58,7 +57,7 @@ export class LocalStore implements Store {
         delete dataToBeSaved[attribute];
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
 
-        localStorage.setItem(Stores.ConfigData, dataToBeSavedJSON);
+        localStorage.setItem(key, dataToBeSavedJSON);
     }
 
     private;
@@ -75,7 +74,7 @@ export class LocalStore implements Store {
     }
 
     public setSessionData(sessionData: SessionDataRaw): void {
-        this.setDataInBulk(Stores.TemporaryData, sessionData);
+        this.setDataInBulk(Stores.SessionData, sessionData);
     }
 
     public getConfigData(): ConfigInterface {
@@ -116,19 +115,22 @@ export class LocalStore implements Store {
 
     public getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue {
         return (
-            localStorage.getItem(Stores.ConfigData) &&
+            localStorage.getItem(Stores.OIDCProviderMetaData) &&
             JSON.parse(localStorage.getItem(Stores.OIDCProviderMetaData))[key]
         );
     }
 
     public getTemporaryDataParameter(key: keyof TemporaryData): StoreValue {
         return (
-            localStorage.getItem(Stores.ConfigData) && JSON.parse(localStorage.getItem(Stores.TemporaryData))[key]
+            localStorage.getItem(Stores.TemporaryData) &&
+            JSON.parse(localStorage.getItem(Stores.TemporaryData))[key]
         );
     }
 
     public getSessionDataParameter(key: keyof SessionDataRaw): StoreValue {
-        return localStorage.getItem(Stores.ConfigData) && JSON.parse(localStorage.getItem(Stores.SessionData))[key];
+        return (
+            localStorage.getItem(Stores.SessionData) && JSON.parse(localStorage.getItem(Stores.SessionData))[key]
+        );
     }
 
     public setConfigDataParameter(key: keyof ConfigInterface, value: StoreValue): void {
