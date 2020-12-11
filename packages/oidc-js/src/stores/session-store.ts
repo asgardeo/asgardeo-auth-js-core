@@ -29,8 +29,7 @@ export class SessionStore implements Store {
 
         const dataToBeSaved = { ...existingData, ...data };
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
-
-        sessionStorage.setItem(Stores.ConfigData, dataToBeSavedJSON);
+        sessionStorage.setItem(key, dataToBeSavedJSON);
     }
 
     private setValue(
@@ -44,7 +43,7 @@ export class SessionStore implements Store {
         const dataToBeSaved = { ...existingData, [attribute]: value };
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
 
-        sessionStorage.setItem(Stores.ConfigData, dataToBeSavedJSON);
+        sessionStorage.setItem(key, dataToBeSavedJSON);
     }
 
     private removeValue(
@@ -58,7 +57,7 @@ export class SessionStore implements Store {
         delete dataToBeSaved[attribute];
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
 
-        sessionStorage.setItem(Stores.ConfigData, dataToBeSavedJSON);
+        sessionStorage.setItem(key, dataToBeSavedJSON);
     }
 
     private;
@@ -75,7 +74,7 @@ export class SessionStore implements Store {
     }
 
     public setSessionData(sessionData: SessionDataRaw): void {
-        this.setDataInBulk(Stores.TemporaryData, sessionData);
+        this.setDataInBulk(Stores.SessionData, sessionData);
     }
 
     public getConfigData(): ConfigInterface {
@@ -116,19 +115,22 @@ export class SessionStore implements Store {
 
     public getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue {
         return (
-            sessionStorage.getItem(Stores.ConfigData) &&
+            sessionStorage.getItem(Stores.OIDCProviderMetaData) &&
             JSON.parse(sessionStorage.getItem(Stores.OIDCProviderMetaData))[key]
         );
     }
 
     public getTemporaryDataParameter(key: keyof TemporaryData): StoreValue {
         return (
-            sessionStorage.getItem(Stores.ConfigData) && JSON.parse(sessionStorage.getItem(Stores.TemporaryData))[key]
+            sessionStorage.getItem(Stores.TemporaryData) &&
+            JSON.parse(sessionStorage.getItem(Stores.TemporaryData))[key]
         );
     }
 
     public getSessionDataParameter(key: keyof SessionDataRaw): StoreValue {
-        return sessionStorage.getItem(Stores.ConfigData) && JSON.parse(sessionStorage.getItem(Stores.SessionData))[key];
+        return (
+            sessionStorage.getItem(Stores.SessionData) && JSON.parse(sessionStorage.getItem(Stores.SessionData))[key]
+        );
     }
 
     public setConfigDataParameter(key: keyof ConfigInterface, value: StoreValue): void {
