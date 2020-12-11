@@ -55,7 +55,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         authorizationCode?: string,
         sessionState?: string
     ): Promise<UserInfo> => {
-        if (_store.getSessionData().access_token) {
+        if (_store.getSessionData()?.access_token) {
             return Promise.resolve(_authenticationClient.getUserInfo());
         }
 
@@ -81,15 +81,17 @@ export const MainThreadClient = (config: ConfigInterface): any => {
                 });
         }
 
-        location.href = _authenticationClient.getAuthorizationURL(params);
+        return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
+            location.href = url;
 
-        return Promise.resolve({
-            allowedScopes: "",
-            displayName: "",
-            email: "",
-            sessionState: "",
-            tenantDomain: "",
-            username: ""
+            return Promise.resolve({
+                allowedScopes: "",
+                displayName: "",
+                email: "",
+                sessionState: "",
+                tenantDomain: "",
+                username: ""
+            });
         });
     };
 
