@@ -16,22 +16,22 @@
  * under the License.
  */
 
+import { AxiosResponse } from "axios";
+import { AUTHORIZATION_CODE, ResponseMode, SESSION_STATE, Storage } from "../constants";
+import { AuthenticationClient } from "../core/authentication-client";
 import { Store } from "../core/models/store";
 import {
     ConfigInterface,
-    UserInfo,
-    GetAuthorizationURLParameter,
     CustomGrantRequestParams,
-    TokenResponseInterface,
     DecodedIdTokenPayloadInterface,
-    OIDCEndpointConstantsInterface
+    GetAuthorizationURLParameter,
+    OIDCEndpointConstantsInterface,
+    TokenResponseInterface,
+    UserInfo
 } from "../models";
-import { Storage, ResponseMode, AUTHORIZATION_CODE, SESSION_STATE } from "../constants";
 import { LocalStore } from "../stores/local-store";
-import { SessionStore } from "../stores/session-store";
 import { MemoryStore } from "../stores/memory-store";
-import { AuthenticationClient } from "../core/authentication-client";
-import { AxiosResponse } from "axios";
+import { SessionStore } from "../stores/session-store";
 
 const initiateStore = (store: Storage): Store => {
     switch (store) {
@@ -46,7 +46,7 @@ const initiateStore = (store: Storage): Store => {
     }
 };
 
-const MainThreadClient = (config: ConfigInterface) => {
+export const MainThreadClient = (config: ConfigInterface): any => {
     const _store: Store = initiateStore(config.storage);
     const _authenticationClient = new AuthenticationClient(config, _store);
 
@@ -81,7 +81,7 @@ const MainThreadClient = (config: ConfigInterface) => {
                 });
         }
 
-        location.href = _authenticationClient.getAuthorizationURL();
+        location.href = _authenticationClient.getAuthorizationURL(params);
 
         return Promise.resolve({
             allowedScopes: "",
@@ -97,7 +97,7 @@ const MainThreadClient = (config: ConfigInterface) => {
         location.href = _authenticationClient.getSignOutURL();
     };
 
-    const sendCustomGrantRequest = (config: CustomGrantRequestParams): Promise<UserInfo | AxiosResponse> => {
+    const customGrant = (config: CustomGrantRequestParams): Promise<UserInfo | AxiosResponse> => {
         return _authenticationClient
             .sendCustomGrantRequest(config)
             .then((response: AxiosResponse | TokenResponseInterface) => {
@@ -112,7 +112,7 @@ const MainThreadClient = (config: ConfigInterface) => {
             });
     };
 
-    const sendRefreshTokenRequest = (): Promise<UserInfo> => {
+    const refreshToken = (): Promise<UserInfo> => {
         return _authenticationClient
             .refreshToken()
             .then(() => {
@@ -123,7 +123,7 @@ const MainThreadClient = (config: ConfigInterface) => {
             });
     };
 
-    const sendRevokeTokenRequest = (): Promise<boolean> => {
+    const revokeToken = (): Promise<boolean> => {
         return _authenticationClient
             .revokeToken()
             .then(() => Promise.resolve(true))
@@ -140,5 +140,16 @@ const MainThreadClient = (config: ConfigInterface) => {
 
     const getOIDCServiceEndpoints = (): OIDCEndpointConstantsInterface => {
         return _authenticationClient.getOIDCEndpoints();
+    };
+
+    return {
+        customGrant,
+        getDecodedIDToken,
+        getOIDCServiceEndpoints,
+        getUserInfo,
+        refreshToken,
+        revokeToken,
+        signIn,
+        signOut
     };
 };
