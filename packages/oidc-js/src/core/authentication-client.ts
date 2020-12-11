@@ -33,15 +33,14 @@ export class AuthenticationClient {
         this._store.setConfigData(config);
     }
 
-    public getAuthorizationURL(config?: GetAuthorizationURLParameter): string {
+    public getAuthorizationURL(config?: GetAuthorizationURLParameter): Promise<string> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
-
         if (this._store.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.sendAuthorizationRequest(authRequestConfig);
+            return Promise.resolve(this._authenticationCore.sendAuthorizationRequest(authRequestConfig));
         }
 
-        this._authenticationCore.initOPConfiguration(config?.forceInit).then(() => {
+        return this._authenticationCore.initOPConfiguration(config?.forceInit).then(() => {
             return this._authenticationCore.sendAuthorizationRequest(authRequestConfig);
         });
     }
