@@ -198,9 +198,13 @@ export const initOPConfiguration = (
     }
 
     const serverHost = requestParams.serverOrigin;
+    let wellKnownEndpoint = serverHost + SERVICE_RESOURCES.wellKnown;
+    if (requestParams?.endpoints?.wellKnown) {
+        wellKnownEndpoint = requestParams?.endpoints?.wellKnown;
+    }
 
     return axios
-        .get(serverHost + SERVICE_RESOURCES.wellKnown)
+        .get(wellKnownEndpoint)
         .then((response: { data: OpenIDConfig; status: number}) => {
             if (response.status !== 200) {
                 return Promise.reject(
@@ -211,17 +215,41 @@ export const initOPConfiguration = (
             }
 
             setOPConfig(response.data, requestParams);
-            setAuthorizeEndpoint(response.data.authorization_endpoint, requestParams);
-            setTokenEndpoint(response.data.token_endpoint, requestParams);
-            setEndSessionEndpoint(response.data.end_session_endpoint, requestParams);
-            setJwksUri(response.data.jwks_uri, requestParams);
-            setRevokeTokenEndpoint(
-                response.data.token_endpoint.substring(0, response.data.token_endpoint.lastIndexOf("token")) + "revoke",
-                requestParams
-            );
+            if (requestParams?.endpoints?.authorize) {
+                setAuthorizeEndpoint(requestParams?.endpoints?.authorize, requestParams);
+            } else {
+                setAuthorizeEndpoint(response.data.authorization_endpoint, requestParams);
+            }
+            if (requestParams?.endpoints?.token) {
+                setTokenEndpoint(requestParams?.endpoints?.token, requestParams);
+            } else {
+                setTokenEndpoint(response.data.token_endpoint, requestParams);
+            }
+            if (requestParams?.endpoints?.jwks) {
+                setJwksUri(requestParams?.endpoints?.jwks, requestParams);
+            } else {
+                setJwksUri(response.data.jwks_uri, requestParams);
+            }
+            if (requestParams?.endpoints?.logout) {
+                setEndSessionEndpoint(requestParams?.endpoints?.logout, requestParams);
+            } else {
+                setEndSessionEndpoint(response.data.end_session_endpoint, requestParams);
+            }
+            if (requestParams?.endpoints?.revoke) {
+                setRevokeTokenEndpoint(requestParams?.endpoints?.revoke, requestParams);
+            } else {
+                setRevokeTokenEndpoint(
+                    response.data.token_endpoint.substring(0, response.data.token_endpoint.lastIndexOf("token")) +
+                    "revoke", requestParams
+                );
+            }
             setIssuer(response.data.issuer, requestParams);
             setClientID(requestParams);
-            setOIDCSessionIFrameURL(response.data.check_session_iframe, requestParams);
+            if (requestParams?.endpoints?.oidcSessionIFrame) {
+                setOIDCSessionIFrameURL(requestParams?.endpoints?.oidcSessionIFrame, requestParams);
+            } else {
+                setOIDCSessionIFrameURL(response.data.check_session_iframe, requestParams);
+            }
             setSignInRedirectURL(requestParams.signInRedirectURL, requestParams);
             setSignOutRedirectURL(requestParams.signOutRedirectURL, requestParams);
             setOPConfigInitiated(requestParams);
