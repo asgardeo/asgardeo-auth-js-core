@@ -23,15 +23,15 @@ export interface OIDCProviderMetaData {
     /**
      * URL using the https scheme with no query or fragment component that the OP asserts as its Issuer Identifier.
      */
-    issuer: string;
+    issuer?: string;
     /**
      * URL of the OP's OAuth 2.0 Authorization Endpoint.
      */
-    authorization_endpoint: string;
+    authorization_endpoint?: string;
     /**
      * URL of the OP's OAuth 2.0 Token Endpoint.
      */
-    token_endpoint: string;
+    token_endpoint?: string;
     /**
      * URL of the OP's UserInfo Endpoint.
      */
@@ -40,19 +40,19 @@ export interface OIDCProviderMetaData {
      * URL of the OP's JSON Web Key Set [JWK] document.
      * This contains the signing key(s) the RP uses to validate signatures from the OP.
      */
-    jwks_uri: string;
+    jwks_uri?: string;
     /**
      * URL of the OP's Dynamic Client Registration Endpoint
      */
-    registration_endpoint: string;
+    registration_endpoint?: string;
     /**
      * JSON array containing a list of the OAuth 2.0 [RFC6749] scope values that this server supports.
      */
-    scopes_supported: string[];
+    scopes_supported?: string[];
     /**
      * JSON array containing a list of the OAuth 2.0 response_type values that this OP supports.
      */
-    response_types_supported: string[];
+    response_types_supported?: string[];
     /**
      *  JSON array containing a list of the OAuth 2.0 response_mode values that this OP supports.
      */
@@ -68,12 +68,12 @@ export interface OIDCProviderMetaData {
     /**
      * JSON array containing a list of the Subject Identifier types that this OP supports.
      */
-    subject_types_supported: string[];
+    subject_types_supported?: string[];
     /**
      * JSON array containing a list of the JWS signing algorithms (alg values)
      * supported by the OP for the ID Token to encode the Claims in a JWT [JWT].
      */
-    id_token_signing_alg_values_supported: string[];
+    id_token_signing_alg_values_supported?: string[];
     /**
      * JSON array containing a list of the JWE encryption algorithms (alg values)
      * supported by the OP for the ID Token to encode the Claims in a JWT [JWT].
@@ -135,7 +135,7 @@ export interface OIDCProviderMetaData {
      * JSON array containing a list of the Claim Names of the Claims that
      * the OpenID Provider MAY be able to supply values for.
      */
-    claims_supported: string[];
+    claims_supported?: string[];
     /**
      * URL of a page containing human-readable information that developers
      * might want or need to know when using the OpenID Provider.
@@ -228,12 +228,12 @@ export interface OIDCProviderMetaData {
      * URL of an OP iframe that supports cross-origin communications for session state information with the RP
      * Client, using the HTML5 postMessage API.
      */
-    check_session_iframe: string;
+    check_session_iframe?: string;
     /**
      * URL at the OP to which an RP can perform a redirect to request that the End-User be logged out at the
      * OP.
      */
-    end_session_endpoint: string;
+    end_session_endpoint?: string;
     /**
      * Boolean value specifying whether the OP supports back-channel logout, with true indicating support.
      * If omitted, the default value is false.
@@ -254,8 +254,8 @@ export interface OIDCEndpointsInternal {
     registration_endpoint?: string;
     revocation_endpoint?: string;
     introspection_endpoint?: string;
-    checkSession_iframe?: string;
-    endSession_endpoint?: string;
+    check_session_iframe?: string;
+    end_session_endpoint?: string;
     issuer?: string;
 }
 export interface OIDCEndpoints {
