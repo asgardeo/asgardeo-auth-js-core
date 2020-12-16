@@ -22,21 +22,33 @@ import { OP_CONFIG_INITIATED, GetAuthorizationURLParameter } from "..";
 import { TokenResponseInterface, DecodedIdTokenPayloadInterface, OIDCEndpointConstantsInterface, UserInfo, CustomGrantRequestParams } from "../models";
 import { AxiosResponse } from "axios";
 import { Config } from "./models/config";
+import { DataLayer } from "./data-layer";
 
 export class AuthenticationClient {
-    private _store: Store;
+    private _dataLayer: DataLayer;
     private _authenticationCore: AuthenticationCore;
 
+    private static _instanceID: number;
+
     public constructor(config: Config, store: Store) {
-        this._authenticationCore = new AuthenticationCore(store);
-        this._store = store;
-        this._store.setConfigData(config);
+        if (!AuthenticationClient._instanceID) {
+            AuthenticationClient._instanceID = 0;
+        } else {
+            AuthenticationClient._instanceID = AuthenticationClient._instanceID++;
+        }
+        this._dataLayer = new DataLayer(`Instance_${AuthenticationClient._instanceID}`, store);
+        this._authenticationCore = new AuthenticationCore(this._dataLayer);
+        this._dataLayer.setConfigData(config);
+    }
+
+    public getDataLayer(): DataLayer{
+        return this._dataLayer;
     }
 
     public getAuthorizationURL(config?: GetAuthorizationURLParameter): Promise<string> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
-        if (this._store.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
+        if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return Promise.resolve(this._authenticationCore.sendAuthorizationRequest(authRequestConfig));
         }
 
@@ -46,7 +58,13 @@ export class AuthenticationClient {
     }
 
     public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponseInterface> {
-        return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
+        if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
+            return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
+        }
+
+        return this._authenticationCore.initOPConfiguration(false).then(() => {
+            return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
+        });
     }
 
     public getSignOutURL(): string {
@@ -73,12 +91,16 @@ export class AuthenticationClient {
         return this._authenticationCore.sendRefreshTokenRequest();
     }
 
-    public getRefreshToken(): string {
-        return this._authenticationCore.getRefreshToken();
+    public getAccessToken(): string {
+        return this._authenticationCore.getAccessToken();
     }
 
     public sendCustomGrantRequest(config: CustomGrantRequestParams): Promise<TokenResponseInterface | AxiosResponse>{
         return this._authenticationCore.customGrant(config);
+    }
+
+    public isAuthenticated():boolean {
+        return this._authenticationCore.isAuthenticated();
     }
 
 }
