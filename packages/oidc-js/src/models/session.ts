@@ -33,3 +33,8 @@ export interface SessionDataRaw {
     token_type: string;
     session_state: string;
 }
+
+export interface GetAuthenticationCodeResponse{
+    authorizationCode: string;
+    sessionState?: string;
+}
