@@ -36,7 +36,7 @@ export class AuthenticationClient {
         } else {
             AuthenticationClient._instanceID = AuthenticationClient._instanceID++;
         }
-        this._dataLayer = new DataLayer(`Instance_${AuthenticationClient._instanceID}`, store);
+        this._dataLayer = new DataLayer(`instance_${AuthenticationClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer);
         this._dataLayer.setConfigData(config);
     }
