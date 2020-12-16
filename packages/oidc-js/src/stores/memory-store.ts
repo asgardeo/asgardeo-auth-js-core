@@ -20,104 +20,21 @@ import { ConfigInterface, OIDCProviderMetaData, SessionDataRaw } from "../models
 import { Stores } from "../constants";
 
 export class MemoryStore implements Store {
-    private _configData: ConfigInterface;
-    private _sessionData: SessionDataRaw;
-    private _temporaryData: TemporaryData;
-    private _oidcProviderMetaData: OIDCProviderMetaData;
+    private _data: Record<string, string>;
 
-    public setConfigData(config: ConfigInterface): void {
-        this._configData = { ...this._configData, ...config };
+    public constructor() {
+        this._data = null;
     }
 
-    public setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData): void {
-        this._oidcProviderMetaData = { ...this._oidcProviderMetaData, ...oidcProviderMetaData };
+    public setData(key: string, value: string): void {
+        this._data[ key ] = value;
     }
 
-    public setTemporaryData(temporaryData: TemporaryData): void {
-        this._temporaryData = { ...this._temporaryData, ...temporaryData };
+    public getData(key: string): string {
+        return this._data && this._data[key];
     }
 
-    public setSessionData(sessionData: SessionDataRaw): void {
-        this._sessionData = { ...this._sessionData, ...sessionData };
-    }
-
-    public getConfigData(): ConfigInterface {
-        return this._configData;
-    }
-
-    public getOIDCProviderMetaData(): OIDCProviderMetaData {
-        return this._oidcProviderMetaData;
-    }
-
-    public getTemporaryData(): TemporaryData {
-        return this._temporaryData;
-    }
-
-    public getSessionData(): SessionDataRaw {
-        return this._sessionData;
-    }
-
-    public removeConfigData(): void {
-        this._configData = null;
-    }
-
-    public removeOIDCProviderMetaData(): void {
-        this._oidcProviderMetaData = null;
-    }
-
-    public removeTemporaryData(): void {
-        this._temporaryData = null;
-    }
-
-    public removeSessionData(): void {
-        this._sessionData = null;
-    }
-
-    public getConfigDataParameter(key: keyof ConfigInterface): StoreValue {
-        return this._configData[key];
-    }
-
-    public getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue {
-        return this._oidcProviderMetaData[ key ];
-    }
-
-    public getTemporaryDataParameter(key: keyof TemporaryData): StoreValue {
-        return this._temporaryData[ key ];
-    }
-
-    public getSessionDataParameter(key: keyof SessionDataRaw): StoreValue {
-        return this._sessionData[ key ];
-    }
-
-    public setConfigDataParameter(key: keyof ConfigInterface, value: StoreValue): void {
-        this._configData = { ...this._configData, [key]: value };
-    }
-
-    public setOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData, value: StoreValue): void {
-        this._oidcProviderMetaData = { ...this._oidcProviderMetaData, [key]: value };
-    }
-
-    public setTemporaryDataParameter(key: keyof TemporaryData, value: StoreValue): void {
-        this._temporaryData = { ...this._temporaryData, [key]: value };
-    }
-
-    public setSessionDataParameter(key: keyof SessionDataRaw, value: StoreValue): void {
-        this._sessionData = { ...this._sessionData, [key]: value };
-    }
-
-    public removeConfigDataParameter(key: keyof ConfigInterface): void {
-        delete this._configData[ key ];
-    }
-
-    public removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): void {
-        delete this._oidcProviderMetaData[ key ];
-    }
-
-    public removeTemporaryDataParameter(key: keyof TemporaryData): void {
-        delete this._temporaryData[ key ];
-    }
-
-    public removeSessionDataParameter(key: keyof SessionDataRaw): void {
-        delete this._sessionData[ key ];
+    public removeData(key: string): void {
+        delete this._data[key];
     }
 }
