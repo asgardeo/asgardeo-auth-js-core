@@ -36,7 +36,8 @@ import {
     SIGNED_IN,
     SIGN_IN,
     GET_AUTH_URL,
-    GET_TOKEN
+    GET_TOKEN,
+    IS_AUTHENTICATED
 } from "../constants";
 import {
     HttpError,
@@ -71,6 +72,7 @@ ctx.onmessage = ({ data, ports }) => {
                 webWorker.setHttpRequestSuccessCallback(onRequestSuccessCallback);
                 port.postMessage(generateSuccessDTO());
             } catch (error) {
+                console.log("worker init", error);
                 port.postMessage(generateFailureDTO(error));
             }
 
@@ -95,7 +97,7 @@ ctx.onmessage = ({ data, ports }) => {
                 port.postMessage(generateFailureDTO("Worker has not been initiated."));
             } else {
                 webWorker
-                    .getAccessToken(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
+                    .sendTokenRequest(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
                     .then((response: UserInfo) => {
                         port.postMessage(generateSuccessDTO(response));
                     })
@@ -112,7 +114,7 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            if (!webWorker.isSignedIn()) {
+            if (!webWorker.isAuthenticated()) {
                 port.postMessage(generateFailureDTO("You have not signed in yet."));
             } else {
                 webWorker
@@ -133,7 +135,7 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            if (!webWorker.isSignedIn()) {
+            if (!webWorker.isAuthenticated()) {
                 port.postMessage(generateFailureDTO("You have not signed in yet."));
             } else {
                 webWorker
@@ -154,21 +156,14 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            if (!webWorker.isSignedIn()) {
+            if (!webWorker.isAuthenticated()) {
                 port.postMessage(generateFailureDTO("You have not signed in yet."));
             } else {
-                webWorker
-                    .signOut()
-                    .then((response) => {
-                        if (response) {
-                            port.postMessage(generateSuccessDTO(response));
-                        } else {
-                            port.postMessage(generateFailureDTO("Received no response"));
-                        }
-                    })
-                    .catch((error) => {
-                        port.postMessage(generateFailureDTO(error));
-                    });
+                try {
+                    port.postMessage(generateSuccessDTO(webWorker.signOut()));
+                } catch (error) {
+                    port.postMessage(generateFailureDTO(error));
+                }
             }
 
             break;
@@ -179,7 +174,7 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            if (!webWorker.isSignedIn() && data.data.signInRequired) {
+            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
                 port.postMessage(generateFailureDTO("You have not signed in yet."));
 
                 break;
@@ -202,7 +197,7 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            if (!webWorker.isSignedIn() && data.data.signInRequired) {
+            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
                 port.postMessage(generateFailureDTO("You have not signed in yet."));
 
                 break;
@@ -241,7 +236,7 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            if (!webWorker.isSignedIn() && data.data.signInRequired) {
+            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
                 port.postMessage(generateFailureDTO("You have not signed in yet."));
 
                 break;
@@ -261,7 +256,7 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            if (!webWorker.isSignedIn() && data.data.signInRequired) {
+            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
                 port.postMessage(generateFailureDTO("You have not signed in yet."));
 
                 break;
@@ -294,6 +289,20 @@ ctx.onmessage = ({ data, ports }) => {
 
             webWorker.disableHttpHandler();
             port.postMessage(generateSuccessDTO());
+
+            break;
+        case IS_AUTHENTICATED:
+            if (!webWorker) {
+                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+
+                break;
+            }
+
+            try {
+                port.postMessage(generateSuccessDTO(webWorker.isAuthenticated()));
+            } catch (error) {
+                port.postMessage(generateFailureDTO(error));
+            }
 
             break;
         default:
