@@ -17,7 +17,7 @@
  */
 
 import { AxiosResponse } from "axios";
-import { AUTHORIZATION_CODE, ResponseMode, SESSION_STATE, Storage } from "../constants";
+import { AUTHORIZATION_CODE, ResponseMode, SESSION_STATE, Storage, PKCE_CODE_VERIFIER, LOGOUT_URL } from "../constants";
 import { AuthenticationClient } from "../core/authentication-client";
 import { Store } from "../core/models/store";
 import {
@@ -27,11 +27,16 @@ import {
     GetAuthorizationURLParameter,
     OIDCEndpointConstantsInterface,
     TokenResponseInterface,
-    UserInfo
+    UserInfo,
+    HttpResponse,
+    HttpError,
+    HttpRequestConfig
 } from "../models";
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores/memory-store";
 import { SessionStore } from "../stores/session-store";
+import { AuthenticationUtils } from "../core/authenitcation-utils";
+import { HttpClientInstance, HttpClient } from "../http-client";
 
 const initiateStore = (store: Storage): Store => {
     switch (store) {
@@ -49,13 +54,77 @@ const initiateStore = (store: Storage): Store => {
 export const MainThreadClient = (config: ConfigInterface): any => {
     const _store: Store = initiateStore(config.storage);
     const _authenticationClient = new AuthenticationClient(config, _store);
+    const _dataLayer = _authenticationClient.getDataLayer();
+
+    let _onHttpRequestStart: () => void;
+    let _onHttpRequestSuccess: (response: HttpResponse) => void;
+    let _onHttpRequestFinish: () => void;
+    let _onHttpRequestError: (error: HttpError) => void;
+    const _httpClient: HttpClientInstance = HttpClient.getInstance();
+
+    const attachToken = (request: HttpRequestConfig): void => {
+        request.headers = {
+            ...request.headers,
+            Authorization: `Bearer ${_authenticationClient.getAccessToken()}`
+        };
+    };
+
+    _httpClient.init(
+        true,
+        attachToken,
+        _onHttpRequestStart,
+        _onHttpRequestSuccess,
+        _onHttpRequestError,
+        _onHttpRequestFinish
+    );
+
+    const setHttpRequestStartCallback = (callback: () => void): void => {
+        _onHttpRequestStart = callback;
+    };
+
+    const setHttpRequestSuccessCallback = (callback: (response: HttpResponse) => void): void => {
+        _onHttpRequestSuccess = callback;
+    };
+
+    const setHttpRequestFinish = (callback: () => void): void => {
+        _onHttpRequestFinish = callback;
+    };
+
+    const setHttpRequestError = (callback: (error: HttpError) => void): void => {
+        _onHttpRequestError = callback;
+    };
+
+    const httpRequest = (config: HttpRequestConfig): Promise<HttpResponse> => {
+        return _httpClient.request(config);
+    };
+
+    const httpRequestAll = (config: HttpRequestConfig[]): Promise<HttpResponse[]> => {
+        const requests: Promise<HttpResponse<any>>[] = [];
+        config.forEach((request) => {
+            requests.push(_httpClient.request(request));
+        });
+
+        return _httpClient.all(requests);
+    };
+
+    const getHttpClient = (): HttpClientInstance => {
+        return _httpClient;
+    };
+
+    const enableHttpHandler = (): void => {
+        _httpClient.enableHandler();
+    };
+
+    const disableHttpHandler = (): void => {
+        _httpClient.disableHandler();
+    };
 
     const signIn = (
         params?: GetAuthorizationURLParameter,
         authorizationCode?: string,
         sessionState?: string
     ): Promise<UserInfo> => {
-        if (_store.getSessionData()?.access_token) {
+        if (_authenticationClient.isAuthenticated()) {
             return Promise.resolve(_authenticationClient.getUserInfo());
         }
 
@@ -70,10 +139,22 @@ export const MainThreadClient = (config: ConfigInterface): any => {
             resolvedSessionState = new URL(window.location.href).searchParams.get(SESSION_STATE);
         }
 
+        AuthenticationUtils.removeAuthorizationCode();
+
         if (resolvedAuthorizationCode && resolvedSessionState) {
+            if (config.storage === Storage.MainThreadMemory) {
+                const pkce = sessionStorage.getItem(PKCE_CODE_VERIFIER);
+
+                _dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
+            }
+
             return _authenticationClient
                 .sendTokenRequest(resolvedAuthorizationCode, resolvedSessionState)
                 .then(() => {
+                    if (config.storage === Storage.MainThreadMemory) {
+                        sessionStorage.setItem(LOGOUT_URL, _authenticationClient.getSignOutURL());
+                    }
+
                     return _authenticationClient.getUserInfo();
                 })
                 .catch((error) => {
@@ -82,6 +163,13 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         }
 
         return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
+            if (config.storage === Storage.MainThreadMemory) {
+                sessionStorage.setItem(
+                    PKCE_CODE_VERIFIER,
+                    _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string
+                );
+            }
+
             location.href = url;
 
             return Promise.resolve({
@@ -96,7 +184,15 @@ export const MainThreadClient = (config: ConfigInterface): any => {
     };
 
     const signOut = () => {
-        location.href = _authenticationClient.getSignOutURL();
+        try {
+            location.href = _authenticationClient.getSignOutURL();
+        } catch (error) {
+            if (sessionStorage.getItem(LOGOUT_URL)) {
+                location.href = sessionStorage.getItem(LOGOUT_URL);
+            } else {
+                throw Error(error);
+            }
+        }
     };
 
     const customGrant = (config: CustomGrantRequestParams): Promise<UserInfo | AxiosResponse> => {
@@ -125,7 +221,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
             });
     };
 
-    const revokeToken = (): Promise<boolean> => {
+    const revokeAccessToken = (): Promise<boolean> => {
         return _authenticationClient
             .revokeToken()
             .then(() => Promise.resolve(true))
@@ -144,14 +240,33 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         return _authenticationClient.getOIDCEndpoints();
     };
 
+    const getAccessToken = (): string => {
+        return _authenticationClient.getAccessToken();
+    };
+
+    const isAuthenticated = (): boolean => {
+        return _authenticationClient.isAuthenticated();
+    };
+
     return {
         customGrant,
+        getAccessToken,
         getDecodedIDToken,
         getOIDCServiceEndpoints,
         getUserInfo,
+        isAuthenticated,
         refreshToken,
-        revokeToken,
+        revokeAccessToken,
+        setHttpRequestError,
+        setHttpRequestFinish,
+        setHttpRequestStartCallback,
+        setHttpRequestSuccessCallback,
         signIn,
-        signOut
+        signOut,
+        httpRequest,
+        httpRequestAll,
+        enableHttpHandler,
+        disableHttpHandler,
+        getHttpClient
     };
 };
