@@ -45,6 +45,7 @@ import { HttpClientInstance, HttpClient } from "../http-client";
 export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
     const _store: Store = new MemoryStore();
     const _authenticationClient = new AuthenticationClient(config, _store);
+    const _dataLayer = _authenticationClient.getDataLayer();
 
     let _onHttpRequestStart: () => void;
     let _onHttpRequestSuccess: (response: HttpResponse) => void;
@@ -113,7 +114,7 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
         params?: GetAuthorizationURLParameter
     ): Promise<GetAuthorizationURLInterface> => {
         return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
-            return { authorizationCode: url, pkce: _store.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string };
+            return { authorizationCode: url, pkce: _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string };
         });
     };
 
@@ -124,7 +125,7 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
     ): Promise<UserInfo> => {
 
         if (pkce) {
-            _store.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
+            _dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
         }
 
         if (authorizationCode && sessionState) {
