@@ -61,4 +61,4 @@ jobs:
         git config --global user.name "asgardio-github-bot"
         npm run bump-patch-version
         git push --follow-tags
-      if: github.repository == 'asgardio/asgardio-js-oidc-sdk'
+      if: github.repository == 'asgardeo/asgardio-js-oidc-sdk'
