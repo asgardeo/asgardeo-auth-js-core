@@ -37,3 +37,6 @@ export const GET_DECODED_ID_TOKEN = "get-decoded-id-token";
 export const LOGOUT_SUCCESS = "logout_success";
 export const ENABLE_HTTP_HANDLER = "enable_http_handler";
 export const DISABLE_HTTP_HANDLER = "disable_http_handler";
+export const GET_AUTH_URL = "get_auth_url";
+export const GET_TOKEN = "get_token";
+export const IS_AUTHENTICATED = "is_authenticated";
