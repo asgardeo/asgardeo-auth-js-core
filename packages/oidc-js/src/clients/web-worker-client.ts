@@ -41,7 +41,8 @@ import {
     SIGNED_IN,
     SIGN_IN,
     GET_TOKEN,
-    GET_AUTH_URL
+    GET_AUTH_URL,
+    IS_AUTHENTICATED
 } from "../constants";
 import {
     AuthCode,
@@ -251,97 +252,105 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      *
      */
     const initialize = (): Promise<boolean> => {
-        if (config.authorizationType && typeof config.authorizationType !== "string") {
-            return Promise.reject("The authorizationType must be a string");
-        }
-
-        if (!(config.resourceServerURLs instanceof Array)) {
-            return Promise.reject("resourceServerURLs must be an array");
-        }
-
-        if (config.resourceServerURLs.find((baseUrl) => typeof baseUrl !== "string")) {
-            return Promise.reject("Array elements of resourceServerURLs must all be string values");
-        }
-
-        if (typeof config.signInRedirectURL !== "string") {
-            return Promise.reject("The sign-in redirect URL must be a string");
-        }
-
-        if (typeof config.signOutRedirectURL !== "string") {
-            return Promise.reject("The sign-out redirect URL must be a string");
-        }
-
-        if (typeof config.clientHost !== "string") {
-            return Promise.reject("The clientHost must be a string");
-        }
-
-        if (typeof config.clientID !== "string") {
-            return Promise.reject("The clientID must be a string");
-        }
-
-        if (config.clientSecret && typeof config.clientSecret !== "string") {
-            return Promise.reject("The clientString must be a string");
-        }
-
-        if (config.consentDenied && typeof config.consentDenied !== "boolean") {
-            return Promise.reject("consentDenied must be a boolean");
-        }
-
-        if (config.enablePKCE && typeof config.enablePKCE !== "boolean") {
-            return Promise.reject("enablePKCE must be a boolean");
-        }
-
-        if (config.prompt && typeof config.prompt !== "string") {
-            return Promise.reject("The prompt must be a string");
-        }
-
-        if (config.responseMode && typeof config.responseMode !== "string") {
-            return Promise.reject("The responseMode must be a string");
-        }
-
-        if (config.responseMode
-            && config.responseMode !== ResponseMode.formPost
-            && config.responseMode !== ResponseMode.query) {
-            return Promise.reject("The responseMode is invalid");
-        }
-
-        if (config.scope && !(config.scope instanceof Array)) {
-            return Promise.reject("scope must be an array");
-        }
-
-        if (config.scope && config.scope.find((aScope) => typeof aScope !== "string")) {
-            return Promise.reject("Array elements of scope must all be string values");
-        }
-
-        if (typeof config.serverOrigin !== "string") {
-            return Promise.reject("serverOrigin must be a string");
-        }
-
-        httpClientHandlers = {
-            requestErrorCallback: null,
-            requestFinishCallback: null,
-            requestStartCallback: null,
-            requestSuccessCallback: null
-        };
-
-         worker.onmessage = ({ data }) => {
-            switch (data.type) {
-                case REQUEST_ERROR:
-                    httpClientHandlers?.requestErrorCallback &&
-                        httpClientHandlers?.requestErrorCallback(JSON.parse(data.data ?? ""));
-                    break;
-                case REQUEST_FINISH:
-                    httpClientHandlers?.requestFinishCallback && httpClientHandlers?.requestFinishCallback();
-                    break;
-                case REQUEST_START:
-                    httpClientHandlers?.requestStartCallback && httpClientHandlers?.requestStartCallback();
-                    break;
-                case REQUEST_SUCCESS:
-                    httpClientHandlers?.requestSuccessCallback &&
-                        httpClientHandlers?.requestSuccessCallback(JSON.parse(data.data ?? ""));
-                    break;
+        try {
+            if (config.authorizationType && typeof config.authorizationType !== "string") {
+                return Promise.reject("The authorizationType must be a string");
             }
-        };
+
+            if (!(config.resourceServerURLs instanceof Array)) {
+                return Promise.reject("resourceServerURLs must be an array");
+            }
+
+            if (config.resourceServerURLs.find((baseUrl) => typeof baseUrl !== "string")) {
+                return Promise.reject("Array elements of resourceServerURLs must all be string values");
+            }
+
+            if (typeof config.signInRedirectURL !== "string") {
+                return Promise.reject("The sign-in redirect URL must be a string");
+            }
+
+            if (typeof config.signOutRedirectURL !== "string") {
+                return Promise.reject("The sign-out redirect URL must be a string");
+            }
+
+            if (typeof config.clientHost !== "string") {
+                return Promise.reject("The clientHost must be a string");
+            }
+
+            if (typeof config.clientID !== "string") {
+                return Promise.reject("The clientID must be a string");
+            }
+
+            if (config.clientSecret && typeof config.clientSecret !== "string") {
+                return Promise.reject("The clientString must be a string");
+            }
+
+            if (config.consentDenied && typeof config.consentDenied !== "boolean") {
+                return Promise.reject("consentDenied must be a boolean");
+            }
+
+            if (config.enablePKCE && typeof config.enablePKCE !== "boolean") {
+                return Promise.reject("enablePKCE must be a boolean");
+            }
+
+            if (config.prompt && typeof config.prompt !== "string") {
+                return Promise.reject("The prompt must be a string");
+            }
+
+            if (config.responseMode && typeof config.responseMode !== "string") {
+                return Promise.reject("The responseMode must be a string");
+            }
+
+            if (config.responseMode
+                && config.responseMode !== ResponseMode.formPost
+                && config.responseMode !== ResponseMode.query) {
+                return Promise.reject("The responseMode is invalid");
+            }
+
+            if (config.scope && !(config.scope instanceof Array)) {
+                return Promise.reject("scope must be an array");
+            }
+
+            if (config.scope && config.scope.find((aScope) => typeof aScope !== "string")) {
+                return Promise.reject("Array elements of scope must all be string values");
+            }
+
+            if (typeof config.serverOrigin !== "string") {
+                return Promise.reject("serverOrigin must be a string");
+            }
+        } catch (error) {
+            console.log("first try", error);
+        }
+
+        try {
+            httpClientHandlers = {
+                requestErrorCallback: null,
+                requestFinishCallback: null,
+                requestStartCallback: null,
+                requestSuccessCallback: null
+            };
+
+            worker.onmessage = ({ data }) => {
+                switch (data.type) {
+                    case REQUEST_ERROR:
+                        httpClientHandlers?.requestErrorCallback &&
+                            httpClientHandlers?.requestErrorCallback(JSON.parse(data.data ?? ""));
+                        break;
+                    case REQUEST_FINISH:
+                        httpClientHandlers?.requestFinishCallback && httpClientHandlers?.requestFinishCallback();
+                        break;
+                    case REQUEST_START:
+                        httpClientHandlers?.requestStartCallback && httpClientHandlers?.requestStartCallback();
+                        break;
+                    case REQUEST_SUCCESS:
+                        httpClientHandlers?.requestSuccessCallback &&
+                            httpClientHandlers?.requestSuccessCallback(JSON.parse(data.data ?? ""));
+                        break;
+                }
+            };
+        } catch (error) {
+            console.log("second try", error);
+        }
 
         const message: Message<WebWorkerConfigInterface> = {
             data: config,
@@ -355,6 +364,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
                 return Promise.resolve(true);
             })
             .catch((error) => {
+                console.log("worker client init", error)
                 return Promise.reject(error);
             });
     };
@@ -529,6 +539,18 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             });
     };
 
+    const isAuthenticated = (): Promise<boolean> => {
+        const message: Message<null> = {
+            type: IS_AUTHENTICATED
+        };
+
+        return communicate<null, boolean>(message).then((response) => {
+            return Promise.resolve(response);
+        }).catch((error) => {
+            return Promise.reject(error);
+        });
+    }
+
     const onHttpRequestSuccess = (callback: (response: HttpResponse) => void): void => {
         if (callback && typeof callback === "function") {
             httpClientHandlers.requestSuccessCallback = callback;
@@ -570,7 +592,8 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             onHttpRequestStart,
             onHttpRequestSuccess,
             signIn,
-            signOut
+            signOut,
+            //isAuthenticated
         };
 
 };
