@@ -20,57 +20,62 @@ import { OIDC_SCOPE, AUTHORIZATION_ENDPOINT, PKCE_CODE_VERIFIER, SESSION_STATE, 
 import { getCodeVerifier, getCodeChallenge, getJWKForTheIdToken, isValidIdToken, decodeIDToken } from "../utils";
 import { Store } from "./models/store";
 import { OIDCProviderMetaData, TokenResponseInterface, CustomGrantRequestParams, UserInfo, DecodedIdTokenPayloadInterface, OpenIDConfig, OIDCEndpointConstantsInterface, SendAuthorizationRequestParameter } from "../models";
-import { AuthenticationUtils } from "./authenitcation-utils";
+import { AuthenticationHelper } from "./authenitcation-helper";
 import { KeyLike } from "jose/webcrypto/types";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { Config } from "./models/config";
+import { AuthenticationUtils } from "./authenitcation-utils";
+import { DataLayer } from "./data-layer";
 
 export class AuthenticationCore {
-    private _store: Store;
-    private _config: Config;
-    private _oidcProviderMetaData: OIDCProviderMetaData;
-    private _authenticationUtils: AuthenticationUtils;
+    private _dataLayer: DataLayer;
+    private _config: ()=>Config;
+    private _oidcProviderMetaData: ()=>OIDCProviderMetaData;
+    private _authenticationHelper: AuthenticationHelper;
 
-    public constructor(store: Store) {
-        this._authenticationUtils = new AuthenticationUtils(store);
-        this._store = store;
-        this._config = this._store.getConfigData();
-        this._oidcProviderMetaData = this._store.getOIDCProviderMetaData();
+    public constructor(dataLayer: DataLayer) {
+        console.log("$", dataLayer);
+        console.log("%", dataLayer.getConfigData())
+        this._authenticationHelper = new AuthenticationHelper(dataLayer);
+        this._dataLayer = dataLayer;
+        this._config = ()=>this._dataLayer.getConfigData();
+        this._oidcProviderMetaData = ()=>this._dataLayer.getOIDCProviderMetaData();
     }
+
     public sendAuthorizationRequest(config?: SendAuthorizationRequestParameter): string {
-        const authorizeEndpoint = this._store.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
+        const authorizeEndpoint = this._dataLayer.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
             throw Error("Invalid authorize endpoint found.");
         }
 
-        let authorizeRequest = authorizeEndpoint + "?response_type=code&client_id=" + this._config.clientID;
+        let authorizeRequest = authorizeEndpoint + "?response_type=code&client_id=" + this._config().clientID;
 
         let scope = OIDC_SCOPE;
 
-        if (this._config.scope && this._config.scope.length > 0) {
-            if (!this._config.scope.includes(OIDC_SCOPE)) {
-                this._config.scope.push(OIDC_SCOPE);
+        if (this._config().scope && this._config().scope.length > 0) {
+            if (!this._config().scope.includes(OIDC_SCOPE)) {
+                this._config().scope.push(OIDC_SCOPE);
             }
-            scope = this._config.scope.join(" ");
+            scope = this._config().scope.join(" ");
         }
 
         authorizeRequest += "&scope=" + scope;
-        authorizeRequest += "&redirect_uri=" + this._config.signInRedirectURL;
+        authorizeRequest += "&redirect_uri=" + this._config().signInRedirectURL;
 
-        if (this._config.responseMode) {
-            authorizeRequest += "&response_mode=" + this._config.responseMode;
+        if (this._config().responseMode) {
+            authorizeRequest += "&response_mode=" + this._config().responseMode;
         }
 
-        if (this._config.enablePKCE) {
+        if (this._config().enablePKCE) {
             const codeVerifier = getCodeVerifier();
             const codeChallenge = getCodeChallenge(codeVerifier);
-            this._store.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
+            this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest += "&code_challenge_method=S256&code_challenge=" + codeChallenge;
         }
 
-        if (this._config.prompt) {
-            authorizeRequest += "&prompt=" + this._config.prompt;
+        if (this._config().prompt) {
+            authorizeRequest += "&prompt=" + this._config().prompt;
         }
 
         const customParams = config;
@@ -86,34 +91,34 @@ export class AuthenticationCore {
     }
 
     public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponseInterface> {
-        const tokenEndpoint = this._oidcProviderMetaData.token_endpoint;
+        const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
             return Promise.reject(new Error("Invalid token endpoint found."));
         }
 
-        this._store.setSessionDataParameter(SESSION_STATE, sessionState);
+        this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
 
         const body = [];
-        body.push(`client_id=${this._config.clientID}`);
+        body.push(`client_id=${this._config().clientID}`);
 
-        if (this._config.clientSecret && this._config.clientSecret.trim().length > 0) {
-            body.push(`client_secret=${this._config.clientSecret}`);
+        if (this._config().clientSecret && this._config().clientSecret.trim().length > 0) {
+            body.push(`client_secret=${this._config().clientSecret}`);
         }
 
         const code = authorizationCode;
         body.push(`code=${code}`);
 
         body.push("grant_type=authorization_code");
-        body.push(`redirect_uri=${this._config.signInRedirectURL}`);
+        body.push(`redirect_uri=${this._config().signInRedirectURL}`);
 
-        if (this._config.enablePKCE) {
-            body.push(`code_verifier=${this._store.getTemporaryDataParameter(PKCE_CODE_VERIFIER)}`);
-            this._store.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
+        if (this._config().enablePKCE) {
+            body.push(`code_verifier=${this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)}`);
+            this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
         }
 
         return axios
-            .post(tokenEndpoint, body.join("&"), { headers: this._authenticationUtils.getTokenRequestHeaders() })
+            .post(tokenEndpoint, body.join("&"), { headers: AuthenticationUtils.getTokenRequestHeaders() })
             .then((response) => {
                 if (response.status !== 200) {
                     return Promise.reject(
@@ -121,12 +126,12 @@ export class AuthenticationCore {
                     );
                 }
 
-                if (this._config.validateIDToken) {
-                    return this._authenticationUtils
+                if (this._config().validateIDToken) {
+                    return this._authenticationHelper
                         .validateIdToken(response.data.id_token)
                         .then((valid) => {
                             if (valid) {
-                                this._store.setSessionData(response.data);
+                                this._dataLayer.setSessionData(response.data);
 
                                 const tokenResponse: TokenResponseInterface = {
                                     accessToken: response.data.access_token,
@@ -154,7 +159,7 @@ export class AuthenticationCore {
                         scope: response.data.scope,
                         tokenType: response.data.token_type
                     };
-                    this._store.setSessionData(response.data);
+                    this._dataLayer.setSessionData(response.data);
 
                     return Promise.resolve(tokenResponse);
                 }
@@ -165,9 +170,9 @@ export class AuthenticationCore {
     }
 
     public sendRefreshTokenRequest(): Promise<TokenResponseInterface> {
-        const tokenEndpoint = this._oidcProviderMetaData.token_endpoint;
+        const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
-        if (!this._store.getSessionData().refresh_token) {
+        if (!this._dataLayer.getSessionData().refresh_token) {
             return Promise.reject("No refresh token found");
         }
 
@@ -176,16 +181,16 @@ export class AuthenticationCore {
         }
 
         const body = [];
-        body.push(`client_id=${this._config.clientID}`);
-        body.push(`refresh_token=${this._store.getSessionData().refresh_token}`);
+        body.push(`client_id=${this._config().clientID}`);
+        body.push(`refresh_token=${this._dataLayer.getSessionData().refresh_token}`);
         body.push("grant_type=refresh_token");
 
-        if (this._config.clientSecret && this._config.clientSecret.trim().length > 0) {
-            body.push(`client_secret=${this._config.clientSecret}`);
+        if (this._config().clientSecret && this._config().clientSecret.trim().length > 0) {
+            body.push(`client_secret=${this._config().clientSecret}`);
         }
 
         return axios
-            .post(tokenEndpoint, body.join("&"), { headers: this._authenticationUtils.getTokenRequestHeaders() })
+            .post(tokenEndpoint, body.join("&"), { headers: AuthenticationUtils.getTokenRequestHeaders() })
             .then((response) => {
                 if (response.status !== 200) {
                     return Promise.reject(
@@ -193,8 +198,8 @@ export class AuthenticationCore {
                     );
                 }
 
-                if (this._config.validateIDToken) {
-                    return this._authenticationUtils.validateIdToken(response.data.id_token).then((valid) => {
+                if (this._config().validateIDToken) {
+                    return this._authenticationHelper.validateIdToken(response.data.id_token).then((valid) => {
                         if (valid) {
                             const tokenResponse: TokenResponseInterface = {
                                 accessToken: response.data.access_token,
@@ -205,7 +210,7 @@ export class AuthenticationCore {
                                 tokenType: response.data.token_type
                             };
 
-                            this._store.setSessionData(response.data);
+                            this._dataLayer.setSessionData(response.data);
 
                             return Promise.resolve(tokenResponse);
                         }
@@ -222,7 +227,7 @@ export class AuthenticationCore {
                         tokenType: response.data.token_type
                     };
 
-                    this._store.setSessionData(response.data);
+                    this._dataLayer.setSessionData(response.data);
 
                     return Promise.resolve(tokenResponse);
                 }
@@ -233,20 +238,20 @@ export class AuthenticationCore {
     }
 
     public sendRevokeTokenRequest(): Promise<AxiosResponse> {
-        const revokeTokenEndpoint = this._oidcProviderMetaData.revocation_endpoint;
+        const revokeTokenEndpoint = this._oidcProviderMetaData().revocation_endpoint;
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
             return Promise.reject("Invalid revoke token endpoint found.");
         }
 
         const body = [];
-        body.push(`client_id=${this._config.clientID}`);
-        body.push(`token=${this._store.getSessionData().access_token}`);
+        body.push(`client_id=${this._config().clientID}`);
+        body.push(`token=${this._dataLayer.getSessionData().access_token}`);
         body.push("token_type_hint=access_token");
 
         return axios
             .post(revokeTokenEndpoint, body.join("&"), {
-                headers: this._authenticationUtils.getTokenRequestHeaders(),
+                headers: AuthenticationUtils.getTokenRequestHeaders(),
                 withCredentials: true
             })
             .then((response) => {
@@ -256,7 +261,7 @@ export class AuthenticationCore {
                     );
                 }
 
-                this._authenticationUtils.clearUserSessionData();
+                this._authenticationHelper.clearUserSessionData();
 
                 return Promise.resolve(response);
             })
@@ -269,8 +274,8 @@ export class AuthenticationCore {
         customGrantParams: CustomGrantRequestParams
     ): Promise<TokenResponseInterface | AxiosResponse> => {
         if (
-            !this._oidcProviderMetaData.token_endpoint ||
-            this._oidcProviderMetaData.token_endpoint.trim().length === 0
+            !this._oidcProviderMetaData().token_endpoint ||
+            this._oidcProviderMetaData().token_endpoint.trim().length === 0
         ) {
             return Promise.reject(new Error("Invalid token endpoint found."));
         }
@@ -278,23 +283,23 @@ export class AuthenticationCore {
         let data: string = "";
 
         Object.entries(customGrantParams.data).map(([key, value], index: number) => {
-            const newValue = this._authenticationUtils.replaceTemplateTags(value as string);
+            const newValue = this._authenticationHelper.replaceTemplateTags(value as string);
             data += `${key}=${newValue}${index !== Object.entries(customGrantParams.data).length - 1 ? "&" : ""}`;
         });
 
         const requestConfig: AxiosRequestConfig = {
             data: data,
             headers: {
-                ...this._authenticationUtils.getTokenRequestHeaders()
+                ...AuthenticationUtils.getTokenRequestHeaders()
             },
             method: "POST",
-            url: this._oidcProviderMetaData.token_endpoint
+            url: this._oidcProviderMetaData().token_endpoint
         };
 
         if (customGrantParams.attachToken) {
             requestConfig.headers = {
                 ...requestConfig.headers,
-                Authorization: `Bearer ${this._store.getSessionData().access_token}`
+                Authorization: `Bearer ${this._dataLayer.getSessionData().access_token}`
             };
         }
 
@@ -308,8 +313,8 @@ export class AuthenticationCore {
                     }
 
                     if (customGrantParams.returnsSession) {
-                        if (this._config.validateIDToken) {
-                            return this._authenticationUtils.validateIdToken(response.data.id_token).then((valid) => {
+                        if (this._config().validateIDToken) {
+                            return this._authenticationHelper.validateIdToken(response.data.id_token).then((valid) => {
                                 if (valid) {
                                     const tokenResponse: TokenResponseInterface = {
                                         accessToken: response.data.access_token,
@@ -320,7 +325,7 @@ export class AuthenticationCore {
                                         tokenType: response.data.token_type
                                     };
 
-                                    this._store.setSessionData(response.data);
+                                    this._dataLayer.setSessionData(response.data);
 
                                         return Promise.resolve(tokenResponse);
 
@@ -340,7 +345,7 @@ export class AuthenticationCore {
                                 tokenType: response.data.token_type
                             };
 
-                            this._store.setSessionData(response.data);
+                            this._dataLayer.setSessionData(response.data);
 
                                 return Promise.resolve(tokenResponse);
 
@@ -356,8 +361,8 @@ export class AuthenticationCore {
     };
 
     public getUserInfo(): UserInfo {
-        const sessionData = this._store.getSessionData();
-        const authenticatedUser = this._authenticationUtils.getAuthenticatedUser(sessionData.id_token);
+        const sessionData = this._dataLayer.getSessionData();
+        const authenticatedUser = AuthenticationUtils.getAuthenticatedUser(sessionData.id_token);
         return {
             allowedScopes: sessionData.scope,
             displayName: authenticatedUser.displayName,
@@ -369,19 +374,19 @@ export class AuthenticationCore {
     }
 
     public getDecodedIDToken(): DecodedIdTokenPayloadInterface {
-        const idToken = this._store.getSessionData().id_token;
+        const idToken = this._dataLayer.getSessionData().id_token;
         const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
 
         return payload;
     }
 
     public initOPConfiguration(forceInit: boolean): Promise<any> {
-        if (!forceInit && this._store.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
+        if (!forceInit && this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return Promise.resolve();
         }
 
-        const serverHost = this._config.serverOrigin;
-        const wellKnownEndpoint = this._authenticationUtils.resolveWellKnownEndpoint();
+        const serverHost = this._config().serverOrigin;
+        const wellKnownEndpoint = this._authenticationHelper.resolveWellKnownEndpoint();
 
         return axios
             .get(wellKnownEndpoint)
@@ -392,8 +397,8 @@ export class AuthenticationCore {
                     );
                 }
 
-                this._store.setOIDCProviderMetaData(this._authenticationUtils.resolveEndpoints(response.data));
-                this._store.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+                this._dataLayer.setOIDCProviderMetaData(this._authenticationHelper.resolveEndpoints(response.data));
+                this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
                 return Promise.resolve(
                     "Initialized OpenID Provider configuration from: " +
@@ -402,8 +407,8 @@ export class AuthenticationCore {
                 );
             })
             .catch(() => {
-                this._store.setOIDCProviderMetaData(this._authenticationUtils.resolveFallbackEndpoints());
-                this._store.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+                this._dataLayer.setOIDCProviderMetaData(this._authenticationHelper.resolveFallbackEndpoints());
+                this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
                 return Promise.resolve(
                         "Initialized OpenID Provider configuration from default configuration." +
@@ -416,40 +421,40 @@ export class AuthenticationCore {
 
     public getServiceEndpoints(): OIDCEndpointConstantsInterface {
         return {
-            authorizationEndpoint: this._oidcProviderMetaData.authorization_endpoint,
-            checkSessionIframe: this._oidcProviderMetaData.check_session_iframe,
-            endSessionEndpoint: this._oidcProviderMetaData.end_session_endpoint,
-            introspectionEndpoint: this._oidcProviderMetaData.introspection_endpoint,
-            issuer: this._oidcProviderMetaData.issuer,
-            jwksUri: this._oidcProviderMetaData.jwks_uri,
-            registrationEndpoint: this._oidcProviderMetaData.registration_endpoint,
-            revocationEndpoint: this._oidcProviderMetaData.revocation_endpoint,
-            tokenEndpoint: this._oidcProviderMetaData.token_endpoint,
-            userinfoEndpoint: this._oidcProviderMetaData.userinfo_endpoint,
-            wellKnownEndpoint: this._authenticationUtils.resolveWellKnownEndpoint()
+            authorizationEndpoint: this._oidcProviderMetaData().authorization_endpoint,
+            checkSessionIframe: this._oidcProviderMetaData().check_session_iframe,
+            endSessionEndpoint: this._oidcProviderMetaData().end_session_endpoint,
+            introspectionEndpoint: this._oidcProviderMetaData().introspection_endpoint,
+            issuer: this._oidcProviderMetaData().issuer,
+            jwksUri: this._oidcProviderMetaData().jwks_uri,
+            registrationEndpoint: this._oidcProviderMetaData().registration_endpoint,
+            revocationEndpoint: this._oidcProviderMetaData().revocation_endpoint,
+            tokenEndpoint: this._oidcProviderMetaData().token_endpoint,
+            userinfoEndpoint: this._oidcProviderMetaData().userinfo_endpoint,
+            wellKnownEndpoint: this._authenticationHelper.resolveWellKnownEndpoint()
         };
     }
 
     public getSignOutURL(): string {
-        const logoutEndpoint = this._oidcProviderMetaData.end_session_endpoint;
+        const logoutEndpoint = this._oidcProviderMetaData()?.end_session_endpoint;
 
         if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
             throw Error("No logout endpoint found in the session.");
         }
 
-        const idToken = this._store.getSessionData().id_token;
+        const idToken = this._dataLayer.getSessionData()?.id_token;
 
         if (!idToken || idToken.trim().length === 0) {
             throw Error("Invalid id_token found in the session.");
         }
 
-        const callbackURL = this._config.signOutRedirectURL ?? this._config.signInRedirectURL;
+        const callbackURL = this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
             throw Error("No callback URL found in the session.");
         }
 
-        this._authenticationUtils.clearUserSessionData();
+        this._authenticationHelper.clearUserSessionData();
 
         const logoutCallback =
             `${logoutEndpoint}?` +
@@ -459,10 +464,13 @@ export class AuthenticationCore {
 
         return logoutCallback;
 
-
     }
 
-    public getRefreshToken(): string{
-        return this._store.getSessionData().access_token;
+    public getAccessToken(): string{
+        return this._dataLayer.getSessionData()?.access_token;
+    }
+
+    public isAuthenticated(): boolean {
+        return Boolean(this.getAccessToken());
     }
 }
