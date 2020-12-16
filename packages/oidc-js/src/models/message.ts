@@ -41,7 +41,6 @@ import {
     GET_TOKEN,
     IS_AUTHENTICATED
 } from "../constants";
-import { CommunicationHelper } from "../helpers/communication-helper";
 
 export interface ResponseMessage<T> {
     success: boolean;
