@@ -36,8 +36,12 @@ import {
     REQUEST_SUCCESS,
     REVOKE_TOKEN,
     SIGNED_IN,
-    SIGN_IN
+    SIGN_IN,
+    GET_AUTH_URL,
+    GET_TOKEN,
+    IS_AUTHENTICATED
 } from "../constants";
+import { CommunicationHelper } from "../helpers/communication-helper";
 
 export interface ResponseMessage<T> {
     success: boolean;
@@ -99,4 +103,16 @@ export type MessageType =
     | typeof GET_USER_INFO
     | typeof GET_DECODED_ID_TOKEN
     | typeof ENABLE_HTTP_HANDLER
-    | typeof DISABLE_HTTP_HANDLER;
+    | typeof DISABLE_HTTP_HANDLER
+    | typeof GET_AUTH_URL
+    | typeof GET_TOKEN
+    | typeof IS_AUTHENTICATED;
+
+export interface CommunicationHelperInterface {
+    communicate: <T, R>(message: Message<T>) => Promise<R>;
+}
+
+export interface GetAuthorizationURLInterface{
+    authorizationCode: string;
+    pkce?: string;
+}
