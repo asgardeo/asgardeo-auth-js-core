@@ -200,7 +200,7 @@ export const initOPConfiguration = (
     const serverHost = requestParams.serverOrigin;
     let wellKnownEndpoint = serverHost + SERVICE_RESOURCES.wellKnown;
     if (requestParams?.endpoints?.wellKnown) {
-        wellKnownEndpoint = requestParams?.endpoints?.wellKnown;
+        wellKnownEndpoint = requestParams.endpoints.wellKnown;
     }
 
     return axios
