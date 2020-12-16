@@ -21,12 +21,13 @@ import { OIDCEndpointConstantsInterface } from "./endpoints";
 import { SignInResponse, UserInfo } from "./message";
 import { DecodedIdTokenPayloadInterface } from "./token-response";
 import { HttpError, HttpRequestConfig, HttpResponse } from "../models";
+import { GetAuthorizationURLParameter } from "..";
 
 export interface WebWorkerClientInterface {
     httpRequest<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>>;
     httpRequestAll<T = any>(configs: HttpRequestConfig[]): Promise<HttpResponse<T>[]>;
     signOut(): Promise<boolean>;
-    signIn(fidp?: string): Promise<UserInfo>;
+    signIn(params?: GetAuthorizationURLParameter, authorizationCode?: string, sessionState?: string): Promise<UserInfo>;
     initialize(config: WebWorkerConfigInterface): Promise<boolean>;
     customGrant(requestParams: CustomGrantRequestParams): Promise<HttpResponse | boolean | SignInResponse>;
     endUserSession(): Promise<boolean>;
