@@ -181,7 +181,7 @@ export class IdentityClient {
                 this._onHttpRequestFinish
             );
 
-            this._mainThread = MainThreadClient(this._authConfig, this._instanceID);
+            this._mainThread = MainThreadClient(this._authConfig);
             if (this._onInitialize) {
                 this._onInitialize(true);
             }
