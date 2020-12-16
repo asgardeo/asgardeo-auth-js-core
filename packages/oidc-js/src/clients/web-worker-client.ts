@@ -66,8 +66,6 @@ import {
 } from "../models";
 import { getAuthorizationCode } from "../utils";
 import { AuthenticationUtils } from "../core/authenitcation-utils";
-import { WebWorkerHelper } from "../helpers/web-worker-helper";
-import { CommunicationHelper } from "../helpers/communication-helper";
 import WorkerFile from "web-worker:../worker/oidc.worker.ts";
 
 export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClientInterface => {
