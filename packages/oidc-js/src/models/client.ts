@@ -50,7 +50,7 @@ interface BaseConfigInterface {
  * SDK Client config parameters.
  */
 export interface NonWebWorkerConfigInterface extends BaseConfigInterface{
-    storage?: Storage.SessionStorage | Storage.LocalStorage;
+    storage?: Storage.SessionStorage | Storage.LocalStorage | Storage.MainThreadMemory;
 }
 
 export interface WebWorkerConfigInterface extends BaseConfigInterface {
