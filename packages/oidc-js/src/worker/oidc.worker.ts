@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { WebWorker } from "./web-worker";
 import {
     API_CALL,
     API_CALL_ALL,
@@ -35,7 +34,9 @@ import {
     REQUEST_START,
     REQUEST_SUCCESS,
     SIGNED_IN,
-    SIGN_IN
+    SIGN_IN,
+    GET_AUTH_URL,
+    GET_TOKEN
 } from "../constants";
 import {
     HttpError,
@@ -43,61 +44,60 @@ import {
     SignInResponseWorker,
     WebWorkerClass,
     WebWorkerClientConfigInterface,
-    WebWorkerInterface
+    WebWorkerInterface,
+    SignInResponse,
+    GetAuthorizationURLInterface,
+    UserInfo
 } from "../models";
 import { generateFailureDTO, generateSuccessDTO } from "../utils";
+import { WebWorker } from "./worker";
 
 const ctx: WebWorkerClass<any> = self as any;
 
-let webWorker: WebWorkerInterface;
+let webWorker;
 
 ctx.onmessage = ({ data, ports }) => {
     const port = ports[0];
-
+    console.log(data);
+    console.log(webWorker);
     switch (data.type) {
         case INIT:
             try {
                 const config: WebWorkerClientConfigInterface = { ...data.data };
-                config.httpClient = {
-                    ...config.httpClient,
-                    requestErrorCallback: onRequestErrorCallback,
-                    requestFinishCallback: onRequestFinishCallback,
-                    requestStartCallback: onRequestStartCallback,
-                    requestSuccessCallback: onRequestSuccessCallback
-                };
-                webWorker = WebWorker.getInstance(config);
+                webWorker = WebWorker(config);
+                webWorker.setHttpRequestError(onRequestErrorCallback);
+                webWorker.setHttpRequestFinish(onRequestFinishCallback);
+                webWorker.setHttpRequestStartCallback(onRequestStartCallback);
+                webWorker.setHttpRequestSuccessCallback(onRequestSuccessCallback);
                 port.postMessage(generateSuccessDTO());
             } catch (error) {
                 port.postMessage(generateFailureDTO(error));
             }
 
             break;
-        case SIGN_IN:
+        case GET_AUTH_URL:
             if (!webWorker) {
                 port.postMessage(generateFailureDTO("Worker has not been initiated."));
             } else {
-                if (data?.data?.code || data?.data?.pkce) {
-                    webWorker.setAuthCode(data.data.code, data?.data?.sessionState, data?.data?.pkce);
-                }
                 webWorker
-                    .signIn(typeof data?.data === "string" && data?.data)
-                    .then((response: SignInResponseWorker) => {
-                        if (response.type === SIGNED_IN) {
-                            port.postMessage(
-                                generateSuccessDTO({
-                                    data: response.data,
-                                    type: SIGNED_IN
-                                })
-                            );
-                        } else {
-                            port.postMessage(
-                                generateSuccessDTO({
-                                    code: response.code,
-                                    pkce: response.pkce,
-                                    type: AUTH_REQUIRED
-                                })
-                            );
-                        }
+                    .getAuthorizationURL(data?.data)
+                    .then((response: GetAuthorizationURLInterface) => {
+                        port.postMessage(generateSuccessDTO(response));
+                    })
+                    .catch((error) => {
+                        port.postMessage(generateFailureDTO(error));
+                    });
+            }
+
+            break;
+        case GET_TOKEN:
+            if (!webWorker) {
+                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+            } else {
+                webWorker
+                    .getAccessToken(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
+                    .then((response: UserInfo) => {
+                        port.postMessage(generateSuccessDTO(response));
                     })
                     .catch((error) => {
                         port.postMessage(generateFailureDTO(error));
@@ -224,11 +224,14 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            webWorker.getServiceEndpoints().then(response => {
-                port.postMessage(generateSuccessDTO(response));
-            }).catch(error => {
-                port.postMessage(generateFailureDTO(error));
-            });
+            webWorker
+                .getServiceEndpoints()
+                .then((response) => {
+                    port.postMessage(generateSuccessDTO(response));
+                })
+                .catch((error) => {
+                    port.postMessage(generateFailureDTO(error));
+                });
 
             break;
         case GET_USER_INFO:
