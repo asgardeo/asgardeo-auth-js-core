@@ -58,7 +58,9 @@ import {
     UserInfo,
     WebWorkerClientInterface,
     WebWorkerConfigInterface,
-    WebWorkerSingletonClientInterface
+    WebWorkerSingletonClientInterface,
+    GetAuthorizationURLInterface,
+    GetAuthorizationURLParameter
 } from "../models";
 import { getAuthorizationCode } from "../utils";
 
@@ -206,7 +208,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      */
     const customGrant = (
         requestParams: CustomGrantRequestParams
-    ): Promise<typeof requestParams["returnResponse"] extends true ? HttpResponse : boolean | SignInResponse> => {
+    ): Promise<HttpResponse |SignInResponse> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
         }
@@ -222,7 +224,7 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
 
         return communicate<
             CustomGrantRequestParams,
-            typeof requestParams["returnResponse"] extends true ? HttpResponse : boolean | SignInResponse
+            HttpResponse | SignInResponse
         >(message)
             .then((response) => {
                 return Promise.resolve(response);
@@ -532,7 +534,8 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      *
      * @returns {Promise<UserInfo>} A promise that resolves when authentication is successful.
      */
-    const signIn = (fidp?: string): Promise<UserInfo> => {
+    const signIn = (params?: GetAuthorizationURLParameter, authorizationCode?: string, sessionState?: string): Promise<UserInfo> => {
+        const fidp = params?.fidp;
         if (initialized) {
             if (hasAuthorizationCode() || sessionStorage.getItem(PKCE_CODE_VERIFIER)) {
                 return sendAuthorizationCode();
