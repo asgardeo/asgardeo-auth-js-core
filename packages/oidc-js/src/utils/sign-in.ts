@@ -220,7 +220,10 @@ export function validateIdToken(
             }
 
             const issuer = getIssuer(requestParams);
-            const issuerFromURL = requestParams.serverOrigin + SERVICE_RESOURCES.wellKnown.split("/.well-known")[ 0 ];
+            let issuerFromURL = requestParams.serverOrigin + SERVICE_RESOURCES.wellKnown.split("/.well-known")[ 0 ];
+            if (requestParams.endpoints?.wellKnown) {
+                issuerFromURL = requestParams.endpoints.wellKnown.split("/.well-known")[ 0 ];
+            }
 
             // Return false if the issuer in the open id config doesn't match
             // the issuer in the well known endpoint URL.
