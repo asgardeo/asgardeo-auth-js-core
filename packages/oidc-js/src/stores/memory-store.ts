@@ -20,21 +20,22 @@ import { ConfigInterface, OIDCProviderMetaData, SessionDataRaw } from "../models
 import { Stores } from "../constants";
 
 export class MemoryStore implements Store {
-    private _data: Record<string, string>;
+    private _data: Map<string, string>;
 
     public constructor() {
-        this._data = null;
+        this._data = new Map();
     }
 
     public setData(key: string, value: string): void {
-        this._data[ key ] = value;
+        console.log(key, value);
+        this._data.set(key, value);
     }
 
     public getData(key: string): string {
-        return this._data && this._data[key];
+        return this._data?.get(key);
     }
 
     public removeData(key: string): void {
-        delete this._data[key];
+        this._data.delete(key);
     }
 }
