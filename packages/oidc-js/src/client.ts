@@ -16,14 +16,7 @@
  * under the License.
  */
 
-import {
-    ACCESS_TOKEN,
-    AUTHORIZATION_CODE_TYPE,
-    Hooks,
-    OIDC_SCOPE,
-    REFRESH_TOKEN,
-    Storage
-}from "./constants";
+import { ACCESS_TOKEN, AUTHORIZATION_CODE_TYPE, Hooks, OIDC_SCOPE, REFRESH_TOKEN, Storage } from "./constants";
 import { isWebWorkerConfig } from "./helpers";
 import { HttpClient, HttpClientInstance } from "./http-client";
 import {
@@ -38,7 +31,7 @@ import {
     TokenResponseInterface,
     UserInfo,
     WebWorkerClientInterface
-}from "./models";
+} from "./models";
 import {
     customGrant as customGrantUtil,
     endAuthenticatedSession,
@@ -54,7 +47,8 @@ import {
     sendRefreshTokenRequest,
     sendRevokeTokenRequest
 } from "./utils";
-import { WebWorkerClient } from "./worker";
+import { WebWorkerClient } from "./clients/web-worker-client";
+import { MainThreadClient } from "./clients/main-thread-client";
 
 /**
  * Default configurations.
@@ -97,9 +91,13 @@ export class IdentityClient {
     private _onHttpRequestFinish: () => void;
     private _onHttpRequestError: (error: HttpError) => void;
     private _httpClient: HttpClientInstance;
+    private _mainThread: any;
+    private _instanceID: string;
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private constructor() {}
+    private constructor(id: string) {
+        this._instanceID = id;
+    }
 
     /**
      * This method returns the instance of the singleton class.
@@ -125,12 +123,12 @@ export class IdentityClient {
         }
 
         if (id) {
-            this._instances.set(id, new IdentityClient());
+            this._instances.set(id, new IdentityClient(id));
 
             return this._instances.get(id);
         }
 
-        this._instances.set(PRIMARY_INSTANCE, new IdentityClient());
+        this._instances.set(PRIMARY_INSTANCE, new IdentityClient(PRIMARY_INSTANCE));
 
         return this._instances.get(PRIMARY_INSTANCE);
     }
@@ -159,10 +157,6 @@ export class IdentityClient {
      * @preserve
      */
     public initialize(config: ConfigInterface): Promise<boolean> {
-        if (!config.signOutRedirectURL) {
-            config.signOutRedirectURL = config.signInRedirectURL;
-        }
-
         this._storage = config.storage ?? Storage.SessionStorage;
         this._initialized = false;
         this._startedInitialize = true;
@@ -187,13 +181,16 @@ export class IdentityClient {
                 this._onHttpRequestFinish
             );
 
+            this._mainThread = MainThreadClient(this._authConfig, this._instanceID);
             if (this._onInitialize) {
                 this._onInitialize(true);
             }
 
             return Promise.resolve(true);
         } else {
-            this._client = WebWorkerClient.getInstance();
+            if (!this._client) {
+                this._client = WebWorkerClient({ ...DefaultConfig, ...config });
+            }
 
             return this._client
                 .initialize({ ...DefaultConfig, ...config })
@@ -290,7 +287,7 @@ export class IdentityClient {
 
         if (this._storage === Storage.WebWorker) {
             return this._client
-                .signIn(fidp)
+                .signIn()
                 .then((response) => {
                     if (this._onSignInCallback) {
                         if (response.allowedScopes || response.displayName || response.email || response.username) {
@@ -305,16 +302,16 @@ export class IdentityClient {
                 });
         }
 
-        return handleSignIn(this._authConfig, fidp)
-            .then(() => {
+        return this._mainThread
+            .signIn()
+            .then((response: UserInfo) => {
                 if (this._onSignInCallback) {
-                    const userInfo = getUserInfoUtil(this._authConfig);
-                    if (userInfo.allowedScopes || userInfo.displayName || userInfo.email || userInfo.username) {
-                        this._onSignInCallback(getUserInfoUtil(this._authConfig));
+                    if (response.allowedScopes || response.displayName || response.email || response.username) {
+                        this._onSignInCallback(response);
                     }
                 }
 
-                return Promise.resolve(getUserInfoUtil(this._authConfig));
+                return Promise.resolve(response);
             })
             .catch((error) => {
                 return Promise.reject(error);
