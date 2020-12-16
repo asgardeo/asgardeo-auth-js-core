@@ -31,11 +31,12 @@ export class DataLayer {
         key: string,
         data: ConfigInterface | OIDCProviderMetaData | SessionDataRaw | TemporaryData
     ): void {
-        const existingDataJSON = this._store.getData(key);
+        const existingDataJSON = this._store.getData(key) ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
 
         const dataToBeSaved = { ...existingData, ...data };
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
+        console.log(dataToBeSavedJSON);
         this._store.setData(key, dataToBeSavedJSON);
     }
 
@@ -44,7 +45,7 @@ export class DataLayer {
         attribute: keyof ConfigInterface | keyof OIDCProviderMetaData | keyof SessionDataRaw | keyof TemporaryData,
         value: StoreValue
     ): void {
-        const existingDataJSON = this._store.getData(key);
+        const existingDataJSON = this._store.getData(key) ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
 
         const dataToBeSaved = { ...existingData, [attribute]: value };
@@ -57,7 +58,7 @@ export class DataLayer {
         key: string,
         attribute: keyof ConfigInterface | keyof OIDCProviderMetaData | keyof SessionDataRaw | keyof TemporaryData
     ): void {
-        const existingDataJSON = this._store.getData(key);
+        const existingDataJSON = this._store.getData(key)  ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
 
         const dataToBeSaved = { ...existingData };
@@ -72,6 +73,7 @@ export class DataLayer {
     }
 
     public setConfigData(config: ConfigInterface): void {
+        console.log("set config data", config);
         this.setDataInBulk(this._resolveKey(Stores.ConfigData), config);
     }
 
@@ -88,19 +90,20 @@ export class DataLayer {
     }
 
     public getConfigData(): ConfigInterface {
-        return JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)));
+        console.log("config data", this._store.getData(this._resolveKey(Stores.ConfigData)));
+        return JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)) ?? null);
     }
 
     public getOIDCProviderMetaData(): OIDCProviderMetaData {
-        return JSON.parse(this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData)));
+        return JSON.parse(this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData)) ?? null);
     }
 
     public getTemporaryData(): TemporaryData {
-        return JSON.parse(this._store.getData(this._resolveKey(Stores.TemporaryData)));
+        return JSON.parse(this._store.getData(this._resolveKey(Stores.TemporaryData)) ?? null);
     }
 
     public getSessionData(): SessionDataRaw {
-        return JSON.parse(this._store.getData(this._resolveKey(Stores.SessionData)));
+        return JSON.parse(this._store.getData(this._resolveKey(Stores.SessionData)) ?? null);
     }
 
     public removeConfigData(): void {
@@ -122,28 +125,28 @@ export class DataLayer {
     public getConfigDataParameter(key: keyof ConfigInterface): StoreValue {
         return (
             this._store.getData(this._resolveKey(Stores.ConfigData)) &&
-            JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)))[key]
+            JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)) ?? null)[key]
         );
     }
 
     public getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue {
         return (
             this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData)) &&
-            JSON.parse(this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData)))[key]
+            JSON.parse(this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData)) ?? null)[key]
         );
     }
 
     public getTemporaryDataParameter(key: keyof TemporaryData): StoreValue {
         return (
             this._store.getData(this._resolveKey(Stores.TemporaryData)) &&
-            JSON.parse(this._store.getData(this._resolveKey(Stores.TemporaryData)))[key]
+            JSON.parse(this._store.getData(this._resolveKey(Stores.TemporaryData)) ?? null)[key]
         );
     }
 
     public getSessionDataParameter(key: keyof SessionDataRaw): StoreValue {
         return (
             this._store.getData(this._resolveKey(Stores.SessionData)) &&
-            JSON.parse(this._store.getData(this._resolveKey(Stores.SessionData)))[key]
+            JSON.parse(this._store.getData(this._resolveKey(Stores.SessionData)) ?? null)[key]
         );
     }
 
