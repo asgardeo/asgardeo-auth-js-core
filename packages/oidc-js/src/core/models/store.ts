@@ -24,7 +24,7 @@ import {
 } from "../../models";
 import { Config } from "./config";
 
-export interface Store {
+export interface DataLayer {
     setSessionData(sessionData: SessionDataRaw): void;
     setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData | OIDCEndpointsInternal): void;
     setConfigData(config: Config): void;
@@ -49,6 +49,12 @@ export interface Store {
     removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): void;
     removeConfigDataParameter(key: keyof Config): void;
     removeTemporaryDataParameter(key: string): void;
+}
+
+export interface Store {
+    setData(key: string, value: string);
+    getData(key: string);
+    removeData(key: string);
 }
 
 export type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
