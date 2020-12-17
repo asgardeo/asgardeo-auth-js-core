@@ -143,8 +143,13 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
     };
 
     const signOut = (): string => {
-        return _authenticationClient.getSignOutURL();
+        console.log("signout worker method");
+        return _authenticationClient.signOut();
     };
+
+    const getSignOutURL = (): string => {
+        return _authenticationClient.getSignOutURL();
+    }
 
     const customGrant = (config: CustomGrantRequestParams): Promise<UserInfo | AxiosResponse> => {
         return _authenticationClient
@@ -219,6 +224,7 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
         setHttpRequestError,
         setHttpRequestFinish,
         setHttpRequestStartCallback,
-        setHttpRequestSuccessCallback
+        setHttpRequestSuccessCallback,
+        getSignOutURL
     };
 };
