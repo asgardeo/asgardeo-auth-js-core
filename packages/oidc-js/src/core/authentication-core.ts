@@ -34,8 +34,6 @@ export class AuthenticationCore {
     private _authenticationHelper: AuthenticationHelper;
 
     public constructor(dataLayer: DataLayer) {
-        console.log("$", dataLayer);
-        console.log("%", dataLayer.getConfigData())
         this._authenticationHelper = new AuthenticationHelper(dataLayer);
         this._dataLayer = dataLayer;
         this._config = ()=>this._dataLayer.getConfigData();
@@ -125,7 +123,6 @@ export class AuthenticationCore {
                         new Error("Invalid status code received in the token response: " + response.status)
                     );
                 }
-
                 if (this._config().validateIDToken) {
                     return this._authenticationHelper
                         .validateIdToken(response.data.id_token)
@@ -361,8 +358,9 @@ export class AuthenticationCore {
     };
 
     public getUserInfo(): UserInfo {
+        console.log(this._dataLayer);
         const sessionData = this._dataLayer.getSessionData();
-        const authenticatedUser = AuthenticationUtils.getAuthenticatedUser(sessionData.id_token);
+        const authenticatedUser = AuthenticationUtils.getAuthenticatedUser(sessionData?.id_token);
         return {
             allowedScopes: sessionData.scope,
             displayName: authenticatedUser.displayName,
@@ -454,8 +452,6 @@ export class AuthenticationCore {
             throw Error("No callback URL found in the session.");
         }
 
-        this._authenticationHelper.clearUserSessionData();
-
         const logoutCallback =
             `${logoutEndpoint}?` +
             `id_token_hint=${idToken}` +
@@ -464,6 +460,14 @@ export class AuthenticationCore {
 
         return logoutCallback;
 
+    }
+
+    public signOut(): string {
+        console.log("lcore logout");
+        const signOutURL = this.getSignOutURL();
+        this._authenticationHelper.clearUserSessionData();
+        console.log("cleared user session")
+        return signOutURL;
     }
 
     public getAccessToken(): string{
