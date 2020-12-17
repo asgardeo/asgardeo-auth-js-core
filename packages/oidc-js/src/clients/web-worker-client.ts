@@ -42,7 +42,8 @@ import {
     SIGN_IN,
     GET_TOKEN,
     GET_AUTH_URL,
-    IS_AUTHENTICATED
+    IS_AUTHENTICATED,
+    GET_SIGN_OUT_URL
 } from "../constants";
 import {
     AuthCode,
@@ -70,7 +71,6 @@ import { AuthenticationUtils } from "../core/authenitcation-utils";
 import WorkerFile from "web-worker:../worker/oidc.worker.ts";
 
 export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClientInterface => {
-    console.log("web worker client");
     /**
      * The private boolean member variable that specifies if the `initialize()` method has been called or not.
      */
@@ -91,7 +91,6 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
     const worker: Worker = new WorkerFile();
 
     const communicate = <T, R>(message: Message<T>): Promise<R> => {
-        console.log(message);
         const channel = new MessageChannel();
 
         worker.postMessage(message, [channel.port2]);
@@ -199,9 +198,9 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             return Promise.reject("The object has not been initialized yet");
         }
 
-        if (!signedIn) {
+       /*  if (!signedIn) {
             return Promise.reject("You have not signed in yet");
-        }
+        } */
 
         const message: Message<HttpRequestConfig[]> = {
             data: configs,
@@ -252,7 +251,6 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      *
      */
     const initialize = (): Promise<boolean> => {
-        try {
             if (config.authorizationType && typeof config.authorizationType !== "string") {
                 return Promise.reject("The authorizationType must be a string");
             }
@@ -318,11 +316,8 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             if (typeof config.serverOrigin !== "string") {
                 return Promise.reject("serverOrigin must be a string");
             }
-        } catch (error) {
-            console.log("first try", error);
-        }
 
-        try {
+
             httpClientHandlers = {
                 requestErrorCallback: null,
                 requestFinishCallback: null,
@@ -348,9 +343,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
                         break;
                 }
             };
-        } catch (error) {
-            console.log("second try", error);
-        }
+
 
         const message: Message<WebWorkerConfigInterface> = {
             data: config,
@@ -364,7 +357,6 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
                 return Promise.resolve(true);
             })
             .catch((error) => {
-                console.log("worker client init", error)
                 return Promise.reject(error);
             });
     };
@@ -406,8 +398,10 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
 
             return communicate<AuthCode, UserInfo>(message)
                 .then((response) => {
+                    signedIn = true;
+
                     const message: Message<null> = {
-                        type: LOGOUT
+                        type: GET_SIGN_OUT_URL
                     };
 
                     return communicate<null, string>(message)
@@ -458,20 +452,30 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      * @returns {Promise<boolean>} A promise that resolves when sign out is completed.
      */
     const signOut = (): Promise<boolean> => {
-        const message: Message<null> = {
-            type: LOGOUT
-        };
+        return isAuthenticated().then((response: boolean) => {
+            if (response) {
+                const message: Message<null> = {
+                    type: LOGOUT
+                };
 
-        return communicate<null, string>(message)
-            .then((response) => {
-                signedIn = false;
-                window.location.href = response;
+                return communicate<null, string>(message)
+                    .then((response) => {
+                        signedIn = false;
+                        window.location.href = response;
+
+                        return Promise.resolve(true);
+                    })
+                    .catch((error) => {
+                        return Promise.reject(error);
+                    });
+            } else {
+                window.location.href = sessionStorage.getItem(LOGOUT_URL);
 
                 return Promise.resolve(true);
-            })
-            .catch((error) => {
-                return Promise.reject(error);
-            });
+            }
+        }).catch((error) => {
+            return Promise.reject(error);
+        })
     };
 
     /**
