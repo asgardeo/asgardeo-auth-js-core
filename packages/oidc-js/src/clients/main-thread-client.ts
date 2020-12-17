@@ -184,14 +184,10 @@ export const MainThreadClient = (config: ConfigInterface): any => {
     };
 
     const signOut = () => {
-        try {
-            location.href = _authenticationClient.getSignOutURL();
-        } catch (error) {
-            if (sessionStorage.getItem(LOGOUT_URL)) {
-                location.href = sessionStorage.getItem(LOGOUT_URL);
-            } else {
-                throw Error(error);
-            }
+        if (_authenticationClient.isAuthenticated()) {
+            location.href = _authenticationClient.signOut();
+        } else {
+            location.href = sessionStorage.getItem(LOGOUT_URL);
         }
     };
 
