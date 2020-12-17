@@ -175,9 +175,9 @@ export const App: FunctionComponent<{}> = (): ReactElement => {
                                 </div>
                                 <div className="content">
                                     <div className="home-image">
-                                        <img src={ JavascriptLogo } className="js-logo-image logo"/>
+                                        <img src={ JavascriptLogo } alt="js-logo" className="js-logo-image logo"/>
                                         <span className="logo-plus">+</span>
-                                        <img src={ ReactLogo } className="react-logo-image logo"/>
+                                        <img src={ ReactLogo } alt="react-logo" className="react-logo-image logo"/>
                                     </div>
                                     <h3>
                                         Sample demo to showcase how to authenticate a simple client side application
