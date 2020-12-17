@@ -1,0 +1,28 @@
+{
+    "name": "@asgardio/oidc-html-javascript-sample",
+    "version": "0.1.32",
+    "description": "HTML Javascript Authentication Sample using Asgardio OIDC JS SDK",
+    "main": "index.js",
+    "keywords": [
+        "Asgardio",
+        "WSO2",
+        "WSO2 IS",
+        "WSO2 Identity Server",
+        "WSO2 Identity Apps",
+        "OIDC",
+        "SDK",
+        "Sample",
+        "Javascript",
+        "Authenticate"
+    ],
+    "repository": "https://github.com/asgardio/asgardio-js-oidc-sdk.git",
+    "author": "WSO2",
+    "license": "Apache-2.0",
+    "private": false,
+    "scripts": {
+        "start": "http-server -p 3000"
+    },
+    "devDependencies": {
+        "http-server": "^0.12.3"
+    }
+}
