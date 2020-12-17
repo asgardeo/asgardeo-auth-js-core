@@ -1,4 +1,4 @@
-# Asgardio React Typescript Sample App
+# React Typescript Sample Application using Asgardio OIDC JS SDK
 
 ## Getting Started
 
@@ -18,7 +18,7 @@ Read more about the SDK configurations [here](../../packages/oidc-js/README.md#i
 
 ```json
 {
-    "clientID": "",
+    "clientID": "<ADD_CLIENT_ID_HERE>",
     "serverOrigin": "https://localhost:9443",
     "signInRedirectURL": "http://localhost:3000",
     "signOutRedirectURL": "http://localhost:3000",
@@ -53,3 +53,7 @@ It correctly bundles React in production mode and optimizes the build for the be
 
 The build is minified and the filenames include the hashes.<br />
 Your app is ready to be deployed!
+
+## License
+
+Licenses this source under the Apache License, Version 2.0 ([LICENSE](../../../LICENSE)), You may not use this file except in compliance with the License.
