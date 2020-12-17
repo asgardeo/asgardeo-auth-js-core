@@ -34,7 +34,7 @@ export class AuthenticationClient {
         if (!AuthenticationClient._instanceID) {
             AuthenticationClient._instanceID = 0;
         } else {
-            AuthenticationClient._instanceID = AuthenticationClient._instanceID++;
+            AuthenticationClient._instanceID += 1;
         }
         this._dataLayer = new DataLayer(`instance_${AuthenticationClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer);
@@ -67,7 +67,12 @@ export class AuthenticationClient {
         });
     }
 
-    public getSignOutURL(): string {
+    public signOut(): string {
+        console.log("sign out client methd");
+        return this._authenticationCore.signOut();
+    }
+
+    public getSignOutURL(): string{
         return this._authenticationCore.getSignOutURL();
     }
 
