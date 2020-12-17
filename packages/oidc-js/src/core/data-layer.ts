@@ -36,7 +36,6 @@ export class DataLayer {
 
         const dataToBeSaved = { ...existingData, ...data };
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
-        console.log(dataToBeSavedJSON);
         this._store.setData(key, dataToBeSavedJSON);
     }
 
@@ -64,7 +63,6 @@ export class DataLayer {
         const dataToBeSaved = { ...existingData };
         delete dataToBeSaved[attribute];
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
-
         this._store.setData(key, dataToBeSavedJSON);
     }
 
@@ -73,7 +71,6 @@ export class DataLayer {
     }
 
     public setConfigData(config: ConfigInterface): void {
-        console.log("set config data", config);
         this.setDataInBulk(this._resolveKey(Stores.ConfigData), config);
     }
 
@@ -90,7 +87,6 @@ export class DataLayer {
     }
 
     public getConfigData(): ConfigInterface {
-        console.log("config data", this._store.getData(this._resolveKey(Stores.ConfigData)));
         return JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)) ?? null);
     }
 
