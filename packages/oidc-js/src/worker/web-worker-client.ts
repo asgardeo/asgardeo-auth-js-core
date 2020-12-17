@@ -569,32 +569,16 @@ export const WebWorkerClient: WebWorkerSingletonClientInterface = ((): WebWorker
      * @returns {Promise<boolean>} A promise that resolves when sign out is completed.
      */
     const signOut = (): Promise<boolean> => {
-        if (!signedIn) {
-            if (sessionStorage.getItem(LOGOUT_URL)) {
-                const logoutUrl = sessionStorage.getItem(LOGOUT_URL);
-                sessionStorage.removeItem(LOGOUT_URL);
-                window.location.href = logoutUrl;
 
-                return Promise.resolve(true);
-            }
+        if (sessionStorage.getItem(LOGOUT_URL)) {
+            const logoutUrl = sessionStorage.getItem(LOGOUT_URL);
+            sessionStorage.removeItem(LOGOUT_URL);
+            window.location.href = logoutUrl;
 
-            return Promise.reject("You have not signed in yet");
+            return Promise.resolve(true);
+        } else {
+            return Promise.reject("No login sessions.");
         }
-
-        const message: Message<null> = {
-            type: LOGOUT
-        };
-
-        return communicate<null, string>(message)
-            .then((response) => {
-                signedIn = false;
-                window.location.href = response;
-
-                return Promise.resolve(true);
-            })
-            .catch((error) => {
-                return Promise.reject(error);
-            });
     };
 
     /**
