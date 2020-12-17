@@ -39,7 +39,8 @@ import {
     SIGN_IN,
     GET_AUTH_URL,
     GET_TOKEN,
-    IS_AUTHENTICATED
+    IS_AUTHENTICATED,
+    GET_SIGN_OUT_URL
 } from "../constants";
 
 export interface ResponseMessage<T> {
@@ -105,7 +106,8 @@ export type MessageType =
     | typeof DISABLE_HTTP_HANDLER
     | typeof GET_AUTH_URL
     | typeof GET_TOKEN
-    | typeof IS_AUTHENTICATED;
+    | typeof IS_AUTHENTICATED
+    | typeof GET_SIGN_OUT_URL;
 
 export interface CommunicationHelperInterface {
     communicate: <T, R>(message: Message<T>) => Promise<R>;
