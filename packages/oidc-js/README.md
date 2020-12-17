@@ -140,23 +140,23 @@ Build the apps by running the following command at the root directory.
 npm run build
 ```
 
-#### 1. Vanilla JavaScript Sample
+#### 1. HTML JavaScript Sample
 
 The *Callback URL* of this app is `http://localhost:3000`.
 
-You can try out the Vanilla JavaScript Sample App from the [samples/vanilla-js-app](samples/vanilla-js-app). The instructions to run the app can  be found [here](/samples/vanilla-js-app/README.md)
+You can try out the HTML JavaScript Sample App from the [samples/html-js-app](../../samples/using-oidc-js-sdk/html-js-app). The instructions to run the app can  be found [here](/samples/vanilla-js-app/README.md)
 
-#### 2. React Sample
+#### 2. React Typescript Sample
 
-The *Callback URL* of this app is `regexp=(http://localhost:3000/sign-in|http://localhost:3000/dashboard)`.
+The *Callback URL* of this app is `http://localhost:3000`.
 
-You can try out the React Sample App from the [samples/react-js-app](samples/react-js-app). The instructions to run the app can  be found [here](/samples/react-js-app/README.md)
+You can try out the React Sample App from the [samples/react-typescript-app](../../samples/using-oidc-js-sdk/react-typescript-app). The instructions to run the app can  be found [here](/samples/react-js-app/README.md)
 
 #### 2. Java Webapp Sample
 
 The *Callback URL* of this app is the URL of this app on the server. For instance, if your Tomcat server is running on `http://localhost:8080`, then the callback URL will be `http://localhost:8080/java-webapp`.
 
-You can try out the Java Webapp Sample App from the [samples/java-webapp](samples/java-webapp). The instructions to run the app can  be found [here](/samples/java-webapp/README.md)
+You can try out the Java Webapp Sample App from the [samples/java-webapp](../../samples/using-oidc-js-sdk/java-webapp). The instructions to run the app can  be found [here](/samples/java-webapp/README.md)
 
 ## Browser Compatibility
 The SDK supports all major browsers and provides polyfills to support incompatible browsers. If you want the SDK to run on Internet Explorer or any other old browser, you can use the polyfilled script instead of the default one.
@@ -503,7 +503,7 @@ To address this issue, we recommend storing the authorization code in a server s
 
 ![form_post auth code flow](./assets/img/auth_code.png)
 
-You can refer to a sample implementation using JSP [here](/samples/java-webapp).
+You can refer to a sample implementation using JSP [here](../../samples/using-oidc-js-sdk/java-webapp).
 
 ## Develop
 
