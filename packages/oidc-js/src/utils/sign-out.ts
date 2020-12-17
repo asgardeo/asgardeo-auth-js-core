@@ -97,16 +97,13 @@ export function handleSignOut(requestParams: ConfigInterface): Promise<any> {
  * @return {boolean} isLoggedOut - Specifies if a user has logged out or not.
  */
 export const isLoggedOut = (): boolean => {
-    const param = new URL(window.location.href).searchParams.get("state");
-    const isLoggedOut = param && param === LOGOUT_SUCCESS;
+    const url = new URL(window.location.href);
+    const stateParam = url.searchParams.get("state");
+    const error = Boolean(url.searchParams.get("error"));
+    const isLoggedOut = stateParam && stateParam === LOGOUT_SUCCESS && !error;
 
     if (isLoggedOut) {
-        const url = new URL(window.location.href);
-        const searchParams = new URLSearchParams(url.search.slice(1));
-
-        searchParams.delete("state");
-
-        const newUrl = window.location.href.split("?")[ 0 ] + "?" + searchParams.toString();
+        const newUrl = window.location.href.split("?")[ 0 ];
 
         history.pushState({}, document.title, newUrl);
     }
