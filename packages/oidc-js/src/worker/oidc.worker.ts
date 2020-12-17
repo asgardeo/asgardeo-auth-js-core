@@ -37,7 +37,8 @@ import {
     SIGN_IN,
     GET_AUTH_URL,
     GET_TOKEN,
-    IS_AUTHENTICATED
+    IS_AUTHENTICATED,
+    GET_SIGN_OUT_URL
 } from "../constants";
 import {
     HttpError,
@@ -58,9 +59,8 @@ const ctx: WebWorkerClass<any> = self as any;
 let webWorker;
 
 ctx.onmessage = ({ data, ports }) => {
-    const port = ports[0];
-    console.log(data);
-    console.log(webWorker);
+    const port = ports[ 0 ];
+
     switch (data.type) {
         case INIT:
             try {
@@ -72,7 +72,6 @@ ctx.onmessage = ({ data, ports }) => {
                 webWorker.setHttpRequestSuccessCallback(onRequestSuccessCallback);
                 port.postMessage(generateSuccessDTO());
             } catch (error) {
-                console.log("worker init", error);
                 port.postMessage(generateFailureDTO(error));
             }
 
@@ -150,6 +149,7 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case LOGOUT:
+            console.log("logout msg received");
             if (!webWorker) {
                 port.postMessage(generateFailureDTO("Worker has not been initiated."));
 
@@ -162,6 +162,7 @@ ctx.onmessage = ({ data, ports }) => {
                 try {
                     port.postMessage(generateSuccessDTO(webWorker.signOut()));
                 } catch (error) {
+                    console.log("logout msg error", error);
                     port.postMessage(generateFailureDTO(error));
                 }
             }
@@ -300,6 +301,20 @@ ctx.onmessage = ({ data, ports }) => {
 
             try {
                 port.postMessage(generateSuccessDTO(webWorker.isAuthenticated()));
+            } catch (error) {
+                port.postMessage(generateFailureDTO(error));
+            }
+
+            break;
+        case GET_SIGN_OUT_URL:
+            if (!webWorker) {
+                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+
+                break;
+            }
+
+            try {
+                port.postMessage(generateSuccessDTO(webWorker.getSignOutURL()));
             } catch (error) {
                 port.postMessage(generateFailureDTO(error));
             }
