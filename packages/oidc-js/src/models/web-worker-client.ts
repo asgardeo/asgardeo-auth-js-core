@@ -17,7 +17,7 @@
  */
 
 import { WebWorkerConfigInterface } from ".";
-import { OIDCEndpointConstantsInterface } from "./endpoints";
+import { OIDCEndpoints } from "../core/models/oidc-provider-meta-data";
 import { SignInResponse, UserInfo } from "./message";
 import { DecodedIdTokenPayloadInterface } from "./token-response";
 import { HttpError, HttpRequestConfig, HttpResponse } from "../models";
@@ -31,7 +31,7 @@ export interface WebWorkerClientInterface {
     initialize(config: WebWorkerConfigInterface): Promise<boolean>;
     customGrant(requestParams: CustomGrantRequestParams): Promise<HttpResponse | boolean | SignInResponse>;
     endUserSession(): Promise<boolean>;
-    getServiceEndpoints(): Promise<OIDCEndpointConstantsInterface>;
+    getServiceEndpoints(): Promise<OIDCEndpoints>;
     onHttpRequestSuccess(callback: (response: HttpResponse) => void): void;
     onHttpRequestError(callback: (response: HttpError) => void): void;
 
@@ -48,12 +48,6 @@ export interface WebWorkerSingletonClientInterface {
     getInstance(): WebWorkerClientInterface;
 }
 
-export interface CustomGrantRequestParams {
-    id: string;
-    data: any;
-    signInRequired: boolean;
-    attachToken: boolean;
-    returnsSession: boolean;
-}
+
 
 export type SessionData = Map<string, string>;
