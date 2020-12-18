@@ -25,11 +25,9 @@ import {
     HttpRequestConfig,
     MainThreadClientConfig
 } from "../models";
-import { LocalStore } from "../stores/local-store";
-import { MemoryStore } from "../stores/memory-store";
-import { SessionStore } from "../stores/session-store";
+import { LocalStore, MemoryStore, SessionStore } from "../stores";
 import { HttpClientInstance, HttpClient } from "../http-client";
-import { SPAUtils } from "../utils/spa-utils";
+import { SPAUtils } from "../utils";
 import {
     Store,
     AsgardeoAuthClient,
