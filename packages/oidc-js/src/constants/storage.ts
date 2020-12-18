@@ -34,10 +34,3 @@ export enum Storage {
     WebWorker = "webWorker",
     MainThreadMemory="mainThreadMemory"
 }
-
-export enum Stores {
-    ConfigData = "config_data",
-    OIDCProviderMetaData = "oidc_provider_meta_data",
-    SessionData = "session_data",
-    TemporaryData = "temporary_data"
-}
