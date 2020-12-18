@@ -55,22 +55,6 @@ export interface Message<T> {
     data?: T;
 }
 
-export interface SignInResponse {
-    type: typeof SIGNED_IN | typeof AUTH_REQUIRED;
-    code?: string;
-    pkce?: string;
-    data?: UserInfo;
-}
-
-export interface SignInResponseWorker extends SignInResponse{
-    data: UserInfoWorker;
-}
-
-
-
-export interface UserInfoWorker extends UserInfo {
-    logoutUrl: string;
-}
 
 export interface AuthCode {
     code: string;
