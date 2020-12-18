@@ -17,7 +17,7 @@
  */
 
 import { WebWorkerClientConfigInterface } from "./client";
-import { OIDCEndpointConstantsInterface } from "./endpoints";
+import { OIDCEndpoints } from "../core/models/oidc-provider-meta-data";
 import { Message, SignInResponse, UserInfo } from "./message";
 import { DecodedIdTokenPayloadInterface } from "./token-response";
 import { CustomGrantRequestParams } from "./web-worker-client";
@@ -35,7 +35,7 @@ export interface WebWorkerInterface {
     customGrant(requestParams: CustomGrantRequestParams): Promise<HttpResponse | boolean | SignInResponse>;
     getUserInfo(): UserInfo;
     endUserSession(): Promise<boolean>;
-    getServiceEndpoints(): Promise<OIDCEndpointConstantsInterface>;
+    getServiceEndpoints(): Promise<OIDCEndpoints>;
     getDecodedIDToken(): DecodedIdTokenPayloadInterface;
     enableHttpHandler(): void;
     disableHttpHandler(): void;
