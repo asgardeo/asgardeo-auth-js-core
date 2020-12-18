@@ -17,17 +17,9 @@
  */
 
 import { AxiosResponse } from "axios";
-import { AUTHORIZATION_CODE, ResponseMode, SESSION_STATE, Storage, PKCE_CODE_VERIFIER } from "../constants";
-import { AuthenticationClient } from "../core/authentication-client";
-import { Store } from "../core/models/store";
+import { AsgardeoAuthClient, Store, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, OIDCEndpoints } from "../core";
 import {
     ConfigInterface,
-    CustomGrantRequestParams,
-    DecodedIdTokenPayloadInterface,
-    GetAuthorizationURLParameter,
-    OIDCEndpointConstantsInterface,
-    TokenResponseInterface,
-    UserInfo,
     WebWorkerClientConfigInterface,
     GetAuthorizationURLInterface,
     HttpResponse,
@@ -37,14 +29,14 @@ import {
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores/memory-store";
 import { SessionStore } from "../stores/session-store";
-import { AuthenticationUtils } from "../core/authenitcation-utils";
+import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import { promises } from "dns";
 import { HttpClientInstance, HttpClient } from "../http-client";
 
 
 export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
     const _store: Store = new MemoryStore();
-    const _authenticationClient = new AuthenticationClient(config, _store);
+    const _authenticationClient = new AsgardeoAuthClient(config, _store);
     const _dataLayer = _authenticationClient.getDataLayer();
 
     let _onHttpRequestStart: () => void;
@@ -111,10 +103,10 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
     };
 
     const getAuthorizationURL = (
-        params?: GetAuthorizationURLParameter
+        params?: AuthorizationURLParams
     ): Promise<GetAuthorizationURLInterface> => {
         return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
-            return { authorizationCode: url, pkce: _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string };
+            return { authorizationCode: url, pkce: _authenticationClient.getPKCECode() as string };
         });
     };
 
@@ -122,17 +114,17 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
         authorizationCode?: string,
         sessionState?: string,
         pkce?: string
-    ): Promise<UserInfo> => {
+    ): Promise<BasicUserInfo> => {
 
         if (pkce) {
-            _dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
+            _authenticationClient.setPKCECode(pkce);
         }
 
         if (authorizationCode && sessionState) {
             return _authenticationClient
                 .sendTokenRequest(authorizationCode, sessionState)
                 .then(() => {
-                    return _authenticationClient.getUserInfo();
+                    return _authenticationClient.getBasicUserInfo();
                 })
                 .catch((error) => {
                     return Promise.reject(error);
@@ -151,12 +143,12 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
         return _authenticationClient.getSignOutURL();
     }
 
-    const customGrant = (config: CustomGrantRequestParams): Promise<UserInfo | AxiosResponse> => {
+    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | AxiosResponse> => {
         return _authenticationClient
             .sendCustomGrantRequest(config)
-            .then((response: AxiosResponse | TokenResponseInterface) => {
+            .then((response: AxiosResponse | TokenResponse) => {
                 if (config.returnsSession) {
-                    return _authenticationClient.getUserInfo();
+                    return _authenticationClient.getBasicUserInfo();
                 } else {
                     return response as AxiosResponse;
                 }
@@ -166,11 +158,11 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
             });
     };
 
-    const refreshToken = (): Promise<UserInfo> => {
+    const refreshToken = (): Promise<BasicUserInfo> => {
         return _authenticationClient
             .refreshToken()
             .then(() => {
-                return _authenticationClient.getUserInfo();
+                return _authenticationClient.getBasicUserInfo();
             })
             .catch((error) => {
                 return Promise.reject(error);
@@ -184,15 +176,15 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
             .catch((error) => Promise.reject(error));
     };
 
-    const getUserInfo = (): UserInfo => {
-        return _authenticationClient.getUserInfo();
+    const getUserInfo = (): BasicUserInfo => {
+        return _authenticationClient.getBasicUserInfo();
     };
 
-    const getDecodedIDToken = (): DecodedIdTokenPayloadInterface => {
+    const getDecodedIDToken = (): DecodedIdTokenPayload => {
         return _authenticationClient.getDecodedIDToken();
     };
 
-    const getOIDCServiceEndpoints = (): OIDCEndpointConstantsInterface => {
+    const getOIDCServiceEndpoints = (): OIDCEndpoints => {
         return _authenticationClient.getOIDCEndpoints();
     };
 
