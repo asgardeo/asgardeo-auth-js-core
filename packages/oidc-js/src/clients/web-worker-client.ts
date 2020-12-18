@@ -67,8 +67,9 @@ import {
     GetAuthorizationURLInterface
 } from "../models";
 import { getAuthorizationCode } from "../utils";
-import { AuthenticationUtils } from "../core/authenitcation-utils";
+import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import WorkerFile from "web-worker:../worker/oidc.worker.ts";
+import { SPAUtils } from "../utils/spa-utils";
 
 export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClientInterface => {
     /**
@@ -386,15 +387,15 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             const message: Message<AuthCode> = {
                 data: {
                     code: resolvedAuthorizationCode,
-                    pkce: sessionStorage.getItem(PKCE_CODE_VERIFIER),
+                    pkce: SPAUtils.getPKCE(),
                     sessionState: resolvedSessionState
                 },
                 type: GET_TOKEN
             };
 
-            AuthenticationUtils.removeAuthorizationCode();
+            SPAUtils.removeAuthorizationCode();
 
-            sessionStorage.removeItem(PKCE_CODE_VERIFIER);
+            SPAUtils.removePKCE();
 
             return communicate<AuthCode, UserInfo>(message)
                 .then((response) => {
@@ -406,7 +407,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
 
                     return communicate<null, string>(message)
                         .then((url: string) => {
-                            sessionStorage.setItem(LOGOUT_URL, url);
+                            SPAUtils.setSignOutURL(url);
                             return Promise.resolve(response);
                         })
                         .catch((error) => {
@@ -427,7 +428,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
         return communicate<GetAuthorizationURLParameter, GetAuthorizationURLInterface>(message)
             .then((response) => {
                 if (response.pkce) {
-                    sessionStorage.setItem(PKCE_CODE_VERIFIER, response.pkce);
+                    SPAUtils.setPKCE(response.pkce);
                 }
 
                 location.href = response.authorizationCode;
@@ -453,6 +454,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      */
     const signOut = (): Promise<boolean> => {
         return isAuthenticated().then((response: boolean) => {
+            console.log("authenticated");
             if (response) {
                 const message: Message<null> = {
                     type: LOGOUT
@@ -469,7 +471,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
                         return Promise.reject(error);
                     });
             } else {
-                window.location.href = sessionStorage.getItem(LOGOUT_URL);
+                window.location.href = SPAUtils.getSignOutURL();
 
                 return Promise.resolve(true);
             }
