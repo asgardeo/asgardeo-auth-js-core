@@ -66,14 +66,7 @@ export interface SignInResponseWorker extends SignInResponse{
     data: UserInfoWorker;
 }
 
-export interface UserInfo {
-    email: string;
-    username: string;
-    displayName: string;
-    allowedScopes: string;
-    tenantDomain: string;
-    sessionState: string;
-}
+
 
 export interface UserInfoWorker extends UserInfo {
     logoutUrl: string;
