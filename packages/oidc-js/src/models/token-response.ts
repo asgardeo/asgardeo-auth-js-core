@@ -15,10 +15,3 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-
-
-export interface TokenRequestHeader {
-    Accept: string;
-    "Content-Type": string;
-}
