@@ -18,28 +18,28 @@
 
 import { AuthenticationCore } from "./core";
 import { AuthClientConfig, OIDCEndpoints, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, Store, AuthorizationURLParams, BasicUserInfo } from "./models";
-import { OP_CONFIG_INITIATED } from "./constants";
+import { OP_CONFIG_INITIATED, SIGN_OUT_SUCCESS_PARAM } from "./constants";
 import { DataLayer } from "./data";
 import { HttpResponse } from "../models";
 
-export class AsgardeoAuthClient {
-    private _dataLayer: DataLayer;
-    private _authenticationCore: AuthenticationCore;
+export class AsgardeoAuthClient<T> {
+    private _dataLayer: DataLayer<T>;
+    private _authenticationCore: AuthenticationCore<T>;
 
     private static _instanceID: number;
 
-    public constructor(config: AuthClientConfig, store: Store) {
+    public constructor(config: AuthClientConfig<T>, store: Store) {
         if (!AsgardeoAuthClient._instanceID) {
             AsgardeoAuthClient._instanceID = 0;
         } else {
             AsgardeoAuthClient._instanceID += 1;
         }
-        this._dataLayer = new DataLayer(`instance_${AsgardeoAuthClient._instanceID}`, store);
+        this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer);
         this._dataLayer.setConfigData(config);
     }
 
-    public getDataLayer(): DataLayer{
+    public getDataLayer(): DataLayer<T>{
         return this._dataLayer;
     }
 
@@ -83,7 +83,7 @@ export class AsgardeoAuthClient {
     }
 
     public getBasicUserInfo(): BasicUserInfo {
-        return this._authenticationCore.getUserInfo();
+        return this._authenticationCore.getBasicUserInfo();
     }
 
     public revokeToken(): Promise<HttpResponse>{
@@ -112,5 +112,13 @@ export class AsgardeoAuthClient {
 
     public setPKCECode(pkce: string): void {
         this._authenticationCore.setPKCECode(pkce);
+    }
+
+    public static isSignOutSuccessful(signOutUrl: string): boolean{
+        const url = new URL(signOutUrl);
+        const stateParam = url.searchParams.get("state");
+        const error = Boolean(url.searchParams.get("error"));
+
+        return stateParam && stateParam === SIGN_OUT_SUCCESS_PARAM && !error;
     }
 }
