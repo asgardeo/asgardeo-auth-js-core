@@ -43,16 +43,14 @@ import {
 import {
     HttpError,
     HttpResponse,
-    SignInResponseWorker,
     WebWorkerClass,
-    WebWorkerClientConfigInterface,
     WebWorkerInterface,
-    SignInResponse,
     GetAuthorizationURLInterface,
+    WebWorkerClientConfig,
 } from "../models";
 import { generateFailureDTO, generateSuccessDTO } from "../utils";
 import { WebWorker } from "./worker";
-import { BasicUserInfo } from "../core";
+import { BasicUserInfo, AuthClientConfig } from "../core";
 
 const ctx: WebWorkerClass<any> = self as any;
 
@@ -64,7 +62,7 @@ ctx.onmessage = ({ data, ports }) => {
     switch (data.type) {
         case INIT:
             try {
-                const config: WebWorkerClientConfigInterface = { ...data.data };
+                const config: AuthClientConfig<WebWorkerClientConfig> = { ...data.data };
                 webWorker = WebWorker(config);
                 webWorker.setHttpRequestError(onRequestErrorCallback);
                 webWorker.setHttpRequestFinish(onRequestFinishCallback);
