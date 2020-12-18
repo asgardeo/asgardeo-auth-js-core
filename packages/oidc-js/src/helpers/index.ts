@@ -17,3 +17,4 @@
 */
 
 export * from "./typeguards";
+export * from "./spa-helper";
