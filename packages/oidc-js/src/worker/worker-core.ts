@@ -18,12 +18,12 @@
 
 import { AsgardeoAuthClient, Store, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, OIDCEndpoints, AuthClientConfig } from "../core";
 import {
-    ConfigInterface,
     GetAuthorizationURLInterface,
     HttpResponse,
     HttpError,
     HttpRequestConfig,
-    WebWorkerClientConfig
+    WebWorkerClientConfig,
+    WebWorkerCoreInterface
 } from "../models";
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores";
@@ -34,7 +34,7 @@ import { HttpClientInstance, HttpClient } from "../http-client";
 import { SPAHelper } from "../helpers";
 
 
-export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any => {
+export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerCoreInterface => {
     const _store: Store = new MemoryStore();
     const _authenticationClient = new AsgardeoAuthClient<WebWorkerClientConfig>(config, _store);
     const _spaHelper = new SPAHelper<WebWorkerClientConfig>(_authenticationClient);
