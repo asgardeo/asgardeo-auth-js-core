@@ -16,8 +16,7 @@
  * under the License.
  */
 
-import { AsgardeoAuthClient, REFRESH_TOKEN_TIMER } from "..";
-import { DataLayer } from "../core/data";
+import { AsgardeoAuthClient, REFRESH_TOKEN_TIMER, DataLayer } from "../core";
 
 export class SPAHelper<T> {
     private _authenticationClient: AsgardeoAuthClient<T>;
