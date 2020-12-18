@@ -16,12 +16,9 @@
  * under the License.
  */
 
-export * from "./authentication-types";
-export * from "./endpoints";
 export * from "./token";
 export * from "./user";
 export * from "./messages";
-export * from "./template-tags";
+export * from "../core/constants/custom-grant-template-tags";
 export * from "./storage";
 export * from "./hooks";
-export * from "./oidc-request-params";
