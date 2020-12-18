@@ -15,21 +15,3 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-export const ACCESS_TOKEN = "access_token";
-export const ACCESS_TOKEN_EXPIRE_IN = "expires_in";
-export const ACCESS_TOKEN_ISSUED_AT = "issued_at";
-export const AUTHORIZATION_CODE = "code";
-export const CLIENT_ID = "client_id";
-export const ID_TOKEN = "id_token";
-export const OIDC_SCOPE = "openid";
-export const PKCE_CODE_VERIFIER = "pkce_code_verifier";
-export const REFRESH_TOKEN = "refresh_token";
-export const SCOPE = "scope";
-export const SESSION_STATE = "session_state";
-export const TOKEN_TYPE = "token_type";
-export const REQUEST_PARAMS = "request_params";
-export const TENANT_DOMAIN = "tenant_domain";
-export const ISSUER = "issuer";
-export const LOGOUT_URL = "logout_url";
-export const REFRESH_TOKEN_TIMER = "refresh_token_timer";
