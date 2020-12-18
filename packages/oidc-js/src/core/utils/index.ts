@@ -17,3 +17,4 @@
 */
 
 export * from "./authentication-utils";
+export * from "./crypto-utils";
