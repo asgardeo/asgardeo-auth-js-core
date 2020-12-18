@@ -26,7 +26,7 @@ import {
     WebWorkerClientConfig
 } from "../models";
 import { LocalStore } from "../stores/local-store";
-import { MemoryStore } from "../stores/memory-store";
+import { MemoryStore } from "../stores";
 import { SessionStore } from "../stores/session-store";
 import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import { promises } from "dns";
