@@ -17,7 +17,9 @@
  */
 
 import { Storage } from "../constants";
-import { HttpError, HttpResponse } from "../models";
+import { HttpError, HttpResponse, HttpRequestConfig } from "../models";
+import { HttpClientInstance } from "../http-client";
+import { SignInConfig, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, OIDCProviderMetaData, TokenResponse } from "../core";
 
 /**
  * SDK Client config parameters.
@@ -32,11 +34,63 @@ export interface WebWorkerClientConfig {
     requestTimeout?: number;
 }
 
-export type ConfigInterface = MainThreadClientConfig | WebWorkerClientConfig;
+export type Config=MainThreadClientConfig | WebWorkerClientConfig;
 
 export interface HttpClient {
     requestStartCallback: () => void;
     requestSuccessCallback: (response: HttpResponse) => void;
     requestErrorCallback: (error: HttpError) => void;
     requestFinishCallback: () => void;
+}
+
+export interface MainThreadClientInterface {
+    setHttpRequestStartCallback(callback: () => void): void;
+    setHttpRequestSuccessCallback(callback: (response: HttpResponse) => void): void;
+    setHttpRequestFinish(callback: () => void): void;
+    setHttpRequestError(callback: (error: HttpError) => void): void
+    httpRequest(config: HttpRequestConfig): Promise<HttpResponse>;
+    httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]>;
+    getHttpClient(): HttpClientInstance;
+    enableHttpHandler(): void;
+    disableHttpHandler(): void;
+    signIn(
+        config?: SignInConfig,
+        authorizationCode?: string,
+        sessionState?: string
+    ): Promise<BasicUserInfo> ;
+    signOut(): void;
+    customGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
+    refreshToken(): Promise<BasicUserInfo>;
+    revokeAccessToken(): Promise<boolean>;
+    getUserInfo(): BasicUserInfo;
+    getDecodedIDToken(): DecodedIdTokenPayload;
+    getOIDCServiceEndpoints(): OIDCEndpoints;
+    getAccessToken(): string;
+    isAuthenticated(): boolean;
+}
+
+export interface WebWorkerClientInterface {
+     customGrant(
+        requestParams: CustomGrantConfig
+    ): Promise<HttpResponse |TokenResponse>;
+    httpRequest<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>>;
+    httpRequestAll<T = any>(configs: HttpRequestConfig[]): Promise<HttpResponse<T>[]>;
+    enableHttpHandler(): Promise<boolean>;
+    disableHttpHandler(): Promise<boolean>;
+    initialize(): Promise<boolean>;
+    signIn(
+        params?: SignInConfig,
+        authorizationCode?: string,
+        sessionState?: string
+    ): Promise<BasicUserInfo>;
+    signOut(): Promise<boolean> ;
+    endUserSession(): Promise<boolean>;
+    getServiceEndpoints(): Promise<OIDCProviderMetaData>;
+    getUserInfo(): Promise<BasicUserInfo>;
+    getDecodedIDToken(): Promise<DecodedIdTokenPayload>;
+    isAuthenticated(): Promise<boolean>;
+    onHttpRequestSuccess(callback: (response: HttpResponse) => void): void;
+    onHttpRequestError(callback: (response: HttpError) => void): void;
+    onHttpRequestStart(callback: () => void): void;
+    onHttpRequestFinish(callback: () => void): void;
 }
