@@ -32,14 +32,14 @@ export interface SessionData {
     session_state: string;
 }
 
-export interface DataLayer {
+export interface DataLayer<T> {
     setSessionData(sessionData: SessionData): void;
     setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData | OIDCEndpointsInternal): void;
-    setConfigData(config: AuthClientConfig): void;
+    setConfigData(config: AuthClientConfig<T>): void;
     setTemporaryData(data: TemporaryData): void;
     getSessionData(): SessionData;
     getOIDCProviderMetaData(): OIDCProviderMetaData;
-    getConfigData(): AuthClientConfig;
+    getConfigData(): AuthClientConfig<T>;
     getTemporaryData(): { [key: string]: StoreValue };
     removeSessionData(): void;
     removeOIDCProviderMetaData(): void;
@@ -47,15 +47,15 @@ export interface DataLayer {
     removeTemporaryData(): void;
     setSessionDataParameter(key: keyof SessionData, value: StoreValue): void;
     setOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData, value: StoreValue): void;
-    setConfigDataParameter(key: keyof AuthClientConfig, value: StoreValue): void;
+    setConfigDataParameter(key: keyof AuthClientConfig<T>, value: StoreValue): void;
     setTemporaryDataParameter(key: string, value: StoreValue);
     getSessionDataParameter(key: keyof SessionData): StoreValue;
     getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue;
-    getConfigDataParameter(key: keyof AuthClientConfig): StoreValue;
+    getConfigDataParameter(key: keyof AuthClientConfig<T>): StoreValue;
     getTemporaryDataParameter(key: string): StoreValue;
     removeSessionDataParameter(key: keyof SessionData): void;
     removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): void;
-    removeConfigDataParameter(key: keyof AuthClientConfig): void;
+    removeConfigDataParameter(key: keyof AuthClientConfig<T>): void;
     removeTemporaryDataParameter(key: string): void;
 }
 
