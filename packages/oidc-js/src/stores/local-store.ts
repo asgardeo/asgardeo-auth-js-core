@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store, TemporaryData, StoreValue } from "../core/models/data";
-import { ConfigInterface, SessionDataRaw } from "../models";
-import { Stores } from "../constants";
+import { Store, TemporaryData, StoreValue } from "../core";
+import { ConfigInterface } from "../models";
 
 export class LocalStore implements Store {
     public setData(key: string, value: string): void {
