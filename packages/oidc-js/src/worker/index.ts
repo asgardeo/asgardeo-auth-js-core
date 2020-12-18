@@ -16,6 +16,5 @@
 * under the License.
 */
 
-export * from "./oidc.worker";
-export * from "./web-worker";
-export * from "./web-worker-client";
+export * from "./client.worker";
+export * from "./worker-core";
