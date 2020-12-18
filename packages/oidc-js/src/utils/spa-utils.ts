@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { PKCE_CODE_VERIFIER, LOGOUT_URL } from "../constants";
+import { PKCE_CODE_VERIFIER, LOGOUT_URL, AsgardeoAuthClient } from "../core";
 
 export class SPAUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -44,7 +44,18 @@ export class SPAUtils {
         return sessionStorage.getItem(LOGOUT_URL);
     }
 
-    public static removePKCE(): void{
+    public static removePKCE(): void {
         sessionStorage.removeItem(PKCE_CODE_VERIFIER);
+    }
+
+    public isSignedOutSuccessful(): boolean {
+        if (AsgardeoAuthClient.isSignOutSuccessful(window.location.href)) {
+            const newUrl = window.location.href.split("?")[0];
+            history.pushState({}, document.title, newUrl);
+
+            return true;
+        }
+
+        return false;
     }
 }
