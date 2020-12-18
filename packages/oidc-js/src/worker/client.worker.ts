@@ -48,9 +48,9 @@ import {
     GetAuthorizationURLInterface,
     WebWorkerClientConfig,
 } from "../models";
-import { generateFailureDTO, generateSuccessDTO } from "../utils";
-import { WebWorker } from "./worker";
+import { WebWorker } from "./worker-core";
 import { BasicUserInfo, AuthClientConfig } from "../core";
+import { MessageUtils } from "../utils";
 
 const ctx: WebWorkerClass<any> = self as any;
 
@@ -68,80 +68,80 @@ ctx.onmessage = ({ data, ports }) => {
                 webWorker.setHttpRequestFinish(onRequestFinishCallback);
                 webWorker.setHttpRequestStartCallback(onRequestStartCallback);
                 webWorker.setHttpRequestSuccessCallback(onRequestSuccessCallback);
-                port.postMessage(generateSuccessDTO());
+                port.postMessage(MessageUtils.generateSuccessMessage());
             } catch (error) {
-                port.postMessage(generateFailureDTO(error));
+                port.postMessage(MessageUtils.generateFailureMessage(error));
             }
 
             break;
         case GET_AUTH_URL:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
             } else {
                 webWorker
                     .getAuthorizationURL(data?.data)
                     .then((response: GetAuthorizationURLInterface) => {
-                        port.postMessage(generateSuccessDTO(response));
+                        port.postMessage(MessageUtils.generateSuccessMessage(response));
                     })
                     .catch((error) => {
-                        port.postMessage(generateFailureDTO(error));
+                        port.postMessage(MessageUtils.generateFailureMessage(error));
                     });
             }
 
             break;
         case GET_TOKEN:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
             } else {
                 webWorker
                     .sendTokenRequest(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
                     .then((response: BasicUserInfo) => {
-                        port.postMessage(generateSuccessDTO(response));
+                        port.postMessage(MessageUtils.generateSuccessMessage(response));
                     })
                     .catch((error) => {
-                        port.postMessage(generateFailureDTO(error));
+                        port.postMessage(MessageUtils.generateFailureMessage(error));
                     });
             }
 
             break;
         case API_CALL:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             if (!webWorker.isAuthenticated()) {
-                port.postMessage(generateFailureDTO("You have not signed in yet."));
+                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
             } else {
                 webWorker
                     .httpRequest(data.data)
                     .then((response) => {
-                        port.postMessage(generateSuccessDTO(response));
+                        port.postMessage(MessageUtils.generateSuccessMessage(response));
                     })
                     .catch((error) => {
-                        port.postMessage(generateFailureDTO(error));
+                        port.postMessage(MessageUtils.generateFailureMessage(error));
                     });
             }
 
             break;
         case API_CALL_ALL:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             if (!webWorker.isAuthenticated()) {
-                port.postMessage(generateFailureDTO("You have not signed in yet."));
+                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
             } else {
                 webWorker
                     .httpRequestAll(data.data)
                     .then((response) => {
-                        port.postMessage(generateSuccessDTO(response));
+                        port.postMessage(MessageUtils.generateSuccessMessage(response));
                     })
                     .catch((error) => {
-                        port.postMessage(generateFailureDTO(error));
+                        port.postMessage(MessageUtils.generateFailureMessage(error));
                     });
             }
 
@@ -149,32 +149,32 @@ ctx.onmessage = ({ data, ports }) => {
         case LOGOUT:
             console.log("logout msg received");
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             if (!webWorker.isAuthenticated()) {
-                port.postMessage(generateFailureDTO("You have not signed in yet."));
+                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
             } else {
                 try {
-                    port.postMessage(generateSuccessDTO(webWorker.signOut()));
+                    port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut()));
                 } catch (error) {
                     console.log("logout msg error", error);
-                    port.postMessage(generateFailureDTO(error));
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
                 }
             }
 
             break;
         case CUSTOM_GRANT:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(generateFailureDTO("You have not signed in yet."));
+                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
 
                 break;
             }
@@ -182,22 +182,22 @@ ctx.onmessage = ({ data, ports }) => {
             webWorker
                 .customGrant(data.data)
                 .then((response) => {
-                    port.postMessage(generateSuccessDTO(response));
+                    port.postMessage(MessageUtils.generateSuccessMessage(response));
                 })
                 .catch((error) => {
-                    port.postMessage(generateFailureDTO(error));
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
                 });
 
             break;
         case END_USER_SESSION:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(generateFailureDTO("You have not signed in yet."));
+                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
 
                 break;
             }
@@ -205,15 +205,15 @@ ctx.onmessage = ({ data, ports }) => {
             webWorker
                 .endUserSession()
                 .then((response) => {
-                    port.postMessage(generateSuccessDTO(response));
+                    port.postMessage(MessageUtils.generateSuccessMessage(response));
                 })
                 .catch((error) => {
-                    port.postMessage(generateFailureDTO(error));
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
                 });
             break;
         case GET_SERVICE_ENDPOINTS:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
@@ -221,105 +221,105 @@ ctx.onmessage = ({ data, ports }) => {
             webWorker
                 .getServiceEndpoints()
                 .then((response) => {
-                    port.postMessage(generateSuccessDTO(response));
+                    port.postMessage(MessageUtils.generateSuccessMessage(response));
                 })
                 .catch((error) => {
-                    port.postMessage(generateFailureDTO(error));
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
                 });
 
             break;
         case GET_USER_INFO:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(generateFailureDTO("You have not signed in yet."));
+                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
 
                 break;
             }
 
             try {
-                port.postMessage(generateSuccessDTO(webWorker.getUserInfo()));
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getUserInfo()));
             } catch (error) {
-                port.postMessage(generateFailureDTO(error));
+                port.postMessage(MessageUtils.generateFailureMessage(error));
             }
 
             break;
         case GET_DECODED_ID_TOKEN:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(generateFailureDTO("You have not signed in yet."));
+                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
 
                 break;
             }
 
             try {
-                port.postMessage(generateSuccessDTO(webWorker.getDecodedIDToken()));
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getDecodedIDToken()));
             } catch (error) {
-                port.postMessage(generateFailureDTO(error));
+                port.postMessage(MessageUtils.generateFailureMessage(error));
             }
 
             break;
         case ENABLE_HTTP_HANDLER:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             webWorker.enableHttpHandler();
-            port.postMessage(generateSuccessDTO());
+            port.postMessage(MessageUtils.generateSuccessMessage());
 
             break;
         case DISABLE_HTTP_HANDLER:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             webWorker.disableHttpHandler();
-            port.postMessage(generateSuccessDTO());
+            port.postMessage(MessageUtils.generateSuccessMessage());
 
             break;
         case IS_AUTHENTICATED:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             try {
-                port.postMessage(generateSuccessDTO(webWorker.isAuthenticated()));
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.isAuthenticated()));
             } catch (error) {
-                port.postMessage(generateFailureDTO(error));
+                port.postMessage(MessageUtils.generateFailureMessage(error));
             }
 
             break;
         case GET_SIGN_OUT_URL:
             if (!webWorker) {
-                port.postMessage(generateFailureDTO("Worker has not been initiated."));
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
                 break;
             }
 
             try {
-                port.postMessage(generateSuccessDTO(webWorker.getSignOutURL()));
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getSignOutURL()));
             } catch (error) {
-                port.postMessage(generateFailureDTO(error));
+                port.postMessage(MessageUtils.generateFailureMessage(error));
             }
 
             break;
         default:
-            port?.postMessage(generateFailureDTO(`Unknown message type ${data?.type}`));
+            port?.postMessage(MessageUtils.generateFailureMessage(`Unknown message type ${data?.type}`));
     }
 };
 
