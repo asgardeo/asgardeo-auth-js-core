@@ -54,10 +54,8 @@ import {
     GetAuthorizationURLInterface,
     WebWorkerClientConfig
 } from "../models";
-import { getAuthorizationCode } from "../utils";
-import { AuthenticationUtils } from "../core/utils/authentication-utils";
-import WorkerFile from "web-worker:../worker/oidc.worker.ts";
-import { SPAUtils } from "../utils/spa-utils";
+import WorkerFile from "web-worker:../worker/client.worker.ts";
+import { SPAUtils } from "../utils";
 import { CustomGrantConfig, ResponseMode, AUTHORIZATION_CODE, SESSION_STATE, SignInConfig, BasicUserInfo, OIDCProviderMetaData, DecodedIdTokenPayload, AuthClientConfig, TokenResponse } from "../core";
 
 export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerClientInterface => {
