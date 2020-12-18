@@ -17,14 +17,14 @@
 */
 
 import { DecodedIdTokenPayload, TokenRequestHeader, AuthenticatedUser } from "../models";
-import { CryptoHelper } from "../helpers";
+import { CryptoUtils } from "../utils";
 
 export class AuthenticationUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
     public static getAuthenticatedUser(idToken: string): AuthenticatedUser {
-        const payload: DecodedIdTokenPayload = CryptoHelper.decodeIDToken(idToken);
+        const payload: DecodedIdTokenPayload = CryptoUtils.decodeIDToken(idToken);
         const emailAddress: string = payload.email ? payload.email : null;
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
 

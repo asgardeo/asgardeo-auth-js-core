@@ -17,7 +17,7 @@
 */
 
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-import { AuthenticationUtils } from "../utils";
+import { AuthenticationUtils, CryptoUtils } from "../utils";
 import { DataLayer } from "../data";
 import {
     AuthClientConfig,
@@ -29,7 +29,7 @@ import {
     BasicUserInfo,
     AuthorizationURLParams
 } from "../models";
-import { CryptoHelper, AuthenticationHelper } from "../helpers";
+import { AuthenticationHelper } from "../helpers";
 import { OIDC_SCOPE, AUTHORIZATION_ENDPOINT, PKCE_CODE_VERIFIER, SESSION_STATE, OP_CONFIG_INITIATED, SERVICE_RESOURCES, SIGN_OUT_SUCCESS_PARAM } from "../constants";
 
 export class AuthenticationCore {
@@ -71,8 +71,8 @@ export class AuthenticationCore {
         }
 
         if (this._config().enablePKCE) {
-            const codeVerifier = CryptoHelper.getCodeVerifier();
-            const codeChallenge = CryptoHelper.getCodeChallenge(codeVerifier);
+            const codeVerifier = CryptoUtils.getCodeVerifier();
+            const codeChallenge = CryptoUtils.getCodeChallenge(codeVerifier);
             this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest += "&code_challenge_method=S256&code_challenge=" + codeChallenge;
         }
@@ -378,7 +378,7 @@ export class AuthenticationCore {
 
     public getDecodedIDToken(): DecodedIdTokenPayload {
         const idToken = this._dataLayer.getSessionData().id_token;
-        const payload: DecodedIdTokenPayload = CryptoHelper.decodeIDToken(idToken);
+        const payload: DecodedIdTokenPayload = CryptoUtils.decodeIDToken(idToken);
 
         return payload;
     }

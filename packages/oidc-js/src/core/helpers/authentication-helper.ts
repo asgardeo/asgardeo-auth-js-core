@@ -2,9 +2,8 @@ import axios from "axios";
 import { KeyLike } from "crypto";
 import { DataLayer } from "../data";
 import { OIDCProviderMetaData, OIDCEndpointsInternal, AuthClientConfig } from "../models";
-import { AuthenticationUtils } from "../utils";
+import { AuthenticationUtils, CryptoUtils } from "../utils";
 import { SERVICE_RESOURCES, AUTHORIZATION_ENDPOINT, END_SESSION_ENDPOINT, JWKS_ENDPOINT, OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, TOKEN_ENDPOINT, TOKEN_TAG, USERNAME_TAG, SCOPE_TAG, CLIENT_ID_TAG, CLIENT_SECRET_TAG, OIDC_SCOPE } from "../constants";
-import { CryptoHelper } from ".";
 
 /**
 * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
@@ -118,9 +117,9 @@ export class AuthenticationHelper {
                     return Promise.resolve(false);
                 }
 
-                return CryptoHelper.getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
+                return CryptoUtils.getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
                     .then((jwk: KeyLike) => {
-                        return CryptoHelper.isValidIdToken(
+                        return CryptoUtils.isValidIdToken(
                             idToken,
                             jwk,
                             this._config().clientID,
