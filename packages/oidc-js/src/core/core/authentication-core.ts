@@ -16,7 +16,7 @@
 * under the License.
 */
 
-import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { AuthenticationUtils, CryptoUtils } from "../utils";
 import { DataLayer } from "../data";
 import {
@@ -31,6 +31,7 @@ import {
 } from "../models";
 import { AuthenticationHelper } from "../helpers";
 import { OIDC_SCOPE, AUTHORIZATION_ENDPOINT, PKCE_CODE_VERIFIER, SESSION_STATE, OP_CONFIG_INITIATED, SERVICE_RESOURCES, SIGN_OUT_SUCCESS_PARAM } from "../constants";
+import { HttpResponse, HttpRequestConfig } from "../..";
 
 export class AuthenticationCore {
     private _dataLayer: DataLayer;
@@ -239,7 +240,7 @@ export class AuthenticationCore {
             });
     }
 
-    public sendRevokeTokenRequest(): Promise<AxiosResponse> {
+    public sendRevokeTokenRequest(): Promise<HttpResponse> {
         const revokeTokenEndpoint = this._oidcProviderMetaData().revocation_endpoint;
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
@@ -274,7 +275,7 @@ export class AuthenticationCore {
 
     public customGrant = (
         customGrantParams: CustomGrantConfig
-    ): Promise<TokenResponse | AxiosResponse> => {
+    ): Promise<TokenResponse | HttpResponse> => {
         if (
             !this._oidcProviderMetaData().token_endpoint ||
             this._oidcProviderMetaData().token_endpoint.trim().length === 0
@@ -289,7 +290,7 @@ export class AuthenticationCore {
             data += `${key}=${newValue}${index !== Object.entries(customGrantParams.data).length - 1 ? "&" : ""}`;
         });
 
-        const requestConfig: AxiosRequestConfig = {
+        const requestConfig: HttpRequestConfig = {
             data: data,
             headers: {
                 ...AuthenticationUtils.getTokenRequestHeaders()
@@ -307,7 +308,7 @@ export class AuthenticationCore {
 
         return axios(requestConfig)
             .then(
-                (response: AxiosResponse): Promise<AxiosResponse | TokenResponse> => {
+                (response: HttpResponse): Promise<HttpResponse | TokenResponse> => {
                     if (response.status !== 200) {
                         return Promise.reject(
                             new Error("Invalid status code received in the token response: " + response.status)

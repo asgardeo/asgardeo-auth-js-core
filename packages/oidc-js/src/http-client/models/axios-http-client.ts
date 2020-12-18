@@ -25,7 +25,7 @@ import {
 }from "../..";
 
 /**
- * Axios Http Client model
+ * Http Http Client model
  */
 export interface HttpClientInstance extends HttpInstance {
     init?(
