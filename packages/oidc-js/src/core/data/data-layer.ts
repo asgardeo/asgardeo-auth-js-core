@@ -16,8 +16,9 @@
 * under the License.
 */
 
-import { Store, TemporaryData, StoreValue } from "./models/store";
-import { ConfigInterface, OIDCProviderMetaData, SessionDataRaw, Stores } from "..";
+import { Store, TemporaryData, StoreValue } from "../models";
+import { AuthClientConfig, OIDCProviderMetaData, SessionData } from "../models";
+import { Stores } from "../constants";
 
 export class DataLayer {
     private _id: string;
@@ -29,7 +30,7 @@ export class DataLayer {
 
     private setDataInBulk(
         key: string,
-        data: ConfigInterface | OIDCProviderMetaData | SessionDataRaw | TemporaryData
+        data: AuthClientConfig | OIDCProviderMetaData | SessionData | TemporaryData
     ): void {
         const existingDataJSON = this._store.getData(key) ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
@@ -41,7 +42,7 @@ export class DataLayer {
 
     private setValue(
         key: string,
-        attribute: keyof ConfigInterface | keyof OIDCProviderMetaData | keyof SessionDataRaw | keyof TemporaryData,
+        attribute: keyof AuthClientConfig | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData,
         value: StoreValue
     ): void {
         const existingDataJSON = this._store.getData(key) ?? null;
@@ -55,7 +56,7 @@ export class DataLayer {
 
     private removeValue(
         key: string,
-        attribute: keyof ConfigInterface | keyof OIDCProviderMetaData | keyof SessionDataRaw | keyof TemporaryData
+        attribute: keyof AuthClientConfig | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData
     ): void {
         const existingDataJSON = this._store.getData(key)  ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
@@ -70,7 +71,7 @@ export class DataLayer {
         return `${store}-${this._id}`;
     }
 
-    public setConfigData(config: ConfigInterface): void {
+    public setConfigData(config: AuthClientConfig): void {
         this.setDataInBulk(this._resolveKey(Stores.ConfigData), config);
     }
 
@@ -82,11 +83,11 @@ export class DataLayer {
         this.setDataInBulk(this._resolveKey(Stores.TemporaryData), temporaryData);
     }
 
-    public setSessionData(sessionData: SessionDataRaw): void {
+    public setSessionData(sessionData: SessionData): void {
         this.setDataInBulk(this._resolveKey(Stores.SessionData), sessionData);
     }
 
-    public getConfigData(): ConfigInterface {
+    public getConfigData(): AuthClientConfig {
         return JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)) ?? null);
     }
 
@@ -98,7 +99,7 @@ export class DataLayer {
         return JSON.parse(this._store.getData(this._resolveKey(Stores.TemporaryData)) ?? null);
     }
 
-    public getSessionData(): SessionDataRaw {
+    public getSessionData(): SessionData {
         return JSON.parse(this._store.getData(this._resolveKey(Stores.SessionData)) ?? null);
     }
 
@@ -118,7 +119,7 @@ export class DataLayer {
        this._store.removeData(this._resolveKey(Stores.SessionData));
     }
 
-    public getConfigDataParameter(key: keyof ConfigInterface): StoreValue {
+    public getConfigDataParameter(key: keyof AuthClientConfig): StoreValue {
         return (
             this._store.getData(this._resolveKey(Stores.ConfigData)) &&
             JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)) ?? null)[key]
@@ -139,14 +140,14 @@ export class DataLayer {
         );
     }
 
-    public getSessionDataParameter(key: keyof SessionDataRaw): StoreValue {
+    public getSessionDataParameter(key: keyof SessionData): StoreValue {
         return (
             this._store.getData(this._resolveKey(Stores.SessionData)) &&
             JSON.parse(this._store.getData(this._resolveKey(Stores.SessionData)) ?? null)[key]
         );
     }
 
-    public setConfigDataParameter(key: keyof ConfigInterface, value: StoreValue): void {
+    public setConfigDataParameter(key: keyof AuthClientConfig, value: StoreValue): void {
         this.setValue(this._resolveKey(Stores.ConfigData), key, value);
     }
 
@@ -158,11 +159,11 @@ export class DataLayer {
         this.setValue(this._resolveKey(Stores.TemporaryData), key, value);
     }
 
-    public setSessionDataParameter(key: keyof SessionDataRaw, value: StoreValue): void {
+    public setSessionDataParameter(key: keyof SessionData, value: StoreValue): void {
         this.setValue(this._resolveKey(Stores.SessionData), key, value);
     }
 
-    public removeConfigDataParameter(key: keyof ConfigInterface): void {
+    public removeConfigDataParameter(key: keyof AuthClientConfig): void {
         this.removeValue(this._resolveKey(Stores.ConfigData), key);
     }
 
@@ -174,7 +175,7 @@ export class DataLayer {
         this.removeValue(this._resolveKey(Stores.TemporaryData), key);
     }
 
-    public removeSessionDataParameter(key: keyof SessionDataRaw): void {
+    public removeSessionDataParameter(key: keyof SessionData): void {
         this.removeValue(this._resolveKey(Stores.SessionData), key);
     }
 }
