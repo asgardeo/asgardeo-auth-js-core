@@ -48,21 +48,19 @@ import {
     HttpResponse,
     Message,
     ResponseMessage,
-    SignInResponse,
-    SignInResponseWorker,
     WebWorkerClientInterface,
-    WebWorkerConfigInterface,
     WebWorkerSingletonClientInterface,
     ConfigInterface,
-    GetAuthorizationURLInterface
+    GetAuthorizationURLInterface,
+    WebWorkerClientConfig
 } from "../models";
 import { getAuthorizationCode } from "../utils";
 import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import WorkerFile from "web-worker:../worker/oidc.worker.ts";
 import { SPAUtils } from "../utils/spa-utils";
-import { CustomGrantConfig, ResponseMode, AUTHORIZATION_CODE, SESSION_STATE, SignInConfig, BasicUserInfo, OIDCProviderMetaData, DecodedIdTokenPayload } from "../core";
+import { CustomGrantConfig, ResponseMode, AUTHORIZATION_CODE, SESSION_STATE, SignInConfig, BasicUserInfo, OIDCProviderMetaData, DecodedIdTokenPayload, AuthClientConfig, TokenResponse } from "../core";
 
-export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClientInterface => {
+export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerClientInterface => {
     /**
      * The private boolean member variable that specifies if the `initialize()` method has been called or not.
      */
@@ -119,7 +117,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      */
     const customGrant = (
         requestParams: CustomGrantConfig
-    ): Promise<HttpResponse |SignInResponse> => {
+    ): Promise<HttpResponse |TokenResponse> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
         }
@@ -135,7 +133,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
 
         return communicate<
             CustomGrantConfig,
-            HttpResponse | SignInResponse
+            HttpResponse | TokenResponse
         >(message)
             .then((response) => {
                 return Promise.resolve(response);
@@ -243,10 +241,6 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      *
      */
     const initialize = (): Promise<boolean> => {
-            if (config.authorizationType && typeof config.authorizationType !== "string") {
-                return Promise.reject("The authorizationType must be a string");
-            }
-
             if (!(config.resourceServerURLs instanceof Array)) {
                 return Promise.reject("resourceServerURLs must be an array");
             }
@@ -273,10 +267,6 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
 
             if (config.clientSecret && typeof config.clientSecret !== "string") {
                 return Promise.reject("The clientString must be a string");
-            }
-
-            if (config.consentDenied && typeof config.consentDenied !== "boolean") {
-                return Promise.reject("consentDenied must be a boolean");
             }
 
             if (config.enablePKCE && typeof config.enablePKCE !== "boolean") {
@@ -337,12 +327,12 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             };
 
 
-        const message: Message<WebWorkerConfigInterface> = {
+        const message: Message<AuthClientConfig<WebWorkerClientConfig>> = {
             data: config,
             type: INIT
         };
 
-        return communicate<WebWorkerConfigInterface, null>(message)
+        return communicate<AuthClientConfig<WebWorkerClientConfig>, null>(message)
             .then(() => {
                 initialized = true;
 

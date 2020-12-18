@@ -16,15 +16,14 @@
  * under the License.
  */
 
-import { AxiosResponse } from "axios";
-import { AsgardeoAuthClient, Store, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, OIDCEndpoints } from "../core";
+import { AsgardeoAuthClient, Store, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, OIDCEndpoints, AuthClientConfig } from "../core";
 import {
     ConfigInterface,
-    WebWorkerClientConfigInterface,
     GetAuthorizationURLInterface,
     HttpResponse,
     HttpError,
-    HttpRequestConfig
+    HttpRequestConfig,
+    WebWorkerClientConfig
 } from "../models";
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores/memory-store";
@@ -34,7 +33,7 @@ import { promises } from "dns";
 import { HttpClientInstance, HttpClient } from "../http-client";
 
 
-export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
+export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any => {
     const _store: Store = new MemoryStore();
     const _authenticationClient = new AsgardeoAuthClient(config, _store);
     const _dataLayer = _authenticationClient.getDataLayer();
@@ -143,14 +142,14 @@ export const WebWorker = (config: WebWorkerClientConfigInterface): any => {
         return _authenticationClient.getSignOutURL();
     }
 
-    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | AxiosResponse> => {
+    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
             .sendCustomGrantRequest(config)
-            .then((response: AxiosResponse | TokenResponse) => {
+            .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
                     return _authenticationClient.getBasicUserInfo();
                 } else {
-                    return response as AxiosResponse;
+                    return response as HttpResponse;
                 }
             })
             .catch((error) => {
