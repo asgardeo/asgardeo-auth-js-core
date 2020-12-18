@@ -15,19 +15,3 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/**
- * Basic authentication type.
- * @constant
- * @type {string}
- * @default
- */
-export const BASIC_TYPE = "basic";
-
-/**
- * Authorization Code based authentication type.
- * @constant
- * @type {string}
- * @default
- */
-export const AUTHORIZATION_CODE_TYPE = "authorization_code";
