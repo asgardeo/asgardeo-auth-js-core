@@ -49,10 +49,10 @@ import {
     WebWorkerInterface,
     SignInResponse,
     GetAuthorizationURLInterface,
-    UserInfo
 } from "../models";
 import { generateFailureDTO, generateSuccessDTO } from "../utils";
 import { WebWorker } from "./worker";
+import { BasicUserInfo } from "../core";
 
 const ctx: WebWorkerClass<any> = self as any;
 
@@ -97,7 +97,7 @@ ctx.onmessage = ({ data, ports }) => {
             } else {
                 webWorker
                     .sendTokenRequest(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
-                    .then((response: UserInfo) => {
+                    .then((response: BasicUserInfo) => {
                         port.postMessage(generateSuccessDTO(response));
                     })
                     .catch((error) => {
