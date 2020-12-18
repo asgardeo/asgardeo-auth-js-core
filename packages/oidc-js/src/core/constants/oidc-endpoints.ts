@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import { OIDCEndpointConstantsInterface } from "../models";
+import { OIDCEndpoints } from "../models";
 
-export const SERVICE_RESOURCES: OIDCEndpointConstantsInterface  = {
+export const SERVICE_RESOURCES: OIDCEndpoints  = {
     authorizationEndpoint: "/oauth2/authorize",
     checkSessionIframe: "/oidc/checksession",
     endSessionEndpoint: "/oidc/logout",
