@@ -16,7 +16,6 @@
  * under the License.
  */
 
-export * from "./token";
 export * from "./user";
 export * from "./messages";
 export * from "./storage";
