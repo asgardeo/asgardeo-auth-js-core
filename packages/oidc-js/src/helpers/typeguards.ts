@@ -17,10 +17,8 @@
  */
 
 import { Storage } from "../constants";
-import { ConfigInterface, WebWorkerConfigInterface } from "../models";
+import { MainThreadClientConfig, WebWorkerClientConfig, Config } from "../models";
 
-export const isWebWorkerConfig = (
-    config: ConfigInterface
-): config is WebWorkerConfigInterface => {
+export const isWebWorkerConfig = (config: Config): config is WebWorkerClientConfig => {
     return config.storage === Storage.WebWorker;
 };
