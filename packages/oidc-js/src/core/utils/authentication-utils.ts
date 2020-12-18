@@ -16,15 +16,15 @@
 * under the License.
 */
 
-import { DecodedIdTokenPayloadInterface, TokenRequestHeader, AuthenticatedUserInterface } from "..";
-import { decodeIDToken } from "../utils";
+import { DecodedIdTokenPayload, TokenRequestHeader, AuthenticatedUser } from "../models";
+import { CryptoHelper } from "../helpers";
 
 export class AuthenticationUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
-    public static getAuthenticatedUser(idToken: string): AuthenticatedUserInterface {
-        const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
+    public static getAuthenticatedUser(idToken: string): AuthenticatedUser {
+        const payload: DecodedIdTokenPayload = CryptoHelper.decodeIDToken(idToken);
         const emailAddress: string = payload.email ? payload.email : null;
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
 
@@ -37,7 +37,7 @@ export class AuthenticationUtils {
     }
 
     public static getTenantDomainFromIdTokenPayload = (
-        payload: DecodedIdTokenPayloadInterface,
+        payload: DecodedIdTokenPayload,
         uidSeparator: string = "@"
     ): string => {
         // If the `tenant_domain` claim is available in the ID token payload, give precedence.
@@ -51,12 +51,6 @@ export class AuthenticationUtils {
 
         return tokens[tokens.length - 1];
     };
-
-    public static removeAuthorizationCode(): void {
-        const url = location.href;
-
-        history.pushState({}, document.title, url.replace(/\?code=.*$/, ""));
-    }
 
     public static getTokenRequestHeaders(): TokenRequestHeader {
         return {
