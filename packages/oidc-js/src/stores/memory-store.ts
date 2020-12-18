@@ -16,7 +16,6 @@
  * under the License.
  */
 import { Store, TemporaryData, StoreValue } from "../core";
-import { ConfigInterface } from "../models";
 
 export class MemoryStore implements Store {
     private _data: Map<string, string>;
