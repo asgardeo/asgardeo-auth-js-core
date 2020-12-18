@@ -19,7 +19,6 @@
 import {
     API_CALL,
     API_CALL_ALL,
-    AUTHORIZATION_CODE,
     AUTH_REQUIRED,
     CUSTOM_GRANT,
     DISABLE_HTTP_HANDLER,
@@ -30,14 +29,10 @@ import {
     GET_USER_INFO,
     INIT,
     LOGOUT,
-    LOGOUT_URL,
-    PKCE_CODE_VERIFIER,
     REQUEST_ERROR,
     REQUEST_FINISH,
     REQUEST_START,
     REQUEST_SUCCESS,
-    ResponseMode,
-    SESSION_STATE,
     SIGNED_IN,
     SIGN_IN,
     GET_TOKEN,
@@ -47,22 +42,17 @@ import {
 } from "../constants";
 import {
     AuthCode,
-    CustomGrantRequestParams,
-    DecodedIdTokenPayloadInterface,
     HttpClient,
     HttpError,
     HttpRequestConfig,
     HttpResponse,
     Message,
-    OIDCProviderMetaData,
     ResponseMessage,
     SignInResponse,
     SignInResponseWorker,
-    UserInfo,
     WebWorkerClientInterface,
     WebWorkerConfigInterface,
     WebWorkerSingletonClientInterface,
-    GetAuthorizationURLParameter,
     ConfigInterface,
     GetAuthorizationURLInterface
 } from "../models";
@@ -70,6 +60,7 @@ import { getAuthorizationCode } from "../utils";
 import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import WorkerFile from "web-worker:../worker/oidc.worker.ts";
 import { SPAUtils } from "../utils/spa-utils";
+import { CustomGrantConfig, ResponseMode, AUTHORIZATION_CODE, SESSION_STATE, SignInConfig, BasicUserInfo, OIDCProviderMetaData, DecodedIdTokenPayload } from "../core";
 
 export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClientInterface => {
     /**
@@ -127,7 +118,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      * response if the the `returnResponse` attribute in the `requestParams` object is set to `true`.
      */
     const customGrant = (
-        requestParams: CustomGrantRequestParams
+        requestParams: CustomGrantConfig
     ): Promise<HttpResponse |SignInResponse> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
@@ -137,13 +128,13 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             return Promise.reject("You have not signed in yet");
         }
 
-        const message: Message<CustomGrantRequestParams> = {
+        const message: Message<CustomGrantConfig> = {
             data: requestParams,
             type: CUSTOM_GRANT
         };
 
         return communicate<
-            CustomGrantRequestParams,
+            CustomGrantConfig,
             HttpResponse | SignInResponse
         >(message)
             .then((response) => {
@@ -368,10 +359,10 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
      * @returns {Promise<UserInfo>} A promise that resolves when authentication is successful.
      */
     const signIn = (
-        params?: GetAuthorizationURLParameter,
+        params?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string
-    ): Promise<UserInfo> => {
+    ): Promise<BasicUserInfo> => {
         let resolvedAuthorizationCode: string;
         let resolvedSessionState: string;
 
@@ -397,7 +388,7 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
 
             SPAUtils.removePKCE();
 
-            return communicate<AuthCode, UserInfo>(message)
+            return communicate<AuthCode, BasicUserInfo>(message)
                 .then((response) => {
                     signedIn = true;
 
@@ -420,12 +411,12 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
                 });
         }
 
-        const message: Message<GetAuthorizationURLParameter> = {
+        const message: Message<SignInConfig> = {
             data: params,
             type: GET_AUTH_URL
         };
 
-        return communicate<GetAuthorizationURLParameter, GetAuthorizationURLInterface>(message)
+        return communicate<SignInConfig, GetAuthorizationURLInterface>(message)
             .then((response) => {
                 if (response.pkce) {
                     SPAUtils.setPKCE(response.pkce);
@@ -517,12 +508,12 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             });
     };
 
-    const getUserInfo = (): Promise<UserInfo> => {
+    const getUserInfo = (): Promise<BasicUserInfo> => {
         const message: Message<null> = {
             type: GET_USER_INFO
         };
 
-        return communicate<null, UserInfo>(message)
+        return communicate<null, BasicUserInfo>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -531,12 +522,12 @@ export const WebWorkerClient = (config: WebWorkerConfigInterface): WebWorkerClie
             });
     };
 
-    const getDecodedIDToken = (): Promise<DecodedIdTokenPayloadInterface> => {
+    const getDecodedIDToken = (): Promise<DecodedIdTokenPayload> => {
         const message: Message<null> = {
             type: GET_DECODED_ID_TOKEN
         };
 
-        return communicate<null, DecodedIdTokenPayloadInterface>(message)
+        return communicate<null, DecodedIdTokenPayload>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })
