@@ -19,11 +19,11 @@
 import { AxiosResponse } from "axios";
 import {Storage} from "../constants";
 import {
-    ConfigInterface,
     HttpResponse,
     HttpError,
     HttpRequestConfig,
-    MainThreadClientConfig
+    MainThreadClientConfig,
+    MainThreadClientInterface
 } from "../models";
 import { LocalStore, MemoryStore, SessionStore } from "../stores";
 import { HttpClientInstance, HttpClient } from "../http-client";
@@ -58,7 +58,7 @@ const initiateStore = (store: Storage): Store => {
     }
 };
 
-export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig>): any => {
+export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig>): MainThreadClientInterface => {
     const _store: Store = initiateStore(config.storage);
     const _authenticationClient = new AsgardeoAuthClient<MainThreadClientConfig>(config, _store);
     const _spaHelper = new SPAHelper<MainThreadClientConfig>(_authenticationClient);
@@ -190,7 +190,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         });
     };
 
-    const signOut = () => {
+    const signOut = (): void => {
         if (_authenticationClient.isAuthenticated()) {
             location.href = _authenticationClient.signOut();
         } else {
@@ -263,10 +263,15 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
 
     return {
         customGrant,
+        disableHttpHandler,
+        enableHttpHandler,
         getAccessToken,
         getDecodedIDToken,
+        getHttpClient,
         getOIDCServiceEndpoints,
         getUserInfo,
+        httpRequest,
+        httpRequestAll,
         isAuthenticated,
         refreshToken,
         revokeAccessToken,
@@ -275,11 +280,6 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         setHttpRequestStartCallback,
         setHttpRequestSuccessCallback,
         signIn,
-        signOut,
-        httpRequest,
-        httpRequestAll,
-        enableHttpHandler,
-        disableHttpHandler,
-        getHttpClient
+        signOut
     };
 };
