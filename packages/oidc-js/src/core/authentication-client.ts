@@ -16,27 +16,25 @@
 * under the License.
 */
 
-import { Store } from "./models/store";
-import { AuthenticationCore } from "./authentication-core";
-import { OP_CONFIG_INITIATED, GetAuthorizationURLParameter } from "..";
-import { TokenResponseInterface, DecodedIdTokenPayloadInterface, OIDCEndpointConstantsInterface, UserInfo, CustomGrantRequestParams } from "../models";
+import { AuthenticationCore } from "./core";
 import { AxiosResponse } from "axios";
-import { Config } from "./models/config";
-import { DataLayer } from "./data-layer";
+import { AuthClientConfig, OIDCEndpoints, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, Store, AuthorizationURLParams, BasicUserInfo } from "./models";
+import { OP_CONFIG_INITIATED } from "./constants";
+import { DataLayer } from "./data";
 
-export class AuthenticationClient {
+export class AsgardeoAuthClient {
     private _dataLayer: DataLayer;
     private _authenticationCore: AuthenticationCore;
 
     private static _instanceID: number;
 
-    public constructor(config: Config, store: Store) {
-        if (!AuthenticationClient._instanceID) {
-            AuthenticationClient._instanceID = 0;
+    public constructor(config: AuthClientConfig, store: Store) {
+        if (!AsgardeoAuthClient._instanceID) {
+            AsgardeoAuthClient._instanceID = 0;
         } else {
-            AuthenticationClient._instanceID += 1;
+            AsgardeoAuthClient._instanceID += 1;
         }
-        this._dataLayer = new DataLayer(`instance_${AuthenticationClient._instanceID}`, store);
+        this._dataLayer = new DataLayer(`instance_${AsgardeoAuthClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer);
         this._dataLayer.setConfigData(config);
     }
@@ -45,19 +43,19 @@ export class AuthenticationClient {
         return this._dataLayer;
     }
 
-    public getAuthorizationURL(config?: GetAuthorizationURLParameter): Promise<string> {
+    public getAuthorizationURL(config?: AuthorizationURLParams): Promise<string> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return Promise.resolve(this._authenticationCore.sendAuthorizationRequest(authRequestConfig));
         }
 
-        return this._authenticationCore.initOPConfiguration(config?.forceInit).then(() => {
+        return this._authenticationCore.initOPConfiguration(config?.forceInit as boolean).then(() => {
             return this._authenticationCore.sendAuthorizationRequest(authRequestConfig);
         });
     }
 
-    public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponseInterface> {
+    public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
         }
@@ -76,15 +74,15 @@ export class AuthenticationClient {
         return this._authenticationCore.getSignOutURL();
     }
 
-    public getOIDCEndpoints(): OIDCEndpointConstantsInterface{
+    public getOIDCEndpoints(): OIDCEndpoints{
         return this._authenticationCore.getServiceEndpoints();
     }
 
-    public getDecodedIDToken(): DecodedIdTokenPayloadInterface{
+    public getDecodedIDToken(): DecodedIdTokenPayload{
         return this._authenticationCore.getDecodedIDToken();
     }
 
-    public getUserInfo(): UserInfo {
+    public getBasicUserInfo(): BasicUserInfo {
         return this._authenticationCore.getUserInfo();
     }
 
@@ -92,7 +90,7 @@ export class AuthenticationClient {
         return this._authenticationCore.sendRevokeTokenRequest();
     }
 
-    public refreshToken(): Promise<TokenResponseInterface>{
+    public refreshToken(): Promise<TokenResponse>{
         return this._authenticationCore.sendRefreshTokenRequest();
     }
 
@@ -100,7 +98,7 @@ export class AuthenticationClient {
         return this._authenticationCore.getAccessToken();
     }
 
-    public sendCustomGrantRequest(config: CustomGrantRequestParams): Promise<TokenResponseInterface | AxiosResponse>{
+    public sendCustomGrantRequest(config: CustomGrantConfig): Promise<TokenResponse | AxiosResponse>{
         return this._authenticationCore.customGrant(config);
     }
 
@@ -108,4 +106,11 @@ export class AuthenticationClient {
         return this._authenticationCore.isAuthenticated();
     }
 
+    public getPKCECode(): string{
+        return this._authenticationCore.getPKCECode();
+    }
+
+    public setPKCECode(pkce: string): void {
+        this._authenticationCore.setPKCECode(pkce);
+    }
 }
