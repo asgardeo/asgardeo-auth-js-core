@@ -18,14 +18,14 @@
 
 import { AxiosResponse } from "axios";
 import { AUTHORIZATION_CODE, ResponseMode, SESSION_STATE, Storage, PKCE_CODE_VERIFIER, LOGOUT_URL } from "../constants";
-import { AuthenticationClient } from "../core/authentication-client";
-import { Store } from "../core/models/store";
+import { AsgardeoAuthClient } from "../core/authentication-client";
+import { Store } from "../core/models/data";
 import {
     ConfigInterface,
     CustomGrantRequestParams,
     DecodedIdTokenPayloadInterface,
     GetAuthorizationURLParameter,
-    OIDCEndpointConstantsInterface,
+    OIDCEndpoints,
     TokenResponseInterface,
     UserInfo,
     HttpResponse,
@@ -35,8 +35,9 @@ import {
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores/memory-store";
 import { SessionStore } from "../stores/session-store";
-import { AuthenticationUtils } from "../core/authenitcation-utils";
+import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import { HttpClientInstance, HttpClient } from "../http-client";
+import { SPAUtils } from "../utils/spa-utils";
 
 const initiateStore = (store: Storage): Store => {
     switch (store) {
@@ -53,7 +54,7 @@ const initiateStore = (store: Storage): Store => {
 
 export const MainThreadClient = (config: ConfigInterface): any => {
     const _store: Store = initiateStore(config.storage);
-    const _authenticationClient = new AuthenticationClient(config, _store);
+    const _authenticationClient = new AsgardeoAuthClient(config, _store);
     const _dataLayer = _authenticationClient.getDataLayer();
 
     let _onHttpRequestStart: () => void;
@@ -125,7 +126,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         sessionState?: string
     ): Promise<UserInfo> => {
         if (_authenticationClient.isAuthenticated()) {
-            return Promise.resolve(_authenticationClient.getUserInfo());
+            return Promise.resolve(_authenticationClient.getBasicUserInfo());
         }
 
         let resolvedAuthorizationCode: string;
@@ -139,11 +140,11 @@ export const MainThreadClient = (config: ConfigInterface): any => {
             resolvedSessionState = new URL(window.location.href).searchParams.get(SESSION_STATE);
         }
 
-        AuthenticationUtils.removeAuthorizationCode();
+        SPAUtils.removeAuthorizationCode();
 
         if (resolvedAuthorizationCode && resolvedSessionState) {
             if (config.storage === Storage.MainThreadMemory) {
-                const pkce = sessionStorage.getItem(PKCE_CODE_VERIFIER);
+                const pkce = SPAUtils.getPKCE();
 
                 _dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
             }
@@ -152,10 +153,10 @@ export const MainThreadClient = (config: ConfigInterface): any => {
                 .sendTokenRequest(resolvedAuthorizationCode, resolvedSessionState)
                 .then(() => {
                     if (config.storage === Storage.MainThreadMemory) {
-                        sessionStorage.setItem(LOGOUT_URL, _authenticationClient.getSignOutURL());
+                        SPAUtils.setSignOutURL(_authenticationClient.getSignOutURL());
                     }
 
-                    return _authenticationClient.getUserInfo();
+                    return _authenticationClient.getBasicUserInfo();
                 })
                 .catch((error) => {
                     return Promise.reject(error);
@@ -164,10 +165,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
 
         return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
             if (config.storage === Storage.MainThreadMemory) {
-                sessionStorage.setItem(
-                    PKCE_CODE_VERIFIER,
-                    _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string
-                );
+                SPAUtils.setPKCE( _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string);
             }
 
             location.href = url;
@@ -187,7 +185,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         if (_authenticationClient.isAuthenticated()) {
             location.href = _authenticationClient.signOut();
         } else {
-            location.href = sessionStorage.getItem(LOGOUT_URL);
+            location.href = SPAUtils.getSignOutURL();
         }
     };
 
@@ -196,7 +194,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
             .sendCustomGrantRequest(config)
             .then((response: AxiosResponse | TokenResponseInterface) => {
                 if (config.returnsSession) {
-                    return _authenticationClient.getUserInfo();
+                    return _authenticationClient.getBasicUserInfo();
                 } else {
                     return response as AxiosResponse;
                 }
@@ -210,7 +208,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         return _authenticationClient
             .refreshToken()
             .then(() => {
-                return _authenticationClient.getUserInfo();
+                return _authenticationClient.getBasicUserInfo();
             })
             .catch((error) => {
                 return Promise.reject(error);
@@ -225,14 +223,14 @@ export const MainThreadClient = (config: ConfigInterface): any => {
     };
 
     const getUserInfo = (): UserInfo => {
-        return _authenticationClient.getUserInfo();
+        return _authenticationClient.getBasicUserInfo();
     };
 
     const getDecodedIDToken = (): DecodedIdTokenPayloadInterface => {
         return _authenticationClient.getDecodedIDToken();
     };
 
-    const getOIDCServiceEndpoints = (): OIDCEndpointConstantsInterface => {
+    const getOIDCServiceEndpoints = (): OIDCEndpoints => {
         return _authenticationClient.getOIDCEndpoints();
     };
 
