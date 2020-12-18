@@ -22,12 +22,12 @@ import { SERVICE_RESOURCES, AUTHORIZATION_ENDPOINT, END_SESSION_ENDPOINT, JWKS_E
 * specific language governing permissions and limitations
 * under the License.
 */
-export class AuthenticationHelper {
-    private _dataLayer: DataLayer;
+export class AuthenticationHelper<T> {
+    private _dataLayer: DataLayer<T>;
     private _config: ()=>AuthClientConfig;
     private _oidcProviderMetaData: ()=>OIDCProviderMetaData;
 
-    public constructor(dataLayer: DataLayer) {
+    public constructor(dataLayer: DataLayer<T>) {
         this._dataLayer = dataLayer;
         this._config = ()=>this._dataLayer.getConfigData();
         this._oidcProviderMetaData = ()=>this._dataLayer.getOIDCProviderMetaData();
