@@ -16,14 +16,6 @@
  * under the License.
  */
 
-import { AuthenticatedUserInterface } from "./authenticated-user";
-import { TokenResponseInterface } from "./token-response";
-
-/**
- * Interface of the user session.
- */
-export interface SessionInterface extends Omit<AuthenticatedUserInterface, "scope">, TokenResponseInterface { }
-
 export interface GetAuthenticationCodeResponse{
     authorizationCode: string;
     sessionState?: string;
