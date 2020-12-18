@@ -20,7 +20,7 @@ import { Store, TemporaryData, StoreValue } from "../models";
 import { AuthClientConfig, OIDCProviderMetaData, SessionData } from "../models";
 import { Stores } from "../constants";
 
-export class DataLayer {
+export class DataLayer<T> {
     private _id: string;
     private _store: Store;
     public constructor(instanceID: string, store: Store) {
@@ -30,7 +30,7 @@ export class DataLayer {
 
     private setDataInBulk(
         key: string,
-        data: AuthClientConfig | OIDCProviderMetaData | SessionData | TemporaryData
+        data: AuthClientConfig<T> | OIDCProviderMetaData | SessionData | TemporaryData
     ): void {
         const existingDataJSON = this._store.getData(key) ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
@@ -42,7 +42,11 @@ export class DataLayer {
 
     private setValue(
         key: string,
-        attribute: keyof AuthClientConfig | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData,
+        attribute:
+            | keyof AuthClientConfig<T>
+            | keyof OIDCProviderMetaData
+            | keyof SessionData
+            | keyof TemporaryData,
         value: StoreValue
     ): void {
         const existingDataJSON = this._store.getData(key) ?? null;
@@ -56,9 +60,9 @@ export class DataLayer {
 
     private removeValue(
         key: string,
-        attribute: keyof AuthClientConfig | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData
+        attribute: keyof AuthClientConfig<T> | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData
     ): void {
-        const existingDataJSON = this._store.getData(key)  ?? null;
+        const existingDataJSON = this._store.getData(key) ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
 
         const dataToBeSaved = { ...existingData };
@@ -71,7 +75,7 @@ export class DataLayer {
         return `${store}-${this._id}`;
     }
 
-    public setConfigData(config: AuthClientConfig): void {
+    public setConfigData(config: AuthClientConfig<T>): void {
         this.setDataInBulk(this._resolveKey(Stores.ConfigData), config);
     }
 
@@ -87,7 +91,7 @@ export class DataLayer {
         this.setDataInBulk(this._resolveKey(Stores.SessionData), sessionData);
     }
 
-    public getConfigData(): AuthClientConfig {
+    public getConfigData(): AuthClientConfig<T> {
         return JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)) ?? null);
     }
 
@@ -116,10 +120,10 @@ export class DataLayer {
     }
 
     public removeSessionData(): void {
-       this._store.removeData(this._resolveKey(Stores.SessionData));
+        this._store.removeData(this._resolveKey(Stores.SessionData));
     }
 
-    public getConfigDataParameter(key: keyof AuthClientConfig): StoreValue {
+    public getConfigDataParameter(key: keyof AuthClientConfig<T>): StoreValue {
         return (
             this._store.getData(this._resolveKey(Stores.ConfigData)) &&
             JSON.parse(this._store.getData(this._resolveKey(Stores.ConfigData)) ?? null)[key]
@@ -147,7 +151,7 @@ export class DataLayer {
         );
     }
 
-    public setConfigDataParameter(key: keyof AuthClientConfig, value: StoreValue): void {
+    public setConfigDataParameter(key: keyof AuthClientConfig<T>, value: StoreValue): void {
         this.setValue(this._resolveKey(Stores.ConfigData), key, value);
     }
 
@@ -163,7 +167,7 @@ export class DataLayer {
         this.setValue(this._resolveKey(Stores.SessionData), key, value);
     }
 
-    public removeConfigDataParameter(key: keyof AuthClientConfig): void {
+    public removeConfigDataParameter(key: keyof AuthClientConfig<T>): void {
         this.removeValue(this._resolveKey(Stores.ConfigData), key);
     }
 
