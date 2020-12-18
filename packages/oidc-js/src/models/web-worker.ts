@@ -18,9 +18,7 @@
 
 import { WebWorkerClientConfigInterface } from "./client";
 import { OIDCEndpoints } from "../core/models/oidc-provider-meta-data";
-import { Message, SignInResponse, UserInfo } from "./message";
-import { DecodedIdTokenPayloadInterface } from "./token-response";
-import { CustomGrantRequestParams } from "./web-worker-client";
+import { Message, UserInfo } from "./message";
 import { HttpRequestConfig, HttpResponse } from "../models";
 
 export interface WebWorkerInterface {
