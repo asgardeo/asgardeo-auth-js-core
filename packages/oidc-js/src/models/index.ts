@@ -18,7 +18,6 @@
 
 export * from "./client";
 export * from "./message";
-export * from "./web-worker-client";
-export * from "./web-worker";
 export * from "./session";
 export * from "./http-client";
+export * from "./web-worker";
