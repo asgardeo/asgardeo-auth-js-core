@@ -25,7 +25,6 @@ export * from "./authenticated-user";
 export * from "./web-worker-client";
 export * from "./web-worker";
 export * from "./session";
-export * from "./endpoints";
 export * from "./token-response";
 export * from "./open-id-config";
 export * from "./http-client";
