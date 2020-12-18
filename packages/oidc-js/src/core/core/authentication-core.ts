@@ -16,20 +16,25 @@
 * under the License.
 */
 
-import { OIDC_SCOPE, AUTHORIZATION_ENDPOINT, PKCE_CODE_VERIFIER, SESSION_STATE, SIGNED_IN, OP_CONFIG_INITIATED, SERVICE_RESOURCES, LOGOUT_SUCCESS } from "../constants";
-import { getCodeVerifier, getCodeChallenge, getJWKForTheIdToken, isValidIdToken, decodeIDToken } from "../utils";
-import { Store } from "./models/store";
-import { OIDCProviderMetaData, TokenResponseInterface, CustomGrantRequestParams, UserInfo, DecodedIdTokenPayloadInterface, OpenIDConfig, OIDCEndpointConstantsInterface, SendAuthorizationRequestParameter } from "../models";
-import { AuthenticationHelper } from "./authenitcation-helper";
-import { KeyLike } from "jose/webcrypto/types";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-import { Config } from "./models/config";
-import { AuthenticationUtils } from "./authenitcation-utils";
-import { DataLayer } from "./data-layer";
+import { AuthenticationUtils } from "../utils";
+import { DataLayer } from "../data";
+import {
+    AuthClientConfig,
+    OIDCEndpoints,
+    OIDCProviderMetaData,
+    TokenResponse,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    BasicUserInfo,
+    AuthorizationURLParams
+} from "../models";
+import { CryptoHelper, AuthenticationHelper } from "../helpers";
+import { OIDC_SCOPE, AUTHORIZATION_ENDPOINT, PKCE_CODE_VERIFIER, SESSION_STATE, OP_CONFIG_INITIATED, SERVICE_RESOURCES, SIGN_OUT_SUCCESS_PARAM } from "../constants";
 
 export class AuthenticationCore {
     private _dataLayer: DataLayer;
-    private _config: ()=>Config;
+    private _config: ()=>AuthClientConfig;
     private _oidcProviderMetaData: ()=>OIDCProviderMetaData;
     private _authenticationHelper: AuthenticationHelper;
 
@@ -40,7 +45,7 @@ export class AuthenticationCore {
         this._oidcProviderMetaData = ()=>this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public sendAuthorizationRequest(config?: SendAuthorizationRequestParameter): string {
+    public sendAuthorizationRequest(config?: AuthorizationURLParams): string {
         const authorizeEndpoint = this._dataLayer.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
@@ -66,8 +71,8 @@ export class AuthenticationCore {
         }
 
         if (this._config().enablePKCE) {
-            const codeVerifier = getCodeVerifier();
-            const codeChallenge = getCodeChallenge(codeVerifier);
+            const codeVerifier = CryptoHelper.getCodeVerifier();
+            const codeChallenge = CryptoHelper.getCodeChallenge(codeVerifier);
             this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest += "&code_challenge_method=S256&code_challenge=" + codeChallenge;
         }
@@ -88,7 +93,7 @@ export class AuthenticationCore {
         return authorizeRequest;
     }
 
-    public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponseInterface> {
+    public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
         const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
@@ -130,7 +135,7 @@ export class AuthenticationCore {
                             if (valid) {
                                 this._dataLayer.setSessionData(response.data);
 
-                                const tokenResponse: TokenResponseInterface = {
+                                const tokenResponse: TokenResponse = {
                                     accessToken: response.data.access_token,
                                     expiresIn: response.data.expires_in,
                                     idToken: response.data.id_token,
@@ -148,7 +153,7 @@ export class AuthenticationCore {
                             return Promise.reject(error);
                         });
                 } else {
-                    const tokenResponse: TokenResponseInterface = {
+                    const tokenResponse: TokenResponse = {
                         accessToken: response.data.access_token,
                         expiresIn: response.data.expires_in,
                         idToken: response.data.id_token,
@@ -166,7 +171,7 @@ export class AuthenticationCore {
             });
     }
 
-    public sendRefreshTokenRequest(): Promise<TokenResponseInterface> {
+    public sendRefreshTokenRequest(): Promise<TokenResponse> {
         const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
         if (!this._dataLayer.getSessionData().refresh_token) {
@@ -198,7 +203,7 @@ export class AuthenticationCore {
                 if (this._config().validateIDToken) {
                     return this._authenticationHelper.validateIdToken(response.data.id_token).then((valid) => {
                         if (valid) {
-                            const tokenResponse: TokenResponseInterface = {
+                            const tokenResponse: TokenResponse = {
                                 accessToken: response.data.access_token,
                                 expiresIn: response.data.expires_in,
                                 idToken: response.data.id_token,
@@ -215,7 +220,7 @@ export class AuthenticationCore {
                         return Promise.reject("Invalid id_token in the token response: " + response.data.id_token);
                     });
                 } else {
-                    const tokenResponse: TokenResponseInterface = {
+                    const tokenResponse: TokenResponse = {
                         accessToken: response.data.access_token,
                         expiresIn: response.data.expires_in,
                         idToken: response.data.id_token,
@@ -268,8 +273,8 @@ export class AuthenticationCore {
     }
 
     public customGrant = (
-        customGrantParams: CustomGrantRequestParams
-    ): Promise<TokenResponseInterface | AxiosResponse> => {
+        customGrantParams: CustomGrantConfig
+    ): Promise<TokenResponse | AxiosResponse> => {
         if (
             !this._oidcProviderMetaData().token_endpoint ||
             this._oidcProviderMetaData().token_endpoint.trim().length === 0
@@ -302,7 +307,7 @@ export class AuthenticationCore {
 
         return axios(requestConfig)
             .then(
-                (response: AxiosResponse): Promise<AxiosResponse | TokenResponseInterface> => {
+                (response: AxiosResponse): Promise<AxiosResponse | TokenResponse> => {
                     if (response.status !== 200) {
                         return Promise.reject(
                             new Error("Invalid status code received in the token response: " + response.status)
@@ -313,7 +318,7 @@ export class AuthenticationCore {
                         if (this._config().validateIDToken) {
                             return this._authenticationHelper.validateIdToken(response.data.id_token).then((valid) => {
                                 if (valid) {
-                                    const tokenResponse: TokenResponseInterface = {
+                                    const tokenResponse: TokenResponse = {
                                         accessToken: response.data.access_token,
                                         expiresIn: response.data.expires_in,
                                         idToken: response.data.id_token,
@@ -333,7 +338,7 @@ export class AuthenticationCore {
                                 );
                             });
                         } else {
-                            const tokenResponse: TokenResponseInterface = {
+                            const tokenResponse: TokenResponse = {
                                 accessToken: response.data.access_token,
                                 expiresIn: response.data.expires_in,
                                 idToken: response.data.id_token,
@@ -357,7 +362,7 @@ export class AuthenticationCore {
             });
     };
 
-    public getUserInfo(): UserInfo {
+    public getUserInfo(): BasicUserInfo {
         console.log(this._dataLayer);
         const sessionData = this._dataLayer.getSessionData();
         const authenticatedUser = AuthenticationUtils.getAuthenticatedUser(sessionData?.id_token);
@@ -371,9 +376,9 @@ export class AuthenticationCore {
         };
     }
 
-    public getDecodedIDToken(): DecodedIdTokenPayloadInterface {
+    public getDecodedIDToken(): DecodedIdTokenPayload {
         const idToken = this._dataLayer.getSessionData().id_token;
-        const payload: DecodedIdTokenPayloadInterface = decodeIDToken(idToken);
+        const payload: DecodedIdTokenPayload = CryptoHelper.decodeIDToken(idToken);
 
         return payload;
     }
@@ -388,7 +393,7 @@ export class AuthenticationCore {
 
         return axios
             .get(wellKnownEndpoint)
-            .then((response: { data: OpenIDConfig; status: number }) => {
+            .then((response: { data: OIDCProviderMetaData; status: number }) => {
                 if (response.status !== 200) {
                     return Promise.reject(
                         "Failed to load OpenID provider configuration from: " + wellKnownEndpoint
@@ -417,7 +422,7 @@ export class AuthenticationCore {
             });
     }
 
-    public getServiceEndpoints(): OIDCEndpointConstantsInterface {
+    public getServiceEndpoints(): OIDCEndpoints {
         return {
             authorizationEndpoint: this._oidcProviderMetaData().authorization_endpoint,
             checkSessionIframe: this._oidcProviderMetaData().check_session_iframe,
@@ -456,7 +461,7 @@ export class AuthenticationCore {
             `${logoutEndpoint}?` +
             `id_token_hint=${idToken}` +
             `&post_logout_redirect_uri=${callbackURL}&state=` +
-            LOGOUT_SUCCESS;
+            SIGN_OUT_SUCCESS_PARAM;
 
         return logoutCallback;
 
@@ -476,5 +481,13 @@ export class AuthenticationCore {
 
     public isAuthenticated(): boolean {
         return Boolean(this.getAccessToken());
+    }
+
+    public getPKCECode(): string {
+        return this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string;
+    }
+
+    public setPKCECode(pkce: string): void {
+        return this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
     }
 }
