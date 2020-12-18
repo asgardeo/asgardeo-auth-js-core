@@ -17,17 +17,9 @@
  */
 
 import { AxiosResponse } from "axios";
-import { AUTHORIZATION_CODE, ResponseMode, SESSION_STATE, Storage, PKCE_CODE_VERIFIER, LOGOUT_URL } from "../constants";
-import { AsgardeoAuthClient } from "../core/authentication-client";
-import { Store } from "../core/models/data";
+import {Storage} from "../constants";
 import {
     ConfigInterface,
-    CustomGrantRequestParams,
-    DecodedIdTokenPayloadInterface,
-    GetAuthorizationURLParameter,
-    OIDCEndpoints,
-    TokenResponseInterface,
-    UserInfo,
     HttpResponse,
     HttpError,
     HttpRequestConfig
@@ -35,9 +27,22 @@ import {
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores/memory-store";
 import { SessionStore } from "../stores/session-store";
-import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import { HttpClientInstance, HttpClient } from "../http-client";
 import { SPAUtils } from "../utils/spa-utils";
+import {
+    Store,
+    AsgardeoAuthClient,
+    ResponseMode,
+    AUTHORIZATION_CODE,
+    SESSION_STATE,
+    PKCE_CODE_VERIFIER,
+    SignInConfig,
+    BasicUserInfo,
+    CustomGrantConfig,
+    TokenResponse,
+    DecodedIdTokenPayload,
+    OIDCEndpoints
+} from "../core";
 
 const initiateStore = (store: Storage): Store => {
     switch (store) {
@@ -121,10 +126,10 @@ export const MainThreadClient = (config: ConfigInterface): any => {
     };
 
     const signIn = (
-        params?: GetAuthorizationURLParameter,
+        config?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string
-    ): Promise<UserInfo> => {
+    ): Promise<BasicUserInfo> => {
         if (_authenticationClient.isAuthenticated()) {
             return Promise.resolve(_authenticationClient.getBasicUserInfo());
         }
@@ -163,7 +168,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
                 });
         }
 
-        return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
+        return _authenticationClient.getAuthorizationURL(config).then((url: string) => {
             if (config.storage === Storage.MainThreadMemory) {
                 SPAUtils.setPKCE( _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string);
             }
@@ -189,10 +194,10 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         }
     };
 
-    const customGrant = (config: CustomGrantRequestParams): Promise<UserInfo | AxiosResponse> => {
+    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | AxiosResponse> => {
         return _authenticationClient
             .sendCustomGrantRequest(config)
-            .then((response: AxiosResponse | TokenResponseInterface) => {
+            .then((response: AxiosResponse | TokenResponse) => {
                 if (config.returnsSession) {
                     return _authenticationClient.getBasicUserInfo();
                 } else {
@@ -204,7 +209,7 @@ export const MainThreadClient = (config: ConfigInterface): any => {
             });
     };
 
-    const refreshToken = (): Promise<UserInfo> => {
+    const refreshToken = (): Promise<BasicUserInfo> => {
         return _authenticationClient
             .refreshToken()
             .then(() => {
@@ -222,11 +227,11 @@ export const MainThreadClient = (config: ConfigInterface): any => {
             .catch((error) => Promise.reject(error));
     };
 
-    const getUserInfo = (): UserInfo => {
+    const getUserInfo = (): BasicUserInfo => {
         return _authenticationClient.getBasicUserInfo();
     };
 
-    const getDecodedIDToken = (): DecodedIdTokenPayloadInterface => {
+    const getDecodedIDToken = (): DecodedIdTokenPayload => {
         return _authenticationClient.getDecodedIDToken();
     };
 
