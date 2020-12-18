@@ -18,9 +18,7 @@
 
 export * from "./client";
 export * from "./message";
-export * from "./oidc-request-params";
 export * from "./web-worker-client";
 export * from "./web-worker";
 export * from "./session";
-export * from "./open-id-config";
 export * from "./http-client";

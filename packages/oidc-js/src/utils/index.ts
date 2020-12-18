@@ -16,5 +16,5 @@
  * under the License.
  */
 
-export * from "./dto";
-export * from "./session-storage";
+export * from "./message-utils";
+export * from "./spa-utils";
