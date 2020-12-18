@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store, TemporaryData, StoreValue } from "../core/models/store";
-import { ConfigInterface, OIDCProviderMetaData, SessionDataRaw } from "../models";
+import { Store, TemporaryData, StoreValue } from "../core/models/data";
+import { ConfigInterface, SessionDataRaw } from "../models";
 import { Stores } from "../constants";
 
 export class MemoryStore implements Store {
