@@ -16,16 +16,15 @@
 * under the License.
 */
 
-import { ResponseMode, OIDCEndpoints } from "../..";
+import { OIDCEndpoints } from ".";
+import { ResponseMode } from "../constants";
 
-export interface Config {
-    authorizationType?: string;
+export interface StrictAuthClientConfig {
     signInRedirectURL: string;
     signOutRedirectURL?: string;
     clientHost?: string;
     clientID: string;
     clientSecret?: string;
-    consentDenied?: boolean;
     enablePKCE?: boolean;
     prompt?: string;
     responseMode?: ResponseMode;
@@ -34,11 +33,11 @@ export interface Config {
     endpoints?: OIDCEndpoints;
     overrideWellEndpointConfig?: boolean;
     wellKnownEndpoint?: string;
-    authorizationCode?: string;
-    sessionState?: string;
     validateIDToken?: boolean;
     /**
      * Allowed leeway for id_tokens (in seconds).
      */
     clockTolerance?: number;
 }
+
+export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
