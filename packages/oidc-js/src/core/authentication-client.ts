@@ -17,10 +17,10 @@
 */
 
 import { AuthenticationCore } from "./core";
-import { AxiosResponse } from "axios";
 import { AuthClientConfig, OIDCEndpoints, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, Store, AuthorizationURLParams, BasicUserInfo } from "./models";
 import { OP_CONFIG_INITIATED } from "./constants";
 import { DataLayer } from "./data";
+import { HttpResponse } from "../models";
 
 export class AsgardeoAuthClient {
     private _dataLayer: DataLayer;
@@ -86,7 +86,7 @@ export class AsgardeoAuthClient {
         return this._authenticationCore.getUserInfo();
     }
 
-    public revokeToken(): Promise<AxiosResponse>{
+    public revokeToken(): Promise<HttpResponse>{
         return this._authenticationCore.sendRevokeTokenRequest();
     }
 
@@ -98,7 +98,7 @@ export class AsgardeoAuthClient {
         return this._authenticationCore.getAccessToken();
     }
 
-    public sendCustomGrantRequest(config: CustomGrantConfig): Promise<TokenResponse | AxiosResponse>{
+    public sendCustomGrantRequest(config: CustomGrantConfig): Promise<TokenResponse | HttpResponse>{
         return this._authenticationCore.customGrant(config);
     }
 
