@@ -1,20 +1,20 @@
 /**
-* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* WSO2 Inc. licenses this file to you under the Apache License,
-* Version 2.0 (the "License"); you may not use this file except
-* in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied. See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import axios from "axios";
 import { AuthenticationUtils, CryptoUtils } from "../utils";
@@ -30,20 +30,28 @@ import {
     AuthorizationURLParams
 } from "../models";
 import { AuthenticationHelper } from "../helpers";
-import { OIDC_SCOPE, AUTHORIZATION_ENDPOINT, PKCE_CODE_VERIFIER, SESSION_STATE, OP_CONFIG_INITIATED, SERVICE_RESOURCES, SIGN_OUT_SUCCESS_PARAM } from "../constants";
+import {
+    OIDC_SCOPE,
+    AUTHORIZATION_ENDPOINT,
+    PKCE_CODE_VERIFIER,
+    SESSION_STATE,
+    OP_CONFIG_INITIATED,
+    SERVICE_RESOURCES,
+    SIGN_OUT_SUCCESS_PARAM
+} from "../constants";
 import { HttpResponse, HttpRequestConfig } from "../..";
 
-export class AuthenticationCore {
-    private _dataLayer: DataLayer;
-    private _config: ()=>AuthClientConfig;
-    private _oidcProviderMetaData: ()=>OIDCProviderMetaData;
-    private _authenticationHelper: AuthenticationHelper;
+export class AuthenticationCore<T> {
+    private _dataLayer: DataLayer<T>;
+    private _config: () => AuthClientConfig;
+    private _oidcProviderMetaData: () => OIDCProviderMetaData;
+    private _authenticationHelper: AuthenticationHelper<T>;
 
-    public constructor(dataLayer: DataLayer) {
+    public constructor(dataLayer: DataLayer<T>) {
         this._authenticationHelper = new AuthenticationHelper(dataLayer);
         this._dataLayer = dataLayer;
-        this._config = ()=>this._dataLayer.getConfigData();
-        this._oidcProviderMetaData = ()=>this._dataLayer.getOIDCProviderMetaData();
+        this._config = () => this._dataLayer.getConfigData();
+        this._oidcProviderMetaData = () => this._dataLayer.getOIDCProviderMetaData();
     }
 
     public sendAuthorizationRequest(config?: AuthorizationURLParams): string {
@@ -273,9 +281,7 @@ export class AuthenticationCore {
             });
     }
 
-    public customGrant = (
-        customGrantParams: CustomGrantConfig
-    ): Promise<TokenResponse | HttpResponse> => {
+    public customGrant = (customGrantParams: CustomGrantConfig): Promise<TokenResponse | HttpResponse> => {
         if (
             !this._oidcProviderMetaData().token_endpoint ||
             this._oidcProviderMetaData().token_endpoint.trim().length === 0
@@ -330,8 +336,7 @@ export class AuthenticationCore {
 
                                     this._dataLayer.setSessionData(response.data);
 
-                                        return Promise.resolve(tokenResponse);
-
+                                    return Promise.resolve(tokenResponse);
                                 }
 
                                 return Promise.reject(
@@ -350,8 +355,7 @@ export class AuthenticationCore {
 
                             this._dataLayer.setSessionData(response.data);
 
-                                return Promise.resolve(tokenResponse);
-
+                            return Promise.resolve(tokenResponse);
                         }
                     } else {
                         return Promise.resolve(response);
@@ -363,7 +367,7 @@ export class AuthenticationCore {
             });
     };
 
-    public getUserInfo(): BasicUserInfo {
+    public getBasicUserInfo(): BasicUserInfo {
         console.log(this._dataLayer);
         const sessionData = this._dataLayer.getSessionData();
         const authenticatedUser = AuthenticationUtils.getAuthenticatedUser(sessionData?.id_token);
@@ -396,9 +400,7 @@ export class AuthenticationCore {
             .get(wellKnownEndpoint)
             .then((response: { data: OIDCProviderMetaData; status: number }) => {
                 if (response.status !== 200) {
-                    return Promise.reject(
-                        "Failed to load OpenID provider configuration from: " + wellKnownEndpoint
-                    );
+                    return Promise.reject("Failed to load OpenID provider configuration from: " + wellKnownEndpoint);
                 }
 
                 this._dataLayer.setOIDCProviderMetaData(this._authenticationHelper.resolveEndpoints(response.data));
@@ -415,10 +417,10 @@ export class AuthenticationCore {
                 this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
                 return Promise.resolve(
-                        "Initialized OpenID Provider configuration from default configuration." +
-                            "Because failed to access wellknown endpoint: " +
-                            serverHost +
-                            SERVICE_RESOURCES.wellKnownEndpoint
+                    "Initialized OpenID Provider configuration from default configuration." +
+                        "Because failed to access wellknown endpoint: " +
+                        serverHost +
+                        SERVICE_RESOURCES.wellKnownEndpoint
                 );
             });
     }
@@ -465,18 +467,17 @@ export class AuthenticationCore {
             SIGN_OUT_SUCCESS_PARAM;
 
         return logoutCallback;
-
     }
 
     public signOut(): string {
         console.log("lcore logout");
         const signOutURL = this.getSignOutURL();
         this._authenticationHelper.clearUserSessionData();
-        console.log("cleared user session")
+        console.log("cleared user session");
         return signOutURL;
     }
 
-    public getAccessToken(): string{
+    public getAccessToken(): string {
         return this._dataLayer.getSessionData()?.access_token;
     }
 
