@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { OIDCEndpoints } from "./endpoints";
+import { OIDCEndpoints } from "../core/models/oidc-provider-meta-data";
 import { SessionData } from "./web-worker-client";
 import { ResponseMode, Storage } from "../constants";
 import { HttpError, HttpResponse } from "../models";
