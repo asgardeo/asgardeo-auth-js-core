@@ -19,6 +19,5 @@
 export * from "./token";
 export * from "./user";
 export * from "./messages";
-export * from "../core/constants/custom-grant-template-tags";
 export * from "./storage";
 export * from "./hooks";
