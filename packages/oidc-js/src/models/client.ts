@@ -72,11 +72,3 @@ export interface HttpClient {
 export interface WebWorkerClientConfigInterface extends WebWorkerConfigInterface {
     httpClient: HttpClient;
 }
-
-export type SendAuthorizationRequestParameter = Omit<GetAuthorizationURLParameter, "forceInit">
-
-export interface GetAuthorizationURLParameter {
-    fidp?: string;
-    forceInit?: boolean;
-    [ key: string ]: string | boolean;
-}
