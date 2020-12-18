@@ -45,6 +45,7 @@ import {
     OIDCEndpoints,
     AuthClientConfig
 } from "../core";
+import { SPAHelper } from "../helpers";
 
 const initiateStore = (store: Storage): Store => {
     switch (store) {
@@ -61,7 +62,8 @@ const initiateStore = (store: Storage): Store => {
 
 export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig>): any => {
     const _store: Store = initiateStore(config.storage);
-    const _authenticationClient = new AsgardeoAuthClient(config, _store);
+    const _authenticationClient = new AsgardeoAuthClient<MainThreadClientConfig>(config, _store);
+    const _spaHelper = new SPAHelper<MainThreadClientConfig>(_authenticationClient);
     const _dataLayer = _authenticationClient.getDataLayer();
 
     let _onHttpRequestStart: () => void;
@@ -163,6 +165,8 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                         SPAUtils.setSignOutURL(_authenticationClient.getSignOutURL());
                     }
 
+                    _spaHelper.refreshTokenAutomatically();
+
                     return _authenticationClient.getBasicUserInfo();
                 })
                 .catch((error) => {
@@ -194,6 +198,8 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         } else {
             location.href = SPAUtils.getSignOutURL();
         }
+
+        _spaHelper.clearRefreshTokenTimeout();
     };
 
     const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
@@ -201,6 +207,8 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             .sendCustomGrantRequest(config)
             .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
+                    _spaHelper.refreshTokenAutomatically();
+
                     return _authenticationClient.getBasicUserInfo();
                 } else {
                     return response as HttpResponse;
@@ -215,6 +223,8 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return _authenticationClient
             .refreshToken()
             .then(() => {
+                _spaHelper.refreshTokenAutomatically();
+
                 return _authenticationClient.getBasicUserInfo();
             })
             .catch((error) => {
@@ -225,7 +235,11 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     const revokeAccessToken = (): Promise<boolean> => {
         return _authenticationClient
             .revokeToken()
-            .then(() => Promise.resolve(true))
+            .then(() => {
+                _spaHelper.clearRefreshTokenTimeout();
+
+                return Promise.resolve(true);
+            })
             .catch((error) => Promise.reject(error));
     };
 
