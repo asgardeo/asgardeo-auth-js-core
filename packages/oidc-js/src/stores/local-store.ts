@@ -16,7 +16,6 @@
  * under the License.
  */
 import { Store, TemporaryData, StoreValue } from "../core";
-import { ConfigInterface } from "../models";
 
 export class LocalStore implements Store {
     public setData(key: string, value: string): void {

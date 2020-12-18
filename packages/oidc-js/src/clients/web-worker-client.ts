@@ -48,11 +48,9 @@ import {
     HttpResponse,
     Message,
     ResponseMessage,
-    WebWorkerClientInterface,
-    WebWorkerSingletonClientInterface,
-    ConfigInterface,
     GetAuthorizationURLInterface,
-    WebWorkerClientConfig
+    WebWorkerClientConfig,
+    WebWorkerClientInterface
 } from "../models";
 import WorkerFile from "web-worker:../worker/client.worker.ts";
 import { SPAUtils } from "../utils";
@@ -572,13 +570,13 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             httpRequest,
             httpRequestAll,
             initialize,
+            isAuthenticated,
             onHttpRequestError,
             onHttpRequestFinish,
             onHttpRequestStart,
             onHttpRequestSuccess,
             signIn,
-            signOut,
-            //isAuthenticated
+            signOut
         };
 
 };
