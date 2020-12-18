@@ -269,8 +269,5 @@ export interface OIDCEndpoints {
     checkSessionIframe?: string;
     endSessionEndpoint?: string;
     issuer?: string;
-}
-
-export interface OIDCEndpointConstantsInterface extends OIDCEndpoints {
     wellKnownEndpoint?: string;
 }
