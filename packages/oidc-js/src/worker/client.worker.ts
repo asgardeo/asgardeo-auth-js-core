@@ -43,14 +43,13 @@ import {
 import {
     HttpError,
     HttpResponse,
-    WebWorkerClass,
-    WebWorkerInterface,
     GetAuthorizationURLInterface,
     WebWorkerClientConfig,
 } from "../models";
-import { WebWorker } from "./worker-core";
+import { WebWorkerCore } from "./worker-core";
 import { BasicUserInfo, AuthClientConfig } from "../core";
 import { MessageUtils } from "../utils";
+import { WebWorkerClass } from "../models";
 
 const ctx: WebWorkerClass<any> = self as any;
 
@@ -63,7 +62,7 @@ ctx.onmessage = ({ data, ports }) => {
         case INIT:
             try {
                 const config: AuthClientConfig<WebWorkerClientConfig> = { ...data.data };
-                webWorker = WebWorker(config);
+                webWorker = WebWorkerCore(config);
                 webWorker.setHttpRequestError(onRequestErrorCallback);
                 webWorker.setHttpRequestFinish(onRequestFinishCallback);
                 webWorker.setHttpRequestStartCallback(onRequestStartCallback);
