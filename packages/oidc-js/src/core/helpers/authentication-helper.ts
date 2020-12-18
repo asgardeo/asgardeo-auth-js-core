@@ -1,13 +1,11 @@
-import { Store } from "./models/store";
-import { AuthenticatedUserInterface, DecodedIdTokenPayloadInterface, TokenRequestHeader, OIDCProviderMetaData, OIDCEndpointsInternal } from "../models";
-import { SERVICE_RESOURCES } from "..";
-import { decodeIDToken, getJWKForTheIdToken, isValidIdToken } from "../utils/crypto";
 import axios from "axios";
 import { KeyLike } from "crypto";
-import { OIDC_SCOPE, TOKEN_TAG, USERNAME_TAG, SCOPE_TAG, CLIENT_ID_TAG, CLIENT_SECRET_TAG, USERNAME, ACCESS_TOKEN, AUTHORIZATION_ENDPOINT, OIDC_SESSION_IFRAME_ENDPOINT, END_SESSION_ENDPOINT, JWKS_ENDPOINT, REVOKE_TOKEN_ENDPOINT, TOKEN_ENDPOINT } from "../constants";
-import { Config } from "./models/config";
-import { AuthenticationUtils } from "./authenitcation-utils";
-import { DataLayer } from "./data-layer";
+import { DataLayer } from "../data";
+import { OIDCProviderMetaData, OIDCEndpointsInternal, AuthClientConfig } from "../models";
+import { AuthenticationUtils } from "../utils";
+import { SERVICE_RESOURCES, AUTHORIZATION_ENDPOINT, END_SESSION_ENDPOINT, JWKS_ENDPOINT, OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, TOKEN_ENDPOINT, TOKEN_TAG, USERNAME_TAG, SCOPE_TAG, CLIENT_ID_TAG, CLIENT_SECRET_TAG, OIDC_SCOPE } from "../constants";
+import { CryptoHelper } from ".";
+
 /**
 * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -27,7 +25,7 @@ import { DataLayer } from "./data-layer";
 */
 export class AuthenticationHelper {
     private _dataLayer: DataLayer;
-    private _config: ()=>Config;
+    private _config: ()=>AuthClientConfig;
     private _oidcProviderMetaData: ()=>OIDCProviderMetaData;
 
     public constructor(dataLayer: DataLayer) {
@@ -120,9 +118,9 @@ export class AuthenticationHelper {
                     return Promise.resolve(false);
                 }
 
-                return getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
+                return CryptoHelper.getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
                     .then((jwk: KeyLike) => {
-                        return isValidIdToken(
+                        return CryptoHelper.isValidIdToken(
                             idToken,
                             jwk,
                             this._config().clientID,
