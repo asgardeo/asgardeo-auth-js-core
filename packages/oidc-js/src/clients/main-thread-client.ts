@@ -22,7 +22,8 @@ import {
     ConfigInterface,
     HttpResponse,
     HttpError,
-    HttpRequestConfig
+    HttpRequestConfig,
+    MainThreadClientConfig
 } from "../models";
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores/memory-store";
@@ -41,7 +42,8 @@ import {
     CustomGrantConfig,
     TokenResponse,
     DecodedIdTokenPayload,
-    OIDCEndpoints
+    OIDCEndpoints,
+    AuthClientConfig
 } from "../core";
 
 const initiateStore = (store: Storage): Store => {
@@ -57,7 +59,7 @@ const initiateStore = (store: Storage): Store => {
     }
 };
 
-export const MainThreadClient = (config: ConfigInterface): any => {
+export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig>): any => {
     const _store: Store = initiateStore(config.storage);
     const _authenticationClient = new AsgardeoAuthClient(config, _store);
     const _dataLayer = _authenticationClient.getDataLayer();
@@ -194,14 +196,14 @@ export const MainThreadClient = (config: ConfigInterface): any => {
         }
     };
 
-    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | AxiosResponse> => {
+    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
             .sendCustomGrantRequest(config)
-            .then((response: AxiosResponse | TokenResponse) => {
+            .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
                     return _authenticationClient.getBasicUserInfo();
                 } else {
-                    return response as AxiosResponse;
+                    return response as HttpResponse;
                 }
             })
             .catch((error) => {
