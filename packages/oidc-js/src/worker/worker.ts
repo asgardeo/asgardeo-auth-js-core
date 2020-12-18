@@ -31,11 +31,13 @@ import { SessionStore } from "../stores/session-store";
 import { AuthenticationUtils } from "../core/utils/authentication-utils";
 import { promises } from "dns";
 import { HttpClientInstance, HttpClient } from "../http-client";
+import { SPAHelper } from "../helpers";
 
 
 export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any => {
     const _store: Store = new MemoryStore();
-    const _authenticationClient = new AsgardeoAuthClient(config, _store);
+    const _authenticationClient = new AsgardeoAuthClient<WebWorkerClientConfig>(config, _store);
+    const _spaHelper = new SPAHelper<WebWorkerClientConfig>(_authenticationClient);
     const _dataLayer = _authenticationClient.getDataLayer();
 
     let _onHttpRequestStart: () => void;
@@ -77,21 +79,93 @@ export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any 
     };
 
     const httpRequest = (config: HttpRequestConfig): Promise<HttpResponse> => {
-        return _httpClient.request(config);
+         let matches = false;
+         _dataLayer.getConfigData().resourceServerURLs.forEach((baseUrl) => {
+             if (config?.url?.startsWith(baseUrl)) {
+                 matches = true;
+             }
+         });
+
+        if (matches) {
+            return _httpClient
+                .request(config)
+                .then((response: HttpResponse) => {
+                    return Promise.resolve(response);
+                })
+                .catch((error: HttpError) => {
+                    if (error?.response?.status === 401) {
+                        return _authenticationClient.refreshToken()
+                            .then(() => {
+                                return _httpClient
+                                    .request(config)
+                                    .then((response) => {
+                                        return Promise.resolve(response);
+                                    })
+                                    .catch((error) => {
+                                        return Promise.reject(error);
+                                    });
+                            })
+                            .catch(() => {
+                                return Promise.reject(
+                                    "An error occurred while refreshing the access token. " +
+                                        "The access token is no more valid and re-authentication is required."
+                                );
+                            });
+                    }
+
+                    return Promise.reject(error);
+                });
+        } else {
+            return Promise.reject("The provided URL is illegal.");
+        }
     };
 
-    const httpRequestAll = (config: HttpRequestConfig[]): Promise<HttpResponse[]> => {
-        const requests: Promise<HttpResponse<any>>[] = [];
-        config.forEach((request) => {
-            requests.push(_httpClient.request(request));
+    const httpRequestAll = (configs: HttpRequestConfig[]): Promise<HttpResponse[]> => {
+        let matches = false;
+        _dataLayer.getConfigData().resourceServerURLs.forEach((baseUrl) => {
+            if (configs.every((config) => config.url.startsWith(baseUrl))) {
+                matches = true;
+            }
         });
 
-        return _httpClient.all(requests);
+        const requests: Promise<HttpResponse<any>>[] = [];
+        configs.forEach((request) => {
+            requests.push(_httpClient.request(request));
+        });
+ if (matches) {
+            return _httpClient.all(requests)
+                .then((responses: HttpResponse[]) => {
+                    return Promise.resolve(responses);
+                })
+                .catch((error: HttpError) => {
+                    if (error?.response?.status === 401) {
+
+                        return _authenticationClient.refreshToken()
+                            .then(() => {
+                                return _httpClient
+                                    .all(requests)
+                                    .then((response) => {
+                                        return Promise.resolve(response);
+                                    })
+                                    .catch((error) => {
+                                        return Promise.reject(error);
+                                    });
+                            })
+                            .catch(() => {
+                                return Promise.reject(
+                                    "An error occurred while refreshing the access token. " +
+                                        "The access token is no more valid and re-authentication is required."
+                                );
+                            });
+                    }
+
+                    return Promise.reject(error);
+                });
+        } else {
+            return Promise.reject("The provided URL is illegal.");
+        }
     };
 
-    const getHttpClient = (): HttpClientInstance => {
-        return _httpClient;
-    };
 
     const enableHttpHandler = (): void => {
         _httpClient.enableHandler();
@@ -123,6 +197,8 @@ export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any 
             return _authenticationClient
                 .sendTokenRequest(authorizationCode, sessionState)
                 .then(() => {
+                    _spaHelper.refreshTokenAutomatically();
+
                     return _authenticationClient.getBasicUserInfo();
                 })
                 .catch((error) => {
@@ -135,6 +211,8 @@ export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any 
 
     const signOut = (): string => {
         console.log("signout worker method");
+        _spaHelper.clearRefreshTokenTimeout();
+
         return _authenticationClient.signOut();
     };
 
@@ -147,6 +225,8 @@ export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any 
             .sendCustomGrantRequest(config)
             .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
+                    _spaHelper.refreshTokenAutomatically();
+
                     return _authenticationClient.getBasicUserInfo();
                 } else {
                     return response as HttpResponse;
@@ -161,6 +241,8 @@ export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any 
         return _authenticationClient
             .refreshToken()
             .then(() => {
+                _spaHelper.refreshTokenAutomatically();
+
                 return _authenticationClient.getBasicUserInfo();
             })
             .catch((error) => {
@@ -171,7 +253,11 @@ export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any 
     const revokeToken = (): Promise<boolean> => {
         return _authenticationClient
             .revokeToken()
-            .then(() => Promise.resolve(true))
+            .then(() => {
+                _spaHelper.clearRefreshTokenTimeout();
+
+                return Promise.resolve(true);
+            })
             .catch((error) => Promise.reject(error));
     };
 
@@ -210,7 +296,6 @@ export const WebWorker = (config: AuthClientConfig<WebWorkerClientConfig>): any 
         httpRequestAll,
         enableHttpHandler,
         disableHttpHandler,
-        getHttpClient,
         sendTokenRequest,
         setHttpRequestError,
         setHttpRequestFinish,
