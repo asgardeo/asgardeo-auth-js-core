@@ -27,7 +27,7 @@ import jwtVerify, { KeyLike } from "../../../node_modules/jose/dist/browser/jwt/
 import { JWKInterface, DecodedIdTokenPayload } from "../models";
 
 
-export class CryptoHelper {
+export class CryptoUtils {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
