@@ -16,4 +16,4 @@
 * under the License.
 */
 
-export const SIGN_OUT_SUCCESS_PARAM = "signout_success";
+export const OIDC_SCOPE = "openid";
