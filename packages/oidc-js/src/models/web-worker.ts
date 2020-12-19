@@ -16,8 +16,9 @@
 * under the License.
 */
 
-import { Message, HttpResponse, HttpError, HttpRequestConfig, GetAuthorizationURLInterface } from ".";
+import { Message, HttpResponse, HttpError, HttpRequestConfig } from ".";
 import { BasicUserInfo, CustomGrantConfig, AuthorizationURLParams, DecodedIdTokenPayload, OIDCEndpoints } from "../core";
+import { AuthorizationResponse } from "..";
 
 interface WebWorkerEvent<T> extends MessageEvent {
     data: Message<T>;
@@ -36,7 +37,7 @@ export interface WebWorkerCoreInterface {
     httpRequestAll(configs: HttpRequestConfig[]): Promise<HttpResponse[]>;
     enableHttpHandler(): void;
     disableHttpHandler(): void;
-    getAuthorizationURL(params?: AuthorizationURLParams, signInRedirectURL?: string): Promise<GetAuthorizationURLInterface>;
+    getAuthorizationURL(params?: AuthorizationURLParams, signInRedirectURL?: string): Promise<AuthorizationResponse>;
     sendTokenRequest(authorizationCode?: string, sessionState?: string, pkce?: string): Promise<BasicUserInfo>;
     signOut(signOutRedirectURL?: string): string;
     getSignOutURL(signOutRedirectURL?: string): string;
