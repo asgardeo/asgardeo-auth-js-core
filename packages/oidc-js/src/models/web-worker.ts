@@ -38,13 +38,13 @@ export interface WebWorkerCoreInterface {
     enableHttpHandler(): void;
     disableHttpHandler(): void;
     getAuthorizationURL(params?: AuthorizationURLParams, signInRedirectURL?: string): Promise<AuthorizationResponse>;
-    sendTokenRequest(authorizationCode?: string, sessionState?: string, pkce?: string): Promise<BasicUserInfo>;
+    requestAccessToken(authorizationCode?: string, sessionState?: string, pkce?: string): Promise<BasicUserInfo>;
     signOut(signOutRedirectURL?: string): string;
     getSignOutURL(signOutRedirectURL?: string): string;
-    customGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
-    refreshToken(): Promise<BasicUserInfo>;
-    revokeToken(): Promise<boolean>;
-    getUserInfo(): BasicUserInfo;
+    requestCustomGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
+    refreshAccessToken(): Promise<BasicUserInfo>;
+    revokeAccessToken(): Promise<boolean>;
+    getBasicUserInfo(): BasicUserInfo;
     getDecodedIDToken(): DecodedIdTokenPayload;
     getOIDCServiceEndpoints(): OIDCEndpoints;
     getAccessToken(): string;

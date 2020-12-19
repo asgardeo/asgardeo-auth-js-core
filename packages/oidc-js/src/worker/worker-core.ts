@@ -184,7 +184,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         });
     };
 
-    const sendTokenRequest = (
+    const requestAccessToken = (
         authorizationCode?: string,
         sessionState?: string,
         pkce?: string
@@ -221,7 +221,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         return _authenticationClient.getSignOutURL();
     }
 
-    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
+    const requestCustomGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
             .requestCustomGrant(config)
             .then((response: HttpResponse | TokenResponse) => {
@@ -238,7 +238,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
             });
     };
 
-    const refreshToken = (): Promise<BasicUserInfo> => {
+    const refreshAccessToken = (): Promise<BasicUserInfo> => {
         return _authenticationClient
             .refreshAccessToken()
             .then(() => {
@@ -251,7 +251,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
             });
     };
 
-    const revokeToken = (): Promise<boolean> => {
+    const revokeAccessToken = (): Promise<boolean> => {
         return _authenticationClient
             .revokeAccessToken()
             .then(() => {
@@ -262,7 +262,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
             .catch((error) => Promise.reject(error));
     };
 
-    const getUserInfo = (): BasicUserInfo => {
+    const getBasicUserInfo = (): BasicUserInfo => {
         return _authenticationClient.getBasicUserInfo();
     };
 
@@ -283,21 +283,21 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     }
 
     return {
-        customGrant,
+        requestCustomGrant,
         getAccessToken,
         getAuthorizationURL,
         getDecodedIDToken,
         getOIDCServiceEndpoints,
-        getUserInfo,
-        refreshToken,
-        revokeToken,
+        getBasicUserInfo,
+        refreshAccessToken,
+        revokeAccessToken,
         signOut,
         isAuthenticated,
         httpRequest,
         httpRequestAll,
         enableHttpHandler,
         disableHttpHandler,
-        sendTokenRequest,
+        requestAccessToken,
         setHttpRequestError,
         setHttpRequestFinish,
         setHttpRequestStartCallback,

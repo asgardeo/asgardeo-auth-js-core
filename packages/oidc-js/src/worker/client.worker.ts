@@ -39,7 +39,8 @@ import {
     REQUEST_ACCESS_TOKEN,
     IS_AUTHENTICATED,
     GET_SIGN_OUT_URL,
-    REFRESH_ACCESS_TOKEN
+    REFRESH_ACCESS_TOKEN,
+    REVOKE_ACCESS_TOKEN
 } from "../constants";
 import {
     HttpError,
@@ -96,7 +97,7 @@ ctx.onmessage = ({ data, ports }) => {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
             } else {
                 webWorker
-                    .sendTokenRequest(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
+                    .requestAccessToken(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
                     .then((response: BasicUserInfo) => {
                         port.postMessage(MessageUtils.generateSuccessMessage(response));
                     })
@@ -182,7 +183,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             webWorker
-                .customGrant(data.data)
+                .requestCustomGrant(data.data)
                 .then((response) => {
                     port.postMessage(MessageUtils.generateSuccessMessage(response));
                 })
@@ -191,7 +192,7 @@ ctx.onmessage = ({ data, ports }) => {
                 });
 
             break;
-        case END_USER_SESSION:
+        case REVOKE_ACCESS_TOKEN:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
@@ -205,7 +206,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             webWorker
-                .revokeToken()
+                .revokeAccessToken()
                 .then((response) => {
                     port.postMessage(MessageUtils.generateSuccessMessage(response));
                 })
@@ -241,7 +242,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getUserInfo()));
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getBasicUserInfo()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -324,7 +325,7 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.refreshToken()));
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.refreshAccessToken()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
