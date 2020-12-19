@@ -17,18 +17,18 @@
  */
 
 import {
-    API_CALL,
-    API_CALL_ALL,
+    HTTP_REQUEST,
+    HTTP_REQUEST_ALL,
     AUTH_REQUIRED,
-    CUSTOM_GRANT,
+    REQUEST_CUSTOM_GRANT,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
     GET_DECODED_ID_TOKEN,
-    GET_SERVICE_ENDPOINTS,
-    GET_USER_INFO,
+    GET_OIDC_SERVICE_ENDPOINTS,
+    GET_BASIC_USER_INFO,
     INIT,
-    LOGOUT,
+    SIGN_OUT,
     REQUEST_ERROR,
     REQUEST_FINISH,
     REQUEST_START,
@@ -36,10 +36,10 @@ import {
     SIGNED_IN,
     SIGN_IN,
     GET_AUTH_URL,
-    GET_TOKEN,
+    REQUEST_ACCESS_TOKEN,
     IS_AUTHENTICATED,
     GET_SIGN_OUT_URL,
-    REFRESH_TOKEN
+    REFRESH_ACCESS_TOKEN
 } from "../constants";
 import {
     HttpError,
@@ -91,7 +91,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             break;
-        case GET_TOKEN:
+        case REQUEST_ACCESS_TOKEN:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
             } else {
@@ -106,7 +106,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             break;
-        case API_CALL:
+        case HTTP_REQUEST:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
@@ -127,7 +127,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             break;
-        case API_CALL_ALL:
+        case HTTP_REQUEST_ALL:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
@@ -148,7 +148,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             break;
-        case LOGOUT:
+        case SIGN_OUT:
             console.log("logout msg received");
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
@@ -168,7 +168,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             break;
-        case CUSTOM_GRANT:
+        case REQUEST_CUSTOM_GRANT:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
@@ -213,7 +213,7 @@ ctx.onmessage = ({ data, ports }) => {
                     port.postMessage(MessageUtils.generateFailureMessage(error));
                 });
             break;
-        case GET_SERVICE_ENDPOINTS:
+        case GET_OIDC_SERVICE_ENDPOINTS:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
@@ -227,7 +227,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             break;
-        case GET_USER_INFO:
+        case GET_BASIC_USER_INFO:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
@@ -317,7 +317,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             break;
-        case REFRESH_TOKEN:
+        case REFRESH_ACCESS_TOKEN:
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 

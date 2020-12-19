@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Hooks, REFRESH_TOKEN, Storage } from "./constants";
+import { Hooks, REFRESH_ACCESS_TOKEN, Storage } from "./constants";
 import { SPAHelper } from "./helpers";
 import { HttpClient, HttpClientInstance } from "./http-client";
 import {
