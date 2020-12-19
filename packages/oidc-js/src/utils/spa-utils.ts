@@ -48,7 +48,7 @@ export class SPAUtils {
         sessionStorage.removeItem(PKCE_CODE_VERIFIER);
     }
 
-    public isSignedOutSuccessful(): boolean {
+    public static isSignOutSuccessful(): boolean {
         if (AsgardeoAuthClient.isSignOutSuccessful(window.location.href)) {
             const newUrl = window.location.href.split("?")[0];
             history.pushState({}, document.title, newUrl);
