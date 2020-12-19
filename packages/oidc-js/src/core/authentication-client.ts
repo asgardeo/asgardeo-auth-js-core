@@ -57,7 +57,7 @@ export class AsgardeoAuthClient<T> {
         });
     }
 
-    public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+    public requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
         }
@@ -100,7 +100,7 @@ export class AsgardeoAuthClient<T> {
         return this._authenticationCore.getAccessToken();
     }
 
-    public sendCustomGrantRequest(config: CustomGrantConfig): Promise<TokenResponse | HttpResponse> {
+    public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | HttpResponse> {
         return this._authenticationCore.customGrant(config);
     }
 
