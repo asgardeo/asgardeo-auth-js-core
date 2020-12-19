@@ -16,17 +16,24 @@
  * under the License.
  */
 
-import { threadId } from "worker_threads";
-import { AuthClientConfig, BasicUserInfo, Config, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, OIDC_SCOPE, SignInConfig, WebWorkerClientConfig } from ".";
+import {
+    AuthClientConfig,
+    BasicUserInfo,
+    Config,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCEndpoints,
+    OIDC_SCOPE,
+    SignInConfig,
+    WebWorkerClientConfig
+} from ".";
 import { MainThreadClient, WebWorkerClient } from "./clients";
-import { Hooks, REFRESH_ACCESS_TOKEN, Storage } from "./constants";
-import { SPAHelper } from "./helpers";
-import { HttpClient, HttpClientInstance } from "./http-client";
+import { Hooks, Storage } from "./constants";
+import { HttpClientInstance } from "./http-client";
 import {
     HttpError,
     HttpRequestConfig,
     HttpResponse,
-
     MainThreadClientConfig,
     MainThreadClientInterface,
     WebWorkerClientInterface
