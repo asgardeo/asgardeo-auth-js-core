@@ -39,19 +39,21 @@ export class AsgardeoAuthClient<T> {
         this._dataLayer.setConfigData(config);
     }
 
-    public getDataLayer(): DataLayer<T>{
+    public getDataLayer(): DataLayer<T> {
         return this._dataLayer;
     }
 
-    public getAuthorizationURL(config?: AuthorizationURLParams): Promise<string> {
+    public getAuthorizationURL(config?: AuthorizationURLParams, signInRedirectURL?: string): Promise<string> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return Promise.resolve(this._authenticationCore.sendAuthorizationRequest(authRequestConfig));
+            return Promise.resolve(
+                this._authenticationCore.sendAuthorizationRequest(authRequestConfig, signInRedirectURL)
+            );
         }
 
         return this._authenticationCore.initOPConfiguration(config?.forceInit as boolean).then(() => {
-            return this._authenticationCore.sendAuthorizationRequest(authRequestConfig);
+            return this._authenticationCore.sendAuthorizationRequest(authRequestConfig, signInRedirectURL);
         });
     }
 
@@ -65,20 +67,20 @@ export class AsgardeoAuthClient<T> {
         });
     }
 
-    public signOut(): string {
+    public signOut(signOutRedirectURL?: string): string {
         console.log("sign out client methd");
-        return this._authenticationCore.signOut();
+        return this._authenticationCore.signOut(signOutRedirectURL);
     }
 
-    public getSignOutURL(): string{
+    public getSignOutURL(): string {
         return this._authenticationCore.getSignOutURL();
     }
 
-    public getOIDCEndpoints(): OIDCEndpoints{
+    public getOIDCEndpoints(): OIDCEndpoints {
         return this._authenticationCore.getServiceEndpoints();
     }
 
-    public getDecodedIDToken(): DecodedIdTokenPayload{
+    public getDecodedIDToken(): DecodedIdTokenPayload {
         return this._authenticationCore.getDecodedIDToken();
     }
 
@@ -86,11 +88,11 @@ export class AsgardeoAuthClient<T> {
         return this._authenticationCore.getBasicUserInfo();
     }
 
-    public revokeToken(): Promise<HttpResponse>{
+    public revokeToken(): Promise<HttpResponse> {
         return this._authenticationCore.sendRevokeTokenRequest();
     }
 
-    public refreshToken(): Promise<TokenResponse>{
+    public refreshToken(): Promise<TokenResponse> {
         return this._authenticationCore.sendRefreshTokenRequest();
     }
 
@@ -98,15 +100,15 @@ export class AsgardeoAuthClient<T> {
         return this._authenticationCore.getAccessToken();
     }
 
-    public sendCustomGrantRequest(config: CustomGrantConfig): Promise<TokenResponse | HttpResponse>{
+    public sendCustomGrantRequest(config: CustomGrantConfig): Promise<TokenResponse | HttpResponse> {
         return this._authenticationCore.customGrant(config);
     }
 
-    public isAuthenticated():boolean {
+    public isAuthenticated(): boolean {
         return this._authenticationCore.isAuthenticated();
     }
 
-    public getPKCECode(): string{
+    public getPKCECode(): string {
         return this._authenticationCore.getPKCECode();
     }
 
@@ -114,7 +116,7 @@ export class AsgardeoAuthClient<T> {
         this._authenticationCore.setPKCECode(pkce);
     }
 
-    public static isSignOutSuccessful(signOutUrl: string): boolean{
+    public static isSignOutSuccessful(signOutUrl: string): boolean {
         const url = new URL(signOutUrl);
         const stateParam = url.searchParams.get("state");
         const error = Boolean(url.searchParams.get("error"));
