@@ -176,9 +176,10 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     };
 
     const getAuthorizationURL = (
-        params?: AuthorizationURLParams
+        params?: AuthorizationURLParams,
+        signInRedirectURL?:string
     ): Promise<GetAuthorizationURLInterface> => {
-        return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
+        return _authenticationClient.getAuthorizationURL(params, signInRedirectURL).then((url: string) => {
             return { authorizationCode: url, pkce: _authenticationClient.getPKCECode() as string };
         });
     };
@@ -209,11 +210,11 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         return Promise.reject("No auth code received");
     };
 
-    const signOut = (): string => {
+    const signOut = (signOutRedirectURL?: string): string => {
         console.log("signout worker method");
         _spaHelper.clearRefreshTokenTimeout();
 
-        return _authenticationClient.signOut();
+        return _authenticationClient.signOut(signOutRedirectURL);
     };
 
     const getSignOutURL = (): string => {
