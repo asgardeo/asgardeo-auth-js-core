@@ -1,36 +1,52 @@
+
+/**
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import { KeyLike } from "crypto";
 import axios from "axios";
-import { AUTHORIZATION_ENDPOINT, CLIENT_ID_TAG, CLIENT_SECRET_TAG, END_SESSION_ENDPOINT, JWKS_ENDPOINT, OIDC_SCOPE, OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, SCOPE_TAG, SERVICE_RESOURCES, TOKEN_ENDPOINT, TOKEN_TAG, USERNAME_TAG } from "../constants";
+import {
+    AUTHORIZATION_ENDPOINT,
+    CLIENT_ID_TAG,
+    CLIENT_SECRET_TAG,
+    END_SESSION_ENDPOINT,
+    JWKS_ENDPOINT,
+    OIDC_SCOPE,
+    OIDC_SESSION_IFRAME_ENDPOINT,
+    REVOKE_TOKEN_ENDPOINT,
+    SCOPE_TAG,
+    SERVICE_RESOURCES,
+    TOKEN_ENDPOINT,
+    TOKEN_TAG,
+    USERNAME_TAG
+} from "../constants";
 import { DataLayer } from "../data";
 import { AuthClientConfig, OIDCEndpointsInternal, OIDCProviderMetaData } from "../models";
 import { AuthenticationUtils, CryptoUtils } from "../utils";
 
-/**
-* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* WSO2 Inc. licenses this file to you under the Apache License,
-* Version 2.0 (the "License"); you may not use this file except
-* in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied. See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
 export class AuthenticationHelper<T> {
     private _dataLayer: DataLayer<T>;
-    private _config: ()=>AuthClientConfig;
-    private _oidcProviderMetaData: ()=>OIDCProviderMetaData;
+    private _config: () => AuthClientConfig;
+    private _oidcProviderMetaData: () => OIDCProviderMetaData;
 
     public constructor(dataLayer: DataLayer<T>) {
         this._dataLayer = dataLayer;
-        this._config = ()=>this._dataLayer.getConfigData();
-        this._oidcProviderMetaData = ()=>this._dataLayer.getOIDCProviderMetaData();
+        this._config = () => this._dataLayer.getConfigData();
+        this._oidcProviderMetaData = () => this._dataLayer.getOIDCProviderMetaData();
     }
 
     public resolveWellKnownEndpoint(): string {
@@ -79,7 +95,7 @@ export class AuthenticationHelper<T> {
                     })
                     .join("");
 
-                oidcProviderMetaData[ camelCasedName ] = this._config().endpoints[ camelCasedName ];
+                oidcProviderMetaData[camelCasedName] = this._config().endpoints[camelCasedName];
             });
 
         const defaultEndpoints = {
@@ -149,8 +165,10 @@ export class AuthenticationHelper<T> {
 
         return text
             .replace(TOKEN_TAG, this._dataLayer.getSessionData().access_token)
-            .replace(USERNAME_TAG,
-                AuthenticationUtils.getAuthenticatedUserInfo(this._dataLayer.getSessionData().id_token).username)
+            .replace(
+                USERNAME_TAG,
+                AuthenticationUtils.getAuthenticatedUserInfo(this._dataLayer.getSessionData().id_token).username
+            )
             .replace(SCOPE_TAG, scope)
             .replace(CLIENT_ID_TAG, this._config().clientID)
             .replace(CLIENT_SECRET_TAG, this._config().clientSecret);
