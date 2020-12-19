@@ -168,7 +168,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                         SPAUtils.setSignOutURL(_authenticationClient.getSignOutURL());
                     }
 
-                    _spaHelper.refreshTokenAutomatically();
+                    _spaHelper.refreshAccessTokenAutomatically();
 
                     return _authenticationClient.getBasicUserInfo();
                 })
@@ -212,7 +212,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             .requestCustomGrant(config)
             .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
-                    _spaHelper.refreshTokenAutomatically();
+                    _spaHelper.refreshAccessTokenAutomatically();
 
                     return _authenticationClient.getBasicUserInfo();
                 } else {
@@ -228,7 +228,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return _authenticationClient
             .refreshAccessToken()
             .then(() => {
-                _spaHelper.refreshTokenAutomatically();
+                _spaHelper.refreshAccessTokenAutomatically();
 
                 return _authenticationClient.getBasicUserInfo();
             })
