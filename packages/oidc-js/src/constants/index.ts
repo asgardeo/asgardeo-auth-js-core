@@ -16,6 +16,6 @@
  * under the License.
  */
 
-export * from "./messages";
+export * from "./messages-types";
 export * from "./storage";
 export * from "./hooks";
