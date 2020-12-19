@@ -18,10 +18,8 @@
 
 import { WebWorkerCore } from "./worker-core";
 import {
-    AUTH_REQUIRED,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
-    END_USER_SESSION,
     GET_AUTH_URL,
     GET_BASIC_USER_INFO,
     GET_DECODED_ID_TOKEN,
@@ -39,8 +37,6 @@ import {
     REQUEST_START,
     REQUEST_SUCCESS,
     REVOKE_ACCESS_TOKEN,
-    SIGNED_IN,
-    SIGN_IN,
     SIGN_OUT
 } from "../constants";
 import { AuthClientConfig, BasicUserInfo } from "../core";
@@ -48,11 +44,10 @@ import {
     AuthorizationResponse,
     HttpError,
     HttpResponse,
+    WebWorkerClass,
     WebWorkerClientConfig,
-    WebWorkerClientInterface,
     WebWorkerCoreInterface
 } from "../models";
-import { WebWorkerClass } from "../models";
 import { MessageUtils } from "../utils";
 
 const ctx: WebWorkerClass<any> = self as any;
@@ -150,7 +145,6 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case SIGN_OUT:
-            console.log("logout msg received");
             if (!webWorker) {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
 
@@ -163,7 +157,6 @@ ctx.onmessage = ({ data, ports }) => {
                 try {
                     port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut(data?.data)));
                 } catch (error) {
-                    console.log("logout msg error", error);
                     port.postMessage(MessageUtils.generateFailureMessage(error));
                 }
             }
