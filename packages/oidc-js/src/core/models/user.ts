@@ -28,7 +28,7 @@ export interface BasicUserInfo {
 /**
  * Interface of the authenticated user.
  */
-export interface AuthenticatedUser {
+export interface AuthenticatedUserInfo {
     /**
      * Authenticated user's display name.
      */
