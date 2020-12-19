@@ -58,4 +58,13 @@ export class SPAUtils {
 
         return false;
     }
+
+    public static replaceSignOutRedirectURL(signOutURL: string, redirectURL: string): string {
+        const url = new URL(signOutURL);
+
+        url.searchParams.delete("post_logout_redirect_uri");
+        url.searchParams.set("post_logout_redirect_uri", redirectURL);
+
+        return url.toString();
+    }
 }
