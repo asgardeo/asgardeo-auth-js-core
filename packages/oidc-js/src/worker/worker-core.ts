@@ -16,9 +16,17 @@
  * under the License.
  */
 
-import { promises } from "dns";
-import { AsgardeoAuthClient, AuthClientConfig, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, Store, TokenResponse } from "../core";
-import { AuthenticationUtils } from "../core/utils/authentication-utils";
+import {
+    AsgardeoAuthClient,
+    AuthClientConfig,
+    AuthorizationURLParams,
+    BasicUserInfo,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCEndpoints,
+    Store,
+    TokenResponse
+} from "../core";
 import { SPAHelper } from "../helpers";
 import { HttpClient, HttpClientInstance } from "../http-client";
 import {
@@ -30,9 +38,6 @@ import {
     WebWorkerCoreInterface
 } from "../models";
 import { MemoryStore } from "../stores";
-import { LocalStore } from "../stores/local-store";
-import { SessionStore } from "../stores/session-store";
-
 
 export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerCoreInterface => {
     const _store: Store = new MemoryStore();
@@ -79,12 +84,12 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     };
 
     const httpRequest = (config: HttpRequestConfig): Promise<HttpResponse> => {
-         let matches = false;
-         _dataLayer.getConfigData().resourceServerURLs.forEach((baseUrl) => {
-             if (config?.url?.startsWith(baseUrl)) {
-                 matches = true;
-             }
-         });
+        let matches = false;
+        _dataLayer.getConfigData().resourceServerURLs.forEach((baseUrl) => {
+            if (config?.url?.startsWith(baseUrl)) {
+                matches = true;
+            }
+        });
 
         if (matches) {
             return _httpClient
@@ -94,7 +99,8 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                 })
                 .catch((error: HttpError) => {
                     if (error?.response?.status === 401) {
-                        return _authenticationClient.refreshAccessToken()
+                        return _authenticationClient
+                            .refreshAccessToken()
                             .then(() => {
                                 return _httpClient
                                     .request(config)
@@ -132,15 +138,16 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         configs.forEach((request) => {
             requests.push(_httpClient.request(request));
         });
- if (matches) {
-            return _httpClient.all(requests)
+        if (matches) {
+            return _httpClient
+                .all(requests)
                 .then((responses: HttpResponse[]) => {
                     return Promise.resolve(responses);
                 })
                 .catch((error: HttpError) => {
                     if (error?.response?.status === 401) {
-
-                        return _authenticationClient.refreshAccessToken()
+                        return _authenticationClient
+                            .refreshAccessToken()
                             .then(() => {
                                 return _httpClient
                                     .all(requests)
@@ -166,7 +173,6 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         }
     };
 
-
     const enableHttpHandler = (): void => {
         _httpClient.enableHandler();
     };
@@ -177,7 +183,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
     const getAuthorizationURL = (
         params?: AuthorizationURLParams,
-        signInRedirectURL?:string
+        signInRedirectURL?: string
     ): Promise<AuthorizationResponse> => {
         return _authenticationClient.getAuthorizationURL(params, signInRedirectURL).then((url: string) => {
             return { authorizationURL: url, pkce: _authenticationClient.getPKCECode() as string };
@@ -189,7 +195,6 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         sessionState?: string,
         pkce?: string
     ): Promise<BasicUserInfo> => {
-
         if (pkce) {
             _authenticationClient.setPKCECode(pkce);
         }
@@ -211,7 +216,6 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     };
 
     const signOut = (signOutRedirectURL?: string): string => {
-        console.log("signout worker method");
         _spaHelper.clearRefreshTokenTimeout();
 
         return _authenticationClient.signOut(signOutRedirectURL);
@@ -219,7 +223,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
     const getSignOutURL = (): string => {
         return _authenticationClient.getSignOutURL();
-    }
+    };
 
     const requestCustomGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
@@ -280,28 +284,28 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
     const isAuthenticated = (): boolean => {
         return _authenticationClient.isAuthenticated();
-    }
+    };
 
     return {
-        requestCustomGrant,
+        disableHttpHandler,
+        enableHttpHandler,
         getAccessToken,
         getAuthorizationURL,
+        getBasicUserInfo,
         getDecodedIDToken,
         getOIDCServiceEndpoints,
-        getBasicUserInfo,
-        refreshAccessToken,
-        revokeAccessToken,
-        signOut,
-        isAuthenticated,
+        getSignOutURL,
         httpRequest,
         httpRequestAll,
-        enableHttpHandler,
-        disableHttpHandler,
+        isAuthenticated,
+        refreshAccessToken,
         requestAccessToken,
+        requestCustomGrant,
+        revokeAccessToken,
         setHttpRequestError,
         setHttpRequestFinish,
         setHttpRequestStartCallback,
         setHttpRequestSuccessCallback,
-        getSignOutURL
+        signOut
     };
 };
