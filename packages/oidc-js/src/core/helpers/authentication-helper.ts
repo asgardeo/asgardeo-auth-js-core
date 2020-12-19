@@ -94,7 +94,7 @@ export class AuthenticationHelper<T> {
         return { ...defaultEndpoints, ...oidcProviderMetaData };
     }
 
-    public validateIdToken(idToken: string): Promise<any> {
+    public validateIdToken(idToken: string): Promise<boolean> {
         const jwksEndpoint = this._dataLayer.getOIDCProviderMetaData().jwks_uri;
 
         if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
@@ -124,7 +124,7 @@ export class AuthenticationHelper<T> {
                             jwk,
                             this._config().clientID,
                             issuer,
-                            AuthenticationUtils.getAuthenticatedUser(idToken).username,
+                            AuthenticationUtils.getAuthenticatedUserInfo(idToken).username,
                             this._config().clockTolerance
                         );
                     })
@@ -137,7 +137,7 @@ export class AuthenticationHelper<T> {
             });
     }
 
-    public replaceTemplateTags(text: string): string {
+    public replaceCustomGrantTemplateTags(text: string): string {
         let scope = OIDC_SCOPE;
 
         if (this._config().scope && this._config().scope.length > 0) {
@@ -150,7 +150,7 @@ export class AuthenticationHelper<T> {
         return text
             .replace(TOKEN_TAG, this._dataLayer.getSessionData().access_token)
             .replace(USERNAME_TAG,
-                AuthenticationUtils.getAuthenticatedUser(this._dataLayer.getSessionData().id_token).username)
+                AuthenticationUtils.getAuthenticatedUserInfo(this._dataLayer.getSessionData().id_token).username)
             .replace(SCOPE_TAG, scope)
             .replace(CLIENT_ID_TAG, this._config().clientID)
             .replace(CLIENT_SECRET_TAG, this._config().clientSecret);
