@@ -18,10 +18,8 @@
 
 import WorkerFile from "web-worker:../worker/client.worker.ts";
 import {
-    AUTH_REQUIRED,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
-    END_USER_SESSION,
     GET_AUTH_URL,
     GET_BASIC_USER_INFO,
     GET_DECODED_ID_TOKEN,
@@ -39,11 +37,19 @@ import {
     REQUEST_START,
     REQUEST_SUCCESS,
     REVOKE_ACCESS_TOKEN,
-    SIGNED_IN,
-    SIGN_IN,
     SIGN_OUT
 } from "../constants";
-import { AUTHORIZATION_CODE, AuthClientConfig, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCProviderMetaData, ResponseMode, SESSION_STATE, SignInConfig, TokenResponse } from "../core";
+import {
+    AUTHORIZATION_CODE,
+    AuthClientConfig,
+    BasicUserInfo,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCProviderMetaData,
+    ResponseMode,
+    SESSION_STATE,
+    SignInConfig
+} from "../core";
 import {
     AuthorizationInfo,
     AuthorizationParams,
@@ -114,9 +120,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      * @returns {Promise<HttpResponse|boolean>} A promise that resolves with a boolean value or the request
      * response if the the `returnResponse` attribute in the `requestParams` object is set to `true`.
      */
-    const requestCustomGrant = (
-        requestParams: CustomGrantConfig
-    ): Promise<HttpResponse |BasicUserInfo> => {
+    const requestCustomGrant = (requestParams: CustomGrantConfig): Promise<HttpResponse | BasicUserInfo> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
         }
@@ -130,10 +134,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             type: REQUEST_CUSTOM_GRANT
         };
 
-        return communicate<
-            CustomGrantConfig,
-            HttpResponse | BasicUserInfo
-        >(message)
+        return communicate<CustomGrantConfig, HttpResponse | BasicUserInfo>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })
@@ -240,91 +241,91 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      *
      */
     const initialize = (): Promise<boolean> => {
-            if (!(config.resourceServerURLs instanceof Array)) {
-                return Promise.reject("resourceServerURLs must be an array");
+        if (!(config.resourceServerURLs instanceof Array)) {
+            return Promise.reject("resourceServerURLs must be an array");
+        }
+
+        if (config.resourceServerURLs.find((baseUrl) => typeof baseUrl !== "string")) {
+            return Promise.reject("Array elements of resourceServerURLs must all be string values");
+        }
+
+        if (typeof config.signInRedirectURL !== "string") {
+            return Promise.reject("The sign-in redirect URL must be a string");
+        }
+
+        if (typeof config.signOutRedirectURL !== "string") {
+            return Promise.reject("The sign-out redirect URL must be a string");
+        }
+
+        if (typeof config.clientHost !== "string") {
+            return Promise.reject("The clientHost must be a string");
+        }
+
+        if (typeof config.clientID !== "string") {
+            return Promise.reject("The clientID must be a string");
+        }
+
+        if (config.clientSecret && typeof config.clientSecret !== "string") {
+            return Promise.reject("The clientString must be a string");
+        }
+
+        if (config.enablePKCE && typeof config.enablePKCE !== "boolean") {
+            return Promise.reject("enablePKCE must be a boolean");
+        }
+
+        if (config.prompt && typeof config.prompt !== "string") {
+            return Promise.reject("The prompt must be a string");
+        }
+
+        if (config.responseMode && typeof config.responseMode !== "string") {
+            return Promise.reject("The responseMode must be a string");
+        }
+
+        if (
+            config.responseMode &&
+            config.responseMode !== ResponseMode.formPost &&
+            config.responseMode !== ResponseMode.query
+        ) {
+            return Promise.reject("The responseMode is invalid");
+        }
+
+        if (config.scope && !(config.scope instanceof Array)) {
+            return Promise.reject("scope must be an array");
+        }
+
+        if (config.scope && config.scope.find((aScope) => typeof aScope !== "string")) {
+            return Promise.reject("Array elements of scope must all be string values");
+        }
+
+        if (typeof config.serverOrigin !== "string") {
+            return Promise.reject("serverOrigin must be a string");
+        }
+
+        httpClientHandlers = {
+            requestErrorCallback: null,
+            requestFinishCallback: null,
+            requestStartCallback: null,
+            requestSuccessCallback: null
+        };
+
+        worker.onmessage = ({ data }) => {
+            switch (data.type) {
+                case REQUEST_ERROR:
+                    httpClientHandlers?.requestErrorCallback &&
+                        httpClientHandlers?.requestErrorCallback(JSON.parse(data.data ?? ""));
+                    break;
+                case REQUEST_FINISH:
+                    httpClientHandlers?.requestFinishCallback && httpClientHandlers?.requestFinishCallback();
+                    break;
+                case REQUEST_START:
+                    httpClientHandlers?.requestStartCallback && httpClientHandlers?.requestStartCallback();
+                    break;
+                case REQUEST_SUCCESS:
+                    httpClientHandlers?.requestSuccessCallback &&
+                        httpClientHandlers?.requestSuccessCallback(JSON.parse(data.data ?? ""));
+                    break;
             }
-
-            if (config.resourceServerURLs.find((baseUrl) => typeof baseUrl !== "string")) {
-                return Promise.reject("Array elements of resourceServerURLs must all be string values");
-            }
-
-            if (typeof config.signInRedirectURL !== "string") {
-                return Promise.reject("The sign-in redirect URL must be a string");
-            }
-
-            if (typeof config.signOutRedirectURL !== "string") {
-                return Promise.reject("The sign-out redirect URL must be a string");
-            }
-
-            if (typeof config.clientHost !== "string") {
-                return Promise.reject("The clientHost must be a string");
-            }
-
-            if (typeof config.clientID !== "string") {
-                return Promise.reject("The clientID must be a string");
-            }
-
-            if (config.clientSecret && typeof config.clientSecret !== "string") {
-                return Promise.reject("The clientString must be a string");
-            }
-
-            if (config.enablePKCE && typeof config.enablePKCE !== "boolean") {
-                return Promise.reject("enablePKCE must be a boolean");
-            }
-
-            if (config.prompt && typeof config.prompt !== "string") {
-                return Promise.reject("The prompt must be a string");
-            }
-
-            if (config.responseMode && typeof config.responseMode !== "string") {
-                return Promise.reject("The responseMode must be a string");
-            }
-
-            if (config.responseMode
-                && config.responseMode !== ResponseMode.formPost
-                && config.responseMode !== ResponseMode.query) {
-                return Promise.reject("The responseMode is invalid");
-            }
-
-            if (config.scope && !(config.scope instanceof Array)) {
-                return Promise.reject("scope must be an array");
-            }
-
-            if (config.scope && config.scope.find((aScope) => typeof aScope !== "string")) {
-                return Promise.reject("Array elements of scope must all be string values");
-            }
-
-            if (typeof config.serverOrigin !== "string") {
-                return Promise.reject("serverOrigin must be a string");
-            }
-
-
-            httpClientHandlers = {
-                requestErrorCallback: null,
-                requestFinishCallback: null,
-                requestStartCallback: null,
-                requestSuccessCallback: null
-            };
-
-            worker.onmessage = ({ data }) => {
-                switch (data.type) {
-                    case REQUEST_ERROR:
-                        httpClientHandlers?.requestErrorCallback &&
-                            httpClientHandlers?.requestErrorCallback(JSON.parse(data.data ?? ""));
-                        break;
-                    case REQUEST_FINISH:
-                        httpClientHandlers?.requestFinishCallback && httpClientHandlers?.requestFinishCallback();
-                        break;
-                    case REQUEST_START:
-                        httpClientHandlers?.requestStartCallback && httpClientHandlers?.requestStartCallback();
-                        break;
-                    case REQUEST_SUCCESS:
-                        httpClientHandlers?.requestSuccessCallback &&
-                            httpClientHandlers?.requestSuccessCallback(JSON.parse(data.data ?? ""));
-                        break;
-                }
-            };
-
+        };
 
         const message: Message<AuthClientConfig<WebWorkerClientConfig>> = {
             data: config,
@@ -394,8 +395,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                         .catch((error) => {
                             return Promise.reject(error);
                         });
-
-                                    })
+                })
                 .catch((error) => {
                     return Promise.reject(error);
                 });
@@ -439,7 +439,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
     const signOut = (signOutRedirectURL?: string): Promise<boolean> => {
         return isAuthenticated()
             .then((response: boolean) => {
-                console.log("authenticated");
                 if (response) {
                     const message: Message<string> = {
                         data: signOutRedirectURL,
@@ -540,12 +539,14 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             type: IS_AUTHENTICATED
         };
 
-        return communicate<null, boolean>(message).then((response) => {
-            return Promise.resolve(response);
-        }).catch((error) => {
-            return Promise.reject(error);
-        });
-    }
+        return communicate<null, boolean>(message)
+            .then((response) => {
+                return Promise.resolve(response);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
+    };
 
     const refreshAccessToken = (): Promise<BasicUserInfo> => {
         const message: Message<null> = {
@@ -553,7 +554,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         };
 
         return communicate<null, BasicUserInfo>(message);
-    }
+    };
 
     const setHttpRequestSuccessCallback = (callback: (response: HttpResponse) => void): void => {
         if (callback && typeof callback === "function") {
@@ -579,26 +580,24 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         }
     };
 
-
-        return {
-            requestCustomGrant,
-            disableHttpHandler,
-            enableHttpHandler,
-            revokeAccessToken,
-            getDecodedIDToken,
-            getOIDCServiceEndpoints,
-            getBasicUserInfo,
-            httpRequest,
-            httpRequestAll,
-            initialize,
-            isAuthenticated,
-            setHttpRequestErrorCallback,
-            setHttpRequestFinishCallback,
-            setHttpRequestStartCallback,
-            setHttpRequestSuccessCallback,
-            refreshAccessToken,
-            signIn,
-            signOut
-        };
-
+    return {
+        disableHttpHandler,
+        enableHttpHandler,
+        getBasicUserInfo,
+        getDecodedIDToken,
+        getOIDCServiceEndpoints,
+        httpRequest,
+        httpRequestAll,
+        initialize,
+        isAuthenticated,
+        refreshAccessToken,
+        requestCustomGrant,
+        revokeAccessToken,
+        setHttpRequestErrorCallback,
+        setHttpRequestFinishCallback,
+        setHttpRequestStartCallback,
+        setHttpRequestSuccessCallback,
+        signIn,
+        signOut
+    };
 };
