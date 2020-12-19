@@ -18,7 +18,6 @@
 
 import {
     AUTH_CODE,
-    AUTH_REQUIRED,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
@@ -39,7 +38,6 @@ import {
     REQUEST_START,
     REQUEST_SUCCESS,
     REVOKE_ACCESS_TOKEN,
-    SIGNED_IN,
     SIGN_IN,
     SIGN_OUT
 } from "../constants";
