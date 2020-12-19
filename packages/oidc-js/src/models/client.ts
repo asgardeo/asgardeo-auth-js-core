@@ -60,8 +60,8 @@ export interface MainThreadClientInterface {
         signInRedirectURL?: string
     ): Promise<BasicUserInfo>;
     signOut(signOutRedirectURL?: string): boolean;
-    customGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
-    refreshToken(): Promise<BasicUserInfo>;
+    requestCustomGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
+    refreshAccessToken(): Promise<BasicUserInfo>;
     revokeAccessToken(): Promise<boolean>;
     getBasicUserInfo(): BasicUserInfo;
     getDecodedIDToken(): DecodedIdTokenPayload;
