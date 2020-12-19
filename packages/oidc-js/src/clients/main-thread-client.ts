@@ -162,7 +162,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             }
 
             return _authenticationClient
-                .sendTokenRequest(resolvedAuthorizationCode, resolvedSessionState)
+                .requestAccessToken(resolvedAuthorizationCode, resolvedSessionState)
                 .then(() => {
                     if (config.storage === Storage.BrowserMemory) {
                         SPAUtils.setSignOutURL(_authenticationClient.getSignOutURL());
@@ -209,7 +209,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
 
     const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
-            .sendCustomGrantRequest(config)
+            .requestCustomGrant(config)
             .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
                     _spaHelper.refreshTokenAutomatically();

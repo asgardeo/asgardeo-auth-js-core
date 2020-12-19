@@ -196,7 +196,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
         if (authorizationCode && sessionState) {
             return _authenticationClient
-                .sendTokenRequest(authorizationCode, sessionState)
+                .requestAccessToken(authorizationCode, sessionState)
                 .then(() => {
                     _spaHelper.refreshTokenAutomatically();
 
@@ -223,7 +223,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
     const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
-            .sendCustomGrantRequest(config)
+            .requestCustomGrant(config)
             .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
                     _spaHelper.refreshTokenAutomatically();
