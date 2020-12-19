@@ -51,7 +51,7 @@ const initiateStore = (store: Storage): Store => {
             return new LocalStore();
         case Storage.SessionStorage:
             return new SessionStore();
-        case Storage.MainThreadMemory:
+        case Storage.BrowserMemory:
             return new MemoryStore();
         default:
             return new SessionStore();
@@ -94,11 +94,11 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         _onHttpRequestSuccess = callback;
     };
 
-    const setHttpRequestFinish = (callback: () => void): void => {
+    const setHttpRequestFinishCallback = (callback: () => void): void => {
         _onHttpRequestFinish = callback;
     };
 
-    const setHttpRequestError = (callback: (error: HttpError) => void): void => {
+    const setHttpRequestErrorCallback = (callback: (error: HttpError) => void): void => {
         _onHttpRequestError = callback;
     };
 
@@ -119,12 +119,16 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return _httpClient;
     };
 
-    const enableHttpHandler = (): void => {
+    const enableHttpHandler = (): boolean => {
         _httpClient.enableHandler();
+
+        return true;
     };
 
-    const disableHttpHandler = (): void => {
+    const disableHttpHandler = (): boolean => {
         _httpClient.disableHandler();
+
+        return true;
     };
 
     const signIn = (
@@ -150,7 +154,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         SPAUtils.removeAuthorizationCode();
 
         if (resolvedAuthorizationCode && resolvedSessionState) {
-            if (config.storage === Storage.MainThreadMemory) {
+            if (config.storage === Storage.BrowserMemory) {
                 const pkce = SPAUtils.getPKCE();
 
                 _dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
@@ -159,7 +163,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             return _authenticationClient
                 .sendTokenRequest(resolvedAuthorizationCode, resolvedSessionState)
                 .then(() => {
-                    if (config.storage === Storage.MainThreadMemory) {
+                    if (config.storage === Storage.BrowserMemory) {
                         SPAUtils.setSignOutURL(_authenticationClient.getSignOutURL());
                     }
 
@@ -173,7 +177,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         }
 
         return _authenticationClient.getAuthorizationURL(config).then((url: string) => {
-            if (config.storage === Storage.MainThreadMemory) {
+            if (config.storage === Storage.BrowserMemory) {
                 SPAUtils.setPKCE( _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string);
             }
 
@@ -190,7 +194,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         });
     };
 
-    const signOut = (): void => {
+    const signOut = (): boolean => {
         if (_authenticationClient.isAuthenticated()) {
             location.href = _authenticationClient.signOut();
         } else {
@@ -198,6 +202,8 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         }
 
         _spaHelper.clearRefreshTokenTimeout();
+
+        return true;
     };
 
     const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
@@ -241,7 +247,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             .catch((error) => Promise.reject(error));
     };
 
-    const getUserInfo = (): BasicUserInfo => {
+    const getBasicUserInfo = (): BasicUserInfo => {
         return _authenticationClient.getBasicUserInfo();
     };
 
@@ -269,14 +275,14 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         getDecodedIDToken,
         getHttpClient,
         getOIDCServiceEndpoints,
-        getUserInfo,
+        getBasicUserInfo,
         httpRequest,
         httpRequestAll,
         isAuthenticated,
         refreshToken,
         revokeAccessToken,
-        setHttpRequestError,
-        setHttpRequestFinish,
+        setHttpRequestErrorCallback,
+        setHttpRequestFinishCallback,
         setHttpRequestStartCallback,
         setHttpRequestSuccessCallback,
         signIn,
