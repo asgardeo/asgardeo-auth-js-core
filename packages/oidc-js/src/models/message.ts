@@ -58,11 +58,10 @@ export interface Message<T> {
 }
 
 
-export interface AuthCode {
+export interface AuthorizationInfo {
     code: string;
     sessionState: string;
     pkce?: string;
-    signInRedirectURL?: string;
 }
 
 export type MessageType =
@@ -94,12 +93,12 @@ export interface CommunicationHelperInterface {
     communicate: <T, R>(message: Message<T>) => Promise<R>;
 }
 
-export interface GetAuthorizationURLInterface{
-    authorizationCode: string;
+export interface AuthorizationResponse{
+    authorizationURL: string;
     pkce?: string;
 }
 
-export interface AuthUrl {
+export interface AuthorizationParams {
     params: SignInConfig,
     signInRedirectURL?: string
 }

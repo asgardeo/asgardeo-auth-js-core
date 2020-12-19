@@ -426,7 +426,7 @@ export class IdentityClient {
             throw Error("No ID specified for the custom grant.");
         }
 
-        const customGrantResponse = await this._client.customGrant(requestParams);
+        const customGrantResponse = await this._client.requestCustomGrant(requestParams);
 
         this._onCustomGrant?.get(requestParams.id) &&
             this._onCustomGrant?.get(requestParams.id)(this._onCustomGrant?.get(requestParams.id));
@@ -584,7 +584,7 @@ export class IdentityClient {
      * @preserve
      */
     public async refreshToken(): Promise<BasicUserInfo> {
-        return this._client.refreshToken();
+        return this._client.refreshAccessToken();
     }
 
     /**
