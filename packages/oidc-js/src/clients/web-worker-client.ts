@@ -17,29 +17,29 @@
  */
 
 import {
-    API_CALL,
-    API_CALL_ALL,
+    HTTP_REQUEST,
+    HTTP_REQUEST_ALL,
     AUTH_REQUIRED,
-    CUSTOM_GRANT,
+    REQUEST_CUSTOM_GRANT,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
     GET_DECODED_ID_TOKEN,
-    GET_SERVICE_ENDPOINTS,
-    GET_USER_INFO,
+    GET_OIDC_SERVICE_ENDPOINTS,
+    GET_BASIC_USER_INFO,
     INIT,
-    LOGOUT,
+    SIGN_OUT,
     REQUEST_ERROR,
     REQUEST_FINISH,
     REQUEST_START,
     REQUEST_SUCCESS,
     SIGNED_IN,
     SIGN_IN,
-    GET_TOKEN,
+    REQUEST_ACCESS_TOKEN,
     GET_AUTH_URL,
     IS_AUTHENTICATED,
     GET_SIGN_OUT_URL,
-    REFRESH_TOKEN
+    REFRESH_ACCESS_TOKEN
 } from "../constants";
 import {
     AuthCode,
@@ -113,7 +113,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      * @returns {Promise<HttpResponse|boolean>} A promise that resolves with a boolean value or the request
      * response if the the `returnResponse` attribute in the `requestParams` object is set to `true`.
      */
-    const customGrant = (
+    const requestCustomGrant = (
         requestParams: CustomGrantConfig
     ): Promise<HttpResponse |BasicUserInfo> => {
         if (!initialized) {
@@ -126,7 +126,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
         const message: Message<CustomGrantConfig> = {
             data: requestParams,
-            type: CUSTOM_GRANT
+            type: REQUEST_CUSTOM_GRANT
         };
 
         return communicate<
@@ -160,7 +160,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
         const message: Message<HttpRequestConfig> = {
             data: config,
-            type: API_CALL
+            type: HTTP_REQUEST
         };
 
         return communicate<HttpRequestConfig, HttpResponse<T>>(message)
@@ -186,13 +186,13 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             return Promise.reject("The object has not been initialized yet");
         }
 
-       /*  if (!signedIn) {
+        if (!signedIn) {
             return Promise.reject("You have not signed in yet");
-        } */
+        }
 
         const message: Message<HttpRequestConfig[]> = {
             data: configs,
-            type: API_CALL_ALL
+            type: HTTP_REQUEST_ALL
         };
 
         return communicate<HttpRequestConfig[], HttpResponse<T>[]>(message)
@@ -370,7 +370,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                     pkce: SPAUtils.getPKCE(),
                     sessionState: resolvedSessionState
                 },
-                type: GET_TOKEN
+                type: REQUEST_ACCESS_TOKEN
             };
 
             SPAUtils.removeAuthorizationCode();
@@ -442,7 +442,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                 if (response) {
                     const message: Message<string> = {
                         data: signOutRedirectURL,
-                        type: LOGOUT
+                        type: SIGN_OUT
                     };
 
                     return communicate<string, string>(message)
@@ -494,7 +494,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
     const getOIDCServiceEndpoints = (): Promise<OIDCProviderMetaData> => {
         const message: Message<null> = {
-            type: GET_SERVICE_ENDPOINTS
+            type: GET_OIDC_SERVICE_ENDPOINTS
         };
 
         return communicate<null, OIDCProviderMetaData>(message)
@@ -508,7 +508,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
     const getBasicUserInfo = (): Promise<BasicUserInfo> => {
         const message: Message<null> = {
-            type: GET_USER_INFO
+            type: GET_BASIC_USER_INFO
         };
 
         return communicate<null, BasicUserInfo>(message)
@@ -546,9 +546,9 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         });
     }
 
-    const refreshToken = (): Promise<BasicUserInfo> => {
+    const refreshAccessToken = (): Promise<BasicUserInfo> => {
         const message: Message<null> = {
-            type: REFRESH_TOKEN
+            type: REFRESH_ACCESS_TOKEN
         };
 
         return communicate<null, BasicUserInfo>(message);
@@ -580,7 +580,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
 
         return {
-            customGrant,
+            requestCustomGrant,
             disableHttpHandler,
             enableHttpHandler,
             revokeAccessToken,
@@ -595,7 +595,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             setHttpRequestFinishCallback,
             setHttpRequestStartCallback,
             setHttpRequestSuccessCallback,
-            refreshToken,
+            refreshAccessToken,
             signIn,
             signOut
         };
