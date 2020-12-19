@@ -25,7 +25,7 @@ import { SignInConfig, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, 
  * SDK Client config parameters.
  */
 export interface MainThreadClientConfig {
-    storage?: Storage.SessionStorage | Storage.LocalStorage | Storage.MainThreadMemory;
+    storage?: Storage.SessionStorage | Storage.LocalStorage | Storage.BrowserMemory;
 }
 
 export interface WebWorkerClientConfig {
@@ -46,23 +46,23 @@ export interface HttpClient {
 export interface MainThreadClientInterface {
     setHttpRequestStartCallback(callback: () => void): void;
     setHttpRequestSuccessCallback(callback: (response: HttpResponse) => void): void;
-    setHttpRequestFinish(callback: () => void): void;
-    setHttpRequestError(callback: (error: HttpError) => void): void
+    setHttpRequestFinishCallback(callback: () => void): void;
+    setHttpRequestErrorCallback(callback: (error: HttpError) => void): void
     httpRequest(config: HttpRequestConfig): Promise<HttpResponse>;
     httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]>;
     getHttpClient(): HttpClientInstance;
-    enableHttpHandler(): void;
-    disableHttpHandler(): void;
+    enableHttpHandler(): boolean;
+    disableHttpHandler(): boolean;
     signIn(
         config?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string
     ): Promise<BasicUserInfo> ;
-    signOut(): void;
+    signOut(): boolean;
     customGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
     refreshToken(): Promise<BasicUserInfo>;
     revokeAccessToken(): Promise<boolean>;
-    getUserInfo(): BasicUserInfo;
+    getBasicUserInfo(): BasicUserInfo;
     getDecodedIDToken(): DecodedIdTokenPayload;
     getOIDCServiceEndpoints(): OIDCEndpoints;
     getAccessToken(): string;
@@ -70,27 +70,22 @@ export interface MainThreadClientInterface {
 }
 
 export interface WebWorkerClientInterface {
-     customGrant(
-        requestParams: CustomGrantConfig
-    ): Promise<HttpResponse |TokenResponse>;
+    customGrant(requestParams: CustomGrantConfig): Promise<HttpResponse | BasicUserInfo>;
     httpRequest<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>>;
     httpRequestAll<T = any>(configs: HttpRequestConfig[]): Promise<HttpResponse<T>[]>;
     enableHttpHandler(): Promise<boolean>;
     disableHttpHandler(): Promise<boolean>;
     initialize(): Promise<boolean>;
-    signIn(
-        params?: SignInConfig,
-        authorizationCode?: string,
-        sessionState?: string
-    ): Promise<BasicUserInfo>;
-    signOut(): Promise<boolean> ;
-    endUserSession(): Promise<boolean>;
-    getServiceEndpoints(): Promise<OIDCProviderMetaData>;
-    getUserInfo(): Promise<BasicUserInfo>;
+    signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string): Promise<BasicUserInfo>;
+    signOut(): Promise<boolean>;
+    revokeAccessToken(): Promise<boolean>;
+    getOIDCServiceEndpoints(): Promise<OIDCProviderMetaData>;
+    getBasicUserInfo(): Promise<BasicUserInfo>;
     getDecodedIDToken(): Promise<DecodedIdTokenPayload>;
     isAuthenticated(): Promise<boolean>;
-    onHttpRequestSuccess(callback: (response: HttpResponse) => void): void;
-    onHttpRequestError(callback: (response: HttpError) => void): void;
-    onHttpRequestStart(callback: () => void): void;
-    onHttpRequestFinish(callback: () => void): void;
+    setHttpRequestSuccessCallback(callback: (response: HttpResponse) => void): void;
+    setHttpRequestErrorCallback(callback: (response: HttpError) => void): void;
+    setHttpRequestStartCallback(callback: () => void): void;
+    setHttpRequestFinishCallback(callback: () => void): void;
+    refreshToken(): Promise<BasicUserInfo>;
 }
