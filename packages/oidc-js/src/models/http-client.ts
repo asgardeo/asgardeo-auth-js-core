@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { HttpResponse, HttpError } from ".";
+import { HttpError, HttpResponse } from ".";
 
 export interface HttpClient {
     requestStartCallback: () => void;

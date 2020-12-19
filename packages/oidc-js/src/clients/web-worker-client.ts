@@ -16,34 +16,38 @@
  * under the License.
  */
 
+import WorkerFile from "web-worker:../worker/client.worker.ts";
 import {
-    HTTP_REQUEST,
-    HTTP_REQUEST_ALL,
     AUTH_REQUIRED,
-    REQUEST_CUSTOM_GRANT,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
+    GET_AUTH_URL,
+    GET_BASIC_USER_INFO,
     GET_DECODED_ID_TOKEN,
     GET_OIDC_SERVICE_ENDPOINTS,
-    GET_BASIC_USER_INFO,
+    GET_SIGN_OUT_URL,
+    HTTP_REQUEST,
+    HTTP_REQUEST_ALL,
     INIT,
-    SIGN_OUT,
+    IS_AUTHENTICATED,
+    REFRESH_ACCESS_TOKEN,
+    REQUEST_ACCESS_TOKEN,
+    REQUEST_CUSTOM_GRANT,
     REQUEST_ERROR,
     REQUEST_FINISH,
     REQUEST_START,
     REQUEST_SUCCESS,
+    REVOKE_ACCESS_TOKEN,
     SIGNED_IN,
     SIGN_IN,
-    REQUEST_ACCESS_TOKEN,
-    GET_AUTH_URL,
-    IS_AUTHENTICATED,
-    GET_SIGN_OUT_URL,
-    REFRESH_ACCESS_TOKEN,
-    REVOKE_ACCESS_TOKEN
+    SIGN_OUT
 } from "../constants";
+import { AUTHORIZATION_CODE, AuthClientConfig, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCProviderMetaData, ResponseMode, SESSION_STATE, SignInConfig, TokenResponse } from "../core";
 import {
     AuthorizationInfo,
+    AuthorizationParams,
+    AuthorizationResponse,
     HttpClient,
     HttpError,
     HttpRequestConfig,
@@ -51,13 +55,9 @@ import {
     Message,
     ResponseMessage,
     WebWorkerClientConfig,
-    WebWorkerClientInterface,
-    AuthorizationParams,
-    AuthorizationResponse,
+    WebWorkerClientInterface
 } from "../models";
-import WorkerFile from "web-worker:../worker/client.worker.ts";
 import { SPAUtils } from "../utils";
-import { CustomGrantConfig, ResponseMode, AUTHORIZATION_CODE, SESSION_STATE, SignInConfig, BasicUserInfo, OIDCProviderMetaData, DecodedIdTokenPayload, AuthClientConfig, TokenResponse } from "../core";
 
 export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerClientInterface => {
     /**

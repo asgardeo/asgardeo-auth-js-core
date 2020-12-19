@@ -16,9 +16,9 @@
 * under the License.
 */
 
-import { Store, TemporaryData, StoreValue } from "../models";
-import { AuthClientConfig, OIDCProviderMetaData, SessionData } from "../models";
 import { Stores } from "../constants";
+import { Store, StoreValue, TemporaryData } from "../models";
+import { AuthClientConfig, OIDCProviderMetaData, SessionData } from "../models";
 
 export class DataLayer<T> {
     private _id: string;

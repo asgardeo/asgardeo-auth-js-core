@@ -16,7 +16,7 @@
 * under the License.
 */
 
-import { DecodedIdTokenPayload, TokenRequestHeader, AuthenticatedUserInfo } from "../models";
+import { AuthenticatedUserInfo, DecodedIdTokenPayload, TokenRequestHeader } from "../models";
 import { CryptoUtils } from "../utils";
 
 export class AuthenticationUtils {

@@ -17,9 +17,9 @@
  */
 
 import { Storage } from "../constants";
-import { HttpError, HttpResponse, HttpRequestConfig } from "../models";
+import { BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, OIDCProviderMetaData, SignInConfig, TokenResponse } from "../core";
 import { HttpClientInstance } from "../http-client";
-import { SignInConfig, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, OIDCProviderMetaData, TokenResponse } from "../core";
+import { HttpError, HttpRequestConfig, HttpResponse } from "../models";
 
 /**
  * SDK Client config parameters.

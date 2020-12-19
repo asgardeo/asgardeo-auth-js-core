@@ -16,8 +16,8 @@
 * under the License.
 */
 
+import { OIDCEndpoints, OIDCEndpointsInternal, OIDCProviderMetaData } from ".";
 import { AuthClientConfig } from "./client-config";
-import { OIDCEndpoints, OIDCProviderMetaData, OIDCEndpointsInternal } from ".";
 
 export type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 export type TemporaryData = { [ key: string ]: StoreValue; };
