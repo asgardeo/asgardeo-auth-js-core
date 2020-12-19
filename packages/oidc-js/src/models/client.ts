@@ -71,7 +71,7 @@ export interface MainThreadClientInterface {
 }
 
 export interface WebWorkerClientInterface {
-    customGrant(requestParams: CustomGrantConfig): Promise<HttpResponse | BasicUserInfo>;
+    requestCustomGrant(requestParams: CustomGrantConfig): Promise<HttpResponse | BasicUserInfo>;
     httpRequest<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>>;
     httpRequestAll<T = any>(configs: HttpRequestConfig[]): Promise<HttpResponse<T>[]>;
     enableHttpHandler(): Promise<boolean>;
@@ -88,5 +88,5 @@ export interface WebWorkerClientInterface {
     setHttpRequestErrorCallback(callback: (response: HttpError) => void): void;
     setHttpRequestStartCallback(callback: () => void): void;
     setHttpRequestFinishCallback(callback: () => void): void;
-    refreshToken(): Promise<BasicUserInfo>;
+    refreshAccessToken(): Promise<BasicUserInfo>;
 }
