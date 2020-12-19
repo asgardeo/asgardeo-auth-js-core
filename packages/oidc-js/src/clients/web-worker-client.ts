@@ -39,7 +39,8 @@ import {
     GET_AUTH_URL,
     IS_AUTHENTICATED,
     GET_SIGN_OUT_URL,
-    REFRESH_ACCESS_TOKEN
+    REFRESH_ACCESS_TOKEN,
+    REVOKE_ACCESS_TOKEN
 } from "../constants";
 import {
     AuthorizationInfo,
@@ -480,7 +481,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         }
 
         const message: Message<null> = {
-            type: END_USER_SESSION
+            type: REVOKE_ACCESS_TOKEN
         };
 
         return communicate<null, boolean>(message)
