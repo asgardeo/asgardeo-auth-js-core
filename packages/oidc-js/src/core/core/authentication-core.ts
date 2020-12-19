@@ -368,7 +368,6 @@ export class AuthenticationCore<T> {
     };
 
     public getBasicUserInfo(): BasicUserInfo {
-        console.log(this._dataLayer);
         const sessionData = this._dataLayer.getSessionData();
         const authenticatedUser = AuthenticationUtils.getAuthenticatedUserInfo(sessionData?.id_token);
         return {
@@ -454,7 +453,8 @@ export class AuthenticationCore<T> {
             throw Error("Invalid id_token found in the session.");
         }
 
-        const callbackURL = signOutRedirectURL ?? this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
+        const callbackURL =
+            signOutRedirectURL ?? this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
             throw Error("No callback URL found in the session.");
@@ -470,10 +470,9 @@ export class AuthenticationCore<T> {
     }
 
     public signOut(signOutRedirectURL?: string): string {
-        console.log("lcore logout");
         const signOutURL = this.getSignOutURL(signOutRedirectURL);
         this._authenticationHelper.clearUserSessionData();
-        console.log("cleared user session");
+
         return signOutURL;
     }
 
