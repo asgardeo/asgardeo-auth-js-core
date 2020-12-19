@@ -51,7 +51,8 @@ import {
     ResponseMessage,
     GetAuthorizationURLInterface,
     WebWorkerClientConfig,
-    WebWorkerClientInterface
+    WebWorkerClientInterface,
+    AuthUrl
 } from "../models";
 import WorkerFile from "web-worker:../worker/client.worker.ts";
 import { SPAUtils } from "../utils";
@@ -348,7 +349,8 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
     const signIn = (
         params?: SignInConfig,
         authorizationCode?: string,
-        sessionState?: string
+        sessionState?: string,
+        signInRedirectURL?: string
     ): Promise<BasicUserInfo> => {
         let resolvedAuthorizationCode: string;
         let resolvedSessionState: string;
@@ -398,12 +400,15 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                 });
         }
 
-        const message: Message<SignInConfig> = {
-            data: params,
+        const message: Message<AuthUrl> = {
+            data: {
+                params: params,
+                signInRedirectURL: signInRedirectURL
+            },
             type: GET_AUTH_URL
         };
 
-        return communicate<SignInConfig, GetAuthorizationURLInterface>(message)
+        return communicate<AuthUrl, GetAuthorizationURLInterface>(message)
             .then((response) => {
                 if (response.pkce) {
                     SPAUtils.setPKCE(response.pkce);
@@ -430,32 +435,38 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      *
      * @returns {Promise<boolean>} A promise that resolves when sign out is completed.
      */
-    const signOut = (): Promise<boolean> => {
-        return isAuthenticated().then((response: boolean) => {
-            console.log("authenticated");
-            if (response) {
-                const message: Message<null> = {
-                    type: LOGOUT
-                };
+    const signOut = (signOutRedirectURL?: string): Promise<boolean> => {
+        return isAuthenticated()
+            .then((response: boolean) => {
+                console.log("authenticated");
+                if (response) {
+                    const message: Message<string> = {
+                        data: signOutRedirectURL,
+                        type: LOGOUT
+                    };
 
-                return communicate<null, string>(message)
-                    .then((response) => {
-                        signedIn = false;
-                        window.location.href = response;
+                    return communicate<string, string>(message)
+                        .then((response) => {
+                            signedIn = false;
+                            window.location.href = response;
 
-                        return Promise.resolve(true);
-                    })
-                    .catch((error) => {
-                        return Promise.reject(error);
-                    });
-            } else {
-                window.location.href = SPAUtils.getSignOutURL();
+                            return Promise.resolve(true);
+                        })
+                        .catch((error) => {
+                            return Promise.reject(error);
+                        });
+                } else {
+                    window.location.href = SPAUtils.replaceSignOutRedirectURL(
+                        SPAUtils.getSignOutURL(),
+                        signOutRedirectURL
+                    );
 
-                return Promise.resolve(true);
-            }
-        }).catch((error) => {
-            return Promise.reject(error);
-        })
+                    return Promise.resolve(true);
+                }
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
     };
 
     /**
