@@ -34,14 +34,7 @@ export interface WebWorkerClientConfig {
     requestTimeout?: number;
 }
 
-export type Config=MainThreadClientConfig | WebWorkerClientConfig;
-
-export interface HttpClient {
-    requestStartCallback: () => void;
-    requestSuccessCallback: (response: HttpResponse) => void;
-    requestErrorCallback: (error: HttpError) => void;
-    requestFinishCallback: () => void;
-}
+export type Config = MainThreadClientConfig | WebWorkerClientConfig;
 
 export interface MainThreadClientInterface {
     setHttpRequestStartCallback(callback: () => void): void;
