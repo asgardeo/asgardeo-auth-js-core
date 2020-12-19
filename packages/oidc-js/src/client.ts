@@ -238,7 +238,7 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string): Promise<BasicUserInfo> {
+    public async signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string, signInRedirectURL?: string): Promise<BasicUserInfo> {
         if (!this._startedInitialize) {
             return Promise.reject("The object has not been initialized yet.");
         }
@@ -258,7 +258,7 @@ export class IdentityClient {
             iterationToWait++;
         }
 
-        return this._client.signIn(params, authorizationCode, sessionState).then((response: BasicUserInfo) => {
+        return this._client.signIn(params, authorizationCode, sessionState, signInRedirectURL).then((response: BasicUserInfo) => {
             if (this._onSignInCallback) {
                 if (response.allowedScopes || response.displayName || response.email || response.username) {
                     this._onSignInCallback(response);
@@ -289,8 +289,8 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async signOut(): Promise<boolean> {
-        const signOutResponse = await this._client.signOut();
+    public async signOut(signOutRedirectURL?: string): Promise<boolean> {
+        const signOutResponse = await this._client.signOut(signOutRedirectURL);
         this._onSignOutCallback && this._onSignOutCallback();
 
         return signOutResponse;

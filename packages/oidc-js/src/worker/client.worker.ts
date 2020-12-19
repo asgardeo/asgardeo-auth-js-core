@@ -81,7 +81,7 @@ ctx.onmessage = ({ data, ports }) => {
                 port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
             } else {
                 webWorker
-                    .getAuthorizationURL(data?.data)
+                    .getAuthorizationURL(data?.data?.params, data?.data?.signInRedirectURL)
                     .then((response: GetAuthorizationURLInterface) => {
                         port.postMessage(MessageUtils.generateSuccessMessage(response));
                     })
@@ -160,7 +160,7 @@ ctx.onmessage = ({ data, ports }) => {
                 port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
             } else {
                 try {
-                    port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut()));
+                    port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut(data?.data)));
                 } catch (error) {
                     console.log("logout msg error", error);
                     port.postMessage(MessageUtils.generateFailureMessage(error));

@@ -47,7 +47,7 @@ export interface MainThreadClientInterface {
     setHttpRequestStartCallback(callback: () => void): void;
     setHttpRequestSuccessCallback(callback: (response: HttpResponse) => void): void;
     setHttpRequestFinishCallback(callback: () => void): void;
-    setHttpRequestErrorCallback(callback: (error: HttpError) => void): void
+    setHttpRequestErrorCallback(callback: (error: HttpError) => void): void;
     httpRequest(config: HttpRequestConfig): Promise<HttpResponse>;
     httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]>;
     getHttpClient(): HttpClientInstance;
@@ -56,9 +56,10 @@ export interface MainThreadClientInterface {
     signIn(
         config?: SignInConfig,
         authorizationCode?: string,
-        sessionState?: string
-    ): Promise<BasicUserInfo> ;
-    signOut(): boolean;
+        sessionState?: string,
+        signInRedirectURL?: string
+    ): Promise<BasicUserInfo>;
+    signOut(signOutRedirectURL?: string): boolean;
     customGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
     refreshToken(): Promise<BasicUserInfo>;
     revokeAccessToken(): Promise<boolean>;
@@ -76,8 +77,8 @@ export interface WebWorkerClientInterface {
     enableHttpHandler(): Promise<boolean>;
     disableHttpHandler(): Promise<boolean>;
     initialize(): Promise<boolean>;
-    signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string): Promise<BasicUserInfo>;
-    signOut(): Promise<boolean>;
+    signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string, signInRedirectURL?: string): Promise<BasicUserInfo>;
+    signOut(signOutRedirectURL?: string): Promise<boolean>;
     revokeAccessToken(): Promise<boolean>;
     getOIDCServiceEndpoints(): Promise<OIDCProviderMetaData>;
     getBasicUserInfo(): Promise<BasicUserInfo>;
