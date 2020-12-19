@@ -16,6 +16,15 @@
  * under the License.
  */
 
+import { HttpResponse, HttpError } from ".";
+
+export interface HttpClient {
+    requestStartCallback: () => void;
+    requestSuccessCallback: (response: HttpResponse) => void;
+    requestErrorCallback: (error: HttpError) => void;
+    requestFinishCallback: () => void;
+}
+
 export {
     AxiosRequestConfig as HttpRequestConfig,
     AxiosResponse as HttpResponse,
