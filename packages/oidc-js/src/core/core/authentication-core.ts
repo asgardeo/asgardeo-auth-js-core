@@ -54,7 +54,7 @@ export class AuthenticationCore<T> {
         this._oidcProviderMetaData = () => this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public sendAuthorizationRequest(config?: AuthorizationURLParams): string {
+    public sendAuthorizationRequest(config?: AuthorizationURLParams, signInRedirectURL?: string): string {
         const authorizeEndpoint = this._dataLayer.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
@@ -73,7 +73,7 @@ export class AuthenticationCore<T> {
         }
 
         authorizeRequest += "&scope=" + scope;
-        authorizeRequest += "&redirect_uri=" + this._config().signInRedirectURL;
+        authorizeRequest += "&redirect_uri=" + signInRedirectURL ?? this._config().signInRedirectURL;
 
         if (this._config().responseMode) {
             authorizeRequest += "&response_mode=" + this._config().responseMode;
@@ -441,7 +441,7 @@ export class AuthenticationCore<T> {
         };
     }
 
-    public getSignOutURL(): string {
+    public getSignOutURL(signOutRedirectURL?: string): string {
         const logoutEndpoint = this._oidcProviderMetaData()?.end_session_endpoint;
 
         if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
@@ -454,7 +454,7 @@ export class AuthenticationCore<T> {
             throw Error("Invalid id_token found in the session.");
         }
 
-        const callbackURL = this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
+        const callbackURL = signOutRedirectURL ?? this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
             throw Error("No callback URL found in the session.");
@@ -469,9 +469,9 @@ export class AuthenticationCore<T> {
         return logoutCallback;
     }
 
-    public signOut(): string {
+    public signOut(signOutRedirectURL?: string): string {
         console.log("lcore logout");
-        const signOutURL = this.getSignOutURL();
+        const signOutURL = this.getSignOutURL(signOutRedirectURL);
         this._authenticationHelper.clearUserSessionData();
         console.log("cleared user session");
         return signOutURL;
