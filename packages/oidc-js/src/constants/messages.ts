@@ -40,3 +40,4 @@ export const GET_AUTH_URL = "get_auth_url";
 export const GET_TOKEN = "get_token";
 export const IS_AUTHENTICATED = "is_authenticated";
 export const GET_SIGN_OUT_URL = "get_sign_out_url";
+export const REFRESH_TOKEN = "refresh_token";

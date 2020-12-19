@@ -40,7 +40,8 @@ import {
     GET_AUTH_URL,
     GET_TOKEN,
     IS_AUTHENTICATED,
-    GET_SIGN_OUT_URL
+    GET_SIGN_OUT_URL,
+    REFRESH_TOKEN
 } from "../constants";
 
 export interface ResponseMessage<T> {
@@ -84,7 +85,8 @@ export type MessageType =
     | typeof GET_AUTH_URL
     | typeof GET_TOKEN
     | typeof IS_AUTHENTICATED
-    | typeof GET_SIGN_OUT_URL;
+    | typeof GET_SIGN_OUT_URL
+    | typeof REFRESH_TOKEN;
 
 export interface CommunicationHelperInterface {
     communicate: <T, R>(message: Message<T>) => Promise<R>;
