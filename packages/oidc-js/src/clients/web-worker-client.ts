@@ -42,17 +42,17 @@ import {
     REFRESH_ACCESS_TOKEN
 } from "../constants";
 import {
-    AuthCode,
+    AuthorizationInfo,
     HttpClient,
     HttpError,
     HttpRequestConfig,
     HttpResponse,
     Message,
     ResponseMessage,
-    GetAuthorizationURLInterface,
     WebWorkerClientConfig,
     WebWorkerClientInterface,
-    AuthUrl
+    AuthorizationParams,
+    AuthorizationResponse,
 } from "../models";
 import WorkerFile from "web-worker:../worker/client.worker.ts";
 import { SPAUtils } from "../utils";
@@ -364,7 +364,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         }
 
         if (resolvedAuthorizationCode && resolvedSessionState) {
-            const message: Message<AuthCode> = {
+            const message: Message<AuthorizationInfo> = {
                 data: {
                     code: resolvedAuthorizationCode,
                     pkce: SPAUtils.getPKCE(),
@@ -377,7 +377,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
             SPAUtils.removePKCE();
 
-            return communicate<AuthCode, BasicUserInfo>(message)
+            return communicate<AuthorizationInfo, BasicUserInfo>(message)
                 .then((response) => {
                     signedIn = true;
 
@@ -400,7 +400,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                 });
         }
 
-        const message: Message<AuthUrl> = {
+        const message: Message<AuthorizationParams> = {
             data: {
                 params: params,
                 signInRedirectURL: signInRedirectURL
@@ -408,13 +408,13 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             type: GET_AUTH_URL
         };
 
-        return communicate<AuthUrl, GetAuthorizationURLInterface>(message)
+        return communicate<AuthorizationParams, AuthorizationResponse>(message)
             .then((response) => {
                 if (response.pkce) {
                     SPAUtils.setPKCE(response.pkce);
                 }
 
-                location.href = response.authorizationCode;
+                location.href = response.authorizationURL;
 
                 return Promise.resolve({
                     allowedScopes: "",

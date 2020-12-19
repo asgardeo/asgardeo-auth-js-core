@@ -18,12 +18,12 @@
 
 import { AsgardeoAuthClient, Store, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, OIDCEndpoints, AuthClientConfig } from "../core";
 import {
-    GetAuthorizationURLInterface,
     HttpResponse,
     HttpError,
     HttpRequestConfig,
     WebWorkerClientConfig,
-    WebWorkerCoreInterface
+    WebWorkerCoreInterface,
+    AuthorizationResponse
 } from "../models";
 import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores";
@@ -94,7 +94,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                 })
                 .catch((error: HttpError) => {
                     if (error?.response?.status === 401) {
-                        return _authenticationClient.refreshToken()
+                        return _authenticationClient.refreshAccessToken()
                             .then(() => {
                                 return _httpClient
                                     .request(config)
@@ -140,7 +140,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                 .catch((error: HttpError) => {
                     if (error?.response?.status === 401) {
 
-                        return _authenticationClient.refreshToken()
+                        return _authenticationClient.refreshAccessToken()
                             .then(() => {
                                 return _httpClient
                                     .all(requests)
@@ -178,9 +178,9 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     const getAuthorizationURL = (
         params?: AuthorizationURLParams,
         signInRedirectURL?:string
-    ): Promise<GetAuthorizationURLInterface> => {
+    ): Promise<AuthorizationResponse> => {
         return _authenticationClient.getAuthorizationURL(params, signInRedirectURL).then((url: string) => {
-            return { authorizationCode: url, pkce: _authenticationClient.getPKCECode() as string };
+            return { authorizationURL: url, pkce: _authenticationClient.getPKCECode() as string };
         });
     };
 
@@ -198,7 +198,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
             return _authenticationClient
                 .requestAccessToken(authorizationCode, sessionState)
                 .then(() => {
-                    _spaHelper.refreshTokenAutomatically();
+                    _spaHelper.refreshAccessTokenAutomatically();
 
                     return _authenticationClient.getBasicUserInfo();
                 })
@@ -226,7 +226,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
             .requestCustomGrant(config)
             .then((response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
-                    _spaHelper.refreshTokenAutomatically();
+                    _spaHelper.refreshAccessTokenAutomatically();
 
                     return _authenticationClient.getBasicUserInfo();
                 } else {
@@ -240,9 +240,9 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
     const refreshToken = (): Promise<BasicUserInfo> => {
         return _authenticationClient
-            .refreshToken()
+            .refreshAccessToken()
             .then(() => {
-                _spaHelper.refreshTokenAutomatically();
+                _spaHelper.refreshAccessTokenAutomatically();
 
                 return _authenticationClient.getBasicUserInfo();
             })
@@ -253,7 +253,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
     const revokeToken = (): Promise<boolean> => {
         return _authenticationClient
-            .revokeToken()
+            .revokeAccessToken()
             .then(() => {
                 _spaHelper.clearRefreshTokenTimeout();
 
@@ -271,7 +271,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     };
 
     const getOIDCServiceEndpoints = (): OIDCEndpoints => {
-        return _authenticationClient.getOIDCEndpoints();
+        return _authenticationClient.getOIDCServiceEndpoints();
     };
 
     const getAccessToken = (): string => {
