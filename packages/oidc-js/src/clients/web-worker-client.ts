@@ -38,7 +38,8 @@ import {
     GET_TOKEN,
     GET_AUTH_URL,
     IS_AUTHENTICATED,
-    GET_SIGN_OUT_URL
+    GET_SIGN_OUT_URL,
+    REFRESH_TOKEN
 } from "../constants";
 import {
     AuthCode,
@@ -113,7 +114,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      */
     const customGrant = (
         requestParams: CustomGrantConfig
-    ): Promise<HttpResponse |TokenResponse> => {
+    ): Promise<HttpResponse |BasicUserInfo> => {
         if (!initialized) {
             return Promise.reject("The object has not been initialized yet");
         }
@@ -129,7 +130,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
         return communicate<
             CustomGrantConfig,
-            HttpResponse | TokenResponse
+            HttpResponse | BasicUserInfo
         >(message)
             .then((response) => {
                 return Promise.resolve(response);
@@ -462,7 +463,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      *
      * @returns {Promise<boolean>} A promise that resolves when revoking is completed.
      */
-    const endUserSession = (): Promise<boolean> => {
+    const revokeAccessToken = (): Promise<boolean> => {
         if (!signedIn) {
             return Promise.reject("You have not signed in yet");
         }
@@ -480,7 +481,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             });
     };
 
-    const getServiceEndpoints = (): Promise<OIDCProviderMetaData> => {
+    const getOIDCServiceEndpoints = (): Promise<OIDCProviderMetaData> => {
         const message: Message<null> = {
             type: GET_SERVICE_ENDPOINTS
         };
@@ -494,7 +495,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             });
     };
 
-    const getUserInfo = (): Promise<BasicUserInfo> => {
+    const getBasicUserInfo = (): Promise<BasicUserInfo> => {
         const message: Message<null> = {
             type: GET_USER_INFO
         };
@@ -534,25 +535,33 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         });
     }
 
-    const onHttpRequestSuccess = (callback: (response: HttpResponse) => void): void => {
+    const refreshToken = (): Promise<BasicUserInfo> => {
+        const message: Message<null> = {
+            type: REFRESH_TOKEN
+        };
+
+        return communicate<null, BasicUserInfo>(message);
+    }
+
+    const setHttpRequestSuccessCallback = (callback: (response: HttpResponse) => void): void => {
         if (callback && typeof callback === "function") {
             httpClientHandlers.requestSuccessCallback = callback;
         }
     };
 
-    const onHttpRequestError = (callback: (response: HttpError) => void): void => {
+    const setHttpRequestErrorCallback = (callback: (response: HttpError) => void): void => {
         if (callback && typeof callback === "function") {
             httpClientHandlers.requestErrorCallback = callback;
         }
     };
 
-    const onHttpRequestStart = (callback: () => void): void => {
+    const setHttpRequestStartCallback = (callback: () => void): void => {
         if (callback && typeof callback === "function") {
             httpClientHandlers.requestStartCallback = callback;
         }
     };
 
-    const onHttpRequestFinish = (callback: () => void): void => {
+    const setHttpRequestFinishCallback = (callback: () => void): void => {
         if (callback && typeof callback === "function") {
             httpClientHandlers.requestFinishCallback = callback;
         }
@@ -563,18 +572,19 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             customGrant,
             disableHttpHandler,
             enableHttpHandler,
-            endUserSession,
+            revokeAccessToken,
             getDecodedIDToken,
-            getServiceEndpoints,
-            getUserInfo,
+            getOIDCServiceEndpoints,
+            getBasicUserInfo,
             httpRequest,
             httpRequestAll,
             initialize,
             isAuthenticated,
-            onHttpRequestError,
-            onHttpRequestFinish,
-            onHttpRequestStart,
-            onHttpRequestSuccess,
+            setHttpRequestErrorCallback,
+            setHttpRequestFinishCallback,
+            setHttpRequestStartCallback,
+            setHttpRequestSuccessCallback,
+            refreshToken,
             signIn,
             signOut
         };
