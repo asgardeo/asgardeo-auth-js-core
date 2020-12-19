@@ -56,8 +56,8 @@ const PRIMARY_INSTANCE = "primaryInstance";
  * @class IdentityClient
  * @implements {ConfigInterface} - Configuration interface.
  */
-export class IdentityClient {
-    private static _instances: Map<string, IdentityClient> = new Map<string, IdentityClient>();
+export class AsgardeoSPAClient {
+    private static _instances: Map<string, AsgardeoSPAClient> = new Map<string, AsgardeoSPAClient>();
     private _client: WebWorkerClientInterface | MainThreadClientInterface;
     private _storage: Storage;
     private _initialized: boolean;
@@ -94,7 +94,7 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public static getInstance(id?: string): IdentityClient {
+    public static getInstance(id?: string): AsgardeoSPAClient {
         if (id && this._instances?.get(id)) {
             return this._instances.get(id);
         } else if (!id && this._instances?.get(PRIMARY_INSTANCE)) {
@@ -102,12 +102,12 @@ export class IdentityClient {
         }
 
         if (id) {
-            this._instances.set(id, new IdentityClient(id));
+            this._instances.set(id, new AsgardeoSPAClient(id));
 
             return this._instances.get(id);
         }
 
-        this._instances.set(PRIMARY_INSTANCE, new IdentityClient(PRIMARY_INSTANCE));
+        this._instances.set(PRIMARY_INSTANCE, new AsgardeoSPAClient(PRIMARY_INSTANCE));
 
         return this._instances.get(PRIMARY_INSTANCE);
     }
@@ -140,7 +140,7 @@ export class IdentityClient {
         this._initialized = false;
         this._startedInitialize = true;
 
-        if (!(this._storage===Storage.WebWorker)) {
+        if (!(this._storage === Storage.WebWorker)) {
             this._initialized = true;
             if (!this._client) {
                 const mainThreadClientConfig = config as AuthClientConfig<MainThreadClientConfig>;
@@ -175,8 +175,6 @@ export class IdentityClient {
             }
 
             return Promise.resolve(true);
-
-
         }
     }
 
@@ -201,7 +199,7 @@ export class IdentityClient {
      * @preserve
      */
     public async getBasicUserInfo(): Promise<BasicUserInfo> {
-        return this._client.getBasicUserInfo()
+        return this._client.getBasicUserInfo();
     }
 
     /**
@@ -237,7 +235,12 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string, signInRedirectURL?: string): Promise<BasicUserInfo> {
+    public async signIn(
+        params?: SignInConfig,
+        authorizationCode?: string,
+        sessionState?: string,
+        signInRedirectURL?: string
+    ): Promise<BasicUserInfo> {
         if (!this._startedInitialize) {
             return Promise.reject("The object has not been initialized yet.");
         }
@@ -257,15 +260,17 @@ export class IdentityClient {
             iterationToWait++;
         }
 
-        return this._client.signIn(params, authorizationCode, sessionState, signInRedirectURL).then((response: BasicUserInfo) => {
-            if (this._onSignInCallback) {
-                if (response.allowedScopes || response.displayName || response.email || response.username) {
-                    this._onSignInCallback(response);
+        return this._client
+            .signIn(params, authorizationCode, sessionState, signInRedirectURL)
+            .then((response: BasicUserInfo) => {
+                if (this._onSignInCallback) {
+                    if (response.allowedScopes || response.displayName || response.email || response.username) {
+                        this._onSignInCallback(response);
+                    }
                 }
-            }
 
-            return response;
-        })
+                return response;
+            });
     }
 
     /**
@@ -333,7 +338,7 @@ export class IdentityClient {
      * @preserve
      */
     public async httpRequest(config: HttpRequestConfig): Promise<HttpResponse> {
-            return this._client.httpRequest(config);
+        return this._client.httpRequest(config);
     }
 
     /**
@@ -384,7 +389,7 @@ export class IdentityClient {
      * @preserve
      */
     public async httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]> {
-            return this._client.httpRequestAll(config);
+        return this._client.httpRequestAll(config);
     }
 
     /**
@@ -496,7 +501,7 @@ export class IdentityClient {
     public getHttpClient(): HttpClientInstance {
         if (this._initialized) {
             if (this._storage !== Storage.WebWorker) {
-                const mainThreadClient = this._client as MainThreadClientInterface
+                const mainThreadClient = this._client as MainThreadClientInterface;
                 return mainThreadClient.getHttpClient();
             }
 
@@ -714,6 +719,5 @@ export class IdentityClient {
      */
     public async disableHttpHandler(): Promise<boolean> {
         return this._client.disableHttpHandler();
-
     }
 }
