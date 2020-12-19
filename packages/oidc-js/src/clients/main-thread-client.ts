@@ -207,7 +207,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return true;
     };
 
-    const customGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
+    const requestCustomGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
             .requestCustomGrant(config)
             .then((response: HttpResponse | TokenResponse) => {
@@ -224,9 +224,9 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             });
     };
 
-    const refreshToken = (): Promise<BasicUserInfo> => {
+    const refreshAccessToken = (): Promise<BasicUserInfo> => {
         return _authenticationClient
-            .refreshToken()
+            .refreshAccessToken()
             .then(() => {
                 _spaHelper.refreshTokenAutomatically();
 
@@ -239,7 +239,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
 
     const revokeAccessToken = (): Promise<boolean> => {
         return _authenticationClient
-            .revokeToken()
+            .revokeAccessToken()
             .then(() => {
                 _spaHelper.clearRefreshTokenTimeout();
 
@@ -257,7 +257,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     };
 
     const getOIDCServiceEndpoints = (): OIDCEndpoints => {
-        return _authenticationClient.getOIDCEndpoints();
+        return _authenticationClient.getOIDCServiceEndpoints();
     };
 
     const getAccessToken = (): string => {
@@ -269,7 +269,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     };
 
     return {
-        customGrant,
+        requestCustomGrant,
         disableHttpHandler,
         enableHttpHandler,
         getAccessToken,
@@ -280,7 +280,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         httpRequest,
         httpRequestAll,
         isAuthenticated,
-        refreshToken,
+        refreshAccessToken,
         revokeAccessToken,
         setHttpRequestErrorCallback,
         setHttpRequestFinishCallback,
