@@ -38,13 +38,16 @@ import {
     GET_AUTH_URL,
     GET_TOKEN,
     IS_AUTHENTICATED,
-    GET_SIGN_OUT_URL
+    GET_SIGN_OUT_URL,
+    REFRESH_TOKEN
 } from "../constants";
 import {
     HttpError,
     HttpResponse,
     GetAuthorizationURLInterface,
     WebWorkerClientConfig,
+    WebWorkerClientInterface,
+    WebWorkerCoreInterface
 } from "../models";
 import { WebWorkerCore } from "./worker-core";
 import { BasicUserInfo, AuthClientConfig } from "../core";
@@ -53,10 +56,10 @@ import { WebWorkerClass } from "../models";
 
 const ctx: WebWorkerClass<any> = self as any;
 
-let webWorker;
+let webWorker: WebWorkerCoreInterface;
 
 ctx.onmessage = ({ data, ports }) => {
-    const port = ports[ 0 ];
+    const port = ports[0];
 
     switch (data.type) {
         case INIT:
@@ -202,7 +205,7 @@ ctx.onmessage = ({ data, ports }) => {
             }
 
             webWorker
-                .endUserSession()
+                .revokeToken()
                 .then((response) => {
                     port.postMessage(MessageUtils.generateSuccessMessage(response));
                 })
@@ -217,14 +220,11 @@ ctx.onmessage = ({ data, ports }) => {
                 break;
             }
 
-            webWorker
-                .getServiceEndpoints()
-                .then((response) => {
-                    port.postMessage(MessageUtils.generateSuccessMessage(response));
-                })
-                .catch((error) => {
-                    port.postMessage(MessageUtils.generateFailureMessage(error));
-                });
+            try {
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getOIDCServiceEndpoints()));
+            } catch (error) {
+                port.postMessage(MessageUtils.generateFailureMessage(error));
+            }
 
             break;
         case GET_USER_INFO:
@@ -312,6 +312,19 @@ ctx.onmessage = ({ data, ports }) => {
 
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getSignOutURL()));
+            } catch (error) {
+                port.postMessage(MessageUtils.generateFailureMessage(error));
+            }
+
+            break;
+        case REFRESH_TOKEN:
+            if (!webWorker) {
+                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
+
+                break;
+            }
+            try {
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.refreshToken()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
