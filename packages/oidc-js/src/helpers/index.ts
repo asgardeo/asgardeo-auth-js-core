@@ -16,5 +16,4 @@
 * under the License.
 */
 
-export * from "./typeguards";
 export * from "./spa-helper";
