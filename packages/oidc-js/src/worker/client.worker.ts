@@ -16,44 +16,44 @@
  * under the License.
  */
 
+import { WebWorkerCore } from "./worker-core";
 import {
-    HTTP_REQUEST,
-    HTTP_REQUEST_ALL,
     AUTH_REQUIRED,
-    REQUEST_CUSTOM_GRANT,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
+    GET_AUTH_URL,
+    GET_BASIC_USER_INFO,
     GET_DECODED_ID_TOKEN,
     GET_OIDC_SERVICE_ENDPOINTS,
-    GET_BASIC_USER_INFO,
+    GET_SIGN_OUT_URL,
+    HTTP_REQUEST,
+    HTTP_REQUEST_ALL,
     INIT,
-    SIGN_OUT,
+    IS_AUTHENTICATED,
+    REFRESH_ACCESS_TOKEN,
+    REQUEST_ACCESS_TOKEN,
+    REQUEST_CUSTOM_GRANT,
     REQUEST_ERROR,
     REQUEST_FINISH,
     REQUEST_START,
     REQUEST_SUCCESS,
+    REVOKE_ACCESS_TOKEN,
     SIGNED_IN,
     SIGN_IN,
-    GET_AUTH_URL,
-    REQUEST_ACCESS_TOKEN,
-    IS_AUTHENTICATED,
-    GET_SIGN_OUT_URL,
-    REFRESH_ACCESS_TOKEN,
-    REVOKE_ACCESS_TOKEN
+    SIGN_OUT
 } from "../constants";
+import { AuthClientConfig, BasicUserInfo } from "../core";
 import {
+    AuthorizationResponse,
     HttpError,
     HttpResponse,
     WebWorkerClientConfig,
     WebWorkerClientInterface,
-    WebWorkerCoreInterface,
-    AuthorizationResponse
+    WebWorkerCoreInterface
 } from "../models";
-import { WebWorkerCore } from "./worker-core";
-import { BasicUserInfo, AuthClientConfig } from "../core";
-import { MessageUtils } from "../utils";
 import { WebWorkerClass } from "../models";
+import { MessageUtils } from "../utils";
 
 const ctx: WebWorkerClass<any> = self as any;
 

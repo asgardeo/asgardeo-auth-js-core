@@ -1,9 +1,9 @@
-import axios from "axios";
 import { KeyLike } from "crypto";
+import axios from "axios";
+import { AUTHORIZATION_ENDPOINT, CLIENT_ID_TAG, CLIENT_SECRET_TAG, END_SESSION_ENDPOINT, JWKS_ENDPOINT, OIDC_SCOPE, OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, SCOPE_TAG, SERVICE_RESOURCES, TOKEN_ENDPOINT, TOKEN_TAG, USERNAME_TAG } from "../constants";
 import { DataLayer } from "../data";
-import { OIDCProviderMetaData, OIDCEndpointsInternal, AuthClientConfig } from "../models";
+import { AuthClientConfig, OIDCEndpointsInternal, OIDCProviderMetaData } from "../models";
 import { AuthenticationUtils, CryptoUtils } from "../utils";
-import { SERVICE_RESOURCES, AUTHORIZATION_ENDPOINT, END_SESSION_ENDPOINT, JWKS_ENDPOINT, OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, TOKEN_ENDPOINT, TOKEN_TAG, USERNAME_TAG, SCOPE_TAG, CLIENT_ID_TAG, CLIENT_SECRET_TAG, OIDC_SCOPE } from "../constants";
 
 /**
 * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.

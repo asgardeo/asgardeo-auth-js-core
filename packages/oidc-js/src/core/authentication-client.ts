@@ -16,10 +16,10 @@
 * under the License.
 */
 
-import { AuthenticationCore } from "./core";
-import { AuthClientConfig, OIDCEndpoints, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, Store, AuthorizationURLParams, BasicUserInfo } from "./models";
 import { OP_CONFIG_INITIATED, SIGN_OUT_SUCCESS_PARAM } from "./constants";
+import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
+import { AuthClientConfig, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, Store, TokenResponse } from "./models";
 import { HttpResponse } from "../models";
 
 export class AsgardeoAuthClient<T> {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { PKCE_CODE_VERIFIER, SIGN_OUT_URL, AsgardeoAuthClient } from "../core";
+import { AsgardeoAuthClient, PKCE_CODE_VERIFIER, SIGN_OUT_URL } from "../core";
 
 export class SPAUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function

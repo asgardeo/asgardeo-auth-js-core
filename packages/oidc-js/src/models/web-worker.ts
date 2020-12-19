@@ -16,9 +16,9 @@
 * under the License.
 */
 
-import { Message, HttpResponse, HttpError, HttpRequestConfig } from ".";
-import { BasicUserInfo, CustomGrantConfig, AuthorizationURLParams, DecodedIdTokenPayload, OIDCEndpoints } from "../core";
+import { HttpError, HttpRequestConfig, HttpResponse, Message } from ".";
 import { AuthorizationResponse } from "..";
+import { AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints } from "../core";
 
 interface WebWorkerEvent<T> extends MessageEvent {
     data: Message<T>;

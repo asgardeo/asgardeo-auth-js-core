@@ -17,33 +17,33 @@
  */
 
 import { AxiosResponse } from "axios";
-import {Storage} from "../constants";
+import { Storage } from "../constants";
 import {
-    HttpResponse,
+    AUTHORIZATION_CODE,
+    AsgardeoAuthClient,
+    AuthClientConfig,
+    BasicUserInfo,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCEndpoints,
+    PKCE_CODE_VERIFIER,
+    ResponseMode,
+    SESSION_STATE,
+    SignInConfig,
+    Store,
+    TokenResponse
+} from "../core";
+import { SPAHelper } from "../helpers";
+import { HttpClient, HttpClientInstance } from "../http-client";
+import {
     HttpError,
     HttpRequestConfig,
+    HttpResponse,
     MainThreadClientConfig,
     MainThreadClientInterface
 } from "../models";
 import { LocalStore, MemoryStore, SessionStore } from "../stores";
-import { HttpClientInstance, HttpClient } from "../http-client";
 import { SPAUtils } from "../utils";
-import {
-    Store,
-    AsgardeoAuthClient,
-    ResponseMode,
-    AUTHORIZATION_CODE,
-    SESSION_STATE,
-    PKCE_CODE_VERIFIER,
-    SignInConfig,
-    BasicUserInfo,
-    CustomGrantConfig,
-    TokenResponse,
-    DecodedIdTokenPayload,
-    OIDCEndpoints,
-    AuthClientConfig
-} from "../core";
-import { SPAHelper } from "../helpers";
 
 const initiateStore = (store: Storage): Store => {
     switch (store) {

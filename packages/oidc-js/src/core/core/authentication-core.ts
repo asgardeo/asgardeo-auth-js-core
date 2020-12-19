@@ -17,29 +17,29 @@
  */
 
 import axios from "axios";
-import { AuthenticationUtils, CryptoUtils } from "../utils";
-import { DataLayer } from "../data";
+import { HttpRequestConfig, HttpResponse } from "../..";
 import {
-    AuthClientConfig,
-    OIDCEndpoints,
-    OIDCProviderMetaData,
-    TokenResponse,
-    CustomGrantConfig,
-    DecodedIdTokenPayload,
-    BasicUserInfo,
-    AuthorizationURLParams
-} from "../models";
-import { AuthenticationHelper } from "../helpers";
-import {
-    OIDC_SCOPE,
     AUTHORIZATION_ENDPOINT,
-    PKCE_CODE_VERIFIER,
-    SESSION_STATE,
+    OIDC_SCOPE,
     OP_CONFIG_INITIATED,
+    PKCE_CODE_VERIFIER,
     SERVICE_RESOURCES,
+    SESSION_STATE,
     SIGN_OUT_SUCCESS_PARAM
 } from "../constants";
-import { HttpResponse, HttpRequestConfig } from "../..";
+import { DataLayer } from "../data";
+import { AuthenticationHelper } from "../helpers";
+import {
+    AuthClientConfig,
+    AuthorizationURLParams,
+    BasicUserInfo,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCEndpoints,
+    OIDCProviderMetaData,
+    TokenResponse
+} from "../models";
+import { AuthenticationUtils, CryptoUtils } from "../utils";
 
 export class AuthenticationCore<T> {
     private _dataLayer: DataLayer<T>;

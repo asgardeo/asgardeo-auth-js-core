@@ -16,22 +16,22 @@
  * under the License.
  */
 
-import { AsgardeoAuthClient, Store, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, TokenResponse, DecodedIdTokenPayload, OIDCEndpoints, AuthClientConfig } from "../core";
+import { promises } from "dns";
+import { AsgardeoAuthClient, AuthClientConfig, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, Store, TokenResponse } from "../core";
+import { AuthenticationUtils } from "../core/utils/authentication-utils";
+import { SPAHelper } from "../helpers";
+import { HttpClient, HttpClientInstance } from "../http-client";
 import {
-    HttpResponse,
+    AuthorizationResponse,
     HttpError,
     HttpRequestConfig,
+    HttpResponse,
     WebWorkerClientConfig,
-    WebWorkerCoreInterface,
-    AuthorizationResponse
+    WebWorkerCoreInterface
 } from "../models";
-import { LocalStore } from "../stores/local-store";
 import { MemoryStore } from "../stores";
+import { LocalStore } from "../stores/local-store";
 import { SessionStore } from "../stores/session-store";
-import { AuthenticationUtils } from "../core/utils/authentication-utils";
-import { promises } from "dns";
-import { HttpClientInstance, HttpClient } from "../http-client";
-import { SPAHelper } from "../helpers";
 
 
 export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerCoreInterface => {

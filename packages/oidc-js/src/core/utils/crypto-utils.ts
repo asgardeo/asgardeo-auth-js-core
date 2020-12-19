@@ -17,14 +17,14 @@
  */
 
 import Base64 from "crypto-js/enc-base64";
-import WordArray from "crypto-js/lib-typedarrays";
 import base64URLDecode from "crypto-js/enc-base64";
 import utf8 from "crypto-js/enc-utf8";
+import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
-import parseJwk from " ../../../node_modules/jose/dist/browser/jwk/parse";
 import jwtVerify, { KeyLike } from "../../../node_modules/jose/dist/browser/jwt/verify";
-import { JWKInterface, DecodedIdTokenPayload } from "../models";
+import { DecodedIdTokenPayload, JWKInterface } from "../models";
+import parseJwk from " ../../../node_modules/jose/dist/browser/jwk/parse";
 
 
 export class CryptoUtils {
