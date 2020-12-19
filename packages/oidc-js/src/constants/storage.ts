@@ -32,5 +32,5 @@ export enum Storage {
      * Store the session information in the web worker.
      */
     WebWorker = "webWorker",
-    MainThreadMemory="mainThreadMemory"
+    BrowserMemory="browserMemory"
 }
