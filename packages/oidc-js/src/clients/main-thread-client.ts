@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { AxiosResponse } from "axios";
 import { Storage } from "../constants";
 import {
     AUTHORIZATION_CODE,
@@ -269,18 +268,18 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     };
 
     return {
-        requestCustomGrant,
         disableHttpHandler,
         enableHttpHandler,
         getAccessToken,
+        getBasicUserInfo,
         getDecodedIDToken,
         getHttpClient,
         getOIDCServiceEndpoints,
-        getBasicUserInfo,
         httpRequest,
         httpRequestAll,
         isAuthenticated,
         refreshAccessToken,
+        requestCustomGrant,
         revokeAccessToken,
         setHttpRequestErrorCallback,
         setHttpRequestFinishCallback,
