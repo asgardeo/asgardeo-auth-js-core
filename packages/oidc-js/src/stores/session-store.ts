@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store, StoreValue, TemporaryData } from "../core";
+import { Store } from "../core";
 
 export class SessionStore implements Store {
     public setData(key: string, value: string): void {
