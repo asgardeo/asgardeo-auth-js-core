@@ -44,10 +44,10 @@ import {
 import {
     HttpError,
     HttpResponse,
-    GetAuthorizationURLInterface,
     WebWorkerClientConfig,
     WebWorkerClientInterface,
-    WebWorkerCoreInterface
+    WebWorkerCoreInterface,
+    AuthorizationResponse
 } from "../models";
 import { WebWorkerCore } from "./worker-core";
 import { BasicUserInfo, AuthClientConfig } from "../core";
@@ -82,7 +82,7 @@ ctx.onmessage = ({ data, ports }) => {
             } else {
                 webWorker
                     .getAuthorizationURL(data?.data?.params, data?.data?.signInRedirectURL)
-                    .then((response: GetAuthorizationURLInterface) => {
+                    .then((response: AuthorizationResponse) => {
                         port.postMessage(MessageUtils.generateSuccessMessage(response));
                     })
                     .catch((error) => {
