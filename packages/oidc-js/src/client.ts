@@ -16,45 +16,27 @@
  * under the License.
  */
 
-import { ACCESS_TOKEN, AUTHORIZATION_CODE_TYPE, Hooks, OIDC_SCOPE, REFRESH_TOKEN, Storage } from "./constants";
-import { isWebWorkerConfig } from "./helpers";
+import { Hooks, REFRESH_TOKEN, Storage } from "./constants";
+import { SPAHelper } from "./helpers";
 import { HttpClient, HttpClientInstance } from "./http-client";
 import {
-    ConfigInterface,
-    CustomGrantRequestParams,
-    DecodedIdTokenPayloadInterface,
     HttpError,
     HttpRequestConfig,
     HttpResponse,
-    OIDCEndpointConstantsInterface,
-    SignInResponse,
-    TokenResponseInterface,
-    UserInfo,
-    WebWorkerClientInterface
+
+    WebWorkerClientInterface,
+    MainThreadClientConfig,
+    MainThreadClientInterface
 } from "./models";
-import {
-    customGrant as customGrantUtil,
-    endAuthenticatedSession,
-    getAccessToken as getAccessTokenUtil,
-    getDecodedIDToken,
-    getServiceEndpoints,
-    getSessionParameter,
-    getUserInfo as getUserInfoUtil,
-    handleSignIn,
-    handleSignOut,
-    isLoggedOut,
-    resetOPConfiguration,
-    sendRefreshTokenRequest,
-    sendRevokeTokenRequest
-} from "./utils";
-import { WebWorkerClient } from "./clients/web-worker-client";
-import { MainThreadClient } from "./clients/main-thread-client";
+import { MainThreadClient, WebWorkerClient } from "./clients";
+import { BasicUserInfo, SignInConfig, OIDCEndpoints, Config, CustomGrantConfig, DecodedIdTokenPayload, AuthClientConfig, WebWorkerClientConfig, OIDC_SCOPE } from ".";
+import { threadId } from "worker_threads";
+import { SPAUtils } from "./utils";
 
 /**
  * Default configurations.
  */
 const DefaultConfig = {
-    authorizationType: AUTHORIZATION_CODE_TYPE,
     clientHost: origin,
     clientSecret: null,
     clockTolerance: 60,
@@ -75,13 +57,12 @@ const PRIMARY_INSTANCE = "primaryInstance";
  * @implements {ConfigInterface} - Configuration interface.
  */
 export class IdentityClient {
-    private _authConfig: ConfigInterface;
     private static _instances: Map<string, IdentityClient> = new Map<string, IdentityClient>();
-    private _client: WebWorkerClientInterface;
+    private _client: WebWorkerClientInterface | MainThreadClientInterface;
     private _storage: Storage;
     private _initialized: boolean;
     private _startedInitialize: boolean = false;
-    private _onSignInCallback: (response: UserInfo) => void;
+    private _onSignInCallback: (response: BasicUserInfo) => void;
     private _onSignOutCallback: () => void;
     private _onEndUserSession: (response: any) => void;
     private _onInitialize: (response: boolean) => void;
@@ -91,7 +72,6 @@ export class IdentityClient {
     private _onHttpRequestFinish: () => void;
     private _onHttpRequestError: (error: HttpError) => void;
     private _httpClient: HttpClientInstance;
-    private _mainThread: any;
     private _instanceID: string;
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -156,32 +136,17 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public initialize(config: ConfigInterface): Promise<boolean> {
+    public initialize(config: AuthClientConfig<Config>): Promise<boolean> {
         this._storage = config.storage ?? Storage.SessionStorage;
         this._initialized = false;
         this._startedInitialize = true;
 
-        const attachToken = (request: HttpRequestConfig): void => {
-            request.headers = {
-                ...request.headers,
-                Authorization: `Bearer ${getSessionParameter(ACCESS_TOKEN, config)}`
-            };
-        };
-
-        if (!isWebWorkerConfig(config)) {
-            this._authConfig = { ...DefaultConfig, ...config };
+        if (!(this._storage===Storage.WebWorker)) {
             this._initialized = true;
-            this._httpClient = HttpClient.getInstance();
-            this._httpClient.init(
-                true,
-                attachToken,
-                this._onHttpRequestStart,
-                this._onHttpRequestSuccess,
-                this._onHttpRequestError,
-                this._onHttpRequestFinish
-            );
-
-            this._mainThread = MainThreadClient(this._authConfig);
+            if (!this._client) {
+                const mainThreadClientConfig = config as AuthClientConfig<MainThreadClientConfig>;
+                this._client = MainThreadClient({ ...DefaultConfig, ...mainThreadClientConfig });
+            }
             if (this._onInitialize) {
                 this._onInitialize(true);
             }
@@ -189,33 +154,41 @@ export class IdentityClient {
             return Promise.resolve(true);
         } else {
             if (!this._client) {
-                this._client = WebWorkerClient({ ...DefaultConfig, ...config });
+                const webWorkerClientConfig = config as AuthClientConfig<WebWorkerClientConfig>;
+                this._client = WebWorkerClient({
+                    ...DefaultConfig,
+                    ...webWorkerClientConfig
+                }) as WebWorkerClientInterface;
+
+                return this._client
+                    .initialize()
+                    .then(() => {
+                        if (this._onInitialize) {
+                            this._onInitialize(true);
+                        }
+                        this._initialized = true;
+
+                        return Promise.resolve(true);
+                    })
+                    .catch((error) => {
+                        return Promise.reject(error);
+                    });
             }
 
-            return this._client
-                .initialize({ ...DefaultConfig, ...config })
-                .then(() => {
-                    if (this._onInitialize) {
-                        this._onInitialize(true);
-                    }
-                    this._initialized = true;
+            return Promise.resolve(true);
 
-                    return Promise.resolve(true);
-                })
-                .catch((error) => {
-                    return Promise.reject(error);
-                });
+
         }
     }
 
     /**
-     * This method returns a Promise that resolves with the user information obtained from the ID token.
+     * This method returns a Promise that resolves with the basic user information obtained from the ID token.
      *
-     * @return {Promise<UserInfo} - A promise that resolves with the user information.
+     * @return {Promise<BasicUserInfo>} - A promise that resolves with the user information.
      *
      * @example
      * ```
-     * auth.getUserInfo().then((response) => {
+     * auth.getBasicUserInfo().then((response) => {
      *    // console.log(response);
      * }).catch((error) => {
      *    // console.error(error);
@@ -228,12 +201,8 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public getUserInfo(): Promise<UserInfo> {
-        if (this._storage === Storage.WebWorker) {
-            return this._client.getUserInfo();
-        }
-
-        return Promise.resolve(getUserInfoUtil(this._authConfig));
+    public async getBasicUserInfo(): Promise<BasicUserInfo> {
+        return this._client.getBasicUserInfo()
     }
 
     /**
@@ -249,10 +218,14 @@ export class IdentityClient {
      * **To learn more about the `on()` method:**
      * @see {@link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on}
      *
-     * @param {string} fidp - Specifies the FIDP parameter
-     * to direct the user directly to the IdP's sign-in page instead of the Single-Sign-On page.
+     * @param {SignInConfig} params - The sign-in config.
+     * The `SignInConfig` object has these two attributes in addition to any custom key-value pairs.
+     *  1. fidp - Specifies the FIDP parameter that is used to take the user directly to an IdP login page.
+     *  2. forceInit: Specifies if the OIDC Provider Meta Data should be loaded again from the `well-known`
+     * endpoint.
+     *  3. Any other parameters that should be appended to the authorization request.
      *
-     * @return {Promise<UserInfo>} - A promise that resolves with the user information.
+     * @return {Promise<BasicUserInfo>} - A promise that resolves with the user information.
      *
      * @example
      * ```
@@ -265,7 +238,7 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async signIn(fidp?: string): Promise<UserInfo> {
+    public async signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string): Promise<BasicUserInfo> {
         if (!this._startedInitialize) {
             return Promise.reject("The object has not been initialized yet.");
         }
@@ -285,37 +258,15 @@ export class IdentityClient {
             iterationToWait++;
         }
 
-        if (this._storage === Storage.WebWorker) {
-            return this._client
-                .signIn()
-                .then((response) => {
-                    if (this._onSignInCallback) {
-                        if (response.allowedScopes || response.displayName || response.email || response.username) {
-                            this._onSignInCallback(response);
-                        }
-                    }
-
-                    return Promise.resolve(response);
-                })
-                .catch((error) => {
-                    return Promise.reject(error);
-                });
-        }
-
-        return this._mainThread
-            .signIn()
-            .then((response: UserInfo) => {
-                if (this._onSignInCallback) {
-                    if (response.allowedScopes || response.displayName || response.email || response.username) {
-                        this._onSignInCallback(response);
-                    }
+        return this._client.signIn(params, authorizationCode, sessionState).then((response: BasicUserInfo) => {
+            if (this._onSignInCallback) {
+                if (response.allowedScopes || response.displayName || response.email || response.username) {
+                    this._onSignInCallback(response);
                 }
+            }
 
-                return Promise.resolve(response);
-            })
-            .catch((error) => {
-                return Promise.reject(error);
-            });
+            return response;
+        })
     }
 
     /**
@@ -339,24 +290,10 @@ export class IdentityClient {
      * @preserve
      */
     public async signOut(): Promise<boolean> {
-        if (this._storage === Storage.WebWorker) {
-            return this._client
-                .signOut()
-                .then((response) => {
-                    return Promise.resolve(response);
-                })
-                .catch((error) => {
-                    return Promise.reject(error);
-                });
-        }
+        const signOutResponse = await this._client.signOut();
+        this._onSignOutCallback && this._onSignOutCallback();
 
-        return handleSignOut(this._authConfig)
-            .then((response) => {
-                return Promise.resolve(response);
-            })
-            .catch((error) => {
-                return Promise.reject(error);
-            });
+        return signOutResponse;
     }
 
     /**
@@ -397,11 +334,7 @@ export class IdentityClient {
      * @preserve
      */
     public async httpRequest(config: HttpRequestConfig): Promise<HttpResponse> {
-        if (this._storage === Storage.WebWorker) {
             return this._client.httpRequest(config);
-        }
-
-        return this._httpClient.request(config);
     }
 
     /**
@@ -452,16 +385,7 @@ export class IdentityClient {
      * @preserve
      */
     public async httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]> {
-        if (this._storage === Storage.WebWorker) {
             return this._client.httpRequestAll(config);
-        }
-
-        const requests: Promise<HttpResponse<any>>[] = [];
-        config.forEach((request) => {
-            requests.push(this._httpClient.request(request));
-        });
-
-        return this._httpClient.all(requests);
     }
 
     /**
@@ -496,38 +420,18 @@ export class IdentityClient {
      * @preserve
      */
     public async customGrant(
-        requestParams: CustomGrantRequestParams
-    ): Promise<boolean | HttpResponse<any> | SignInResponse> {
+        requestParams: CustomGrantConfig
+    ): Promise<boolean | HttpResponse<any> | BasicUserInfo> {
         if (!requestParams.id) {
             throw Error("No ID specified for the custom grant.");
         }
 
-        if (this._storage === Storage.WebWorker) {
-            return this._client
-                .customGrant(requestParams)
-                .then((response) => {
-                    if (this._onCustomGrant.get(requestParams.id)) {
-                        this._onCustomGrant.get(requestParams.id)(response);
-                    }
+        const customGrantResponse = await this._client.customGrant(requestParams);
 
-                    return Promise.resolve(response);
-                })
-                .catch((error) => {
-                    return Promise.reject(error);
-                });
-        }
+        this._onCustomGrant?.get(requestParams.id) &&
+            this._onCustomGrant?.get(requestParams.id)(this._onCustomGrant?.get(requestParams.id));
 
-        return customGrantUtil(requestParams, this._authConfig)
-            .then((response) => {
-                if (this._onCustomGrant.get(requestParams.id)) {
-                    this._onCustomGrant.get(requestParams.id)(response);
-                }
-
-                return Promise.resolve(response);
-            })
-            .catch((error) => {
-                return Promise.reject(error);
-            });
+        return customGrantResponse;
     }
 
     /**
@@ -551,35 +455,10 @@ export class IdentityClient {
      * @preserve
      */
     public async endUserSession(): Promise<boolean> {
-        if (this._storage === Storage.WebWorker) {
-            return this._client
-                .endUserSession()
-                .then((response) => {
-                    if (this._onEndUserSession) {
-                        this._onEndUserSession(response);
+        const revokeAccessToken = await this._client.revokeAccessToken();
+        this._onEndUserSession && this._onEndUserSession(revokeAccessToken);
 
-                        return Promise.resolve(response);
-                    }
-                })
-                .catch((error) => {
-                    return Promise.reject(error);
-                });
-        }
-
-        return sendRevokeTokenRequest(this._authConfig, getSessionParameter(ACCESS_TOKEN, this._authConfig))
-            .then((response) => {
-                resetOPConfiguration(this._authConfig);
-                endAuthenticatedSession(this._authConfig);
-
-                if (this._onEndUserSession) {
-                    this._onEndUserSession(response);
-
-                    return Promise.resolve(true);
-                }
-            })
-            .catch((error) => {
-                return Promise.reject(error);
-            });
+        return revokeAccessToken;
     }
 
     /**
@@ -602,12 +481,8 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async getServiceEndpoints(): Promise<OIDCEndpointConstantsInterface> {
-        if (this._storage === Storage.WebWorker) {
-            return this._client.getServiceEndpoints();
-        }
-
-        return Promise.resolve(getServiceEndpoints(this._authConfig));
+    public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
+        return this._client.getOIDCServiceEndpoints();
     }
 
     /**
@@ -621,7 +496,12 @@ export class IdentityClient {
      */
     public getHttpClient(): HttpClientInstance {
         if (this._initialized) {
-            return this._httpClient;
+            if (this._storage !== Storage.WebWorker) {
+                const mainThreadClient = this._client as MainThreadClientInterface
+                return mainThreadClient.getHttpClient();
+            }
+
+            throw Error("Http client cannot be returned when the storage is set to web worker");
         }
 
         throw Error("Identity Client has not been initialized yet");
@@ -647,12 +527,8 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public getDecodedIDToken(): Promise<DecodedIdTokenPayloadInterface> {
-        if (this._storage === Storage.WebWorker) {
-            return this._client.getDecodedIDToken();
-        }
-
-        return Promise.resolve(getDecodedIDToken(this._authConfig));
+    public async getDecodedIDToken(): Promise<DecodedIdTokenPayload> {
+        return this._client.getDecodedIDToken();
     }
 
     /**
@@ -677,12 +553,13 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public getAccessToken(): Promise<string> {
+    public async getAccessToken(): Promise<string> {
         if (this._storage === Storage.WebWorker) {
             return Promise.reject("The access token cannot be obtained when the storage type is set to webWorker.");
         }
+        const mainThreadClient = this._client as MainThreadClientInterface;
 
-        return getAccessTokenUtil(this._authConfig);
+        return mainThreadClient.getAccessToken();
     }
 
     /**
@@ -706,12 +583,8 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public refreshToken(): Promise<TokenResponseInterface> {
-        if (this._storage === Storage.WebWorker) {
-            return Promise.reject("The token is automatically refreshed when the storage type is set to webWorker.");
-        }
-
-        return sendRefreshTokenRequest(this._authConfig, getSessionParameter(REFRESH_TOKEN, this._authConfig));
+    public async refreshToken(): Promise<BasicUserInfo> {
+        return this._client.refreshToken();
     }
 
     /**
@@ -755,7 +628,7 @@ export class IdentityClient {
                     break;
                 case Hooks.SignOut:
                     this._onSignOutCallback = callback;
-                    if (isLoggedOut()) {
+                    if (SPAUtils.isSignOutSuccessful()) {
                         this._onSignOutCallback();
                     }
                     break;
@@ -767,28 +640,28 @@ export class IdentityClient {
                     break;
                 case Hooks.HttpRequestError:
                     if (this._storage === Storage.WebWorker) {
-                        this._client.onHttpRequestError(callback);
+                        this._client.setHttpRequestErrorCallback(callback);
                     }
 
                     this._onHttpRequestError = callback;
                     break;
                 case Hooks.HttpRequestFinish:
                     if (this._storage === Storage.WebWorker) {
-                        this._client.onHttpRequestFinish(callback);
+                        this._client.setHttpRequestFinishCallback(callback);
                     }
 
                     this._onHttpRequestFinish = callback;
                     break;
                 case Hooks.HttpRequestStart:
                     if (this._storage === Storage.WebWorker) {
-                        this._client.onHttpRequestStart(callback);
+                        this._client.setHttpRequestStartCallback(callback);
                     }
 
                     this._onHttpRequestStart = callback;
                     break;
                 case Hooks.HttpRequestSuccess:
                     if (this._storage === Storage.WebWorker) {
-                        this._client.onHttpRequestSuccess(callback);
+                        this._client.setHttpRequestSuccessCallback(callback);
                     }
 
                     this._onHttpRequestSuccess = callback;
@@ -820,14 +693,8 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public enableHttpHandler(): Promise<boolean> {
-        if (this._storage === Storage.WebWorker) {
-            return this._client.enableHttpHandler();
-        } else {
-            this._httpClient.enableHandler();
-
-            return Promise.resolve(true);
-        }
+    public async enableHttpHandler(): Promise<boolean> {
+        return this._client.enableHttpHandler();
     }
 
     /**
@@ -846,13 +713,8 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public disableHttpHandler(): Promise<boolean> {
-        if (this._storage === Storage.WebWorker) {
-            return this._client.disableHttpHandler();
-        } else {
-            this._httpClient.disableHandler();
+    public async disableHttpHandler(): Promise<boolean> {
+        return this._client.disableHttpHandler();
 
-            return Promise.resolve(true);
-        }
     }
 }
