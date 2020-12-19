@@ -54,7 +54,7 @@ export class AuthenticationCore<T> {
         this._oidcProviderMetaData = () => this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public sendAuthorizationRequest(config?: AuthorizationURLParams, signInRedirectURL?: string): string {
+    public getAuthorizationURL(config?: AuthorizationURLParams, signInRedirectURL?: string): string {
         const authorizeEndpoint = this._dataLayer.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
@@ -102,7 +102,7 @@ export class AuthenticationCore<T> {
         return authorizeRequest;
     }
 
-    public sendTokenRequest(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+    public requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
         const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
@@ -180,7 +180,7 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public sendRefreshTokenRequest(): Promise<TokenResponse> {
+    public refreshAccessToken(): Promise<TokenResponse> {
         const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
         if (!this._dataLayer.getSessionData().refresh_token) {
@@ -248,7 +248,7 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public sendRevokeTokenRequest(): Promise<HttpResponse> {
+    public revokeAccessToken(): Promise<HttpResponse> {
         const revokeTokenEndpoint = this._oidcProviderMetaData().revocation_endpoint;
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
@@ -281,7 +281,7 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public customGrant = (customGrantParams: CustomGrantConfig): Promise<TokenResponse | HttpResponse> => {
+    public requestCustomGrant = (customGrantParams: CustomGrantConfig): Promise<TokenResponse | HttpResponse> => {
         if (
             !this._oidcProviderMetaData().token_endpoint ||
             this._oidcProviderMetaData().token_endpoint.trim().length === 0
@@ -292,7 +292,7 @@ export class AuthenticationCore<T> {
         let data: string = "";
 
         Object.entries(customGrantParams.data).map(([key, value], index: number) => {
-            const newValue = this._authenticationHelper.replaceTemplateTags(value as string);
+            const newValue = this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
             data += `${key}=${newValue}${index !== Object.entries(customGrantParams.data).length - 1 ? "&" : ""}`;
         });
 
@@ -370,7 +370,7 @@ export class AuthenticationCore<T> {
     public getBasicUserInfo(): BasicUserInfo {
         console.log(this._dataLayer);
         const sessionData = this._dataLayer.getSessionData();
-        const authenticatedUser = AuthenticationUtils.getAuthenticatedUser(sessionData?.id_token);
+        const authenticatedUser = AuthenticationUtils.getAuthenticatedUserInfo(sessionData?.id_token);
         return {
             allowedScopes: sessionData.scope,
             displayName: authenticatedUser.displayName,
@@ -388,7 +388,7 @@ export class AuthenticationCore<T> {
         return payload;
     }
 
-    public initOPConfiguration(forceInit: boolean): Promise<any> {
+    public getOIDCProviderMetaData(forceInit: boolean): Promise<any> {
         if (!forceInit && this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return Promise.resolve();
         }
@@ -425,7 +425,7 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public getServiceEndpoints(): OIDCEndpoints {
+    public getOIDCServiceEndpoints(): OIDCEndpoints {
         return {
             authorizationEndpoint: this._oidcProviderMetaData().authorization_endpoint,
             checkSessionIframe: this._oidcProviderMetaData().check_session_iframe,
