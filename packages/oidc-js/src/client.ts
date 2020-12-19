@@ -71,7 +71,6 @@ export class IdentityClient {
     private _onHttpRequestSuccess: (response: HttpResponse) => void;
     private _onHttpRequestFinish: () => void;
     private _onHttpRequestError: (error: HttpError) => void;
-    private _httpClient: HttpClientInstance;
     private _instanceID: string;
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -419,7 +418,7 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async customGrant(
+    public async requestCustomGrant(
         requestParams: CustomGrantConfig
     ): Promise<boolean | HttpResponse<any> | BasicUserInfo> {
         if (!requestParams.id) {
@@ -454,7 +453,7 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async endUserSession(): Promise<boolean> {
+    public async revokeAccessToken(): Promise<boolean> {
         const revokeAccessToken = await this._client.revokeAccessToken();
         this._onEndUserSession && this._onEndUserSession(revokeAccessToken);
 
@@ -583,7 +582,7 @@ export class IdentityClient {
      *
      * @preserve
      */
-    public async refreshToken(): Promise<BasicUserInfo> {
+    public async refreshAccessToken(): Promise<BasicUserInfo> {
         return this._client.refreshAccessToken();
     }
 
