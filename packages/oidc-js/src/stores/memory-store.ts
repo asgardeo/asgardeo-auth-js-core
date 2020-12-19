@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store, StoreValue, TemporaryData } from "../core";
+import { Store } from "../core";
 
 export class MemoryStore implements Store {
     private _data: Map<string, string>;
@@ -25,7 +25,6 @@ export class MemoryStore implements Store {
     }
 
     public setData(key: string, value: string): void {
-        console.log(key, value);
         this._data.set(key, value);
     }
 
