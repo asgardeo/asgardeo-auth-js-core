@@ -1,25 +1,34 @@
 /**
-* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* WSO2 Inc. licenses this file to you under the Apache License,
-* Version 2.0 (the "License"); you may not use this file except
-* in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied. See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { OP_CONFIG_INITIATED, SIGN_OUT_SUCCESS_PARAM } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
-import { AuthClientConfig, AuthorizationURLParams, BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, Store, TokenResponse } from "./models";
+import {
+    AuthClientConfig,
+    AuthorizationURLParams,
+    BasicUserInfo,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCEndpoints,
+    Store,
+    TokenResponse
+} from "./models";
 import { HttpResponse } from "../models";
 
 export class AsgardeoAuthClient<T> {
@@ -47,9 +56,7 @@ export class AsgardeoAuthClient<T> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return Promise.resolve(
-                this._authenticationCore.getAuthorizationURL(authRequestConfig, signInRedirectURL)
-            );
+            return Promise.resolve(this._authenticationCore.getAuthorizationURL(authRequestConfig, signInRedirectURL));
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(config?.forceInit as boolean).then(() => {
@@ -68,7 +75,6 @@ export class AsgardeoAuthClient<T> {
     }
 
     public signOut(signOutRedirectURL?: string): string {
-        console.log("sign out client methd");
         return this._authenticationCore.signOut(signOutRedirectURL);
     }
 
