@@ -43,6 +43,7 @@ import {
     GET_SIGN_OUT_URL,
     REFRESH_TOKEN
 } from "../constants";
+import { SignInConfig } from "../core";
 
 export interface ResponseMessage<T> {
     success: boolean;
@@ -61,6 +62,7 @@ export interface AuthCode {
     code: string;
     sessionState: string;
     pkce?: string;
+    signInRedirectURL?: string;
 }
 
 export type MessageType =
@@ -95,4 +97,9 @@ export interface CommunicationHelperInterface {
 export interface GetAuthorizationURLInterface{
     authorizationCode: string;
     pkce?: string;
+}
+
+export interface AuthUrl {
+    params: SignInConfig,
+    signInRedirectURL?: string
 }
