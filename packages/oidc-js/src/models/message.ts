@@ -17,31 +17,31 @@
  */
 
 import {
-    API_CALL,
-    API_CALL_ALL,
+    HTTP_REQUEST,
+    HTTP_REQUEST_ALL,
     AUTH_CODE,
     AUTH_REQUIRED,
-    CUSTOM_GRANT,
+    REQUEST_CUSTOM_GRANT,
     DISABLE_HTTP_HANDLER,
     ENABLE_HTTP_HANDLER,
     END_USER_SESSION,
     GET_DECODED_ID_TOKEN,
-    GET_SERVICE_ENDPOINTS,
-    GET_USER_INFO,
+    GET_OIDC_SERVICE_ENDPOINTS,
+    GET_BASIC_USER_INFO,
     INIT,
-    LOGOUT,
+    SIGN_OUT,
     REQUEST_ERROR,
     REQUEST_FINISH,
     REQUEST_START,
     REQUEST_SUCCESS,
-    REVOKE_TOKEN,
+    REVOKE_ACCESS_TOKEN,
     SIGNED_IN,
     SIGN_IN,
     GET_AUTH_URL,
-    GET_TOKEN,
+    REQUEST_ACCESS_TOKEN,
     IS_AUTHENTICATED,
     GET_SIGN_OUT_URL,
-    REFRESH_TOKEN
+    REFRESH_ACCESS_TOKEN
 } from "../constants";
 import { SignInConfig } from "../core";
 
@@ -69,26 +69,26 @@ export type MessageType =
     | typeof INIT
     | typeof SIGN_IN
     | typeof AUTH_CODE
-    | typeof LOGOUT
-    | typeof API_CALL
-    | typeof API_CALL_ALL
-    | typeof CUSTOM_GRANT
-    | typeof REVOKE_TOKEN
+    | typeof SIGN_OUT
+    | typeof HTTP_REQUEST
+    | typeof HTTP_REQUEST_ALL
+    | typeof REQUEST_CUSTOM_GRANT
+    | typeof REVOKE_ACCESS_TOKEN
     | typeof END_USER_SESSION
     | typeof REQUEST_ERROR
     | typeof REQUEST_FINISH
     | typeof REQUEST_START
     | typeof REQUEST_SUCCESS
-    | typeof GET_SERVICE_ENDPOINTS
-    | typeof GET_USER_INFO
+    | typeof GET_OIDC_SERVICE_ENDPOINTS
+    | typeof GET_BASIC_USER_INFO
     | typeof GET_DECODED_ID_TOKEN
     | typeof ENABLE_HTTP_HANDLER
     | typeof DISABLE_HTTP_HANDLER
     | typeof GET_AUTH_URL
-    | typeof GET_TOKEN
+    | typeof REQUEST_ACCESS_TOKEN
     | typeof IS_AUTHENTICATED
     | typeof GET_SIGN_OUT_URL
-    | typeof REFRESH_TOKEN;
+    | typeof REFRESH_ACCESS_TOKEN;
 
 export interface CommunicationHelperInterface {
     communicate: <T, R>(message: Message<T>) => Promise<R>;
