@@ -17,7 +17,14 @@
  */
 
 import { Storage } from "../constants";
-import { BasicUserInfo, CustomGrantConfig, DecodedIdTokenPayload, OIDCEndpoints, OIDCProviderMetaData, SignInConfig, TokenResponse } from "../core";
+import {
+    BasicUserInfo,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCEndpoints,
+    OIDCProviderMetaData,
+    SignInConfig
+} from "../core";
 import { HttpClientInstance } from "../http-client";
 import { HttpError, HttpRequestConfig, HttpResponse } from "../models";
 
@@ -70,7 +77,12 @@ export interface WebWorkerClientInterface {
     enableHttpHandler(): Promise<boolean>;
     disableHttpHandler(): Promise<boolean>;
     initialize(): Promise<boolean>;
-    signIn(params?: SignInConfig, authorizationCode?: string, sessionState?: string, signInRedirectURL?: string): Promise<BasicUserInfo>;
+    signIn(
+        params?: SignInConfig,
+        authorizationCode?: string,
+        sessionState?: string,
+        signInRedirectURL?: string
+    ): Promise<BasicUserInfo>;
     signOut(signOutRedirectURL?: string): Promise<boolean>;
     revokeAccessToken(): Promise<boolean>;
     getOIDCServiceEndpoints(): Promise<OIDCProviderMetaData>;
