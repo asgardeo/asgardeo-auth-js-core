@@ -48,22 +48,22 @@ export class AsgardeoAuthClient<T> {
         delete authRequestConfig?.forceInit;
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return Promise.resolve(
-                this._authenticationCore.sendAuthorizationRequest(authRequestConfig, signInRedirectURL)
+                this._authenticationCore.getAuthorizationURL(authRequestConfig, signInRedirectURL)
             );
         }
 
-        return this._authenticationCore.initOPConfiguration(config?.forceInit as boolean).then(() => {
-            return this._authenticationCore.sendAuthorizationRequest(authRequestConfig, signInRedirectURL);
+        return this._authenticationCore.getOIDCProviderMetaData(config?.forceInit as boolean).then(() => {
+            return this._authenticationCore.getAuthorizationURL(authRequestConfig, signInRedirectURL);
         });
     }
 
     public requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
         }
 
-        return this._authenticationCore.initOPConfiguration(false).then(() => {
-            return this._authenticationCore.sendTokenRequest(authorizationCode, sessionState);
+        return this._authenticationCore.getOIDCProviderMetaData(false).then(() => {
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
         });
     }
 
@@ -76,8 +76,8 @@ export class AsgardeoAuthClient<T> {
         return this._authenticationCore.getSignOutURL();
     }
 
-    public getOIDCEndpoints(): OIDCEndpoints {
-        return this._authenticationCore.getServiceEndpoints();
+    public getOIDCServiceEndpoints(): OIDCEndpoints {
+        return this._authenticationCore.getOIDCServiceEndpoints();
     }
 
     public getDecodedIDToken(): DecodedIdTokenPayload {
@@ -88,12 +88,12 @@ export class AsgardeoAuthClient<T> {
         return this._authenticationCore.getBasicUserInfo();
     }
 
-    public revokeToken(): Promise<HttpResponse> {
-        return this._authenticationCore.sendRevokeTokenRequest();
+    public revokeAccessToken(): Promise<HttpResponse> {
+        return this._authenticationCore.revokeAccessToken();
     }
 
-    public refreshToken(): Promise<TokenResponse> {
-        return this._authenticationCore.sendRefreshTokenRequest();
+    public refreshAccessToken(): Promise<TokenResponse> {
+        return this._authenticationCore.refreshAccessToken();
     }
 
     public getAccessToken(): string {
@@ -101,7 +101,7 @@ export class AsgardeoAuthClient<T> {
     }
 
     public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | HttpResponse> {
-        return this._authenticationCore.customGrant(config);
+        return this._authenticationCore.requestCustomGrant(config);
     }
 
     public isAuthenticated(): boolean {
