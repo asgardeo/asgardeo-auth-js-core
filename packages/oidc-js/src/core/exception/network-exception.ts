@@ -18,7 +18,7 @@
 
 import { AsgardeoAuthException } from "./exception";
 
-export class AsgardioAuthNetworkException extends AsgardeoAuthException {
+export class AsgardeoAuthNetworkException extends AsgardeoAuthException {
     public networkErrorCode: string;
     public networkErrorMessage: string;
     public status: number;
