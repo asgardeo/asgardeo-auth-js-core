@@ -17,7 +17,6 @@
  */
 
 import Base64 from "crypto-js/enc-base64";
-import base64URLDecode from "crypto-js/enc-base64";
 import utf8 from "crypto-js/enc-utf8";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
@@ -143,7 +142,7 @@ export class CryptoUtils {
      */
     public static decodeIDToken (idToken: string): DecodedIdTokenPayload {
         try {
-            const words = base64URLDecode.parse(idToken.split(".")[ 1 ]);
+            const words = Base64.parse(idToken.split(".")[ 1 ]);
             const utf8String = utf8.stringify(words);
             const payload = JSON.parse(utf8String);
 
