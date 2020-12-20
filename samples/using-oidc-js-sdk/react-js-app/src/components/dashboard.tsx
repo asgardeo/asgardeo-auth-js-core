@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Hooks, IdentityClient } from "@asgardio/oidc-js";
+import { Hooks, AsgardeoSPAClient } from "@asgardio/oidc-js";
 import React, { FunctionComponent, ReactElement, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -25,7 +25,7 @@ import { authState, displayName } from "../recoil";
 
 export const Dashboard: FunctionComponent<null> = (): ReactElement => {
     const history = useHistory();
-    const auth = IdentityClient.getInstance();
+    const auth = AsgardeoSPAClient.getInstance();
     const serverOrigin = "https://localhost:9443";
 
     const [ email, setEmail ] = useState("");
