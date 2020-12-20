@@ -27,15 +27,17 @@ export class SPAHelper<T> {
     }
 
     public refreshAccessTokenAutomatically(): void {
-        // Refresh 10 seconds before the expiry time
-        const expiryTime = parseInt(this._dataLayer.getSessionData().expires_in);
-        const time = expiryTime <= 10 ? expiryTime : expiryTime - 10;
+        if (this._dataLayer.getSessionData().refresh_token) {
+            // Refresh 10 seconds before the expiry time
+            const expiryTime = parseInt(this._dataLayer.getSessionData().expires_in);
+            const time = expiryTime <= 10 ? expiryTime : expiryTime - 10;
 
-        const timer = setTimeout(() => {
-            this._authenticationClient.refreshAccessToken();
-        }, time * 1000);
+            const timer = setTimeout(() => {
+                this._authenticationClient.refreshAccessToken();
+            }, time * 1000);
 
-        this._dataLayer.setTemporaryDataParameter(REFRESH_TOKEN_TIMER, JSON.stringify(timer));
+            this._dataLayer.setTemporaryDataParameter(REFRESH_TOKEN_TIMER, JSON.stringify(timer));
+        }
     }
 
     public clearRefreshTokenTimeout(): void {
