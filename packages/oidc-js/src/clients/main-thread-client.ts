@@ -131,7 +131,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     };
 
     const signIn = (
-        config?: SignInConfig,
+        signInConfig?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string,
         signInRedirectURL?: string
@@ -176,7 +176,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                 });
         }
 
-        return _authenticationClient.getAuthorizationURL(config, signInRedirectURL).then((url: string) => {
+        return _authenticationClient.getAuthorizationURL(signInConfig, signInRedirectURL).then((url: string) => {
             if (config.storage === Storage.BrowserMemory) {
                 SPAUtils.setPKCE(_dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string);
             }
