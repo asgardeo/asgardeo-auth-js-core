@@ -73,7 +73,8 @@ export class AuthenticationCore<T> {
         }
 
         authorizeRequest += "&scope=" + scope;
-        authorizeRequest += "&redirect_uri=" + signInRedirectURL ?? this._config().signInRedirectURL;
+        const redirectURL = signInRedirectURL ?? this._config().signInRedirectURL;
+        authorizeRequest += "&redirect_uri=" + redirectURL;
 
         if (this._config().responseMode) {
             authorizeRequest += "&response_mode=" + this._config().responseMode;
