@@ -40,6 +40,7 @@ import {
     SIGN_OUT
 } from "../constants";
 import { AuthClientConfig, BasicUserInfo } from "../core";
+import { AsgardeoSPAException } from "../exception";
 import {
     AuthorizationResponse,
     HttpError,
@@ -56,6 +57,21 @@ let webWorker: WebWorkerCoreInterface;
 
 ctx.onmessage = ({ data, ports }) => {
     const port = ports[0];
+    if (data.type !== INIT && !webWorker) {
+        port.postMessage(
+            MessageUtils.generateFailureMessage(
+                new AsgardeoSPAException(
+                    "CLNT_WRKR-ONMSG-NF01",
+                    "client.worker",
+                    data.type,
+                    "The web worker has not been initialized yet.",
+                    "The initialize method needs to be called before the specified operation can be carried out."
+                )
+            )
+        );
+
+        return;
+    }
 
     switch (data.type) {
         case INIT:
@@ -73,108 +89,58 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case GET_AUTH_URL:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-            } else {
-                webWorker
-                    .getAuthorizationURL(data?.data?.params, data?.data?.signInRedirectURL)
-                    .then((response: AuthorizationResponse) => {
-                        port.postMessage(MessageUtils.generateSuccessMessage(response));
-                    })
-                    .catch((error) => {
-                        port.postMessage(MessageUtils.generateFailureMessage(error));
-                    });
-            }
+            webWorker
+                .getAuthorizationURL(data?.data?.params, data?.data?.signInRedirectURL)
+                .then((response: AuthorizationResponse) => {
+                    port.postMessage(MessageUtils.generateSuccessMessage(response));
+                })
+                .catch((error) => {
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
+                });
 
             break;
         case REQUEST_ACCESS_TOKEN:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-            } else {
-                webWorker
-                    .requestAccessToken(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
-                    .then((response: BasicUserInfo) => {
-                        port.postMessage(MessageUtils.generateSuccessMessage(response));
-                    })
-                    .catch((error) => {
-                        port.postMessage(MessageUtils.generateFailureMessage(error));
-                    });
-            }
+            webWorker
+                .requestAccessToken(data?.data?.code, data?.data?.sessionState, data?.data?.pkce)
+                .then((response: BasicUserInfo) => {
+                    port.postMessage(MessageUtils.generateSuccessMessage(response));
+                })
+                .catch((error) => {
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
+                });
 
             break;
         case HTTP_REQUEST:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
-            if (!webWorker.isAuthenticated()) {
-                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
-            } else {
-                webWorker
-                    .httpRequest(data.data)
-                    .then((response) => {
-                        port.postMessage(MessageUtils.generateSuccessMessage(response));
-                    })
-                    .catch((error) => {
-                        port.postMessage(MessageUtils.generateFailureMessage(error));
-                    });
-            }
+            webWorker
+                .httpRequest(data.data)
+                .then((response) => {
+                    port.postMessage(MessageUtils.generateSuccessMessage(response));
+                })
+                .catch((error) => {
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
+                });
 
             break;
         case HTTP_REQUEST_ALL:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
-            if (!webWorker.isAuthenticated()) {
-                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
-            } else {
-                webWorker
-                    .httpRequestAll(data.data)
-                    .then((response) => {
-                        port.postMessage(MessageUtils.generateSuccessMessage(response));
-                    })
-                    .catch((error) => {
-                        port.postMessage(MessageUtils.generateFailureMessage(error));
-                    });
-            }
+            webWorker
+                .httpRequestAll(data.data)
+                .then((response) => {
+                    port.postMessage(MessageUtils.generateSuccessMessage(response));
+                })
+                .catch((error) => {
+                    port.postMessage(MessageUtils.generateFailureMessage(error));
+                });
 
             break;
         case SIGN_OUT:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
-            if (!webWorker.isAuthenticated()) {
-                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
-            } else {
-                try {
-                    port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut(data?.data)));
-                } catch (error) {
-                    port.postMessage(MessageUtils.generateFailureMessage(error));
-                }
+            try {
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut(data?.data)));
+            } catch (error) {
+                port.postMessage(MessageUtils.generateFailureMessage(error));
             }
 
             break;
         case REQUEST_CUSTOM_GRANT:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
-            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
-
-                break;
-            }
-
             webWorker
                 .requestCustomGrant(data.data)
                 .then((response) => {
@@ -186,18 +152,6 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case REVOKE_ACCESS_TOKEN:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
-            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
-
-                break;
-            }
-
             webWorker
                 .revokeAccessToken()
                 .then((response) => {
@@ -208,12 +162,6 @@ ctx.onmessage = ({ data, ports }) => {
                 });
             break;
         case GET_OIDC_SERVICE_ENDPOINTS:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getOIDCServiceEndpoints()));
             } catch (error) {
@@ -222,18 +170,6 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case GET_BASIC_USER_INFO:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
-            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
-
-                break;
-            }
-
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getBasicUserInfo()));
             } catch (error) {
@@ -242,18 +178,6 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case GET_DECODED_ID_TOKEN:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
-            if (!webWorker.isAuthenticated() && data.data.signInRequired) {
-                port.postMessage(MessageUtils.generateFailureMessage("You have not signed in yet."));
-
-                break;
-            }
-
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getDecodedIDToken()));
             } catch (error) {
@@ -262,34 +186,16 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case ENABLE_HTTP_HANDLER:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
             webWorker.enableHttpHandler();
             port.postMessage(MessageUtils.generateSuccessMessage());
 
             break;
         case DISABLE_HTTP_HANDLER:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
             webWorker.disableHttpHandler();
             port.postMessage(MessageUtils.generateSuccessMessage());
 
             break;
         case IS_AUTHENTICATED:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.isAuthenticated()));
             } catch (error) {
@@ -298,12 +204,6 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case GET_SIGN_OUT_URL:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
-
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getSignOutURL()));
             } catch (error) {
@@ -312,11 +212,6 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         case REFRESH_ACCESS_TOKEN:
-            if (!webWorker) {
-                port.postMessage(MessageUtils.generateFailureMessage("Worker has not been initiated."));
-
-                break;
-            }
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.refreshAccessToken()));
             } catch (error) {
@@ -325,7 +220,13 @@ ctx.onmessage = ({ data, ports }) => {
 
             break;
         default:
-            port?.postMessage(MessageUtils.generateFailureMessage(`Unknown message type ${data?.type}`));
+            port?.postMessage(MessageUtils.generateFailureMessage(new AsgardeoSPAException(
+                "WORKR_CLNT-ONMSG-IV02",
+                "client.worker",
+                "onmessage",
+                "The message type is invalid.",
+                `The message type provided, ${data.type}, is invalid.`
+            )));
     }
 };
 
