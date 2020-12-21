@@ -155,9 +155,21 @@ export const App: FunctionComponent<{}> = (): ReactElement => {
                                         login.</h3>
                                     <div>
                                         <ul className="details">
-                                            <li><b>Name:</b> { authenticatedUser.displayName }</li>
-                                            <li><b>Username:</b> { authenticatedUser.username }</li>
-                                            <li><b>Email:</b> { authenticatedUser.email }</li>
+                                            {
+                                                authenticatedUser.displayName && (
+                                                    <li><b>Name:</b> { authenticatedUser.displayName }</li>
+                                                )
+                                            }
+                                            {
+                                                authenticatedUser.username && (
+                                                    <li><b>Username:</b> { authenticatedUser.username }</li>
+                                                )
+                                            }
+                                            {
+                                                authenticatedUser.email && authenticatedUser.email !== "null" && (
+                                                    <li><b>Email:</b> { authenticatedUser.email }</li>
+                                                )
+                                            }
                                         </ul>
                                     </div>
                                     <button className="btn primary" onClick={ () => handleLogout() }>Logout</button>
