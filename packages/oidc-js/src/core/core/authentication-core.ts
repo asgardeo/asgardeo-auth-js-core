@@ -17,17 +17,17 @@
  */
 
 import axios from "axios";
-import { HttpRequestConfig, HttpResponse } from "../..";
+import { HttpError, HttpRequestConfig, HttpResponse } from "../..";
 import {
     AUTHORIZATION_ENDPOINT,
     OIDC_SCOPE,
     OP_CONFIG_INITIATED,
     PKCE_CODE_VERIFIER,
-    SERVICE_RESOURCES,
     SESSION_STATE,
     SIGN_OUT_SUCCESS_PARAM
 } from "../constants";
 import { DataLayer } from "../data";
+import { AsgardeoAuthException, AsgardeoAuthExceptionStack, AsgardeoAuthNetworkException } from "../exception";
 import { AuthenticationHelper } from "../helpers";
 import {
     AuthClientConfig,
@@ -58,7 +58,14 @@ export class AuthenticationCore<T> {
         const authorizeEndpoint = this._dataLayer.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
-            throw Error("Invalid authorize endpoint found.");
+            throw new AsgardeoAuthException(
+                "AUTH_CORE-GAU-NF01",
+                "authentication-core",
+                "getAuthorizationURL",
+                "No authorization endpoint found.",
+                "No authorization endpoint was found in the OIDC provider meta data from the well-known endpoint " +
+                    "or the authorization endpoint passed to the SDK is empty."
+            );
         }
 
         let authorizeRequest = authorizeEndpoint + "?response_type=code&client_id=" + this._config().clientID;
@@ -107,7 +114,16 @@ export class AuthenticationCore<T> {
         const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
-            return Promise.reject(new Error("Invalid token endpoint found."));
+            return Promise.reject(
+                new AsgardeoAuthException(
+                    "AUTH_CORE-RAT1-NF01",
+                    "authentication-core",
+                    "requestAccessToken",
+                    "Token endpoint not found.",
+                    "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                        "or the token endpoint passed to the SDK is empty."
+                )
+            );
         }
 
         this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
@@ -133,51 +149,34 @@ export class AuthenticationCore<T> {
         return axios
             .post(tokenEndpoint, body.join("&"), { headers: AuthenticationUtils.getTokenRequestHeaders() })
             .then((response) => {
-                if (response.status !== 200) {
-                    return Promise.reject(
-                        new Error("Invalid status code received in the token response: " + response.status)
-                    );
-                }
-                if (this._config().validateIDToken) {
-                    return this._authenticationHelper
-                        .validateIdToken(response.data.id_token)
-                        .then((valid) => {
-                            if (valid) {
-                                this._dataLayer.setSessionData(response.data);
-
-                                const tokenResponse: TokenResponse = {
-                                    accessToken: response.data.access_token,
-                                    expiresIn: response.data.expires_in,
-                                    idToken: response.data.id_token,
-                                    refreshToken: response.data.refresh_token,
-                                    scope: response.data.scope,
-                                    tokenType: response.data.token_type
-                                };
-
-                                return Promise.resolve(tokenResponse);
-                            }
-
-                            return Promise.reject("Invalid id_token in the token response: " + response.data.id_token);
-                        })
-                        .catch((error) => {
-                            return Promise.reject(error);
-                        });
-                } else {
-                    const tokenResponse: TokenResponse = {
-                        accessToken: response.data.access_token,
-                        expiresIn: response.data.expires_in,
-                        idToken: response.data.id_token,
-                        refreshToken: response.data.refresh_token,
-                        scope: response.data.scope,
-                        tokenType: response.data.token_type
-                    };
-                    this._dataLayer.setSessionData(response.data);
-
-                    return Promise.resolve(tokenResponse);
-                }
+                return this._authenticationHelper
+                    .handleTokenResponse(response)
+                    .then((response: TokenResponse) => response)
+                    .catch((error) => {
+                        return Promise.reject(
+                            new AsgardeoAuthExceptionStack(
+                                "AUTH_CORE-RAT1-ES02",
+                                "authentication-core",
+                                "requestAccessToken",
+                                error
+                            )
+                        );
+                    });
             })
-            .catch((error) => {
-                return Promise.reject(error);
+            .catch((error: HttpError) => {
+                return Promise.reject(
+                    new AsgardeoAuthNetworkException(
+                        "AUTH_CORE-RAT1-NR03",
+                        "authentication-core",
+                        "requestAccessToken",
+                        "Requesting access token failed",
+                        "The request to get the access token from the server failed.",
+                        error?.code,
+                        error?.message,
+                        error?.response?.status,
+                        error?.response?.data
+                    )
+                );
             });
     }
 
@@ -185,11 +184,29 @@ export class AuthenticationCore<T> {
         const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
 
         if (!this._dataLayer.getSessionData().refresh_token) {
-            return Promise.reject("No refresh token found");
+            return Promise.reject(
+                new AsgardeoAuthException(
+                    "AUTH_CORE-RAT2-NF01",
+                    "authentication-core",
+                    "refreshAccessToken",
+                    "No refresh token found.",
+                    "There was no refresh token found. The identity server doesn't return a " +
+                        "refresh token if the refresh token grant is not enabled."
+                )
+            );
         }
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
-            return Promise.reject("Invalid token endpoint found.");
+            return Promise.reject(
+                new AsgardeoAuthException(
+                    "AUTH_CORE-RAT2-NF02",
+                    "authentication-core",
+                    "refreshAccessToken",
+                    "No refresh token endpoint found.",
+                    "No refresh token endpoint was in the OIDC provider meta data returned by the well-known " +
+                        "endpoint or the refresh token endpoint passed to the SDK is empty."
+                )
+            );
         }
 
         const body = [];
@@ -204,48 +221,34 @@ export class AuthenticationCore<T> {
         return axios
             .post(tokenEndpoint, body.join("&"), { headers: AuthenticationUtils.getTokenRequestHeaders() })
             .then((response) => {
-                if (response.status !== 200) {
-                    return Promise.reject(
-                        new Error("Invalid status code received in the refresh token response: " + response.status)
-                    );
-                }
-
-                if (this._config().validateIDToken) {
-                    return this._authenticationHelper.validateIdToken(response.data.id_token).then((valid) => {
-                        if (valid) {
-                            const tokenResponse: TokenResponse = {
-                                accessToken: response.data.access_token,
-                                expiresIn: response.data.expires_in,
-                                idToken: response.data.id_token,
-                                refreshToken: response.data.refresh_token,
-                                scope: response.data.scope,
-                                tokenType: response.data.token_type
-                            };
-
-                            this._dataLayer.setSessionData(response.data);
-
-                            return Promise.resolve(tokenResponse);
-                        }
-
-                        return Promise.reject("Invalid id_token in the token response: " + response.data.id_token);
+                return this._authenticationHelper
+                    .handleTokenResponse(response)
+                    .then((response: TokenResponse) => response)
+                    .catch((error) => {
+                        return Promise.reject(
+                            new AsgardeoAuthExceptionStack(
+                                "AUTH_CORE-RAT2-ES03",
+                                "authentication-core",
+                                "refreshAccessToken",
+                                error
+                            )
+                        );
                     });
-                } else {
-                    const tokenResponse: TokenResponse = {
-                        accessToken: response.data.access_token,
-                        expiresIn: response.data.expires_in,
-                        idToken: response.data.id_token,
-                        refreshToken: response.data.refresh_token,
-                        scope: response.data.scope,
-                        tokenType: response.data.token_type
-                    };
-
-                    this._dataLayer.setSessionData(response.data);
-
-                    return Promise.resolve(tokenResponse);
-                }
             })
-            .catch((error) => {
-                return Promise.reject(error);
+            .catch((error: HttpError) => {
+                return Promise.reject(
+                    new AsgardeoAuthNetworkException(
+                        "AUTH_CORE-RAT2-NR03",
+                        "authentication-core",
+                        "refreshAccessToken",
+                        "Refresh access token request failed.",
+                        "The request to refresh the access token failed.",
+                        error?.code,
+                        error?.message,
+                        error?.response?.status,
+                        error?.response?.data
+                    )
+                );
             });
     }
 
@@ -253,7 +256,16 @@ export class AuthenticationCore<T> {
         const revokeTokenEndpoint = this._oidcProviderMetaData().revocation_endpoint;
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
-            return Promise.reject("Invalid revoke token endpoint found.");
+            return Promise.reject(
+                new AsgardeoAuthException(
+                    "AUTH_CORE-RAT3-NF01",
+                    "authentication-core",
+                    "revokeAccessToken",
+                    "No revoke access token endpoint found.",
+                    "No revoke access token endpoint was found in the OIDC provider meta data returned by " +
+                        "the well-known endpoint or the revoke access token endpoint passed to the SDK is empty."
+                )
+            );
         }
 
         const body = [];
@@ -269,7 +281,15 @@ export class AuthenticationCore<T> {
             .then((response) => {
                 if (response.status !== 200) {
                     return Promise.reject(
-                        new Error("Invalid status code received in the revoke token response: " + response.status)
+                        new AsgardeoAuthException(
+                            "AUTH_CORE-RAT3-NR02",
+                            "authentication-core",
+                            "revokeAccessToken",
+                            "Invalid response status received for revoke access token request.",
+                            "The request sent to revoke the access token returned " +
+                                response.status +
+                                " , which is invalid."
+                        )
                     );
                 }
 
@@ -277,8 +297,20 @@ export class AuthenticationCore<T> {
 
                 return Promise.resolve(response);
             })
-            .catch((error) => {
-                return Promise.reject(error);
+            .catch((error: HttpError) => {
+                return Promise.reject(
+                    new AsgardeoAuthNetworkException(
+                        "AUTH_CORE-RAT3-NR03",
+                        "authentication-core",
+                        "revokeAccessToken",
+                        "The request to revoke access token failed.",
+                        "The request sent to revoke the access token failed.",
+                        error?.code,
+                        error?.message,
+                        error?.response?.status,
+                        error?.response?.data
+                    )
+                );
             });
     }
 
@@ -287,7 +319,16 @@ export class AuthenticationCore<T> {
             !this._oidcProviderMetaData().token_endpoint ||
             this._oidcProviderMetaData().token_endpoint.trim().length === 0
         ) {
-            return Promise.reject(new Error("Invalid token endpoint found."));
+            return Promise.reject(
+                new AsgardeoAuthException(
+                    "AUTH_CORE-RCG-NF01",
+                    "authentication-core",
+                    "requestCustomGrant",
+                    "Token endpoint not found.",
+                    "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                        "or the token endpoint passed to the SDK is empty."
+                )
+            );
         }
 
         let data: string = "";
@@ -318,53 +359,51 @@ export class AuthenticationCore<T> {
                 (response: HttpResponse): Promise<HttpResponse | TokenResponse> => {
                     if (response.status !== 200) {
                         return Promise.reject(
-                            new Error("Invalid status code received in the token response: " + response.status)
+                            new AsgardeoAuthException(
+                                "AUTH_CORE-RCG-NR02",
+                                "authentication-core",
+                                "requestCustomGrant",
+                                "Invalid response status received for the custom grant request.",
+                                "The request sent to get the custom grant returned " +
+                                    response.status +
+                                    " , which is invalid."
+                            )
                         );
                     }
 
                     if (customGrantParams.returnsSession) {
-                        if (this._config().validateIDToken) {
-                            return this._authenticationHelper.validateIdToken(response.data.id_token).then((valid) => {
-                                if (valid) {
-                                    const tokenResponse: TokenResponse = {
-                                        accessToken: response.data.access_token,
-                                        expiresIn: response.data.expires_in,
-                                        idToken: response.data.id_token,
-                                        refreshToken: response.data.refresh_token,
-                                        scope: response.data.scope,
-                                        tokenType: response.data.token_type
-                                    };
-
-                                    this._dataLayer.setSessionData(response.data);
-
-                                    return Promise.resolve(tokenResponse);
-                                }
-
+                        return this._authenticationHelper
+                            .handleTokenResponse(response)
+                            .then((response: TokenResponse) => response)
+                            .catch((error) => {
                                 return Promise.reject(
-                                    new Error("Invalid id_token in the token response: " + response.data.id_token)
+                                    new AsgardeoAuthExceptionStack(
+                                        "AUTH_CORE-RCG-ES03",
+                                        "authentication-core",
+                                        "requestCustomGrant",
+                                        error
+                                    )
                                 );
                             });
-                        } else {
-                            const tokenResponse: TokenResponse = {
-                                accessToken: response.data.access_token,
-                                expiresIn: response.data.expires_in,
-                                idToken: response.data.id_token,
-                                refreshToken: response.data.refresh_token,
-                                scope: response.data.scope,
-                                tokenType: response.data.token_type
-                            };
-
-                            this._dataLayer.setSessionData(response.data);
-
-                            return Promise.resolve(tokenResponse);
-                        }
                     } else {
                         return Promise.resolve(response);
                     }
                 }
             )
-            .catch((error: any) => {
-                return Promise.reject(error);
+            .catch((error: HttpError) => {
+                return Promise.reject(
+                    new AsgardeoAuthNetworkException(
+                        "AUTH_CORE-RCG-NR04",
+                        "authentication-core",
+                        "requestCustomGrant",
+                        "The custom grant request failed.",
+                        "The request sent to get teh custom grant failed.",
+                        error?.code,
+                        error?.message,
+                        error?.response?.status,
+                        error?.response?.data
+                    )
+                );
             });
     };
 
@@ -388,40 +427,40 @@ export class AuthenticationCore<T> {
         return payload;
     }
 
-    public getOIDCProviderMetaData(forceInit: boolean): Promise<any> {
+    public getOIDCProviderMetaData(forceInit: boolean): Promise<boolean> {
         if (!forceInit && this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return Promise.resolve();
+            return Promise.resolve(true);
         }
 
-        const serverHost = this._config().serverOrigin;
         const wellKnownEndpoint = this._authenticationHelper.resolveWellKnownEndpoint();
 
         return axios
             .get(wellKnownEndpoint)
             .then((response: { data: OIDCProviderMetaData; status: number }) => {
                 if (response.status !== 200) {
-                    return Promise.reject("Failed to load OpenID provider configuration from: " + wellKnownEndpoint);
+                    return Promise.reject(
+                        new AsgardeoAuthException(
+                            "AUTH_CORE-GOPM-NR01",
+                            "authentication-core",
+                            "getOIDCProviderMetaData",
+                            "Invalid response status received for OIDC provider meta data request.",
+                            "The request sent to the well-known endpoint to get the OIDC provider meta data returned " +
+                                response.status +
+                                " , which is invalid."
+                        )
+                    );
                 }
 
                 this._dataLayer.setOIDCProviderMetaData(this._authenticationHelper.resolveEndpoints(response.data));
                 this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
-                return Promise.resolve(
-                    "Initialized OpenID Provider configuration from: " +
-                        serverHost +
-                        SERVICE_RESOURCES.wellKnownEndpoint
-                );
+                return Promise.resolve(true);
             })
             .catch(() => {
                 this._dataLayer.setOIDCProviderMetaData(this._authenticationHelper.resolveFallbackEndpoints());
                 this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
-                return Promise.resolve(
-                    "Initialized OpenID Provider configuration from default configuration." +
-                        "Because failed to access wellknown endpoint: " +
-                        serverHost +
-                        SERVICE_RESOURCES.wellKnownEndpoint
-                );
+                return Promise.resolve(true);
             });
     }
 
@@ -445,20 +484,40 @@ export class AuthenticationCore<T> {
         const logoutEndpoint = this._oidcProviderMetaData()?.end_session_endpoint;
 
         if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
-            throw Error("No logout endpoint found in the session.");
+            throw new AsgardeoAuthException(
+                "AUTH_CORE-GSOU-NF01",
+                "authentication-core",
+                "getSignOutURL",
+                "Sign-out endpoint not found.",
+                "No sign-out endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                    "or the sign-out endpoint passed to the SDK is empty."
+            );
         }
 
         const idToken = this._dataLayer.getSessionData()?.id_token;
 
         if (!idToken || idToken.trim().length === 0) {
-            throw Error("Invalid id_token found in the session.");
+            throw new AsgardeoAuthException(
+                "AUTH_CORE-GSOU-NF02",
+                "authentication-core",
+                "getSignOutURL",
+                "ID token npt found.",
+                "No ID token could be found. Either the session information is lost or you have not signed in."
+            );
         }
 
         const callbackURL =
             signOutRedirectURL ?? this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
-            throw Error("No callback URL found in the session.");
+            throw new AsgardeoAuthException(
+                "AUTH_CORE-GSOU-NF03",
+                "authentication-core",
+                "getSignOutURL",
+                "No sign-out redirect URL found.",
+                "The sign-out redirect URL cannot be found or the URL passed to the SDK is empty. " +
+                    "No sign-in redirect URL has been found either. "
+            );
         }
 
         const logoutCallback =
