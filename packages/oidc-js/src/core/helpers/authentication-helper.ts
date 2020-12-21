@@ -18,6 +18,7 @@
 
 import { KeyLike } from "crypto";
 import axios from "axios";
+import { HttpError, HttpResponse } from "../..";
 import {
     AUTHORIZATION_ENDPOINT,
     CLIENT_ID_TAG,
@@ -34,10 +35,9 @@ import {
     USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
+import { AsgardeoAuthException, AsgardeoAuthExceptionStack, AsgardeoAuthNetworkException } from "../exception";
 import { AuthClientConfig, OIDCEndpointsInternal, OIDCProviderMetaData, TokenResponse } from "../models";
 import { AuthenticationUtils, CryptoUtils } from "../utils";
-import { HttpResponse } from "../..";
-import { AsgardeoAuthException } from "../exception";
 
 export class AuthenticationHelper<T> {
     private _dataLayer: DataLayer<T>;
@@ -115,14 +115,31 @@ export class AuthenticationHelper<T> {
         const jwksEndpoint = this._dataLayer.getOIDCProviderMetaData().jwks_uri;
 
         if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
-            return Promise.reject("Invalid JWKS URI found.");
+            return Promise.reject(
+                new AsgardeoAuthException(
+                    "AUTH_HLPR-VIT-NF01",
+                    "authentication-helper",
+                    "validateIdToken",
+                    "JWKS endpoint not found.",
+                    "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                        "or the JWKS endpoint passed to the SDK is empty."
+                )
+            );
         }
 
         return axios
             .get(jwksEndpoint)
             .then((response) => {
                 if (response.status !== 200) {
-                    return Promise.reject(new Error("Failed to load public keys from JWKS URI: " + jwksEndpoint));
+                    return Promise.reject(
+                        new AsgardeoAuthException(
+                            "AUTH_HLPR-VIT-NR02",
+                            "authentication-helper",
+                            "validateIdToken",
+                            "Invalid response status received for jwks request.",
+                            "The request sent to get the jwks returned " + response.status + " , which is invalid."
+                        )
+                    );
                 }
 
                 const issuer = this._oidcProviderMetaData().issuer;
@@ -143,14 +160,44 @@ export class AuthenticationHelper<T> {
                             issuer,
                             AuthenticationUtils.getAuthenticatedUserInfo(idToken).username,
                             this._config().clockTolerance
-                        );
+                        )
+                            .then((response) => response)
+                            .catch((error) => {
+                                return Promise.reject(
+                                    new AsgardeoAuthExceptionStack(
+                                        "AUTH_HLPR-VIT-ES03",
+                                        "authentication-helper",
+                                        "validateIdToken",
+                                        error
+                                    )
+                                );
+                            });
                     })
                     .catch((error) => {
-                        return Promise.reject(error);
+                        return Promise.reject(
+                            new AsgardeoAuthExceptionStack(
+                                "AUTH_HLPR-VIT-ES04",
+                                "authentication-helper",
+                                "validateIdToken",
+                                error
+                            )
+                        );
                     });
             })
-            .catch((error) => {
-                return Promise.reject(error);
+            .catch((error: HttpError) => {
+                return Promise.reject(
+                    new AsgardeoAuthNetworkException(
+                        "AUTH_HLPR-VIT-NR05",
+                        "authentication-helper",
+                        "validateIdToken",
+                        "Request to jwks endpoint failed.",
+                        "The request sent to get the jwks from the server failed.",
+                        error?.code,
+                        error?.message,
+                        error?.response?.status,
+                        error?.response?.data
+                    )
+                );
             });
     }
 
@@ -185,11 +232,11 @@ export class AuthenticationHelper<T> {
         if (response.status !== 200) {
             return Promise.reject(
                 new AsgardeoAuthException(
-                    "AUTH_CORE-RAT1-NR01",
-                    "authentication-core",
-                    "requestAccessToken",
-                    "Invalid response status received for access token request.",
-                    "The request sent to get the access token returned " + response.status + " , which is invalid."
+                    "AUTH_HLPR-HTR-NR01",
+                    "authentication-helper",
+                    "handleTokenResponse",
+                    "Invalid response status received for token request.",
+                    "The request sent to get the token returned " + response.status + " , which is invalid."
                 )
             );
         }
@@ -213,16 +260,23 @@ export class AuthenticationHelper<T> {
 
                     return Promise.reject(
                         new AsgardeoAuthException(
-                            "AUTH_CORE-RAT1-IV02",
-                            "authentication-core",
-                            "requestAccessToken",
+                            "AUTH_HLPR-HTR-IV02",
+                            "authentication-helper",
+                            "handleTokenResponse",
                             "The id token returned is not valid.",
                             "The id token returned has failed the validation check."
                         )
                     );
                 })
                 .catch((error) => {
-                    return Promise.reject(error);
+                    return Promise.reject(
+                        new AsgardeoAuthExceptionStack(
+                            "AUTH_HLPR-HAT-ES03",
+                            "authentication-helper",
+                            "handleTokenResponse",
+                            error
+                        )
+                    );
                 });
         } else {
             const tokenResponse: TokenResponse = {
