@@ -22,12 +22,11 @@ import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
 import jwtVerify, { KeyLike } from "../../../node_modules/jose/dist/browser/jwt/verify";
+import { AsgardeoAuthException } from "../exception";
 import { DecodedIdTokenPayload, JWKInterface } from "../models";
 import parseJwk from " ../../../node_modules/jose/dist/browser/jwk/parse";
 
-
 export class CryptoUtils {
-
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
     /**
@@ -37,10 +36,7 @@ export class CryptoUtils {
      * @returns {string} base 64 url encoded value.
      */
     public static base64URLEncode(value: CryptoJS.WordArray): string {
-        return Base64.stringify(value)
-            .replace(/\+/g, "-")
-            .replace(/\//g, "_")
-            .replace(/=/g, "");
+        return Base64.stringify(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
     }
 
     /**
@@ -48,7 +44,7 @@ export class CryptoUtils {
      *
      * @returns {string} code verifier.
      */
-    public static getCodeVerifier(): string{
+    public static getCodeVerifier(): string {
         return this.base64URLEncode(WordArray.random(32));
     }
 
@@ -58,7 +54,7 @@ export class CryptoUtils {
      * @param {string} verifier.
      * @returns {string} code challenge.
      */
-    public static getCodeChallenge (verifier: string): string {
+    public static getCodeChallenge(verifier: string): string {
         return this.base64URLEncode(sha256(verifier));
     }
 
@@ -67,8 +63,8 @@ export class CryptoUtils {
      *
      * @returns {string[]} array of supported algorithms.
      */
-    public static getSupportedSignatureAlgorithms (): string[] {
-        return [ "RS256", "RS512", "RS384", "PS256" ];
+    public static getSupportedSignatureAlgorithms(): string[] {
+        return ["RS256", "RS512", "RS384", "PS256"];
     }
 
     /**
@@ -79,7 +75,7 @@ export class CryptoUtils {
      * @returns {any} public key.
      */
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    public static getJWKForTheIdToken (jwtHeader: string, keys: JWKInterface[]): Promise<KeyLike> {
+    public static getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<KeyLike> {
         const headerJSON = JSON.parse(atob(jwtHeader));
 
         for (const key of keys) {
@@ -94,10 +90,16 @@ export class CryptoUtils {
         }
 
         return Promise.reject(
-            "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
-            headerJSON.kid +
-            ", Expected values: " +
-            keys.map((key) => key.kid).join(", ")
+            new AsgardeoAuthException(
+                "CRYPT_UTIL-GTFTIT-IV01",
+                "crypto-utils",
+                "getJWKForTheIdToken",
+                "kid not found.",
+                "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
+                    headerJSON.kid +
+                    ", Expected values: " +
+                    keys.map((key) => key.kid).join(", ")
+            )
         );
     }
 
@@ -112,7 +114,7 @@ export class CryptoUtils {
      * @param {number} clockTolerance - Allowed leeway for id_tokens (in seconds).
      * @returns {Promise<boolean>} whether the id_token is valid.
      */
-    public static isValidIdToken (
+    public static isValidIdToken(
         idToken: string,
         jwk: KeyLike,
         clientID: string,
@@ -126,11 +128,21 @@ export class CryptoUtils {
             clockTolerance: clockTolerance,
             issuer: issuer,
             subject: username
-        }).then(() => {
-            return Promise.resolve(true);
-        }).catch((error) => {
-            return Promise.reject(error);
-        });
+        })
+            .then(() => {
+                return Promise.resolve(true);
+            })
+            .catch((error) => {
+                return Promise.reject(
+                    new AsgardeoAuthException(
+                        "CRYPT_UTIL-IVIT-IV02",
+                        "crypto-utils",
+                        "isValidIdToken",
+                        "Validating ID token failed",
+                        error
+                    )
+                );
+            });
     }
 
     /**
@@ -140,16 +152,21 @@ export class CryptoUtils {
      *
      * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
      */
-    public static decodeIDToken (idToken: string): DecodedIdTokenPayload {
+    public static decodeIDToken(idToken: string): DecodedIdTokenPayload {
         try {
-            const words = Base64.parse(idToken.split(".")[ 1 ]);
+            const words = Base64.parse(idToken.split(".")[1]);
             const utf8String = utf8.stringify(words);
             const payload = JSON.parse(utf8String);
 
             return payload;
-
         } catch (error) {
-            throw Error(error);
+            throw new AsgardeoAuthException(
+                "CRYPT_UTIL-DIT-IV01",
+                "crypto-utils",
+                "decodeIDToken",
+                "Decoding ID token failed.",
+                error
+            );
         }
     }
 }
