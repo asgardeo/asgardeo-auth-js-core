@@ -29,6 +29,7 @@ import {
 } from ".";
 import { MainThreadClient, WebWorkerClient } from "./clients";
 import { Hooks, Storage } from "./constants";
+import { AsgardeoSPAException } from "./exception";
 import { HttpClientInstance } from "./http-client";
 import {
     HttpError,
@@ -83,6 +84,60 @@ export class AsgardeoSPAClient {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor(id: string) {
         this._instanceID = id;
+    }
+
+    /**
+     * This method specifies if the `AsgardeoSPAClient` has been initialized or not.
+     *
+     * @return {Promise<boolean>} - Resolves to `true` if the client has been initialized.
+     *
+     * @memberof AsgardeoSPAClient
+     *
+     * @private
+     */
+    private async _isInitialized(): Promise<boolean> {
+        if (!this._startedInitialize) {
+            return false;
+        }
+
+        let iterationToWait = 0;
+
+        const sleep = (): Promise<any> => {
+            return new Promise((resolve) => setTimeout(resolve, 1000));
+        };
+
+        while (!this._initialized) {
+            if (iterationToWait === 10) {
+                // eslint-disable-next-line no-console
+                console.warn("It is taking longer than usual for the object to be initialized");
+            }
+            await sleep();
+            iterationToWait++;
+        }
+
+        return true;
+    }
+
+    /**
+     *  This method checks if the SDK is initialized and the user is authenticated.
+     *
+     * @return {Promise<boolean>} - A Promise that resolves with `true` if the SDK is initialized and the
+     * user is authenticated.
+     *
+     * @memberof AsgardeoSPAClient
+     *
+     * @private
+     */
+    private async _validateMethod(): Promise<boolean> {
+        if (!(await this._isInitialized())) {
+            return Promise.reject();
+        }
+
+        if (!(await this.isAuthenticated())) {
+            return Promise.reject();
+        }
+
+        return true;
     }
 
     /**
@@ -206,6 +261,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async getBasicUserInfo(): Promise<BasicUserInfo> {
+        await this._validateMethod();
+
         return this._client.getBasicUserInfo();
     }
 
@@ -248,24 +305,7 @@ export class AsgardeoSPAClient {
         sessionState?: string,
         signInRedirectURL?: string
     ): Promise<BasicUserInfo> {
-        if (!this._startedInitialize) {
-            return Promise.reject("The object has not been initialized yet.");
-        }
-
-        let iterationToWait = 0;
-
-        const sleep = (): Promise<any> => {
-            return new Promise((resolve) => setTimeout(resolve, 500));
-        };
-
-        while (!this._initialized) {
-            if (iterationToWait === 21) {
-                // eslint-disable-next-line no-console
-                console.warn("It is taking longer than usual for the object to be initialized");
-            }
-            await sleep();
-            iterationToWait++;
-        }
+        await this._isInitialized();
 
         return this._client
             .signIn(params, authorizationCode, sessionState, signInRedirectURL)
@@ -301,6 +341,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async signOut(signOutRedirectURL?: string): Promise<boolean> {
+        await this._validateMethod();
+
         const signOutResponse = await this._client.signOut(signOutRedirectURL);
         this._onSignOutCallback && this._onSignOutCallback();
 
@@ -345,6 +387,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async httpRequest(config: HttpRequestConfig): Promise<HttpResponse> {
+        await this._validateMethod();
+
         return this._client.httpRequest(config);
     }
 
@@ -396,6 +440,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]> {
+        await this._validateMethod();
+
         return this._client.httpRequestAll(config);
     }
 
@@ -433,8 +479,20 @@ export class AsgardeoSPAClient {
     public async requestCustomGrant(
         requestParams: CustomGrantConfig
     ): Promise<boolean | HttpResponse<any> | BasicUserInfo> {
+        if (requestParams.signInRequired) {
+            await this._validateMethod();
+        } else {
+            await this._validateMethod();
+        }
+
         if (!requestParams.id) {
-            throw Error("No ID specified for the custom grant.");
+            return Promise.reject(new AsgardeoSPAException(
+                "AUTH_CLIENT-RCG-NF01",
+                "client",
+                "requestCustomGrant",
+                "The custom grant request id not found.",
+                "The id attribute of the custom grant config object passed as an argument should have a value."
+            ))
         }
 
         const customGrantResponse = await this._client.requestCustomGrant(requestParams);
@@ -466,6 +524,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async revokeAccessToken(): Promise<boolean> {
+        await this._validateMethod();
+
         const revokeAccessToken = await this._client.revokeAccessToken();
         this._onEndUserSession && this._onEndUserSession(revokeAccessToken);
 
@@ -493,6 +553,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
+        await this._isInitialized();
+
         return this._client.getOIDCServiceEndpoints();
     }
 
@@ -506,16 +568,29 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public getHttpClient(): HttpClientInstance {
-        if (this._initialized) {
+        if (this._client) {
             if (this._storage !== Storage.WebWorker) {
                 const mainThreadClient = this._client as MainThreadClientInterface;
                 return mainThreadClient.getHttpClient();
             }
 
-            throw Error("Http client cannot be returned when the storage is set to web worker");
+            throw new AsgardeoSPAException(
+                "AUTH_CLIENT-GHC-IV01",
+                "client",
+                "getHttpClient",
+                "Http client cannot be returned.",
+                "The http client cannot be returned when the storage type is set to webWorker."
+            )
         }
 
-        throw Error("Identity Client has not been initialized yet");
+        throw new AsgardeoSPAException(
+                "AUTH_CLIENT-GHC-NF02",
+                "client",
+                "getHttpClient",
+                "The SDK is not initialized.",
+            "The SDK has not been initialized yet. Initialize the SDK suing the initialize method " +
+            "before calling this method."
+            )
     }
 
     /**
@@ -539,6 +614,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async getDecodedIDToken(): Promise<DecodedIdTokenPayload> {
+        await this._validateMethod();
+
         return this._client.getDecodedIDToken();
     }
 
@@ -565,8 +642,17 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async getAccessToken(): Promise<string> {
-        if (this._storage === Storage.WebWorker) {
-            return Promise.reject("The access token cannot be obtained when the storage type is set to webWorker.");
+        await this._validateMethod();
+
+        if ([Storage.WebWorker, Storage.BrowserMemory].includes(this._storage)) {
+            return Promise.reject(new AsgardeoSPAException(
+                "AUTH_CLIENT-GAT-IV01",
+                "client",
+                "getAccessToken",
+                "The access token cannot be returned.",
+                "The access token cannot be returned when the storage type is set to webWorker or browserMemory."
+
+            ));
         }
         const mainThreadClient = this._client as MainThreadClientInterface;
 
@@ -595,7 +681,24 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async refreshAccessToken(): Promise<BasicUserInfo> {
+        await this._validateMethod();
+
         return this._client.refreshAccessToken();
+    }
+
+    /**
+     * This method specifies if the user is authenticated or not.
+     *
+     * @return {Promise<boolean>} - A Promise that resolves with `true` if teh user is authenticated.
+     *
+     * @memberof AsgardeoSPAClient
+     *
+     * @preserve
+     */
+    public async isAuthenticated(): Promise<boolean> {
+        await this._isInitialized();
+
+        return this._client.isAuthenticated();
     }
 
     /**
@@ -681,10 +784,22 @@ export class AsgardeoSPAClient {
                     this._onCustomGrant.set(id, callback);
                     break;
                 default:
-                    throw Error("No such hook found");
+                    throw new AsgardeoSPAException(
+                        "AUTH_CLIENT-ON-IV01",
+                        "client",
+                        "on",
+                        "Invalid hook.",
+                        "The provided hook is invalid."
+                    );
             }
         } else {
-            throw Error("The callback function is not a valid function.");
+            throw new AsgardeoSPAException(
+                "AUTH_CLIENT-ON-IV02",
+                "client",
+                "on",
+                "Invalid callback function.",
+                "The provided callback function is invalid."
+            );
         }
     }
 
@@ -705,6 +820,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async enableHttpHandler(): Promise<boolean> {
+        await this._isInitialized();
+
         return this._client.enableHttpHandler();
     }
 
@@ -725,6 +842,8 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async disableHttpHandler(): Promise<boolean> {
+        await this._isInitialized();
+
         return this._client.disableHttpHandler();
     }
 }
