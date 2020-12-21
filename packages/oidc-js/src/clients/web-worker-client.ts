@@ -50,6 +50,7 @@ import {
     SESSION_STATE,
     SignInConfig
 } from "../core";
+import { AsgardeoSPAException } from "../exception";
 import {
     AuthorizationInfo,
     AuthorizationParams,
@@ -84,7 +85,17 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
-                reject("Operation timed out");
+                reject(
+                    new AsgardeoSPAException(
+                        "WEB_WRKR_CLNT-COM-TO-01",
+                        "web-worker-client",
+                        "communicate",
+                        "Operation timed out.",
+                        "No response was received from the web worker for " +
+                            _requestTimeout / 1000 +
+                            " since dispatching the request"
+                    )
+                );
             }, _requestTimeout);
 
             return (channel.port1.onmessage = ({ data }: { data: ResponseMessage<string> }) => {
@@ -209,66 +220,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      *
      */
     const initialize = (): Promise<boolean> => {
-        if (!(config.resourceServerURLs instanceof Array)) {
-            return Promise.reject("resourceServerURLs must be an array");
-        }
-
-        if (config.resourceServerURLs.find((baseUrl) => typeof baseUrl !== "string")) {
-            return Promise.reject("Array elements of resourceServerURLs must all be string values");
-        }
-
-        if (typeof config.signInRedirectURL !== "string") {
-            return Promise.reject("The sign-in redirect URL must be a string");
-        }
-
-        if (typeof config.signOutRedirectURL !== "string") {
-            return Promise.reject("The sign-out redirect URL must be a string");
-        }
-
-        if (typeof config.clientHost !== "string") {
-            return Promise.reject("The clientHost must be a string");
-        }
-
-        if (typeof config.clientID !== "string") {
-            return Promise.reject("The clientID must be a string");
-        }
-
-        if (config.clientSecret && typeof config.clientSecret !== "string") {
-            return Promise.reject("The clientString must be a string");
-        }
-
-        if (config.enablePKCE && typeof config.enablePKCE !== "boolean") {
-            return Promise.reject("enablePKCE must be a boolean");
-        }
-
-        if (config.prompt && typeof config.prompt !== "string") {
-            return Promise.reject("The prompt must be a string");
-        }
-
-        if (config.responseMode && typeof config.responseMode !== "string") {
-            return Promise.reject("The responseMode must be a string");
-        }
-
-        if (
-            config.responseMode &&
-            config.responseMode !== ResponseMode.formPost &&
-            config.responseMode !== ResponseMode.query
-        ) {
-            return Promise.reject("The responseMode is invalid");
-        }
-
-        if (config.scope && !(config.scope instanceof Array)) {
-            return Promise.reject("scope must be an array");
-        }
-
-        if (config.scope && config.scope.find((aScope) => typeof aScope !== "string")) {
-            return Promise.reject("Array elements of scope must all be string values");
-        }
-
-        if (typeof config.serverOrigin !== "string") {
-            return Promise.reject("serverOrigin must be a string");
-        }
-
         httpClientHandlers = {
             requestErrorCallback: null,
             requestFinishCallback: null,
