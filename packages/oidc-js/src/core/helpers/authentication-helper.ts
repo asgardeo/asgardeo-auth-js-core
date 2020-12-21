@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -35,8 +34,10 @@ import {
     USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
-import { AuthClientConfig, OIDCEndpointsInternal, OIDCProviderMetaData } from "../models";
+import { AuthClientConfig, OIDCEndpointsInternal, OIDCProviderMetaData, TokenResponse } from "../models";
 import { AuthenticationUtils, CryptoUtils } from "../utils";
+import { HttpResponse } from "../..";
+import { AsgardeoAuthException } from "../exception";
 
 export class AuthenticationHelper<T> {
     private _dataLayer: DataLayer<T>;
@@ -178,5 +179,63 @@ export class AuthenticationHelper<T> {
         this._dataLayer.removeOIDCProviderMetaData();
         this._dataLayer.removeTemporaryData();
         this._dataLayer.removeSessionData();
+    }
+
+    public handleTokenResponse(response: HttpResponse): Promise<TokenResponse> {
+        if (response.status !== 200) {
+            return Promise.reject(
+                new AsgardeoAuthException(
+                    "AUTH_CORE-RAT1-NR01",
+                    "authentication-core",
+                    "requestAccessToken",
+                    "Invalid response status received for access token request.",
+                    "The request sent to get the access token returned " + response.status + " , which is invalid."
+                )
+            );
+        }
+        if (this._config().validateIDToken) {
+            return this.validateIdToken(response.data.id_token)
+                .then((valid) => {
+                    if (valid) {
+                        this._dataLayer.setSessionData(response.data);
+
+                        const tokenResponse: TokenResponse = {
+                            accessToken: response.data.access_token,
+                            expiresIn: response.data.expires_in,
+                            idToken: response.data.id_token,
+                            refreshToken: response.data.refresh_token,
+                            scope: response.data.scope,
+                            tokenType: response.data.token_type
+                        };
+
+                        return Promise.resolve(tokenResponse);
+                    }
+
+                    return Promise.reject(
+                        new AsgardeoAuthException(
+                            "AUTH_CORE-RAT1-IV02",
+                            "authentication-core",
+                            "requestAccessToken",
+                            "The id token returned is not valid.",
+                            "The id token returned has failed the validation check."
+                        )
+                    );
+                })
+                .catch((error) => {
+                    return Promise.reject(error);
+                });
+        } else {
+            const tokenResponse: TokenResponse = {
+                accessToken: response.data.access_token,
+                expiresIn: response.data.expires_in,
+                idToken: response.data.id_token,
+                refreshToken: response.data.refresh_token,
+                scope: response.data.scope,
+                tokenType: response.data.token_type
+            };
+            this._dataLayer.setSessionData(response.data);
+
+            return Promise.resolve(tokenResponse);
+        }
     }
 }
