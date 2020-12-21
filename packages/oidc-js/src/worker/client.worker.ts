@@ -61,7 +61,7 @@ ctx.onmessage = ({ data, ports }) => {
         port.postMessage(
             MessageUtils.generateFailureMessage(
                 new AsgardeoSPAException(
-                    "CLNT_WRKR-ONMSG-NF01",
+                    "CLIENT_WORKER-ONMSG-NF01",
                     "client.worker",
                     data.type,
                     "The web worker has not been initialized yet.",
@@ -221,7 +221,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         default:
             port?.postMessage(MessageUtils.generateFailureMessage(new AsgardeoSPAException(
-                "WORKR_CLNT-ONMSG-IV02",
+                "CLIENT_WORKER-ONMSG-IV02",
                 "client.worker",
                 "onmessage",
                 "The message type is invalid.",
