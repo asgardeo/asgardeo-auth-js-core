@@ -115,7 +115,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                             .catch((refreshError) => {
                                 return Promise.reject(
                                     new AsgardeoSPAExceptionStack(
-                                        "WRKR_CORE-HR-ES01",
+                                        "WORKER_CORE-HR-ES01",
                                         "worker-core",
                                         "httpRequest",
                                         refreshError
@@ -129,7 +129,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         } else {
             return Promise.reject(
                 new AsgardeoSPAException(
-                    "WRKR_CORE-HR-IV02",
+                    "WORKER_CORE-HR-IV02",
                     "worker-core",
                     "httpRequest",
                     "Request to the provided endpoint is prohibited.",
@@ -176,7 +176,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                             .catch((refreshError) => {
                                 return Promise.reject(
                                     new AsgardeoSPAExceptionStack(
-                                        "WRKR_CORE-HRA-ES01",
+                                        "WORKER_CORE-HRA-ES01",
                                         "worker-core",
                                         "httpRequestAll",
                                         refreshError
@@ -190,7 +190,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         } else {
             return Promise.reject(
                 new AsgardeoSPAException(
-                    "WRKR_CORE-HRA-IV02",
+                    "WORKER_CORE-HRA-IV02",
                     "worker-core",
                     "httpRequest",
                     "Request to the provided endpoint is prohibited.",
@@ -243,7 +243,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
 
         return Promise.reject(
             new AsgardeoSPAException(
-                "WRKR_CORE-RAT1-NF01",
+                "WORKER_CORE-RAT1-NF01",
                 "worker-core",
                 "requestAccessToken",
                 "No authorization code found.",

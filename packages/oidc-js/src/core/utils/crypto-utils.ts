@@ -91,7 +91,7 @@ export class CryptoUtils {
 
         return Promise.reject(
             new AsgardeoAuthException(
-                "CRYPT_UTIL-GTFTIT-IV01",
+                "CRYPTO_UTIL-GTFTIT-IV01",
                 "crypto-utils",
                 "getJWKForTheIdToken",
                 "kid not found.",
@@ -135,7 +135,7 @@ export class CryptoUtils {
             .catch((error) => {
                 return Promise.reject(
                     new AsgardeoAuthException(
-                        "CRYPT_UTIL-IVIT-IV02",
+                        "CRYPTO_UTIL-IVIT-IV02",
                         "crypto-utils",
                         "isValidIdToken",
                         "Validating ID token failed",
@@ -161,7 +161,7 @@ export class CryptoUtils {
             return payload;
         } catch (error) {
             throw new AsgardeoAuthException(
-                "CRYPT_UTIL-DIT-IV01",
+                "CRYPTO_UTIL-DIT-IV01",
                 "crypto-utils",
                 "decodeIDToken",
                 "Decoding ID token failed.",

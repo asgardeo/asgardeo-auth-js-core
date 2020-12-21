@@ -117,7 +117,7 @@ export class AuthenticationHelper<T> {
         if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
             return Promise.reject(
                 new AsgardeoAuthException(
-                    "AUTH_HLPR-VIT-NF01",
+                    "AUTH_HELPER-VIT-NF01",
                     "authentication-helper",
                     "validateIdToken",
                     "JWKS endpoint not found.",
@@ -133,7 +133,7 @@ export class AuthenticationHelper<T> {
                 if (response.status !== 200) {
                     return Promise.reject(
                         new AsgardeoAuthException(
-                            "AUTH_HLPR-VIT-NR02",
+                            "AUTH_HELPER-VIT-NR02",
                             "authentication-helper",
                             "validateIdToken",
                             "Invalid response status received for jwks request.",
@@ -165,7 +165,7 @@ export class AuthenticationHelper<T> {
                             .catch((error) => {
                                 return Promise.reject(
                                     new AsgardeoAuthExceptionStack(
-                                        "AUTH_HLPR-VIT-ES03",
+                                        "AUTH_HELPER-VIT-ES03",
                                         "authentication-helper",
                                         "validateIdToken",
                                         error
@@ -176,7 +176,7 @@ export class AuthenticationHelper<T> {
                     .catch((error) => {
                         return Promise.reject(
                             new AsgardeoAuthExceptionStack(
-                                "AUTH_HLPR-VIT-ES04",
+                                "AUTH_HELPER-VIT-ES04",
                                 "authentication-helper",
                                 "validateIdToken",
                                 error
@@ -187,7 +187,7 @@ export class AuthenticationHelper<T> {
             .catch((error: HttpError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
-                        "AUTH_HLPR-VIT-NR05",
+                        "AUTH_HELPER-VIT-NR05",
                         "authentication-helper",
                         "validateIdToken",
                         "Request to jwks endpoint failed.",
@@ -232,7 +232,7 @@ export class AuthenticationHelper<T> {
         if (response.status !== 200) {
             return Promise.reject(
                 new AsgardeoAuthException(
-                    "AUTH_HLPR-HTR-NR01",
+                    "AUTH_HELPER-HTR-NR01",
                     "authentication-helper",
                     "handleTokenResponse",
                     "Invalid response status received for token request.",
@@ -260,7 +260,7 @@ export class AuthenticationHelper<T> {
 
                     return Promise.reject(
                         new AsgardeoAuthException(
-                            "AUTH_HLPR-HTR-IV02",
+                            "AUTH_HELPER-HTR-IV02",
                             "authentication-helper",
                             "handleTokenResponse",
                             "The id token returned is not valid.",
@@ -271,7 +271,7 @@ export class AuthenticationHelper<T> {
                 .catch((error) => {
                     return Promise.reject(
                         new AsgardeoAuthExceptionStack(
-                            "AUTH_HLPR-HAT-ES03",
+                            "AUTH_HELPER-HAT-ES03",
                             "authentication-helper",
                             "handleTokenResponse",
                             error

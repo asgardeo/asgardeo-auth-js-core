@@ -87,7 +87,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             const timer = setTimeout(() => {
                 reject(
                     new AsgardeoSPAException(
-                        "WEB_WRKR_CLNT-COM-TO-01",
+                        "WEB_WORKER_CLIENT-COM-TO-01",
                         "web-worker-client",
                         "communicate",
                         "Operation timed out.",
