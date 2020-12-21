@@ -67,14 +67,6 @@ import { SPAUtils } from "../utils";
 
 export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerClientInterface => {
     /**
-     * The private boolean member variable that specifies if the `initialize()` method has been called or not.
-     */
-    let initialized: boolean = false;
-    /**
-     * The private boolean member variable that specifies if the user is signed in or not.
-     */
-    let signedIn: boolean = false;
-    /**
      * HttpClient handlers
      */
     let httpClientHandlers: HttpClient;
@@ -121,14 +113,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      * response if the the `returnResponse` attribute in the `requestParams` object is set to `true`.
      */
     const requestCustomGrant = (requestParams: CustomGrantConfig): Promise<HttpResponse | BasicUserInfo> => {
-        if (!initialized) {
-            return Promise.reject("The object has not been initialized yet");
-        }
-
-        if (!signedIn && requestParams.signInRequired) {
-            return Promise.reject("You have not signed in yet");
-        }
-
         const message: Message<CustomGrantConfig> = {
             data: requestParams,
             type: REQUEST_CUSTOM_GRANT
@@ -152,14 +136,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      * @returns {Promise<HttpResponse>} A promise that resolves with the response data.
      */
     const httpRequest = <T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> => {
-        if (!initialized) {
-            return Promise.reject("The object has not been initialized yet");
-        }
-
-        if (!signedIn) {
-            return Promise.reject("You have not signed in yet");
-        }
-
         const message: Message<HttpRequestConfig> = {
             data: config,
             type: HTTP_REQUEST
@@ -184,14 +160,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      * @returns {Promise<HttpResponse<T>[]>} A promise that resolves with the response data.
      */
     const httpRequestAll = <T = any>(configs: HttpRequestConfig[]): Promise<HttpResponse<T>[]> => {
-        if (!initialized) {
-            return Promise.reject("The object has not been initialized yet");
-        }
-
-        if (!signedIn) {
-            return Promise.reject("You have not signed in yet");
-        }
-
         const message: Message<HttpRequestConfig[]> = {
             data: configs,
             type: HTTP_REQUEST_ALL
@@ -334,8 +302,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
         return communicate<AuthClientConfig<WebWorkerClientConfig>, null>(message)
             .then(() => {
-                initialized = true;
-
                 return Promise.resolve(true);
             })
             .catch((error) => {
@@ -381,8 +347,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
             return communicate<AuthorizationInfo, BasicUserInfo>(message)
                 .then((response) => {
-                    signedIn = true;
-
                     const message: Message<null> = {
                         type: GET_SIGN_OUT_URL
                     };
@@ -447,7 +411,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
 
                     return communicate<string, string>(message)
                         .then((response) => {
-                            signedIn = false;
                             window.location.href = response;
 
                             return Promise.resolve(true);
@@ -475,10 +438,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      * @returns {Promise<boolean>} A promise that resolves when revoking is completed.
      */
     const revokeAccessToken = (): Promise<boolean> => {
-        if (!signedIn) {
-            return Promise.reject("You have not signed in yet");
-        }
-
         const message: Message<null> = {
             type: REVOKE_ACCESS_TOKEN
         };
