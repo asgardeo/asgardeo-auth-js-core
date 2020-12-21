@@ -27,6 +27,7 @@ import {
     Store,
     TokenResponse
 } from "../core";
+import { AsgardeoSPAException, AsgardeoSPAExceptionStack } from "../exception";
 import { SPAHelper } from "../helpers";
 import { HttpClient, HttpClientInstance } from "../http-client";
 import {
@@ -111,10 +112,14 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                                         return Promise.reject(error);
                                     });
                             })
-                            .catch(() => {
+                            .catch((refreshError) => {
                                 return Promise.reject(
-                                    "An error occurred while refreshing the access token. " +
-                                        "The access token is no more valid and re-authentication is required."
+                                    new AsgardeoSPAExceptionStack(
+                                        "WRKR_CORE-HR-ES01",
+                                        "worker-core",
+                                        "httpRequest",
+                                        refreshError
+                                    )
                                 );
                             });
                     }
@@ -122,7 +127,17 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                     return Promise.reject(error);
                 });
         } else {
-            return Promise.reject("The provided URL is illegal.");
+            return Promise.reject(
+                new AsgardeoSPAException(
+                    "WRKR_CORE-HR-IV02",
+                    "worker-core",
+                    "httpRequest",
+                    "Request to the provided endpoint is prohibited.",
+                    "Requests can only be sent to resource servers specified by the `resourceServerURLs`" +
+                        " attribute while initializing the SDK. The specified endpoint in this request " +
+                        "cannot be found among the `resourceServerURLs`"
+                )
+            );
         }
     };
 
@@ -158,10 +173,14 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                                         return Promise.reject(error);
                                     });
                             })
-                            .catch(() => {
+                            .catch((refreshError) => {
                                 return Promise.reject(
-                                    "An error occurred while refreshing the access token. " +
-                                        "The access token is no more valid and re-authentication is required."
+                                    new AsgardeoSPAExceptionStack(
+                                        "WRKR_CORE-HRA-ES01",
+                                        "worker-core",
+                                        "httpRequestAll",
+                                        refreshError
+                                    )
                                 );
                             });
                     }
@@ -169,7 +188,17 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                     return Promise.reject(error);
                 });
         } else {
-            return Promise.reject("The provided URL is illegal.");
+            return Promise.reject(
+                new AsgardeoSPAException(
+                    "WRKR_CORE-HRA-IV02",
+                    "worker-core",
+                    "httpRequest",
+                    "Request to the provided endpoint is prohibited.",
+                    "Requests can only be sent to resource servers specified by the `resourceServerURLs`" +
+                        " attribute while initializing the SDK. The specified endpoint in this request " +
+                        "cannot be found among the `resourceServerURLs`"
+                )
+            );
         }
     };
 
@@ -212,7 +241,15 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                 });
         }
 
-        return Promise.reject("No auth code received");
+        return Promise.reject(
+            new AsgardeoSPAException(
+                "WRKR_CORE-RAT1-NF01",
+                "worker-core",
+                "requestAccessToken",
+                "No authorization code found.",
+                "No authorization code and session state found."
+            )
+        );
     };
 
     const signOut = (signOutRedirectURL?: string): string => {
