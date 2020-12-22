@@ -280,6 +280,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         } else {
             resolvedAuthorizationCode = new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE);
             resolvedSessionState = new URL(window.location.href).searchParams.get(SESSION_STATE);
+            SPAUtils.removeAuthorizationCode();
         }
 
         if (resolvedAuthorizationCode && resolvedSessionState) {
@@ -291,8 +292,6 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                 },
                 type: REQUEST_ACCESS_TOKEN
             };
-
-            SPAUtils.removeAuthorizationCode();
 
             SPAUtils.removePKCE();
 
