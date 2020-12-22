@@ -95,6 +95,8 @@ export const SessionManagementHelper = (() => {
     };
 
     const listenToResponseFromOPIFrame = (): void => {
+        const rpIFrame = document.getElementById(RP_IFRAME) as HTMLIFrameElement;
+
         function receiveMessage(e) {
             const targetOrigin = _checkSessionEndpoint;
 
@@ -106,7 +108,7 @@ export const SessionManagementHelper = (() => {
                 // [RP] session state has not changed
             } else {
                 // [RP] session state has changed. Sending prompt=none request...
-                const promptNoneIFrame: HTMLIFrameElement = document.getElementById(
+                const promptNoneIFrame: HTMLIFrameElement = rpIFrame.contentDocument.getElementById(
                     PROMPT_NONE_IFRAME
                 ) as HTMLIFrameElement;
                 promptNoneIFrame.src =
@@ -125,11 +127,10 @@ export const SessionManagementHelper = (() => {
             }
         }
 
-        const rpIFrame = document.getElementById(RP_IFRAME) as HTMLIFrameElement;
         rpIFrame.contentWindow.addEventListener("message", receiveMessage, false);
     };
 
-    const receivePromptNoneResponse = (signOut:()=>string, setSessionState:((sessionState:string)=>void)): void => {
+    const receivePromptNoneResponse = (signOut:()=>string, setSessionState:((sessionState:string)=>void)): boolean => {
 
         const state = new URL(window.location.href).searchParams.get("state");
         if (state !== null && state === STATE) {
@@ -145,6 +146,7 @@ export const SessionManagementHelper = (() => {
             } else {
                 window.top.location.href = signOut();
                 window.stop();
+                return true;
             }
         }
     };
@@ -165,8 +167,7 @@ export const SessionManagementHelper = (() => {
         document.body.appendChild(rpIFrame);
         rpIFrame = document.getElementById(RP_IFRAME) as HTMLIFrameElement;
         rpIFrame.contentDocument.body.appendChild(opIFrame);
-        //rpIFrame.contentDocument.body.appendChild(promptNoneIFrame);
-        document.body.appendChild(promptNoneIFrame);
+        rpIFrame.contentDocument.body.appendChild(promptNoneIFrame);
 
         return {
             initialize,
