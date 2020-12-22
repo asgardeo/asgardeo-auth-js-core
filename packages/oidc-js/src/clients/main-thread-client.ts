@@ -32,7 +32,7 @@ import {
     Store,
     TokenResponse
 } from "../core";
-import { SPAHelper } from "../helpers";
+import { SPAHelper, SessionManagementHelper } from "../helpers";
 import { HttpClient, HttpClientInstance } from "../http-client";
 import {
     HttpError,
@@ -62,6 +62,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     const _authenticationClient = new AsgardeoAuthClient<MainThreadClientConfig>(config, _store);
     const _spaHelper = new SPAHelper<MainThreadClientConfig>(_authenticationClient);
     const _dataLayer = _authenticationClient.getDataLayer();
+    const _sessionManagementHelper = SessionManagementHelper();
 
     let _onHttpRequestStart: () => void;
     let _onHttpRequestSuccess: (response: HttpResponse) => void;
@@ -130,13 +131,39 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return true;
     };
 
+    const checkSession = (): void => {
+        _sessionManagementHelper.initialize(
+            config.clientID,
+            _authenticationClient.getOIDCServiceEndpoints().checkSessionIframe,
+            _authenticationClient.getBasicUserInfo().sessionState,
+            3,
+            config.signInRedirectURL,
+            _authenticationClient.getOIDCServiceEndpoints().authorizationEndpoint
+        );
+
+        _sessionManagementHelper.initiateCheckSession();
+    };
+
     const signIn = (
         signInConfig?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string,
         signInRedirectURL?: string
     ): Promise<BasicUserInfo> => {
+
+        _sessionManagementHelper.receivePromptNoneResponse(
+            () => {
+                return _authenticationClient.signOut();
+            },
+            (sessionState: string) => {
+                _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+            }
+        );
+
         if (_authenticationClient.isAuthenticated()) {
+            _spaHelper.refreshAccessTokenAutomatically();
+            checkSession();
+
             return Promise.resolve(_authenticationClient.getBasicUserInfo());
         }
 
@@ -149,9 +176,8 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         } else {
             resolvedAuthorizationCode = new URL(window.location.href).searchParams.get(AUTHORIZATION_CODE);
             resolvedSessionState = new URL(window.location.href).searchParams.get(SESSION_STATE);
+            SPAUtils.removeAuthorizationCode();
         }
-
-        SPAUtils.removeAuthorizationCode();
 
         if (resolvedAuthorizationCode && resolvedSessionState) {
             if (config.storage === Storage.BrowserMemory) {
@@ -168,6 +194,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                     }
 
                     _spaHelper.refreshAccessTokenAutomatically();
+                    checkSession();
 
                     return _authenticationClient.getBasicUserInfo();
                 })
