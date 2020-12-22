@@ -19,3 +19,4 @@
 export * from "./messages-types";
 export * from "./storage";
 export * from "./hooks";
+export * from "./session-management";
