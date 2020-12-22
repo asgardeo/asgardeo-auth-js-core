@@ -150,8 +150,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         sessionState?: string,
         signInRedirectURL?: string
     ): Promise<BasicUserInfo> => {
-
-        _sessionManagementHelper.receivePromptNoneResponse(
+        const isLoggingOut = _sessionManagementHelper.receivePromptNoneResponse(
             () => {
                 return _authenticationClient.signOut();
             },
@@ -159,6 +158,17 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                 _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
             }
         );
+
+        if (isLoggingOut) {
+            return Promise.resolve({
+                allowedScopes: "",
+                displayName: "",
+                email: "",
+                sessionState: "",
+                tenantDomain: "",
+                username: ""
+            });
+        }
 
         if (_authenticationClient.isAuthenticated()) {
             _spaHelper.refreshAccessTokenAutomatically();
