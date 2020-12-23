@@ -24,9 +24,9 @@ import {
     CustomGrantConfig,
     DecodedIdTokenPayload,
     OIDCEndpoints,
+    SESSION_STATE,
     Store,
-    TokenResponse,
-    SESSION_STATE
+    TokenResponse
 } from "../core";
 import { AsgardeoSPAException, AsgardeoSPAExceptionStack } from "../exception";
 import { SPAHelper } from "../helpers";
