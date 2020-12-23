@@ -129,4 +129,8 @@ export class AsgardeoAuthClient<T> {
 
         return stateParam && stateParam === SIGN_OUT_SUCCESS_PARAM && !error;
     }
+
+    public updateConfig(config: Partial<AuthClientConfig<T>>): void {
+        this._authenticationCore.updateConfig(config);
+    }
 }
