@@ -18,14 +18,19 @@
 
 import { Storage } from "../constants";
 
+
+export interface SPAConfig {
+    checkSessionInterval?: number;
+}
+
 /**
  * SDK Client config parameters.
  */
-export interface MainThreadClientConfig {
+export interface MainThreadClientConfig extends SPAConfig {
     storage?: Storage.SessionStorage | Storage.LocalStorage | Storage.BrowserMemory;
 }
 
-export interface WebWorkerClientConfig {
+export interface WebWorkerClientConfig  extends SPAConfig {
     resourceServerURLs: string[];
     storage: Storage.WebWorker;
     requestTimeout?: number;
