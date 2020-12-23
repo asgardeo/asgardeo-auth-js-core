@@ -486,13 +486,15 @@ export class AsgardeoSPAClient {
         }
 
         if (!requestParams.id) {
-            return Promise.reject(new AsgardeoSPAException(
-                "AUTH_CLIENT-RCG-NF01",
-                "client",
-                "requestCustomGrant",
-                "The custom grant request id not found.",
-                "The id attribute of the custom grant config object passed as an argument should have a value."
-            ))
+            return Promise.reject(
+                new AsgardeoSPAException(
+                    "AUTH_CLIENT-RCG-NF01",
+                    "client",
+                    "requestCustomGrant",
+                    "The custom grant request id not found.",
+                    "The id attribute of the custom grant config object passed as an argument should have a value."
+                )
+            );
         }
 
         const customGrantResponse = await this._client.requestCustomGrant(requestParams);
@@ -580,17 +582,17 @@ export class AsgardeoSPAClient {
                 "getHttpClient",
                 "Http client cannot be returned.",
                 "The http client cannot be returned when the storage type is set to webWorker."
-            )
+            );
         }
 
         throw new AsgardeoSPAException(
-                "AUTH_CLIENT-GHC-NF02",
-                "client",
-                "getHttpClient",
-                "The SDK is not initialized.",
+            "AUTH_CLIENT-GHC-NF02",
+            "client",
+            "getHttpClient",
+            "The SDK is not initialized.",
             "The SDK has not been initialized yet. Initialize the SDK suing the initialize method " +
-            "before calling this method."
-            )
+                "before calling this method."
+        );
     }
 
     /**
@@ -645,14 +647,15 @@ export class AsgardeoSPAClient {
         await this._validateMethod();
 
         if ([Storage.WebWorker, Storage.BrowserMemory].includes(this._storage)) {
-            return Promise.reject(new AsgardeoSPAException(
-                "AUTH_CLIENT-GAT-IV01",
-                "client",
-                "getAccessToken",
-                "The access token cannot be returned.",
-                "The access token cannot be returned when the storage type is set to webWorker or browserMemory."
-
-            ));
+            return Promise.reject(
+                new AsgardeoSPAException(
+                    "AUTH_CLIENT-GAT-IV01",
+                    "client",
+                    "getAccessToken",
+                    "The access token cannot be returned.",
+                    "The access token cannot be returned when the storage type is set to webWorker or browserMemory."
+                )
+            );
         }
         const mainThreadClient = this._client as MainThreadClientInterface;
 
