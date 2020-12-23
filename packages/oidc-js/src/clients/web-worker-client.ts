@@ -39,7 +39,8 @@ import {
     REVOKE_ACCESS_TOKEN,
     SET_SESSION_STATE,
     SIGN_OUT,
-    START_AUTO_REFRESH_TOKEN
+    START_AUTO_REFRESH_TOKEN,
+    UPDATE_CONFIG
 } from "../constants";
 import {
     AUTHORIZATION_CODE,
@@ -557,6 +558,17 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         }
     };
 
+    const updateConfig = (newConfig: Partial<AuthClientConfig<WebWorkerClientConfig>>): Promise<void> => {
+        config = { ...config, ...newConfig };
+
+        const message: Message<Partial<AuthClientConfig<WebWorkerClientConfig>>> = {
+            data: config,
+            type: UPDATE_CONFIG
+        };
+
+        return communicate < Partial < AuthClientConfig < WebWorkerClientConfig >>, void> (message);
+    }
+
     return {
         disableHttpHandler,
         enableHttpHandler,
@@ -575,6 +587,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         setHttpRequestStartCallback,
         setHttpRequestSuccessCallback,
         signIn,
-        signOut
+        signOut,
+        updateConfig
     };
 };
