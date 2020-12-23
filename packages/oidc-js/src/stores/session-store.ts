@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store } from "../core";
+import { Store } from "@asgardeo/auth-js";
 
 export class SessionStore implements Store {
     public setData(key: string, value: string): void {

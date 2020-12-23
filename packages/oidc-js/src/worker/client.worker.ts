@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import { AuthClientConfig, BasicUserInfo } from "@asgardeo/auth-js";
 import { WebWorkerCore } from "./worker-core";
 import {
     DISABLE_HTTP_HANDLER,
@@ -42,7 +43,6 @@ import {
     START_AUTO_REFRESH_TOKEN,
     UPDATE_CONFIG
 } from "../constants";
-import { AuthClientConfig, BasicUserInfo } from "../core";
 import { AsgardeoSPAException } from "../exception";
 import {
     AuthorizationResponse,

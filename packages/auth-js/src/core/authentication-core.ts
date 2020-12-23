@@ -16,8 +16,7 @@
  * under the License.
  */
 
-import axios from "axios";
-import { HttpError, HttpRequestConfig, HttpResponse } from "../..";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import {
     AUTHORIZATION_ENDPOINT,
     OIDC_SCOPE,
@@ -163,7 +162,7 @@ export class AuthenticationCore<T> {
                         );
                     });
             })
-            .catch((error: HttpError) => {
+            .catch((error: AxiosError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RAT1-NR03",
@@ -235,7 +234,7 @@ export class AuthenticationCore<T> {
                         );
                     });
             })
-            .catch((error: HttpError) => {
+            .catch((error: AxiosError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RAT2-NR03",
@@ -252,7 +251,7 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public revokeAccessToken(): Promise<HttpResponse> {
+    public revokeAccessToken(): Promise<AxiosResponse> {
         const revokeTokenEndpoint = this._oidcProviderMetaData().revocation_endpoint;
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
@@ -297,7 +296,7 @@ export class AuthenticationCore<T> {
 
                 return Promise.resolve(response);
             })
-            .catch((error: HttpError) => {
+            .catch((error: AxiosError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RAT3-NR03",
@@ -314,7 +313,7 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public requestCustomGrant = (customGrantParams: CustomGrantConfig): Promise<TokenResponse | HttpResponse> => {
+    public requestCustomGrant = (customGrantParams: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> => {
         if (
             !this._oidcProviderMetaData().token_endpoint ||
             this._oidcProviderMetaData().token_endpoint.trim().length === 0
@@ -338,7 +337,7 @@ export class AuthenticationCore<T> {
             data += `${key}=${newValue}${index !== Object.entries(customGrantParams.data).length - 1 ? "&" : ""}`;
         });
 
-        const requestConfig: HttpRequestConfig = {
+        const requestConfig: AxiosRequestConfig = {
             data: data,
             headers: {
                 ...AuthenticationUtils.getTokenRequestHeaders()
@@ -356,7 +355,7 @@ export class AuthenticationCore<T> {
 
         return axios(requestConfig)
             .then(
-                (response: HttpResponse): Promise<HttpResponse | TokenResponse> => {
+                (response: AxiosResponse): Promise<AxiosResponse | TokenResponse> => {
                     if (response.status !== 200) {
                         return Promise.reject(
                             new AsgardeoAuthException(
@@ -390,7 +389,7 @@ export class AuthenticationCore<T> {
                     }
                 }
             )
-            .catch((error: HttpError) => {
+            .catch((error: AxiosError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RCG-NR04",

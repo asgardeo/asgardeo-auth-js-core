@@ -15,18 +15,5 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store } from "@asgardeo/auth-js";
 
-export class LocalStore implements Store {
-    public setData(key: string, value: string): void {
-        localStorage.setItem(key, value);
-    }
-
-    public getData(key: string): string {
-        return localStorage.getItem(key);
-    }
-
-    public removeData(key: string): void {
-        localStorage.removeItem(key);
-    }
-}
+export * from "../src/index-polyfill";

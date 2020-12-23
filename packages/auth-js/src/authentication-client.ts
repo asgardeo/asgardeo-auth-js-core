@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import { AxiosResponse } from "axios";
 import { OP_CONFIG_INITIATED, SIGN_OUT_SUCCESS_PARAM } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
@@ -29,7 +30,6 @@ import {
     Store,
     TokenResponse
 } from "./models";
-import { HttpResponse } from "../models";
 
 export class AsgardeoAuthClient<T> {
     private _dataLayer: DataLayer<T>;
@@ -94,7 +94,7 @@ export class AsgardeoAuthClient<T> {
         return this._authenticationCore.getBasicUserInfo();
     }
 
-    public revokeAccessToken(): Promise<HttpResponse> {
+    public revokeAccessToken(): Promise<AxiosResponse> {
         return this._authenticationCore.revokeAccessToken();
     }
 
@@ -106,7 +106,7 @@ export class AsgardeoAuthClient<T> {
         return this._authenticationCore.getAccessToken();
     }
 
-    public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | HttpResponse> {
+    public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> {
         return this._authenticationCore.requestCustomGrant(config);
     }
 

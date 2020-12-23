@@ -27,7 +27,7 @@ import {
     SESSION_STATE,
     Store,
     TokenResponse
-} from "../core";
+} from "@asgardeo/auth-js";
 import { AsgardeoSPAException, AsgardeoSPAExceptionStack } from "../exception";
 import { SPAHelper } from "../helpers";
 import { HttpClient, HttpClientInstance } from "../http-client";

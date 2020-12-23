@@ -8,7 +8,7 @@ Monorepo containing the source of Asgardeo Javascript SDKs & Samples.
 
 | Package | Version |
 |--------|-------|
-| [`@asgardeo/oidc-js`](/packages/oidc-js) | [![npm](https://img.shields.io/npm/v/@asgardeo/oidc-js.svg?maxAge=3600)](https://www.npmjs.com/package/@asgardeo/oidc-js) |
+| [`@asgardeo/auth-spa`](/packages/oidc-js) | [![npm](https://img.shields.io/npm/v/@asgardeo/auth-spa.svg?maxAge=3600)](https://www.npmjs.com/package/@asgardeo/auth-spa) |
 
 ## Contribute
 

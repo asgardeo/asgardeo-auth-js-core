@@ -17,8 +17,7 @@
  */
 
 import { KeyLike } from "crypto";
-import axios from "axios";
-import { HttpError, HttpResponse } from "../..";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import {
     AUTHORIZATION_ENDPOINT,
     CLIENT_ID_TAG,
@@ -184,7 +183,7 @@ export class AuthenticationHelper<T> {
                         );
                     });
             })
-            .catch((error: HttpError) => {
+            .catch((error: AxiosError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_HELPER-VIT-NR05",
@@ -228,7 +227,7 @@ export class AuthenticationHelper<T> {
         this._dataLayer.removeSessionData();
     }
 
-    public handleTokenResponse(response: HttpResponse): Promise<TokenResponse> {
+    public handleTokenResponse(response: AxiosResponse): Promise<TokenResponse> {
         if (response.status !== 200) {
             return Promise.reject(
                 new AsgardeoAuthException(

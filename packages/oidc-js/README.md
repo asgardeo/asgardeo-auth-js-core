@@ -47,11 +47,11 @@ Asgardeo's OIDC SDK for JavaScript allows Single Page Applications to use OIDC o
 ## Install
 Install the JavaScript library from the npm registry.
 ```
-npm install --save @asgardeo/oidc-js
+npm install --save @asgardeo/auth-spa
 ```
 Or simply load the SDK by importing the script into the header of your HTML file.
 ```html
-<script src="https://unpkg.com/@asgardeo/oidc-js@0.1.26/dist/asgardeo-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-spa@0.1.26/dist/asgardeo-oidc.production.min.js.js"></script>
 
 <script>
 var auth = AsgardeoAuth.AsgardeoSPAClient.getInstance();
@@ -85,7 +85,7 @@ auth.on("sign-in", (response) => {
 ### Using modules
 ```javascript
 // The SDK provides a client that can be used to carry out the authentication.
-import { AsgardeoSPAClient } from "@asgardeo/oidc-js";
+import { AsgardeoSPAClient } from "@asgardeo/auth-spa";
 
 // This client is a class and can be instantiated as follows.
 const auth = AsgardeoSPAClient.getInstance();
@@ -163,7 +163,7 @@ The SDK supports all major browsers and provides polyfills to support incompatib
 
 To embed a polyfilled script in an HTML page:
 ```html
-<script src="https://unpkg.com/@asgardeo/oidc-js@0.1.26/dist/polyfilled/asgardeo-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-spa@0.1.26/dist/polyfilled/asgardeo-oidc.production.min.js.js"></script>
 ```
 
 You can also import a polyfilled module into your modular app. Asgardeo provides two different modules each supporting UMD and ESM.
@@ -171,12 +171,12 @@ You can specify the preferred module type by appending the type to the module na
 
 To import a polyfilled ESM module:
 ```javascript
-import { AsgardeoSPAClient } from "@asgardeo/oidc-js/polyfilled/esm";
+import { AsgardeoSPAClient } from "@asgardeo/auth-spa/polyfilled/esm";
 ```
 
 To import a polyfilled UMD module:
 ```javascript
-import { AsgardeoSPAClient } from "@asgardeo/oidc-js/polyfilled/umd";
+import { AsgardeoSPAClient } from "@asgardeo/auth-spa/polyfilled/umd";
 ```
 
 **Note that using a polyfilled modules comes at the cost of the bundle size being twice as big as the default, non-polyfilled bundle.**

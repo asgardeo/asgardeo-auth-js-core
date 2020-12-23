@@ -19,14 +19,13 @@
 import {
     AuthClientConfig,
     BasicUserInfo,
-    Config,
     CustomGrantConfig,
     DecodedIdTokenPayload,
     OIDCEndpoints,
     OIDC_SCOPE,
-    SignInConfig,
-    WebWorkerClientConfig
-} from ".";
+    SignInConfig
+} from "@asgardeo/auth-js";
+import { Config, WebWorkerClientConfig } from ".";
 import { MainThreadClient, WebWorkerClient } from "./clients";
 import { Hooks, Storage } from "./constants";
 import { AsgardeoSPAException } from "./exception";
@@ -852,7 +851,7 @@ export class AsgardeoSPAClient {
         return this._client.disableHttpHandler();
     }
 
-    public async updateConfig(config: Partial<AuthClientConfig<Config>>): Promise<void>{
+    public async updateConfig(config: Partial<AuthClientConfig<Config>>): Promise<void> {
         await this._isInitialized();
         if (this._storage === Storage.WebWorker) {
             const client = this._client as WebWorkerClientInterface;

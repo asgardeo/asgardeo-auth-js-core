@@ -16,6 +16,18 @@
  * under the License.
  */
 
+import {
+    AUTHORIZATION_CODE,
+    AuthClientConfig,
+    BasicUserInfo,
+    CustomGrantConfig,
+    DecodedIdTokenPayload,
+    OIDCEndpoints,
+    OIDCProviderMetaData,
+    ResponseMode,
+    SESSION_STATE,
+    SignInConfig
+} from "@asgardeo/auth-js";
 import WorkerFile from "web-worker:../worker/client.worker.ts";
 import {
     DISABLE_HTTP_HANDLER,
@@ -42,18 +54,6 @@ import {
     START_AUTO_REFRESH_TOKEN,
     UPDATE_CONFIG
 } from "../constants";
-import {
-    AUTHORIZATION_CODE,
-    AuthClientConfig,
-    BasicUserInfo,
-    CustomGrantConfig,
-    DecodedIdTokenPayload,
-    OIDCEndpoints,
-    OIDCProviderMetaData,
-    ResponseMode,
-    SESSION_STATE,
-    SignInConfig
-} from "../core";
 import { AsgardeoSPAException } from "../exception";
 import { SessionManagementHelper } from "../helpers";
 import {
