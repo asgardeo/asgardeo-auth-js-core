@@ -41,3 +41,4 @@ export const GET_SIGN_OUT_URL = "get_sign_out_url";
 export const REFRESH_ACCESS_TOKEN = "refresh_access-token";
 export const SET_SESSION_STATE = "set_session_state";
 export const START_AUTO_REFRESH_TOKEN = "start_auto_refresh_token";
+export const UPDATE_CONFIG = "update_config";

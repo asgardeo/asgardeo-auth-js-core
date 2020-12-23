@@ -41,7 +41,8 @@ import {
     SET_SESSION_STATE,
     SIGN_IN,
     SIGN_OUT,
-    START_AUTO_REFRESH_TOKEN
+    START_AUTO_REFRESH_TOKEN,
+    UPDATE_CONFIG
 } from "../constants";
 
 export interface ResponseMessage<T> {
@@ -87,7 +88,8 @@ export type MessageType =
     | typeof GET_SIGN_OUT_URL
     | typeof REFRESH_ACCESS_TOKEN
     | typeof SET_SESSION_STATE
-    | typeof START_AUTO_REFRESH_TOKEN;
+    | typeof START_AUTO_REFRESH_TOKEN
+    | typeof UPDATE_CONFIG;
 
 export interface CommunicationHelperInterface {
     communicate: <T, R>(message: Message<T>) => Promise<R>;
