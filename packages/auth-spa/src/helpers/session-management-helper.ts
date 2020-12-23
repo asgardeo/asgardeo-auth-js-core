@@ -41,6 +41,10 @@ export const SessionManagementHelper = (() => {
         _interval = interval;
         _redirectURL = redirectURL;
         _authorizationEndpoint = authorizationEndpoint;
+
+        if (_interval > -1) {
+            initiateCheckSession();
+        }
     };
 
     const initiateCheckSession = (): void => {
@@ -134,22 +138,24 @@ export const SessionManagementHelper = (() => {
         signOut: () => Promise<string>,
         setSessionState: (sessionState: string) => Promise<void>
     ): Promise<boolean> => {
-        const state = new URL(window.location.href).searchParams.get("state");
-        if (state !== null && state === STATE) {
-            // Prompt none response.
-            const code = new URL(window.location.href).searchParams.get("code");
+        if (_interval > -1) {
+            const state = new URL(window.location.href).searchParams.get("state");
+            if (state !== null && state === STATE) {
+                // Prompt none response.
+                const code = new URL(window.location.href).searchParams.get("code");
 
-            if (code !== null && code.length !== 0) {
-                const newSessionState = new URL(window.location.href).searchParams.get("session_state");
+                if (code !== null && code.length !== 0) {
+                    const newSessionState = new URL(window.location.href).searchParams.get("session_state");
 
-                await setSessionState(newSessionState);
+                    await setSessionState(newSessionState);
 
-                window.stop();
-            } else {
-                window.top.location.href = await signOut();
-                window.stop();
+                    window.stop();
+                } else {
+                    window.top.location.href = await signOut();
+                    window.stop();
 
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -176,7 +182,6 @@ export const SessionManagementHelper = (() => {
 
         return {
             initialize,
-            initiateCheckSession,
             receivePromptNoneResponse
         };
     };

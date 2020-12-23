@@ -25,7 +25,6 @@ export interface SessionManagementHelperInterface {
         redirectURL: string,
         authorizationEndpoint: string
     ): void;
-    initiateCheckSession(): void;
     receivePromptNoneResponse(
         signOut: () => Promise<string>,
         setSessionState: (sessionState: string) => Promise<void>
