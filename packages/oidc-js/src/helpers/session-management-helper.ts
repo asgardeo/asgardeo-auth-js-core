@@ -147,9 +147,12 @@ export const SessionManagementHelper = (() => {
             } else {
                 window.top.location.href = await signOut();
                 window.stop();
+
                 return true;
             }
         }
+
+        return false;
     };
 
     return () => {
