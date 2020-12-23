@@ -86,8 +86,8 @@
             session.setAttribute("sessionState", request.getParameter("session_state"));
         %>
 
-        // Instantiate the `IdentityClient` singleton
-        var auth = AsgardeoAuth.IdentityClient.getInstance();
+        // Instantiate the `AsgardeoSPAClient` singleton
+        var auth = AsgardeoAuth.AsgardeoSPAClient.getInstance();
 
         axios.get("/auth.jsp").then((response)=>{
             // Initialize the client

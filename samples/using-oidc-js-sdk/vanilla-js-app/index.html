@@ -81,8 +81,8 @@
         var clientHost = "http://localhost:3000";
         var isAuthenticated = false;
 
-        // Instantiate the `IdentityClient` singleton
-        var auth = AsgardeoAuth.IdentityClient.getInstance();
+        // Instantiate the `AsgardeoSPAClient` singleton
+        var auth = AsgardeoAuth.AsgardeoSPAClient.getInstance();
 
         // Initialize the client
         auth.initialize({
