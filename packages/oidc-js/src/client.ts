@@ -58,10 +58,10 @@ const DefaultConfig = {
 const PRIMARY_INSTANCE = "primaryInstance";
 
 /**
- * IdentityClient class constructor.
+ * AsgardeoSPAClient class constructor.
  *
  * @export
- * @class IdentityClient
+ * @class AsgardeoSPAClient
  * @implements {ConfigInterface} - Configuration interface.
  */
 export class AsgardeoSPAClient {
@@ -143,16 +143,16 @@ export class AsgardeoSPAClient {
     /**
      * This method returns the instance of the singleton class.
      *
-     * @return {IdentityClient} - Returns the instance of the singleton class.
+     * @return {AsgardeoSPAClient} - Returns the instance of the singleton class.
      *
      * @example
      * ```
-     * const auth = IdentityClient.getInstance();
+     * const auth = AsgardeoSPAClient.getInstance();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getinstance
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -175,7 +175,7 @@ export class AsgardeoSPAClient {
     }
 
     /**
-     * This method initializes the `IdentityClient` instance.
+     * This method initializes the `AsgardeoSPAClient` instance.
      *
      * @param {ConfigInterface} config The config object to initialize with.
      *
@@ -193,7 +193,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#initialize
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -256,7 +256,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getuserinfo
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -295,7 +295,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#signin
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -336,7 +336,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#signout
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -382,7 +382,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#httprequest
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -435,7 +435,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#httprequestall
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -472,7 +472,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#customgrant
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -519,7 +519,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#endusersession
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -548,7 +548,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getserviceendpoints
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -563,7 +563,7 @@ export class AsgardeoSPAClient {
      *
      * @return {HttpClientInstance} - The Axios HTTP client.
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -609,7 +609,7 @@ export class AsgardeoSPAClient {
      * ```
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getdecodedidtoken
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -637,7 +637,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getaccesstoken
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -676,7 +676,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#refreshtoken
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -717,7 +717,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -815,7 +815,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#enableHttpHandler
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
@@ -837,7 +837,7 @@ export class AsgardeoSPAClient {
      *
      * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#disableHttpHandler
      *
-     * @memberof IdentityClient
+     * @memberof AsgardeoSPAClient
      *
      * @preserve
      */

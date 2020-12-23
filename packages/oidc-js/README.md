@@ -54,7 +54,7 @@ Or simply load the SDK by importing the script into the header of your HTML file
 <script src="https://unpkg.com/@asgardeo/oidc-js@0.1.26/dist/asgardeo-oidc.production.min.js.js"></script>
 
 <script>
-var auth = AsgardeoAuth.IdentityClient.getInstance();
+var auth = AsgardeoAuth.AsgardeoSPAClient.getInstance();
 </script>
 ```
 
@@ -62,7 +62,7 @@ var auth = AsgardeoAuth.IdentityClient.getInstance();
 ### Using Embedded Scripts
 ```javascript
 // This client is a class and can be instantiated as follows.
-var auth = AsgardeoAuth.IdentityClient.getInstance();
+var auth = AsgardeoAuth.AsgardeoSPAClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
@@ -85,10 +85,10 @@ auth.on("sign-in", (response) => {
 ### Using modules
 ```javascript
 // The SDK provides a client that can be used to carry out the authentication.
-import { IdentityClient } from "@asgardeo/oidc-js";
+import { AsgardeoSPAClient } from "@asgardeo/oidc-js";
 
 // This client is a class and can be instantiated as follows.
-const auth = IdentityClient.getInstance();
+const auth = AsgardeoSPAClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
@@ -171,12 +171,12 @@ You can specify the preferred module type by appending the type to the module na
 
 To import a polyfilled ESM module:
 ```javascript
-import { IdentityClient } from "@asgardeo/oidc-js/polyfilled/esm";
+import { AsgardeoSPAClient } from "@asgardeo/oidc-js/polyfilled/esm";
 ```
 
 To import a polyfilled UMD module:
 ```javascript
-import { IdentityClient } from "@asgardeo/oidc-js/polyfilled/umd";
+import { AsgardeoSPAClient } from "@asgardeo/oidc-js/polyfilled/umd";
 ```
 
 **Note that using a polyfilled modules comes at the cost of the bundle size being twice as big as the default, non-polyfilled bundle.**
@@ -186,27 +186,27 @@ import { IdentityClient } from "@asgardeo/oidc-js/polyfilled/umd";
 
 ### getInstance
 ```typescript
-getInstance(id?: string): IdentityClient;
+getInstance(id?: string): AsgardeoSPAClient;
 ```
 
-This returns a static instance of the `IdentityClient`. The SDK allows you to create multiple instances of the `IdentityClient`. To do so, you can pass an `id` into the `getInstance` method. If no instance has been created for the provided `id`, a new instance will be created and returned by this method. If an instance exists, then that instance will be returned. If no `id` is provided, the default instance will be returned. This allows the SDK to talk to multiple identity servers through the same app.
+This returns a static instance of the `AsgardeoSPAClient`. The SDK allows you to create multiple instances of the `AsgardeoSPAClient`. To do so, you can pass an `id` into the `getInstance` method. If no instance has been created for the provided `id`, a new instance will be created and returned by this method. If an instance exists, then that instance will be returned. If no `id` is provided, the default instance will be returned. This allows the SDK to talk to multiple identity servers through the same app.
 
 Creating a static instance affords the developers the flexibility of using multiple files to implement the authentication logic. That is, you can have the sign in logic implemented on one page and the sign out logic on another.
 
 ```javascript
-const auth = IdentityClient.getInstance();
+const auth = AsgardeoSPAClient.getInstance();
 ```
 To create another instance,
 
 ```javascript
-const auth2 = IdentityClient.getInstance("primary");
+const auth2 = AsgardeoSPAClient.getInstance("primary");
 ```
 
 ### initialize
 ```typescript
 initialize(config);
 ```
-The `initialize` method is used to the initialize the client. This *MUST* be called soon after instantiating the `IdentityClient` and before calling another methods.
+The `initialize` method is used to the initialize the client. This *MUST* be called soon after instantiating the `AsgardeoSPAClient` and before calling another methods.
 
 This method takes a `config` object as the only argument. The attributes of the `config` object is as follows.
 
@@ -322,7 +322,7 @@ This method accepts a config object which is of type `AxiosRequestConfig`. If yo
 For example, to get the user profile details after signing in, you can query the `me` endpoint as follows:
 
 ```javascript
-const auth = IdentityClient.getInstance();
+const auth = AsgardeoSPAClient.getInstance();
 
 const requestConfig = {
     headers: {
