@@ -280,7 +280,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         };
 
         return communicate<null, void>(message);
-    }
+    };
 
     const checkSession = async (): Promise<void> => {
         const oidcEndpoints: OIDCEndpoints = await getOIDCServiceEndpoints();
@@ -315,9 +315,13 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                     type: SIGN_OUT
                 };
 
-                const signOutURL = await communicate<string, string>(message);
+                try {
+                    const signOutURL = await communicate<string, string>(message);
 
-                return signOutURL;
+                    return signOutURL;
+                } catch {
+                    return SPAUtils.getSignOutURL();
+                }
             },
             async (sessionState: string) => {
                 return setSessionState(sessionState);
@@ -442,10 +446,9 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                             return Promise.reject(error);
                         });
                 } else {
-                    window.location.href = SPAUtils.replaceSignOutRedirectURL(
-                        SPAUtils.getSignOutURL(),
-                        signOutRedirectURL
-                    );
+                    window.location.href = signOutRedirectURL
+                        ? SPAUtils.replaceSignOutRedirectURL(SPAUtils.getSignOutURL(), signOutRedirectURL)
+                        : SPAUtils.getSignOutURL();
 
                     return Promise.resolve(true);
                 }
