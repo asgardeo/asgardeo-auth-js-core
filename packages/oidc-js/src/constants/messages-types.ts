@@ -18,8 +18,6 @@
 
 export const INIT = "init";
 export const SIGN_IN = "sign-in";
-export const SIGNED_IN = "signed-in";
-export const AUTH_REQUIRED = "auth-required";
 export const AUTH_CODE = "auth-code";
 export const SIGN_OUT = "sign-out";
 export const HTTP_REQUEST = "http-request";
@@ -41,3 +39,5 @@ export const REQUEST_ACCESS_TOKEN = "request_get_token";
 export const IS_AUTHENTICATED = "is_authenticated";
 export const GET_SIGN_OUT_URL = "get_sign_out_url";
 export const REFRESH_ACCESS_TOKEN = "refresh_access-token";
+export const SET_SESSION_STATE = "set_session_state";
+export const START_AUTO_REFRESH_TOKEN = "start_auto_refresh_token";
