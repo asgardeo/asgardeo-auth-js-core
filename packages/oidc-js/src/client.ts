@@ -44,11 +44,11 @@ import { SPAUtils } from "./utils";
 /**
  * Default configurations.
  */
-const DefaultConfig = {
+const DefaultConfig: Partial<AuthClientConfig<Config>> = {
+    checkSessionInterval: 3,
     clientHost: origin,
     clientSecret: null,
     clockTolerance: 60,
-    consentDenied: false,
     enablePKCE: true,
     responseMode: null,
     scope: [OIDC_SCOPE],
@@ -206,7 +206,8 @@ export class AsgardeoSPAClient {
             this._initialized = true;
             if (!this._client) {
                 const mainThreadClientConfig = config as AuthClientConfig<MainThreadClientConfig>;
-                this._client = MainThreadClient({ ...DefaultConfig, ...mainThreadClientConfig });
+                const defaultConfig = { ...DefaultConfig } as Partial<AuthClientConfig<MainThreadClientConfig>>;
+                this._client = MainThreadClient({ ...defaultConfig, ...mainThreadClientConfig });
             }
 
             if (this._onInitialize) {

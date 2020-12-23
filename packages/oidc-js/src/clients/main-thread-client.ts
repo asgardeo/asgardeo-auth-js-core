@@ -132,18 +132,20 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     };
 
     const checkSession = (): void => {
-        const oidcEndpoints: OIDCEndpoints = _authenticationClient.getOIDCServiceEndpoints();
+        if (config.checkSessionInterval > -1) {
+            const oidcEndpoints: OIDCEndpoints = _authenticationClient.getOIDCServiceEndpoints();
 
-        _sessionManagementHelper.initialize(
-            config.clientID,
-            oidcEndpoints.checkSessionIframe,
-            _authenticationClient.getBasicUserInfo().sessionState,
-            3,
-            config.signInRedirectURL,
-            oidcEndpoints.authorizationEndpoint
-        );
+            _sessionManagementHelper.initialize(
+                config.clientID,
+                oidcEndpoints.checkSessionIframe,
+                _authenticationClient.getBasicUserInfo().sessionState,
+                config.checkSessionInterval,
+                config.signInRedirectURL,
+                oidcEndpoints.authorizationEndpoint
+            );
 
-        _sessionManagementHelper.initiateCheckSession();
+            _sessionManagementHelper.initiateCheckSession();
+        }
     };
 
     const signIn = async (
@@ -151,15 +153,17 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         authorizationCode?: string,
         sessionState?: string
     ): Promise<BasicUserInfo> => {
-        const isLoggingOut = await _sessionManagementHelper.receivePromptNoneResponse(
-            async () => {
-                return _authenticationClient.signOut();
-            },
-            async (sessionState: string) => {
-                _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
-                return;
-            }
-        );
+        const isLoggingOut =
+            config.checkSessionInterval > -1 &&
+            (await _sessionManagementHelper.receivePromptNoneResponse(
+                async () => {
+                    return _authenticationClient.signOut();
+                },
+                async (sessionState: string) => {
+                    _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+                    return;
+                }
+            ));
 
         if (isLoggingOut) {
             return Promise.resolve({
@@ -311,7 +315,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     const updateConfig = (newConfig: Partial<AuthClientConfig<MainThreadClientConfig>>): void => {
         config = { ...config, ...newConfig };
         _authenticationClient.updateConfig(config);
-    }
+    };
 
     return {
         disableHttpHandler,
