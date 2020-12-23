@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { Storage } from "../constants";
 import {
     AuthClientConfig,
     BasicUserInfo,
@@ -27,22 +26,7 @@ import {
     SignInConfig
 } from "../core";
 import { HttpClientInstance } from "../http-client";
-import { HttpError, HttpRequestConfig, HttpResponse } from "../models";
-
-/**
- * SDK Client config parameters.
- */
-export interface MainThreadClientConfig {
-    storage?: Storage.SessionStorage | Storage.LocalStorage | Storage.BrowserMemory;
-}
-
-export interface WebWorkerClientConfig {
-    resourceServerURLs: string[];
-    storage: Storage.WebWorker;
-    requestTimeout?: number;
-}
-
-export type Config = MainThreadClientConfig | WebWorkerClientConfig;
+import { HttpError, HttpRequestConfig, HttpResponse, MainThreadClientConfig, WebWorkerClientConfig } from "../models";
 
 export interface MainThreadClientInterface {
     setHttpRequestStartCallback(callback: () => void): void;
