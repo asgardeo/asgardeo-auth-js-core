@@ -37,7 +37,9 @@ import {
     REQUEST_START,
     REQUEST_SUCCESS,
     REVOKE_ACCESS_TOKEN,
-    SIGN_OUT
+    SET_SESSION_STATE,
+    SIGN_OUT,
+    START_AUTO_REFRESH_TOKEN
 } from "../constants";
 import { AuthClientConfig, BasicUserInfo } from "../core";
 import { AsgardeoSPAException } from "../exception";
@@ -214,6 +216,22 @@ ctx.onmessage = ({ data, ports }) => {
         case REFRESH_ACCESS_TOKEN:
             try {
                 port.postMessage(MessageUtils.generateSuccessMessage(webWorker.refreshAccessToken()));
+            } catch (error) {
+                port.postMessage(MessageUtils.generateFailureMessage(error));
+            }
+
+            break;
+        case START_AUTO_REFRESH_TOKEN:
+            try {
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.startAutoRefreshToken()));
+            } catch (error) {
+                port.postMessage(MessageUtils.generateFailureMessage(error));
+            }
+
+            break;
+        case SET_SESSION_STATE:
+            try {
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.setSessionState(data?.data)));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
