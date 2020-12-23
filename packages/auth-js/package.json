@@ -11,8 +11,8 @@
         "node.js",
         "react-native"
     ],
-    "main": "dist/asgardeo-oidc.production.js",
-    "module": "dist/asgardeo-oidc.production.esm.js",
+    "main": "dist/asgardeo-auth.production.js",
+    "module": "dist/asgardeo-auth.production.esm.js",
     "types": "dist/src/index.d.ts",
     "scripts": {
         "lint": "eslint --ext .js,.ts .",
