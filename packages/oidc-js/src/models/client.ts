@@ -18,6 +18,7 @@
 
 import { Storage } from "../constants";
 import {
+    AuthClientConfig,
     BasicUserInfo,
     CustomGrantConfig,
     DecodedIdTokenPayload,
@@ -68,6 +69,7 @@ export interface MainThreadClientInterface {
     getOIDCServiceEndpoints(): OIDCEndpoints;
     getAccessToken(): string;
     isAuthenticated(): boolean;
+    updateConfig(config: Partial<AuthClientConfig<MainThreadClientConfig>>): void;
 }
 
 export interface WebWorkerClientInterface {
@@ -94,4 +96,5 @@ export interface WebWorkerClientInterface {
     setHttpRequestStartCallback(callback: () => void): void;
     setHttpRequestFinishCallback(callback: () => void): void;
     refreshAccessToken(): Promise<BasicUserInfo>;
+    updateConfig(config: Partial<AuthClientConfig<WebWorkerClientConfig>>): Promise<void>;
 }
