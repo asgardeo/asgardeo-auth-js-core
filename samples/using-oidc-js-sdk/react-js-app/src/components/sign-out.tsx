@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { AsgardeoSPAClient } from "@asgardio/oidc-js";
+import { AsgardeoSPAClient } from "@asgardeo/oidc-js";
 import { FunctionComponent, ReactElement, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 

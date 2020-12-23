@@ -71,7 +71,7 @@ const POLYFILLED_DIR = "polyfilled";
  * @type {string}
  * @default
  */
-const GLOBAL_VARIABLE = "AsgardioAuth";
+const GLOBAL_VARIABLE = "AsgardeoAuth";
 
 /**
  * Production environment.
@@ -105,7 +105,7 @@ const resolveFileName = (bundleType) => {
         case ESM_BUNDLE:
             return pkg.module;
         case BROWSER_BUNDLE:
-            return "dist/asgardio-oidc.production.min.js";
+            return "dist/asgardeo-oidc.production.min.js";
         default:
             return pkg.main;
     }
