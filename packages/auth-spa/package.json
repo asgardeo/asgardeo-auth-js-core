@@ -9,8 +9,8 @@
         "oauth2",
         "spa"
     ],
-    "main": "dist/asgardeo-oidc.production.js",
-    "module": "dist/asgardeo-oidc.production.esm.js",
+    "main": "dist/asgardeo-spa.production.js",
+    "module": "dist/asgardeo-spa.production.esm.js",
     "types": "dist/src/index.d.ts",
     "scripts": {
         "lint": "eslint --ext .js,.ts .",
