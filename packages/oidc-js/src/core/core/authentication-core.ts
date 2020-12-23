@@ -550,4 +550,8 @@ export class AuthenticationCore<T> {
     public setPKCECode(pkce: string): void {
         return this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
     }
+
+    public updateConfig(config: Partial<AuthClientConfig<T>>): void {
+        this._dataLayer.setConfigData(config);
+    }
 }
