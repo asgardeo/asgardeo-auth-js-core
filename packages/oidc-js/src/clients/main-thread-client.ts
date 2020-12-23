@@ -308,6 +308,11 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return _authenticationClient.isAuthenticated();
     };
 
+    const updateConfig = (newConfig: Partial<AuthClientConfig<MainThreadClientConfig>>): void => {
+        config = { ...config, ...newConfig };
+        _authenticationClient.updateConfig(config);
+    }
+
     return {
         disableHttpHandler,
         enableHttpHandler,
@@ -327,6 +332,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         setHttpRequestStartCallback,
         setHttpRequestSuccessCallback,
         signIn,
-        signOut
+        signOut,
+        updateConfig
     };
 };
