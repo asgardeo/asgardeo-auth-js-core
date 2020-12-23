@@ -25,7 +25,8 @@ import {
     DecodedIdTokenPayload,
     OIDCEndpoints,
     Store,
-    TokenResponse
+    TokenResponse,
+    SESSION_STATE
 } from "../core";
 import { AsgardeoSPAException, AsgardeoSPAExceptionStack } from "../exception";
 import { SPAHelper } from "../helpers";
@@ -219,6 +220,13 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         });
     };
 
+    const startAutoRefreshToken = async (): Promise<void> => {
+        _spaHelper.clearRefreshTokenTimeout();
+        _spaHelper.refreshAccessTokenAutomatically();
+
+        return;
+    }
+
     const requestAccessToken = (
         authorizationCode?: string,
         sessionState?: string,
@@ -323,6 +331,12 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         return _authenticationClient.isAuthenticated();
     };
 
+    const setSessionState = async (sessionState: string): Promise<void> => {
+        _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+
+        return;
+    }
+
     return {
         disableHttpHandler,
         enableHttpHandler,
@@ -343,6 +357,8 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         setHttpRequestFinish,
         setHttpRequestStartCallback,
         setHttpRequestSuccessCallback,
-        signOut
+        setSessionState,
+        signOut,
+        startAutoRefreshToken
     };
 };

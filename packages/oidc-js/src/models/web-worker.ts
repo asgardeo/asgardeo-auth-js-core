@@ -55,4 +55,6 @@ export interface WebWorkerCoreInterface {
     getOIDCServiceEndpoints(): OIDCEndpoints;
     getAccessToken(): string;
     isAuthenticated(): boolean;
+    startAutoRefreshToken(): Promise<void>;
+    setSessionState(sessionState: string): Promise<void>;
 }
