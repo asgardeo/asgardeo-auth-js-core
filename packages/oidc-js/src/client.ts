@@ -850,4 +850,17 @@ export class AsgardeoSPAClient {
 
         return this._client.disableHttpHandler();
     }
+
+    public async updateConfig(config: Partial<AuthClientConfig<Config>>): Promise<void>{
+        await this._isInitialized();
+        if (this._storage === Storage.WebWorker) {
+            const client = this._client as WebWorkerClientInterface;
+            await client.updateConfig(config as Partial<AuthClientConfig<WebWorkerClientConfig>>);
+        } else {
+            const client = this._client as WebWorkerClientInterface;
+            await client.updateConfig(config as Partial<AuthClientConfig<WebWorkerClientConfig>>);
+        }
+
+        return;
+    }
 }
