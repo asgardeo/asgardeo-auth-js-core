@@ -16,14 +16,14 @@
  * under the License.
  */
 
-import { IdentityClient, Storage } from "@asgardio/oidc-js";
+import { AsgardeoSPAClient, Storage } from "@asgardio/oidc-js";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import "./index.css";
 
-const auth = IdentityClient.getInstance();
+const auth = AsgardeoSPAClient.getInstance();
 const serverOrigin = "https://localhost:9443";
 const clientHost = origin;
 
