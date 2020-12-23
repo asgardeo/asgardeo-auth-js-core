@@ -38,8 +38,10 @@ import {
     REQUEST_START,
     REQUEST_SUCCESS,
     REVOKE_ACCESS_TOKEN,
+    SET_SESSION_STATE,
     SIGN_IN,
-    SIGN_OUT
+    SIGN_OUT,
+    START_AUTO_REFRESH_TOKEN
 } from "../constants";
 import { SignInConfig } from "../core";
 
@@ -54,7 +56,6 @@ export interface Message<T> {
     type: MessageType;
     data?: T;
 }
-
 
 export interface AuthorizationInfo {
     code: string;
@@ -85,18 +86,20 @@ export type MessageType =
     | typeof REQUEST_ACCESS_TOKEN
     | typeof IS_AUTHENTICATED
     | typeof GET_SIGN_OUT_URL
-    | typeof REFRESH_ACCESS_TOKEN;
+    | typeof REFRESH_ACCESS_TOKEN
+    | typeof SET_SESSION_STATE
+    | typeof START_AUTO_REFRESH_TOKEN;
 
 export interface CommunicationHelperInterface {
     communicate: <T, R>(message: Message<T>) => Promise<R>;
 }
 
-export interface AuthorizationResponse{
+export interface AuthorizationResponse {
     authorizationURL: string;
     pkce?: string;
 }
 
 export interface AuthorizationParams {
-    params: SignInConfig,
-    signInRedirectURL?: string
+    params: SignInConfig;
+    signInRedirectURL?: string;
 }
