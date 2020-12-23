@@ -7,6 +7,6 @@
     "dependencies": {
         "@asgardio/oidc-js": "^0.1.36"
     },
-    "author": "Asgardio",
+    "author": "Asgardeo",
     "license": "Apache-2.0"
 }

@@ -16,4 +16,4 @@
  * under the License.
  */
 
-module.exports = require("../dist/polyfilled/asgardio-oidc.production.js");
+module.exports = require("../dist/polyfilled/asgardeo-oidc.production.js");

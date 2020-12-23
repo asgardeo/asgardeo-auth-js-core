@@ -150,7 +150,7 @@ export class AsgardeoSPAClient {
      * const auth = IdentityClient.getInstance();
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getinstance
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getinstance
      *
      * @memberof IdentityClient
      *
@@ -191,7 +191,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#initialize
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#initialize
      *
      * @memberof IdentityClient
      *
@@ -254,7 +254,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getuserinfo
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getuserinfo
      *
      * @memberof IdentityClient
      *
@@ -277,7 +277,7 @@ export class AsgardeoSPAClient {
      *
      * **To fire a callback function after signing in, use the `on()` method.**
      * **To learn more about the `on()` method:**
-     * @see {@link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     * @see {@link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on}
      *
      * @param {SignInConfig} params - The sign-in config.
      * The `SignInConfig` object has these two attributes in addition to any custom key-value pairs.
@@ -293,7 +293,7 @@ export class AsgardeoSPAClient {
      * auth.signIn();
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#signin
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#signin
      *
      * @memberof IdentityClient
      *
@@ -325,7 +325,7 @@ export class AsgardeoSPAClient {
      *
      * **To fire a callback function after signing out, use the `on()` method.**
      * **To learn more about the `on()` method:**
-     * @see {@link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     * @see {@link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on}
      *
      * @return {Promise<boolean>} - Returns a promise that resolves with `true` if sign out is successful.
      *
@@ -334,7 +334,7 @@ export class AsgardeoSPAClient {
      * auth.signOut();
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#signout
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#signout
      *
      * @memberof IdentityClient
      *
@@ -380,7 +380,7 @@ export class AsgardeoSPAClient {
      *      });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#httprequest
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#httprequest
      *
      * @memberof IdentityClient
      *
@@ -433,7 +433,7 @@ export class AsgardeoSPAClient {
      *      });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#httprequestall
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#httprequestall
      *
      * @memberof IdentityClient
      *
@@ -470,7 +470,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#customgrant
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#customgrant
      *
      * @memberof IdentityClient
      *
@@ -508,7 +508,7 @@ export class AsgardeoSPAClient {
      *
      * **To fire a callback function after ending user session, use the `on()` method.**
      * **To learn more about the `on()` method:**
-     * @see {@link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     * @see {@link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on}
      *
      * @return {Promise<boolean>} - A promise that resolves with `true` if the process is successful.
      *
@@ -517,7 +517,7 @@ export class AsgardeoSPAClient {
      * auth.endUserSession();
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#endusersession
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#endusersession
      *
      * @memberof IdentityClient
      *
@@ -546,7 +546,7 @@ export class AsgardeoSPAClient {
      *  });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getserviceendpoints
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getserviceendpoints
      *
      * @memberof IdentityClient
      *
@@ -607,7 +607,7 @@ export class AsgardeoSPAClient {
      *     // console.error(error);
      * });
      * ```
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getdecodedidtoken
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getdecodedidtoken
      *
      * @memberof IdentityClient
      *
@@ -635,7 +635,7 @@ export class AsgardeoSPAClient {
      *   });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#getaccesstoken
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getaccesstoken
      *
      * @memberof IdentityClient
      *
@@ -674,7 +674,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#refreshtoken
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#refreshtoken
      *
      * @memberof IdentityClient
      *
@@ -715,7 +715,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#on
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on
      *
      * @memberof IdentityClient
      *
@@ -813,7 +813,7 @@ export class AsgardeoSPAClient {
      * auth.enableHttpHandler();
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#enableHttpHandler
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#enableHttpHandler
      *
      * @memberof IdentityClient
      *
@@ -835,7 +835,7 @@ export class AsgardeoSPAClient {
      * auth.disableHttpHandler();
      * ```
      *
-     * @link https://github.com/asgardio/asgardio-js-oidc-sdk/tree/master/packages/oidc-js#disableHttpHandler
+     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#disableHttpHandler
      *
      * @memberof IdentityClient
      *

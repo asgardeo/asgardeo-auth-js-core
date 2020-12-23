@@ -1,4 +1,4 @@
-# React JS Sample Application using Asgardio Auth JS SDK
+# React JS Sample Application using Asgardeo Auth JS SDK
 
 ## Getting Started
 

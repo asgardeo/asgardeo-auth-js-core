@@ -3,13 +3,13 @@
     "version": "0.1.36",
     "description": "Authentication module for Asgardio SPA",
     "keywords": [
-        "Asgardio",
+        "Asgardeo",
         "authentication",
         "oidc",
         "oauth2"
     ],
-    "main": "dist/asgardio-oidc.production.js",
-    "module": "dist/asgardio-oidc.production.esm.js",
+    "main": "dist/asgardeo-oidc.production.js",
+    "module": "dist/asgardeo-oidc.production.esm.js",
     "types": "dist/src/index.d.ts",
     "scripts": {
         "lint": "eslint --ext .js,.ts .",
@@ -21,7 +21,7 @@
         "clean": "rimraf dist && rimraf umd && rimraf node_modules",
         "prepublish": "npm run build"
     },
-    "author": "Asgardio",
+    "author": "Asgardeo",
     "license": "Apache-2.0",
     "dependencies": {
         "@babel/runtime-corejs3": "^7.11.2",
@@ -60,12 +60,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/asgardeo/asgardeo-auth-js-sdk.git"
+        "url": "git+https://github.com/asgardeo/asgardeo-js-oidc-sdk.git"
     },
     "bugs": {
-        "url": "https://github.com/asgardeo/asgardeo-auth-js-sdk/issues"
+        "url": "https://github.com/asgardeo/asgardeo-js-oidc-sdk/issues"
     },
-    "homepage": "https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/v0.1.36#readme",
+    "homepage": "https://github.com/asgardeo/asgardeo-js-oidc-sdk#readme",
     "browserslist": [
         "> 0.2%"
     ]
