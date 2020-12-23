@@ -105,7 +105,7 @@ const resolveFileName = (bundleType) => {
         case ESM_BUNDLE:
             return pkg.module;
         case BROWSER_BUNDLE:
-            return "dist/asgardeo-oidc.production.min.js";
+            return "dist/asgardeo-auth.production.min.js";
         default:
             return pkg.main;
     }
