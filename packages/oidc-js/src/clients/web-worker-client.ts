@@ -283,19 +283,21 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
     };
 
     const checkSession = async (): Promise<void> => {
-        const oidcEndpoints: OIDCEndpoints = await getOIDCServiceEndpoints();
-        const sessionState: string = (await getBasicUserInfo()).sessionState;
+        if (config.checkSessionInterval > -1) {
+            const oidcEndpoints: OIDCEndpoints = await getOIDCServiceEndpoints();
+            const sessionState: string = (await getBasicUserInfo()).sessionState;
 
-        _sessionManagementHelper.initialize(
-            config.clientID,
-            oidcEndpoints.checkSessionIframe,
-            sessionState,
-            3,
-            config.signInRedirectURL,
-            oidcEndpoints.authorizationEndpoint
-        );
+            _sessionManagementHelper.initialize(
+                config.clientID,
+                oidcEndpoints.checkSessionIframe,
+                sessionState,
+                config.checkSessionInterval,
+                config.signInRedirectURL,
+                oidcEndpoints.authorizationEndpoint
+            );
 
-        _sessionManagementHelper.initiateCheckSession();
+            _sessionManagementHelper.initiateCheckSession();
+        }
     };
 
     /**
@@ -308,24 +310,26 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
         authorizationCode?: string,
         sessionState?: string
     ): Promise<BasicUserInfo> => {
-        const isLoggingOut = await _sessionManagementHelper.receivePromptNoneResponse(
-            async () => {
-                const message: Message<string> = {
-                    type: SIGN_OUT
-                };
+        const isLoggingOut =
+            config.checkSessionInterval > -1 &&
+            (await _sessionManagementHelper.receivePromptNoneResponse(
+                async () => {
+                    const message: Message<string> = {
+                        type: SIGN_OUT
+                    };
 
-                try {
-                    const signOutURL = await communicate<string, string>(message);
+                    try {
+                        const signOutURL = await communicate<string, string>(message);
 
-                    return signOutURL;
-                } catch {
-                    return SPAUtils.getSignOutURL();
+                        return signOutURL;
+                    } catch {
+                        return SPAUtils.getSignOutURL();
+                    }
+                },
+                async (sessionState: string) => {
+                    return setSessionState(sessionState);
                 }
-            },
-            async (sessionState: string) => {
-                return setSessionState(sessionState);
-            }
-        );
+            ));
 
         if (isLoggingOut) {
             return Promise.resolve({
@@ -566,8 +570,8 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             type: UPDATE_CONFIG
         };
 
-        return communicate < Partial < AuthClientConfig < WebWorkerClientConfig >>, void> (message);
-    }
+        return communicate<Partial<AuthClientConfig<WebWorkerClientConfig>>, void>(message);
+    };
 
     return {
         disableHttpHandler,
