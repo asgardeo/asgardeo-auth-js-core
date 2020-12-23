@@ -132,30 +132,33 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     };
 
     const checkSession = (): void => {
+        const oidcEndpoints: OIDCEndpoints = _authenticationClient.getOIDCServiceEndpoints();
+
         _sessionManagementHelper.initialize(
             config.clientID,
-            _authenticationClient.getOIDCServiceEndpoints().checkSessionIframe,
+            oidcEndpoints.checkSessionIframe,
             _authenticationClient.getBasicUserInfo().sessionState,
             3,
             config.signInRedirectURL,
-            _authenticationClient.getOIDCServiceEndpoints().authorizationEndpoint
+            oidcEndpoints.authorizationEndpoint
         );
 
         _sessionManagementHelper.initiateCheckSession();
     };
 
-    const signIn = (
+    const signIn = async (
         signInConfig?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string,
         signInRedirectURL?: string
     ): Promise<BasicUserInfo> => {
-        const isLoggingOut = _sessionManagementHelper.receivePromptNoneResponse(
-            () => {
+        const isLoggingOut = await _sessionManagementHelper.receivePromptNoneResponse(
+            async () => {
                 return _authenticationClient.signOut();
             },
-            (sessionState: string) => {
+            async (sessionState: string) => {
                 _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+                return;
             }
         );
 
@@ -171,6 +174,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         }
 
         if (_authenticationClient.isAuthenticated()) {
+            _spaHelper.clearRefreshTokenTimeout();
             _spaHelper.refreshAccessTokenAutomatically();
             checkSession();
 
@@ -203,6 +207,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                         SPAUtils.setSignOutURL(_authenticationClient.getSignOutURL());
                     }
 
+                    _spaHelper.clearRefreshTokenTimeout();
                     _spaHelper.refreshAccessTokenAutomatically();
                     checkSession();
 

@@ -26,7 +26,6 @@ export const SessionManagementHelper = (() => {
     let _redirectURL: string;
     let _authorizationEndpoint: string;
 
-
     const initialize = (
         clientID: string,
         checkSessionEndpoint: string,
@@ -41,7 +40,7 @@ export const SessionManagementHelper = (() => {
         _interval = interval;
         _redirectURL = redirectURL;
         _authorizationEndpoint = authorizationEndpoint;
-    }
+    };
 
     const initiateCheckSession = (): void => {
         if (!_checkSessionEndpoint || !_clientID || !_redirectURL) {
@@ -130,8 +129,10 @@ export const SessionManagementHelper = (() => {
         rpIFrame.contentWindow.addEventListener("message", receiveMessage, false);
     };
 
-    const receivePromptNoneResponse = (signOut:()=>string, setSessionState:((sessionState:string)=>void)): boolean => {
-
+    const receivePromptNoneResponse = async (
+        signOut: () => Promise<string>,
+        setSessionState: (sessionState: string) => Promise<void>
+    ): Promise<boolean> => {
         const state = new URL(window.location.href).searchParams.get("state");
         if (state !== null && state === STATE) {
             // Prompt none response.
@@ -140,11 +141,11 @@ export const SessionManagementHelper = (() => {
             if (code !== null && code.length !== 0) {
                 const newSessionState = new URL(window.location.href).searchParams.get("session_state");
 
-                setSessionState(newSessionState);
+                await setSessionState(newSessionState);
 
                 window.stop();
             } else {
-                window.top.location.href = signOut();
+                window.top.location.href = await signOut();
                 window.stop();
                 return true;
             }
