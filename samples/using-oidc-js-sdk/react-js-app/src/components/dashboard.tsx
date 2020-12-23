@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Hooks, AsgardeoSPAClient } from "@asgardio/oidc-js";
+import { Hooks, AsgardeoSPAClient, HttpResponse } from "@asgardio/oidc-js";
 import React, { FunctionComponent, ReactElement, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -79,7 +79,7 @@ export const Dashboard: FunctionComponent<null> = (): ReactElement => {
                                 },
                                 method: "GET",
                                 url: serverOrigin + "/api/identity/user/v1.0/me"
-                            }).then((response) => {
+                            }).then((response: HttpResponse) => {
                                 setEmail(response.data.basic[ "http://wso2.org/claims/emailaddress" ]);
                                 setLastName(response.data.basic[ "http://wso2.org/claims/lastname" ]);
                                 setRoles(response.data.basic[ "http://wso2.org/claims/role" ]);
