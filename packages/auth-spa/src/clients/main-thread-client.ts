@@ -132,20 +132,16 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     };
 
     const checkSession = (): void => {
-        if (config.checkSessionInterval > -1) {
-            const oidcEndpoints: OIDCEndpoints = _authenticationClient.getOIDCServiceEndpoints();
+        const oidcEndpoints: OIDCEndpoints = _authenticationClient.getOIDCServiceEndpoints();
 
-            _sessionManagementHelper.initialize(
-                config.clientID,
-                oidcEndpoints.checkSessionIframe,
-                _authenticationClient.getBasicUserInfo().sessionState,
-                config.checkSessionInterval,
-                config.signInRedirectURL,
-                oidcEndpoints.authorizationEndpoint
-            );
-
-            _sessionManagementHelper.initiateCheckSession();
-        }
+        _sessionManagementHelper.initialize(
+            config.clientID,
+            oidcEndpoints.checkSessionIframe,
+            _authenticationClient.getBasicUserInfo().sessionState,
+            config.checkSessionInterval,
+            config.signInRedirectURL,
+            oidcEndpoints.authorizationEndpoint
+        );
     };
 
     const signIn = async (
@@ -154,7 +150,6 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         sessionState?: string
     ): Promise<BasicUserInfo> => {
         const isLoggingOut =
-            config.checkSessionInterval > -1 &&
             (await _sessionManagementHelper.receivePromptNoneResponse(
                 async () => {
                     return _authenticationClient.signOut();
