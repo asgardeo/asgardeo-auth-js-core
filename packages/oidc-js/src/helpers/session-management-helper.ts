@@ -17,6 +17,7 @@
  */
 
 import { OP_IFRAME, PROMPT_NONE_IFRAME, RP_IFRAME, STATE } from "../constants";
+import { SessionManagementHelperInterface } from "../models";
 
 export const SessionManagementHelper = (() => {
     let _clientID: string;
@@ -155,7 +156,7 @@ export const SessionManagementHelper = (() => {
         return false;
     };
 
-    return () => {
+    return (): SessionManagementHelperInterface => {
         const opIFrame = document.createElement("iframe");
         opIFrame.setAttribute("id", OP_IFRAME);
         opIFrame.style.display = "none";
