@@ -29,7 +29,7 @@ export class DataLayer<T> {
 
     private setDataInBulk(
         key: string,
-        data: AuthClientConfig<T> | OIDCProviderMetaData | SessionData | TemporaryData
+        data: Partial<AuthClientConfig<T> | OIDCProviderMetaData | SessionData | TemporaryData>
     ): void {
         const existingDataJSON = this._store.getData(key) ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
@@ -70,19 +70,19 @@ export class DataLayer<T> {
         return `${store}-${this._id}`;
     }
 
-    public setConfigData(config: AuthClientConfig<T>): void {
+    public setConfigData(config: Partial<AuthClientConfig<T>>): void {
         this.setDataInBulk(this._resolveKey(Stores.ConfigData), config);
     }
 
-    public setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData): void {
+    public setOIDCProviderMetaData(oidcProviderMetaData: Partial<OIDCProviderMetaData>): void {
         this.setDataInBulk(this._resolveKey(Stores.OIDCProviderMetaData), oidcProviderMetaData);
     }
 
-    public setTemporaryData(temporaryData: TemporaryData): void {
+    public setTemporaryData(temporaryData: Partial<TemporaryData>): void {
         this.setDataInBulk(this._resolveKey(Stores.TemporaryData), temporaryData);
     }
 
-    public setSessionData(sessionData: SessionData): void {
+    public setSessionData(sessionData: Partial<SessionData>): void {
         this.setDataInBulk(this._resolveKey(Stores.SessionData), sessionData);
     }
 
