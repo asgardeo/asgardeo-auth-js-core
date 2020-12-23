@@ -15,18 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store } from "@asgardeo/auth-js";
 
-export class LocalStore implements Store {
-    public setData(key: string, value: string): void {
-        localStorage.setItem(key, value);
-    }
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
-    public getData(key: string): string {
-        return localStorage.getItem(key);
-    }
-
-    public removeData(key: string): void {
-        localStorage.removeItem(key);
-    }
-}
+// Export the public API.
+export * from "./public-api";

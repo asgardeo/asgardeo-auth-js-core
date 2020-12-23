@@ -25,7 +25,7 @@
         "start": "node server.js"
     },
     "dependencies": {
-        "@asgardeo/oidc-js": "^0.1.31",
+        "@asgardeo/auth-spa": "^0.1.31",
         "express": "^4.17.1",
         "express-rate-limit": "^5.1.3"
     }

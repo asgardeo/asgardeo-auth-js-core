@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { Storage } from "../constants";
 import {
     AUTHORIZATION_CODE,
     AsgardeoAuthClient,
@@ -31,7 +30,8 @@ import {
     SignInConfig,
     Store,
     TokenResponse
-} from "../core";
+} from "@asgardeo/auth-js";
+import { Storage } from "../constants";
 import { SPAHelper, SessionManagementHelper } from "../helpers";
 import { HttpClient, HttpClientInstance } from "../http-client";
 import {

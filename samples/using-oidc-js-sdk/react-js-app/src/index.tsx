@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { AsgardeoSPAClient, Storage } from "@asgardeo/oidc-js";
+import { AsgardeoSPAClient, Storage } from "@asgardeo/auth-spa";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";

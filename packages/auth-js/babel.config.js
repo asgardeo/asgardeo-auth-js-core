@@ -16,13 +16,28 @@
  * under the License.
  */
 
-/**
- * Entry point for all public APIs of this SDK.
- */
-export * from "./client";
-export * from "./models";
-
-// Constants
-export * from "@asgardeo/auth-js";
-export * from "./constants/storage";
-export * from "./constants/hooks";
+module.exports = {
+    env: {
+        test: {
+            plugins: [ "@babel/plugin-transform-modules-commonjs" ]
+        }
+    },
+    plugins: [
+        [ "@babel/plugin-proposal-decorators", { "legacy": true } ],
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-transform-runtime"
+    ],
+    presets: [
+        [
+            "@babel/preset-env",
+            {
+                corejs: {
+                    proposals: true,
+                    version: "3.6"
+                },
+                useBuiltIns: "entry"
+            }
+        ],
+        "@babel/preset-typescript"
+    ]
+};

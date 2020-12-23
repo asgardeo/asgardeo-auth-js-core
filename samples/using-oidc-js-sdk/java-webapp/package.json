@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {},
     "dependencies": {
-        "@asgardeo/oidc-js": "^0.1.31"
+        "@asgardeo/auth-spa": "^0.1.31"
     },
     "author": "Asgardeo",
     "license": "Apache-2.0"

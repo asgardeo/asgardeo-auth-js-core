@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Store } from "../core";
+import { Store } from "@asgardeo/auth-js";
 
 export class MemoryStore implements Store {
     private _data: Map<string, string>;

@@ -16,15 +16,16 @@
  * under the License.
  */
 
-import { HttpError, HttpRequestConfig, HttpResponse, Message } from ".";
-import { AuthorizationResponse } from "..";
 import {
+    AuthClientConfig,
     AuthorizationURLParams,
     BasicUserInfo,
     CustomGrantConfig,
     DecodedIdTokenPayload,
     OIDCEndpoints
-} from "../core";
+} from "@asgardeo/auth-js";
+import { HttpError, HttpRequestConfig, HttpResponse, Message } from ".";
+import { AuthorizationResponse, WebWorkerClientConfig } from "..";
 
 interface WebWorkerEvent<T> extends MessageEvent {
     data: Message<T>;
@@ -57,4 +58,5 @@ export interface WebWorkerCoreInterface {
     isAuthenticated(): boolean;
     startAutoRefreshToken(): Promise<void>;
     setSessionState(sessionState: string): Promise<void>;
+    updateConfig(config: Partial<AuthClientConfig<WebWorkerClientConfig>>): Promise<void>;
 }

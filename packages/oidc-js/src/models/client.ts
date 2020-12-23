@@ -24,7 +24,7 @@ import {
     OIDCEndpoints,
     OIDCProviderMetaData,
     SignInConfig
-} from "../core";
+} from "@asgardeo/auth-js";
 import { HttpClientInstance } from "../http-client";
 import { HttpError, HttpRequestConfig, HttpResponse, MainThreadClientConfig, WebWorkerClientConfig } from "../models";
 

@@ -21,10 +21,10 @@ import utf8 from "crypto-js/enc-utf8";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
-import jwtVerify, { KeyLike } from "../../../node_modules/jose/dist/browser/jwt/verify";
+import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
+import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
 import { AsgardeoAuthException } from "../exception";
 import { DecodedIdTokenPayload, JWKInterface } from "../models";
-import parseJwk from " ../../../node_modules/jose/dist/browser/jwk/parse";
 
 export class CryptoUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function

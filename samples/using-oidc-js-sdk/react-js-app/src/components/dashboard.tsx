@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { AsgardeoSPAClient, Hooks, HttpResponse } from "@asgardeo/oidc-js";
+import { AsgardeoSPAClient, Hooks, HttpResponse } from "@asgardeo/auth-spa";
 import React, { FunctionComponent, ReactElement, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useRecoilState } from "recoil";
