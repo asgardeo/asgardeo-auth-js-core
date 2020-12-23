@@ -92,7 +92,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case GET_AUTH_URL:
             webWorker
-                .getAuthorizationURL(data?.data?.params, data?.data?.signInRedirectURL)
+                .getAuthorizationURL(data?.data)
                 .then((response: AuthorizationResponse) => {
                     port.postMessage(MessageUtils.generateSuccessMessage(response));
                 })
@@ -136,7 +136,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case SIGN_OUT:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut(data?.data)));
+                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }

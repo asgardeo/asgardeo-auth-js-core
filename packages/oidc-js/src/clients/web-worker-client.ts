@@ -57,7 +57,6 @@ import { AsgardeoSPAException } from "../exception";
 import { SessionManagementHelper } from "../helpers";
 import {
     AuthorizationInfo,
-    AuthorizationParams,
     AuthorizationResponse,
     HttpClient,
     HttpError,
@@ -306,8 +305,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
     const signIn = async (
         params?: SignInConfig,
         authorizationCode?: string,
-        sessionState?: string,
-        signInRedirectURL?: string
+        sessionState?: string
     ): Promise<BasicUserInfo> => {
         const isLoggingOut = await _sessionManagementHelper.receivePromptNoneResponse(
             async () => {
@@ -392,15 +390,12 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                 });
         }
 
-        const message: Message<AuthorizationParams> = {
-            data: {
-                params: params,
-                signInRedirectURL: signInRedirectURL
-            },
+        const message: Message<SignInConfig> = {
+            data: params,
             type: GET_AUTH_URL
         };
 
-        return communicate<AuthorizationParams, AuthorizationResponse>(message)
+        return communicate<SignInConfig, AuthorizationResponse>(message)
             .then((response) => {
                 if (response.pkce) {
                     SPAUtils.setPKCE(response.pkce);
@@ -427,12 +422,11 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      *
      * @returns {Promise<boolean>} A promise that resolves when sign out is completed.
      */
-    const signOut = (signOutRedirectURL?: string): Promise<boolean> => {
+    const signOut = (): Promise<boolean> => {
         return isAuthenticated()
             .then((response: boolean) => {
                 if (response) {
-                    const message: Message<string> = {
-                        data: signOutRedirectURL,
+                    const message: Message<null> = {
                         type: SIGN_OUT
                     };
 
@@ -446,9 +440,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                             return Promise.reject(error);
                         });
                 } else {
-                    window.location.href = signOutRedirectURL
-                        ? SPAUtils.replaceSignOutRedirectURL(SPAUtils.getSignOutURL(), signOutRedirectURL)
-                        : SPAUtils.getSignOutURL();
+                    window.location.href = SPAUtils.getSignOutURL();
 
                     return Promise.resolve(true);
                 }

@@ -208,6 +208,7 @@ export class AsgardeoSPAClient {
                 const mainThreadClientConfig = config as AuthClientConfig<MainThreadClientConfig>;
                 this._client = MainThreadClient({ ...DefaultConfig, ...mainThreadClientConfig });
             }
+
             if (this._onInitialize) {
                 this._onInitialize(true);
             }

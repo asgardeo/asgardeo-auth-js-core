@@ -54,7 +54,7 @@ export class AuthenticationCore<T> {
         this._oidcProviderMetaData = () => this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public getAuthorizationURL(config?: AuthorizationURLParams, signInRedirectURL?: string): string {
+    public getAuthorizationURL(config?: AuthorizationURLParams): string {
         const authorizeEndpoint = this._dataLayer.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
@@ -80,7 +80,7 @@ export class AuthenticationCore<T> {
         }
 
         authorizeRequest += "&scope=" + scope;
-        const redirectURL = signInRedirectURL ?? this._config().signInRedirectURL;
+        const redirectURL = this._config().signInRedirectURL;
         authorizeRequest += "&redirect_uri=" + redirectURL;
 
         if (this._config().responseMode) {
@@ -480,7 +480,7 @@ export class AuthenticationCore<T> {
         };
     }
 
-    public getSignOutURL(signOutRedirectURL?: string): string {
+    public getSignOutURL(): string {
         const logoutEndpoint = this._oidcProviderMetaData()?.end_session_endpoint;
 
         if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
@@ -506,8 +506,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const callbackURL =
-            signOutRedirectURL ?? this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
+        const callbackURL = this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -529,8 +528,8 @@ export class AuthenticationCore<T> {
         return logoutCallback;
     }
 
-    public signOut(signOutRedirectURL?: string): string {
-        const signOutURL = this.getSignOutURL(signOutRedirectURL);
+    public signOut(): string {
+        const signOutURL = this.getSignOutURL();
         this._authenticationHelper.clearUserSessionData();
 
         return signOutURL;
