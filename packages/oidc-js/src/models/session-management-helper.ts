@@ -16,8 +16,18 @@
  * under the License.
  */
 
-export * from "./client";
-export * from "./message";
-export * from "./http-client";
-export * from "./web-worker";
-export * from "./session-management-helper";
+export interface SessionManagementHelperInterface {
+    initialize(
+        clientID: string,
+        checkSessionEndpoint: string,
+        sessionState: string,
+        interval: number,
+        redirectURL: string,
+        authorizationEndpoint: string
+    ): void;
+    initiateCheckSession(): void;
+    receivePromptNoneResponse(
+        signOut: () => Promise<string>,
+        setSessionState: (sessionState: string) => Promise<void>
+    ): Promise<boolean>;
+}
