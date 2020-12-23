@@ -336,6 +336,12 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         return;
     }
 
+    const updateConfig = async (config: Partial<AuthClientConfig<WebWorkerClientConfig>>): Promise<void> => {
+        _authenticationClient.updateConfig(config);
+
+        return;
+    }
+
     return {
         disableHttpHandler,
         enableHttpHandler,
@@ -358,6 +364,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         setHttpRequestSuccessCallback,
         setSessionState,
         signOut,
-        startAutoRefreshToken
+        startAutoRefreshToken,
+        updateConfig
     };
 };
