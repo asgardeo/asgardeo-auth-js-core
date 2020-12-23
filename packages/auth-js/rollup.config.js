@@ -185,6 +185,9 @@ const generateConfig = (bundleType, polyfill, env) => {
         config.plugins.push(analyze());
     } else {
         config.plugins.push(autoExternal());
+        config.output.globals = {
+            axios : "axios"
+        }
     }
 
     return config;
