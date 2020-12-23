@@ -149,8 +149,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     const signIn = async (
         signInConfig?: SignInConfig,
         authorizationCode?: string,
-        sessionState?: string,
-        signInRedirectURL?: string
+        sessionState?: string
     ): Promise<BasicUserInfo> => {
         const isLoggingOut = await _sessionManagementHelper.receivePromptNoneResponse(
             async () => {
@@ -218,7 +217,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                 });
         }
 
-        return _authenticationClient.getAuthorizationURL(signInConfig, signInRedirectURL).then((url: string) => {
+        return _authenticationClient.getAuthorizationURL(signInConfig).then((url: string) => {
             if (config.storage === Storage.BrowserMemory) {
                 SPAUtils.setPKCE(_dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string);
             }
@@ -236,11 +235,11 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         });
     };
 
-    const signOut = (signOutRedirectURL?: string): boolean => {
+    const signOut = (): boolean => {
         if (_authenticationClient.isAuthenticated()) {
-            location.href = _authenticationClient.signOut(signOutRedirectURL);
+            location.href = _authenticationClient.signOut();
         } else {
-            location.href = SPAUtils.replaceSignOutRedirectURL(SPAUtils.getSignOutURL(), signOutRedirectURL);
+            location.href = SPAUtils.getSignOutURL();
         }
 
         _spaHelper.clearRefreshTokenTimeout();

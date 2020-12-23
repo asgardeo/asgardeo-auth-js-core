@@ -52,15 +52,15 @@ export class AsgardeoAuthClient<T> {
         return this._dataLayer;
     }
 
-    public getAuthorizationURL(config?: AuthorizationURLParams, signInRedirectURL?: string): Promise<string> {
+    public getAuthorizationURL(config?: AuthorizationURLParams): Promise<string> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
         if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return Promise.resolve(this._authenticationCore.getAuthorizationURL(authRequestConfig, signInRedirectURL));
+            return Promise.resolve(this._authenticationCore.getAuthorizationURL(authRequestConfig));
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(config?.forceInit as boolean).then(() => {
-            return this._authenticationCore.getAuthorizationURL(authRequestConfig, signInRedirectURL);
+            return this._authenticationCore.getAuthorizationURL(authRequestConfig);
         });
     }
 
@@ -74,8 +74,8 @@ export class AsgardeoAuthClient<T> {
         });
     }
 
-    public signOut(signOutRedirectURL?: string): string {
-        return this._authenticationCore.signOut(signOutRedirectURL);
+    public signOut(): string {
+        return this._authenticationCore.signOut();
     }
 
     public getSignOutURL(): string {

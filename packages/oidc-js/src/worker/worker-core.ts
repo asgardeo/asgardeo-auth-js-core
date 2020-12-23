@@ -212,10 +212,9 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     };
 
     const getAuthorizationURL = (
-        params?: AuthorizationURLParams,
-        signInRedirectURL?: string
+        params?: AuthorizationURLParams
     ): Promise<AuthorizationResponse> => {
-        return _authenticationClient.getAuthorizationURL(params, signInRedirectURL).then((url: string) => {
+        return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
             return { authorizationURL: url, pkce: _authenticationClient.getPKCECode() as string };
         });
     };
@@ -260,10 +259,10 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         );
     };
 
-    const signOut = (signOutRedirectURL?: string): string => {
+    const signOut = (): string => {
         _spaHelper.clearRefreshTokenTimeout();
 
-        return _authenticationClient.signOut(signOutRedirectURL);
+        return _authenticationClient.signOut();
     };
 
     const getSignOutURL = (): string => {

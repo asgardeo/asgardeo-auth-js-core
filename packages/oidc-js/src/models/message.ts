@@ -43,7 +43,6 @@ import {
     SIGN_OUT,
     START_AUTO_REFRESH_TOKEN
 } from "../constants";
-import { SignInConfig } from "../core";
 
 export interface ResponseMessage<T> {
     success: boolean;
@@ -97,9 +96,4 @@ export interface CommunicationHelperInterface {
 export interface AuthorizationResponse {
     authorizationURL: string;
     pkce?: string;
-}
-
-export interface AuthorizationParams {
-    params: SignInConfig;
-    signInRedirectURL?: string;
 }
