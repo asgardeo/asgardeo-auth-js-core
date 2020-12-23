@@ -37,7 +37,9 @@ import {
     REQUEST_START,
     REQUEST_SUCCESS,
     REVOKE_ACCESS_TOKEN,
-    SIGN_OUT
+    SET_SESSION_STATE,
+    SIGN_OUT,
+    START_AUTO_REFRESH_TOKEN
 } from "../constants";
 import {
     AUTHORIZATION_CODE,
@@ -45,12 +47,14 @@ import {
     BasicUserInfo,
     CustomGrantConfig,
     DecodedIdTokenPayload,
+    OIDCEndpoints,
     OIDCProviderMetaData,
     ResponseMode,
     SESSION_STATE,
     SignInConfig
 } from "../core";
 import { AsgardeoSPAException } from "../exception";
+import { SessionManagementHelper } from "../helpers";
 import {
     AuthorizationInfo,
     AuthorizationParams,
@@ -75,6 +79,7 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
      * API request time out.
      */
     const _requestTimeout: number = config?.requestTimeout ?? 60000;
+    const _sessionManagementHelper = SessionManagementHelper();
 
     const worker: Worker = new WorkerFile();
 
@@ -260,17 +265,83 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             });
     };
 
+    const setSessionState = (sessionState: string): Promise<void> => {
+        const message: Message<string> = {
+            data: sessionState,
+            type: SET_SESSION_STATE
+        };
+
+        return communicate<string, void>(message);
+    };
+
+    const startAutoRefreshToken = (): Promise<void> => {
+        const message: Message<null> = {
+            type: START_AUTO_REFRESH_TOKEN
+        };
+
+        return communicate<null, void>(message);
+    }
+
+    const checkSession = async (): Promise<void> => {
+        const oidcEndpoints: OIDCEndpoints = await getOIDCServiceEndpoints();
+        const sessionState: string = (await getBasicUserInfo()).sessionState;
+
+        _sessionManagementHelper.initialize(
+            config.clientID,
+            oidcEndpoints.checkSessionIframe,
+            sessionState,
+            3,
+            config.signInRedirectURL,
+            oidcEndpoints.authorizationEndpoint
+        );
+
+        _sessionManagementHelper.initiateCheckSession();
+    };
+
     /**
      * Initiates the authentication flow.
      *
      * @returns {Promise<UserInfo>} A promise that resolves when authentication is successful.
      */
-    const signIn = (
+    const signIn = async (
         params?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string,
         signInRedirectURL?: string
     ): Promise<BasicUserInfo> => {
+        const isLoggingOut = await _sessionManagementHelper.receivePromptNoneResponse(
+            async () => {
+                const message: Message<string> = {
+                    type: SIGN_OUT
+                };
+
+                const signOutURL = await communicate<string, string>(message);
+
+                return signOutURL;
+            },
+            async (sessionState: string) => {
+                return setSessionState(sessionState);
+            }
+        );
+
+        if (isLoggingOut) {
+            return Promise.resolve({
+                allowedScopes: "",
+                displayName: "",
+                email: "",
+                sessionState: "",
+                tenantDomain: "",
+                username: ""
+            });
+        }
+
+        if (await isAuthenticated()) {
+            await startAutoRefreshToken();
+            checkSession();
+
+            return getBasicUserInfo();
+        }
+
         let resolvedAuthorizationCode: string;
         let resolvedSessionState: string;
 
@@ -304,6 +375,8 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
                     return communicate<null, string>(message)
                         .then((url: string) => {
                             SPAUtils.setSignOutURL(url);
+                            checkSession();
+
                             return Promise.resolve(response);
                         })
                         .catch((error) => {
