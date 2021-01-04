@@ -22,19 +22,22 @@ export class AsgardeoSPAException extends Error {
     public file: string;
     public method: string;
     public description: string;
+    public error: AsgardeoSPAException;
 
     public constructor(
         code: string,
         file: string,
         method: string,
         message: string,
-        description: string
+        description: string,
+        error?: AsgardeoSPAException
     ) {
-        super(message);
+        super(message ?? error?.message);
         this.name = this.constructor.name;
         this.code = code;
         this.file = file;
         this.method = method;
+        this.error = error;
         this.description = description;
         Object.setPrototypeOf(this, new.target.prototype);
     }
