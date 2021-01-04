@@ -64,11 +64,10 @@ var auth = AsgardioAuth.IdentityClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
-     signInRedirectURL: "http://localhost:9443/myaccount/login",
-     signOutRedirectURL: "http://localhost:9443/myaccount/login",
-     clientHost: "http://localhost:9443/myaccount/",
+     signInRedirectURL: "http://localhost:3000/sign-in",
+     signOutRedirectURL: "http://localhost:3000/dashboard",
      clientID: "client ID",
-     serverOrigin: "http://localhost:9443"
+     serverOrigin: "https://localhost:9443"
 });
 
 // To sign in, simply call the `signIn()` method.
@@ -91,11 +90,10 @@ const auth = IdentityClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
-     signInRedirectURL: "http://localhost:9443/myaccount/login",
-     signOutRedirectURL: "http://localhost:9443/myaccount/login",
-     clientHost: "http://localhost:9443/myaccount/",
+     signInRedirectURL: "http://localhost:3000/sign-in",
+     signOutRedirectURL: "http://localhost:3000/dashboard",
      clientID: "client ID",
-     serverOrigin: "http://localhost:9443"
+     serverOrigin: "https://localhost:9443"
 });
 
 // To sign in, simply call the `signIn()` method.
@@ -299,6 +297,9 @@ This method ends the user session at the Identity Server and logs the user out.
 
 The `sign-out` hook is used to fire a callback function after signing out is successful. Check the [on()](#on) section for more information.
 
+```
+auth.signOut();
+```
 ### httpRequest
 ```typescript
 httpRequest(config): Promise;
@@ -489,8 +490,8 @@ The `on` method is used to hook callback functions to authentication methods. Th
 
 **When the user signs out, the user is taken to the identity server's logout page and then redirected back to the SPA on successful log out. Hence, developers should ensure that the `"sign-out"` hook is called when the page the user is redirected to loads.**
 ```javascript
-auth.on("sign-in", () => {
-    //called after signing in.
+auth.on("sign-in", (response) => {
+    // console.log(response);
 });
 ```
 ## Using the `form_post` response mode
