@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Hooks, IdentityClient } from "@asgardio/oidc-js";
+import { AsgardeoSPAClient, Hooks } from "@asgardeo/auth-spa";
 import { FunctionComponent, ReactElement, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -33,7 +33,7 @@ export const SignIn: FunctionComponent<null> = (): ReactElement => {
         if (auth) {
             history.push(DASHBOARD);
         } else {
-            const auth = IdentityClient.getInstance();
+            const auth = AsgardeoSPAClient.getInstance();
             auth.on(Hooks.SignIn, (response: any) => {
                 setAuth(true);
                 setDisplayName(response.displayName);

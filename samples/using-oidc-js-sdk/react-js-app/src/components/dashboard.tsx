@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Hooks, IdentityClient } from "@asgardio/oidc-js";
+import { AsgardeoSPAClient, Hooks, HttpResponse } from "@asgardeo/auth-spa";
 import React, { FunctionComponent, ReactElement, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -25,7 +25,7 @@ import { authState, displayName } from "../recoil";
 
 export const Dashboard: FunctionComponent<null> = (): ReactElement => {
     const history = useHistory();
-    const auth = IdentityClient.getInstance();
+    const auth = AsgardeoSPAClient.getInstance();
     const serverOrigin = "https://localhost:9443";
 
     const [ email, setEmail ] = useState("");
@@ -79,7 +79,7 @@ export const Dashboard: FunctionComponent<null> = (): ReactElement => {
                                 },
                                 method: "GET",
                                 url: serverOrigin + "/api/identity/user/v1.0/me"
-                            }).then((response) => {
+                            }).then((response: HttpResponse) => {
                                 setEmail(response.data.basic[ "http://wso2.org/claims/emailaddress" ]);
                                 setLastName(response.data.basic[ "http://wso2.org/claims/lastname" ]);
                                 setRoles(response.data.basic[ "http://wso2.org/claims/role" ]);

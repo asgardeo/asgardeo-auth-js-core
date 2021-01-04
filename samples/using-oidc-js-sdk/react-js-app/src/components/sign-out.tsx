@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { IdentityClient } from "@asgardio/oidc-js";
+import { AsgardeoSPAClient } from "@asgardeo/auth-spa";
 import { FunctionComponent, ReactElement, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
@@ -24,7 +24,7 @@ export const SignOut: FunctionComponent<null> = (): ReactElement => {
     const history = useHistory();
 
     useEffect(() => {
-        const auth = IdentityClient.getInstance();
+        const auth = AsgardeoSPAClient.getInstance();
 
         auth.signOut();
     }, [ history ]);

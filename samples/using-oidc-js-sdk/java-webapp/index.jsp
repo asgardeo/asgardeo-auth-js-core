@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Asgardio OIDC SDK - Sample</title>
+        <title>Asgardeo OIDC SDK - Sample</title>
         <style>
             body {
                 min-height: 100vh;
@@ -76,7 +76,7 @@
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.20.0/dist/axios.min.js"></script>
-    <script src="node_modules/@asgardio/oidc-js/dist/main.js"></script>
+    <script src="node_modules/@asgardeo/auth-spa/dist/main.js"></script>
     <script>
         var serverOrigin = "https://localhost:9443";
         var isAuthenticated = false;
@@ -86,8 +86,8 @@
             session.setAttribute("sessionState", request.getParameter("session_state"));
         %>
 
-        // Instantiate the `IdentityClient` singleton
-        var auth = AsgardioAuth.IdentityClient.getInstance();
+        // Instantiate the `AsgardeoSPAClient` singleton
+        var auth = AsgardeoAuth.AsgardeoSPAClient.getInstance();
 
         axios.get("/auth.jsp").then((response)=>{
             // Initialize the client
