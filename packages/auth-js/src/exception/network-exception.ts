@@ -45,6 +45,5 @@ export class AsgardeoAuthNetworkException extends AsgardeoAuthException {
         this.networkErrorMessage = networkErrorMessage;
         this.status = status;
         this.networkErrorData = networkErrorData;
-        Object.setPrototypeOf(this, new.target.prototype);
     }
 }
