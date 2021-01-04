@@ -26,7 +26,7 @@ import {
     SIGN_OUT_SUCCESS_PARAM
 } from "../constants";
 import { DataLayer } from "../data";
-import { AsgardeoAuthException, AsgardeoAuthExceptionStack, AsgardeoAuthNetworkException } from "../exception";
+import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
 import { AuthenticationHelper } from "../helpers";
 import {
     AuthClientConfig,
@@ -153,10 +153,12 @@ export class AuthenticationCore<T> {
                     .then((response: TokenResponse) => response)
                     .catch((error) => {
                         return Promise.reject(
-                            new AsgardeoAuthExceptionStack(
+                            new AsgardeoAuthException(
                                 "AUTH_CORE-RAT1-ES02",
                                 "authentication-core",
                                 "requestAccessToken",
+                                null,
+                                null,
                                 error
                             )
                         );
@@ -225,10 +227,12 @@ export class AuthenticationCore<T> {
                     .then((response: TokenResponse) => response)
                     .catch((error) => {
                         return Promise.reject(
-                            new AsgardeoAuthExceptionStack(
+                            new AsgardeoAuthException(
                                 "AUTH_CORE-RAT2-ES03",
                                 "authentication-core",
                                 "refreshAccessToken",
+                                null,
+                                null,
                                 error
                             )
                         );
@@ -376,10 +380,12 @@ export class AuthenticationCore<T> {
                             .then((response: TokenResponse) => response)
                             .catch((error) => {
                                 return Promise.reject(
-                                    new AsgardeoAuthExceptionStack(
+                                    new AsgardeoAuthException(
                                         "AUTH_CORE-RCG-ES03",
                                         "authentication-core",
                                         "requestCustomGrant",
+                                        null,
+                                        null,
                                         error
                                     )
                                 );

@@ -34,7 +34,7 @@ import {
     USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
-import { AsgardeoAuthException, AsgardeoAuthExceptionStack, AsgardeoAuthNetworkException } from "../exception";
+import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
 import { AuthClientConfig, OIDCEndpointsInternal, OIDCProviderMetaData, TokenResponse } from "../models";
 import { AuthenticationUtils, CryptoUtils } from "../utils";
 
@@ -163,10 +163,12 @@ export class AuthenticationHelper<T> {
                             .then((response) => response)
                             .catch((error) => {
                                 return Promise.reject(
-                                    new AsgardeoAuthExceptionStack(
+                                    new AsgardeoAuthException(
                                         "AUTH_HELPER-VIT-ES03",
                                         "authentication-helper",
                                         "validateIdToken",
+                                        null,
+                                        null,
                                         error
                                     )
                                 );
@@ -174,10 +176,12 @@ export class AuthenticationHelper<T> {
                     })
                     .catch((error) => {
                         return Promise.reject(
-                            new AsgardeoAuthExceptionStack(
+                            new AsgardeoAuthException(
                                 "AUTH_HELPER-VIT-ES04",
                                 "authentication-helper",
                                 "validateIdToken",
+                                null,
+                                null,
                                 error
                             )
                         );
@@ -269,10 +273,12 @@ export class AuthenticationHelper<T> {
                 })
                 .catch((error) => {
                     return Promise.reject(
-                        new AsgardeoAuthExceptionStack(
+                        new AsgardeoAuthException(
                             "AUTH_HELPER-HAT-ES03",
                             "authentication-helper",
                             "handleTokenResponse",
+                            null,
+                            null,
                             error
                         )
                     );

@@ -28,7 +28,7 @@ import {
     Store,
     TokenResponse
 } from "@asgardeo/auth-js";
-import { AsgardeoSPAException, AsgardeoSPAExceptionStack } from "../exception";
+import { AsgardeoSPAException } from "../exception";
 import { SPAHelper } from "../helpers";
 import { HttpClient, HttpClientInstance } from "../http-client";
 import {
@@ -115,10 +115,12 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                             })
                             .catch((refreshError) => {
                                 return Promise.reject(
-                                    new AsgardeoSPAExceptionStack(
+                                    new AsgardeoSPAException(
                                         "WORKER_CORE-HR-ES01",
                                         "worker-core",
                                         "httpRequest",
+                                        null,
+                                        null,
                                         refreshError
                                     )
                                 );
@@ -176,10 +178,12 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
                             })
                             .catch((refreshError) => {
                                 return Promise.reject(
-                                    new AsgardeoSPAExceptionStack(
+                                    new AsgardeoSPAException(
                                         "WORKER_CORE-HRA-ES01",
                                         "worker-core",
                                         "httpRequestAll",
+                                        null,
+                                        null,
                                         refreshError
                                     )
                                 );
