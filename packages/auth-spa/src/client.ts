@@ -61,7 +61,6 @@ const PRIMARY_INSTANCE = "primaryInstance";
  *
  * @export
  * @class AsgardeoSPAClient
- * @implements {ConfigInterface} - Configuration interface.
  */
 export class AsgardeoSPAClient {
     private static _instances: Map<string, AsgardeoSPAClient> = new Map<string, AsgardeoSPAClient>();
@@ -183,8 +182,8 @@ export class AsgardeoSPAClient {
      * @example
      * ```
      * auth.initialize({
-     *     signInRedirectURL: "http://localhost:9443/myaccount/login",
-     *     clientHost: "http://localhost:9443/myaccount/",
+     *     signInRedirectURL: "http://localhost:3000/sign-in",
+     *     clientHost: "http://localhost:3000",
      *     clientID: "client ID",
      *     serverOrigin: "http://localhost:9443"
      * });
