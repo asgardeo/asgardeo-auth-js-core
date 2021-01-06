@@ -325,10 +325,10 @@ export class AsgardeoAuthClient<T> {
      * const config = {
      *   attachToken: false,
      *   data: {
-     *       client_id: "client_id",
+     *       client_id: "{{clientID}}",
      *       grant_type: "account_switch",
-     *       scope: "email",
-     *       token: "access_token",
+     *       scope: "{{scope}}",
+     *       token: "{{token}}",
      *   },
      *   id: "account-switch",
      *   returnResponse: true,
@@ -419,8 +419,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public static isSignOutSuccessful(signOutRedirectUrl: string): boolean {
-        const url = new URL(signOutRedirectUrl);
+    public static isSignOutSuccessful(signOutRedirectURL: string): boolean {
+        const url = new URL(signOutRedirectURL);
         const stateParam = url.searchParams.get("state");
         const error = Boolean(url.searchParams.get("error"));
 
