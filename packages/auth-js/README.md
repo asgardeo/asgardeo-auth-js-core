@@ -161,8 +161,8 @@ import { AsgardeoSPAClient } from "@asgardeo/auth-js/polyfilled/umd";
 
 ## APIs
 ### constructor
-```
-const auth = new AsgardeoAuthClient(config: AuthClientConfig<T>);
+```TypeScript
+new AsgardeoAuthClient(config: AuthClientConfig<T>);
 ```
 #### Arguments
 1. config: `AuthClientConfig<T>`
@@ -205,8 +205,11 @@ const store = new SessionStore();
 
 const auth = new AsgardeoAuthClient(config, store);
 ```
-
+---
 ### getDataLayer
+```TypeScript
+getDatLayer(): DataLayer<T>
+```
 #### Returns
 dataLayer : `DataLayer`
 
@@ -219,7 +222,11 @@ This method returns the `DataLayer` object used by the SDK to store authenticati
 ```TypeScript
 const dataLayer = auth.getDataLayer();
 ```
+---
 ### getAuthorizationURL
+```TypeScript
+getAuthorizationURL(config?: AuthorizationURLParams): Promise<string>
+```
 #### Arguments
 1. config: `AuthorizationURLParams` (optional)
 
@@ -246,8 +253,11 @@ auth.getAuthorizationURL(config).then((url)=>{
     console.error(error);
 });
 ```
-
+---
 ### requestAccessToken
+```TypeScript
+requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse>
+```
 #### Arguments
 1. authorizationCode: `string`
 
@@ -272,8 +282,11 @@ auth.requestAccessToken("auth-code", "session-state").then((tokenResponse)=>{
     console.error(error);
 });
 ```
-
+---
 ### signOut
+```TypeScript
+signOut(): string
+```
 #### Returns
 signOutURL: `string`
 
@@ -286,9 +299,11 @@ This clears the authentication data from the store, generates the sign-out URL a
 ```TypeScript
 const signOutURL = auth.signOut();
 ```
-
+---
 ### getSignOutURL
-
+```TypeScript
+getSignOutURL(): string
+```
 #### Returns
 signOutURL: `string`
 
@@ -301,8 +316,11 @@ This method returns the sign-out URL to which the user should be redirected to b
 ```TypeScript
 const signOutURL = auth.getSignOutURL();
 ```
-
+---
 ### getOIDCServiceEndpoints
+```TypeScript
+getOIDCServiceEndpoints(): OIDCEndpoints
+```
 #### Returns
 oidcEndpoints: OIDCEndpoints
 
@@ -315,8 +333,11 @@ This method returns the OIDC service endpoints obtained from the `.well-known` e
 ```TypeScript
 const oidcEndpoints = auth.getOIDCServiceEndpoints();
 ```
-
+---
 ### getDecodedIDToken
+```TypeScript
+getDecodedIDToken(): DecodedIdTokenPayload
+```
 #### Returns
 decodedIDTokenPayload: DecodedIdTokenPayload
 The decoded ID token payload.
@@ -328,8 +349,11 @@ This method decodes the payload of the id token and returns the decoded values.
 ```TypeScript
 const decodedIDTokenPayload = auth.getDecodedIDToken();
 ```
-
+---
 ### getBasicUserInfo
+```TypeScript
+getBasicUserInfo(): BasicUserInfo
+```
 #### Returns
 basicUserInfo: BasicUserInfo
 An object containing basic user information obtained from the id token.
@@ -341,8 +365,11 @@ This method returns the basic user information obtained from the payload. To lea
 ```TypeScript
 const basicUserInfo = auth.getBasicUserInfo();
 ```
-
+---
 ### revokeAccessToken
+```TypeScript
+revokeAccessToken(): Promise<AxiosResponse>
+```
 #### Returns
 A Promise that resolves with the response returned by the server.
 
@@ -357,8 +384,11 @@ auth.revokeAccessToken().then((response)=>{
     console.error(error);
 })
 ```
-
+---
 ### refreshAccessToken
+```TypeScript
+refreshAccessToken(): Promise<TokenResponse>
+```
 #### Returns
 A Promise that resolves with the token response that contains the token information.
 
@@ -373,8 +403,11 @@ auth.refreshAccessToken().then((response)=>{
     console.error(error);
 })
 ```
-
+---
 ### getAccessToken
+```TypeScript
+getAccessToken(): string
+```
 #### Returns
 accessToken: `string`
 The access token.
@@ -386,7 +419,11 @@ This method returns the access token stored in the store. If you want to send a 
 ```TypeScript
 const accessToken = auth.getAccessToken();
 ```
+---
 ### requestCustomGrant
+```TypeScript
+requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | AxiosResponse>
+```
 #### Arguments
 1. config: `CustomGrantConfig`
 The config object contains attributes that would be used to configure the custom grant request. To learn more about the different configurations available, checkout the [`CustomGrantConfig`](#custom-grant-config) model.
@@ -419,8 +456,11 @@ This method can be used to send custom-grant requests to the identity server.
         console.error(error);
     });
 ```
-
+---
 ### isAuthenticated
+```TypeScript
+isAuthenticated(): boolean
+```
 #### Returns
 isAuth: `boolean`
 A boolean value that indicates of the user is authenticated or not.
@@ -432,7 +472,11 @@ This method returns a boolean value indicating if the user is authenticated or n
 ```TypeScript
 const isAuth = auth.isAuthenticated();
 ```
+---
 ### getPKCECode
+```TypeScript
+getPKCECode(): string
+```
 #### Returns
 pkce: `string`
 
@@ -445,8 +489,11 @@ This code returns the PKCE code generated when the authorization URL is generate
 ```TypeScript
 const pkce = auth.getPKCECode();
 ```
-
+---
 ### setPKCECode
+```TypeScript
+setPKCECode(pkce: string): void
+```
 #### Arguments
 1. pkce: `string`
 
@@ -459,8 +506,12 @@ This method sets the PKCE code to the store. The PKCE code is usually stored in 
 ```TypeScript
 auth.setPKCECode("pkce");
 ```
-
+---
 ### isSignOutSuccessful
+```TypeScript
+static isSignOutSuccessful(signOutRedirectURL: string): boolean
+```
+**This is a static method.**
 #### Arguments
 1. signOutRedirectURL: `string`
 
@@ -478,8 +529,11 @@ This method returns if the user has been successfully signed out or not. When a 
 ```TypeScript
 const isSignedOut = auth.isSignOutSuccessful(window.location.href);
 ```
-
+---
 ### updateConfig
+```TypeScript
+updateConfig(config: Partial<AuthClientConfig<T>>): void
+```
 #### Arguments
 1. config: `AuthClientConfig<T>`
 
