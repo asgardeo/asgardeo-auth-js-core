@@ -1,0 +1,7 @@
+{
+    "clientHost": "https://localhost:5000",
+    "clientID": "",
+    "signInRedirectURL": "https://localhost:5000",
+    "signOutRedirectURL": "https://localhost:5000",
+    "serverOrigin": ""
+}
