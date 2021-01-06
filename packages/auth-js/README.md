@@ -548,9 +548,32 @@ auth.updateConfig({
     signOutRedirectURL: "http://localhost:3000/sign-out"
 });
 ```
-###
 ## Data Storage
+Since the SDK was developed with the view of being able to support various platforms such as mobile apps, browsers and node JS servers, the SDK allows developers to use their preferred mode of storage. To that end, the SDK allows you to pass a store object when instantiating the `AsgardeoAuthClient`. This store object contains methods that can be used to store, retrieve and delete data. The SDK provides a Store interface that you can implement to create your own Store class. You can refer to the [`Store`](#store) section to learn mire about the `Store` interface.
+
+There are three methods that are to be implemented by the developer. They are
+1. `setData`
+2. `getData`
+3. `removeData`
+The `setData` method is used to store data. The `getData` method is used to retrieve data. The `removeData` method is used to delete data. The SDK converts the data to be stored into a JSON string internally and then calls the `setData` method to store the data. The data is represented as a key-value pairs in the SDK. The SDK uses four keys internally and you can learn about them by referring to the [Data Layer](#data-layer) section. So, every JSON stringified data value is supposed to be stored against the passed key in the data store. A sample implementation of the `Store` class using the browser session storage is given here.
+
+```TypeScript
+class SessionStore implements Store {
+    public setData(key: string, value: string): void {
+        sessionStorage.setItem(key, value);
+    }
+
+    public getData(key: string): string {
+        return sessionStorage.getItem(key);
+    }
+
+    public removeData(key: string): void {
+        sessionStorage.removeItem(key);
+    }
+}
+```
 ### Data Layer
+
 ## Models
 ### AuthClientConfig<T>
 ### Store
