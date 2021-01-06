@@ -573,7 +573,43 @@ class SessionStore implements Store {
 }
 ```
 ### Data Layer
+The data layer is implemented within the SDK encapsulating the `Store` object passed into the constructor. The data layer acts as the interface between the SDK and the store object and provides a more developer-friendly interface to store, retrieve and delete data. Four keys are used to store four different sets of data. The keys are:
+1. Session Data
+    Stores session data such as the access token, id token, refresh token, session state etc. Refer to [`SessionData`](#session-data) to get the full list of data stored.
+2. OIDC Provider Meta Data
+    Stores regarding OIDC Meta Data obtained from the `.well-known` endpoint. Refer to [`OIDCProviderMetaData`](#oidc-provider-meta-data) for the full list of data stored.
+3. Config Data
+    Stores the config data passed to the constructor. Refer to [`AuthClientConfig<T>`](#auth-client-config) for the full list of data stored.
+4. Temporary Data
+    Stores data that is temporary. In most cases, you wouldn't need this.
 
+All these four keys get methods to set, get and remove data as whole. In addition to this, all these keys get methods to set, get, and remove specific data referred to by their respective keys. The following table describes the methods provided by the data layer.
+|Method|Arguments|Returns|Description|
+|--|--|--|--|
+|setSessionData |sessionData: `SessionData`  | void  | Saves session data in bulk.|
+|setOIDCProviderMetaData |oidcProviderMetaData: `OIDCProviderMetaData`  | void  |Saves OIDC Provider Meta data in bulk.|
+|setConfigData |config: `AuthClientConfig<T>`  | `void`  | Saves config data in bulk.|
+|setTemporaryData |data: `TemporaryData`  | `void`  | Saves temporary data in bulk.|
+|getSessionData |  | `SessionData`  | Retrieves session data in bulk.|
+|getOIDCProviderMetaData |  |`OIDCProviderMetaData`  | Retrieves OIDC Provider Meta data in bulk.|
+|getConfigData |  | `AuthClientConfig<T>`  | Retrieves config data in bulk.|
+|getTemporaryData |  | { [key: `string`]: `StoreValue` } Retrieves temporary data in bulk.| |
+|removeSessionData |  | `void`  | Removes session data in bulk.|
+|removeOIDCProviderMetaData |  | `void`  | Removes OIDC Provider Meta data in bulk.|
+|removeConfigData |  | `void`  | Removes config data in bulk.|
+|removeTemporaryData |  | `void`  | Removes temporary data in bulk.|
+|setSessionDataParameter |key: keyof `SessionData`, value: `StoreValue`  | `void`  | Saves the passed data against the specified key in the session data.|
+|setOIDCProviderMetaDataParameter |key: keyof `OIDCProviderMetaData`, value: `StoreValue`  | `void`  | Saves the passed data against the specified key in the OIDC Provider Meta data.|
+|setConfigDataParameter |key: keyof` AuthClientConfig<T>`, value: `StoreValue`  | `void`  | Saves the passed data against the specified key in the config data.|
+|setTemporaryDataParameter |key: `string`, value: `StoreValue`  | `void` | Saves the passed data against the specified key in the temporary data.|
+|getSessionDataParameter |key: keyof `SessionData`  | `StoreValue`  | Retrieves the data for the specified key from the session data.|
+|getOIDCProviderMetaDataParameter |key: keyof `OIDCProviderMetaData`  | `StoreValue`  | Retrieves the data for the specified key from the OIDC Provider Meta data.|
+|getConfigDataParameter |key: keyof `AuthClientConfig<T>`  | `StoreValue`  | Retrieves the data for the specified key from the config data.|
+|getTemporaryDataParameter |key: `string`  | `StoreValue`  | Retrieves the data for the specified key from the temporary data.|
+|removeSessionDataParameter |key: keyof `SessionData`  | `void`  | Removes the data with the specified key from the session data.|
+|removeOIDCProviderMetaDataParameter |key: keyof `OIDCProviderMetaData`  | `void`  | Removes the data with the specified key from the OIDC Provider Meta data.|
+|removeConfigDataParameter |key: keyof `AuthClientConfig<T>`  | `void`  | Removes the data with the specified key from the config data.|
+|removeTemporaryDataParameter |key: `string`  | `void`  | Removes the data with the specified key from the temporary data.|
 ## Models
 ### AuthClientConfig<T>
 ### Store
@@ -582,3 +618,7 @@ class SessionStore implements Store {
 ### OIDCEndpoints
 ### DecodedIdTokenPayload
 ### CustomGrantConfig
+### SessionData
+### OIDCProviderMetaData
+### TemporaryData
+### StoreValue
