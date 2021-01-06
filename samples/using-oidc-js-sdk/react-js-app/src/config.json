@@ -1,7 +1,7 @@
 {
     "clientHost": "https://localhost:5000",
-    "clientID": "_g41H0UUFdNFFu7vEMMO2GBypJca",
+    "clientID": "",
     "signInRedirectURL": "https://localhost:5000",
     "signOutRedirectURL": "https://localhost:5000",
-    "serverOrigin": "https://stg.portal.asgardio.io/t/guardio"
+    "serverOrigin": ""
 }
