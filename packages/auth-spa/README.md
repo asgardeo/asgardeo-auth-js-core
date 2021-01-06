@@ -66,11 +66,11 @@ var auth = AsgardeoAuth.AsgardeoSPAClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
-     signInRedirectURL: "http://localhost:9443/myaccount/login",
-     signOutRedirectURL: "http://localhost:9443/myaccount/login",
-     clientHost: "http://localhost:9443/myaccount/",
+     signInRedirectURL: "http://localhost:3000/sign-in",
+     signOutRedirectURL: "http://localhost:3000/dashboard",
+     clientHost: "http://localhost:3000",
      clientID: "client ID",
-     serverOrigin: "http://localhost:9443"
+     serverOrigin: "https://localhost:9443"
 });
 
 // To sign in, simply call the `signIn()` method.
@@ -93,11 +93,11 @@ const auth = AsgardeoSPAClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
-     signInRedirectURL: "http://localhost:9443/myaccount/login",
-     signOutRedirectURL: "http://localhost:9443/myaccount/login",
-     clientHost: "http://localhost:9443/myaccount/",
+     signInRedirectURL: "http://localhost:3000/sign-in",
+     signOutRedirectURL: "http://localhost:3000/dashboard",
+     clientHost: "http://localhost:3000",
      clientID: "client ID",
-     serverOrigin: "http://localhost:9443"
+     serverOrigin: "https://localhost:9443"
 });
 
 // To sign in, simply call the `signIn()` method.
