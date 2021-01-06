@@ -33,7 +33,7 @@ const authClient = IdentityClient.getInstance();
 const App = () => {
 
     const [ authenticateState, setAuthenticateState ] = useState({});
-    const [ isAuth, setIsAuth ] = useState(null);
+    const [ isAuth, setIsAuth ] = useState(false);
 
     authClient.on(Hooks.SignIn, (response) => {
         authClient.getDecodedIDToken().then((idToken) => {
@@ -115,7 +115,7 @@ const App = () => {
                             </h1>
                         </div>
                         <div className="content">
-                            { isAuth === true &&
+                            { isAuth ?
                                 <>
                                     <h3>Decoded ID Token data</h3>
                                     <div className="id-token">
@@ -124,8 +124,7 @@ const App = () => {
                                     <button className="btn primary" onClick={ handleLogout }>Logout</button>
                             
                                 </>
-                            }
-                            { isAuth === false &&
+                            :
                                 <>
 
                                     <div className="home-image">
