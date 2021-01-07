@@ -822,21 +822,21 @@ All these four keys get methods to set, get and remove data as whole. In additio
 This model has the following attributes.
 |Attribute| Required/Optional| Type | Default Value| Description|
 |--|--|--|--|--|
-`signInRedirectURL` |Required|`string`|""|The URL to redirect to after the user authorizes the client app. eg: `https//localhost:3000/sign-in`|
-`signOutRedirectURL` |Optional|`string`| The `signInRedirectURL` URL will be used if this value is not provided. |The URL to redirect to after the user signs out. eg: `http://localhost:3000/dashboard`|
-`clientHost`|Optional| `string`|The origin of the client app obtained using `window.origin`|The hostname of the client app. eg: `https://localhost:3000`|
-`clientID`|Required| `string`|""|The client ID of the OIDC application hosted in the Asgardeo.|
-`clientSecret`|Optional| `string`|""|The client secret of the OIDC application|
-`enablePKCE`|Optional| `boolean`|`true`| Specifies if a PKCE should be sent with the request for the authorization code.|
-`prompt`|Optional| `string`|""|Specifies the prompt type of an OIDC request|
-`responseMode`|Optional| `ResponseMode`|"query"|Specifies the response mode. The value can either be `query` or `form_post`|
-`scope`|Optional| `string[]`|`["openid"]`|Specifies the requested scopes.|
-`serverOrigin`|Required| `string`|""|The origin of the Identity Provider. eg: `https://www.asgardeo.io`|
-`endpoints`|Optional| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be used. However, if the `overrideWellEndpointConfig` is set to `true`, then this will override the endpoints obtained from the `.well-known` endpoint. |
-`overrideWellEndpointConfig`|Optional| `boolean` | `false` | If this option is set to `true`, then the `endpoints` object will override endpoints obtained from the `.well-known` endpoint. If this is set to `false`, then this will be used as a fallback if the request to the `.well-known` endpoint fails.|
-`wellKnownEndpoint`|Optional| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
-`validateIDToken`|Optional| `boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
-`clockTolerance`|Optional| `number`|`60`|Allows you to configure the leeway when validating the id_token.|
+|`signInRedirectURL` |Required|`string`|""|The URL to redirect to after the user authorizes the client app. eg: `https//localhost:3000/sign-in`|
+|`signOutRedirectURL` |Optional|`string`| The `signInRedirectURL` URL will be used if this value is not provided. |The URL to redirect to after the user |signs out. eg: `http://localhost:3000/dashboard`|
+|`clientHost`|Optional| `string`|The origin of the client app obtained using `window.origin`|The hostname of the client app. eg: `https://localhost:3000`|
+|`clientID`|Required| `string`|""|The client ID of the OIDC application hosted in the Asgardeo.|
+|`clientSecret`|Optional| `string`|""|The client secret of the OIDC application|
+|`enablePKCE`|Optional| `boolean`|`true`| Specifies if a PKCE should be sent with the request for the authorization code.|
+|`prompt`|Optional| `string`|""|Specifies the prompt type of an OIDC request|
+|`responseMode`|Optional| `ResponseMode`|`"query"`|Specifies the response mode. The value can either be `query` or `form_post`|
+|`scope`|Optional| `string[]`|`["openid"]`|Specifies the requested scopes.|
+|`serverOrigin`|Required| `string`|""|The origin of the Identity Provider. eg: `https://www.asgardeo.io`|
+|`endpoints`|Optional| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS |using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be |used. However, if the `overrideWellEndpointConfig` is set to `true`, then this will override the endpoints obtained from the `.well-known` endpoint. |
+|`overrideWellEndpointConfig`|Optional| `boolean` | `false` | If this option is set to `true`, then the `endpoints` object will override endpoints obtained |from the `.well-known` endpoint. If this is set to `false`, then this will be used as a fallback if the request to the `.well-known` endpoint fails.|
+|`wellKnownEndpoint`|Optional| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
+|`validateIDToken`|Optional| `boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
+|`clockTolerance`|Optional| `number`|`60`|Allows you to configure the leeway when validating the id_token.|
 
 The `AuthClientConfig<T>` can be extended by passing an interface as the generic type. For example, if you want to add an attribute called `foo` to the config object, you can create an interface called `Bar` and pass that as the generic type into the `AuthClientConfig<T>` interface.
 
@@ -852,12 +852,11 @@ const config: AuthClientConfig<Bar> ={
 
 ### Store
 
-| Method | Required/Optional | Arguments | Returns | Description |
-| ------ | ----------------- | --------- | ------- | ----------- |
-
-`setData`|required |key: `string`, value: `string`| `void`| This method saves the passed value to the store. The data to be saved is JSON stringified so will be passed by the SDK as a string.
-`getData`|required |key: `string`|`string`| This method retrieves the data from the store and returns it. Since the SDK stores the data as a JSON string, the returned value will be a string.|
-`removeData`|required |key: `string`|`void`|Removes the data with the specified key from the store.|
+| Method       | Required/Optional | Arguments                      | Returns                                                                                                                                            | Description                                                                                                                         |
+| ------------ | ----------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `setData`    | Required          | key: `string`, value: `string` | `void`                                                                                                                                             | This method saves the passed value to the store. The data to be saved is JSON stringified so will be passed by the SDK as a string. |
+| `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns it. Since the SDK stores the data as a JSON string, the returned value will be a string. |
+| `removeData` | Required          | key: `string`                  | `void`                                                                                                                                             | Removes the data with the specified key from the store.                                                                             |
 
 ### SignInConfig
 
@@ -920,11 +919,11 @@ const config: AuthClientConfig<Bar> ={
 Session information can be attached to the body of a custom-grant request using template tags. This is useful when the session information is not exposed outside the SDK but you want such information to be used in custom-grant requests. The following table lists the available template tags.
 |Tag|Data|
 |--|--|
-"{{token}}" | The access token.|
-{{username}}" | The username.|
-"{{scope}}" | The scope.|
-{{clientID}}" | The client ID.|
-"{{clientSecret}}" | The client secret.|
+|"{{token}}" | The access token.|
+|{{username}}" | The username.|
+|"{{scope}}" | The scope.|
+|{{clientID}}" | The client ID.|
+|"{{clientSecret}}" | The client secret.|
 
 ### SessionData
 
