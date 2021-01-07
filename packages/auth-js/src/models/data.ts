@@ -61,6 +61,6 @@ export interface DataLayer<T> {
 
 export interface Store {
     setData(key: string, value: string);
-    getData(key: string);
+    getData(key: string): string;
     removeData(key: string);
 }
