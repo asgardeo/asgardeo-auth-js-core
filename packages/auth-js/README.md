@@ -956,3 +956,32 @@ The `StoreValue` is a type that accepts strings, string arrays, booleans, number
 ```TypeScript
 type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 ```
+
+## Develop
+
+### Prerequisites
+
+-   `Node.js` (version 10 or above).
+-   `npm` package manager.
+
+### Installing Dependencies
+
+The repository is a mono repository. The SDK repository is found in the [lib]() directory. You can install the dependencies by running the following command at the root.
+
+```
+npm run build
+```
+
+## Contribute
+
+Please read [Contributing to the Code Base](http://wso2.github.io/) for details on our code of conduct, and the process for submitting pull requests to us.
+
+### Reporting issues
+
+We encourage you to report issues, improvements, and feature requests creating [Github Issues](https://github.com/asgardeo/asgardeo-js-oidc-sdk/issues).
+
+Important: And please be advised that security issues must be reported to security@wso2com, not as GitHub issues, in order to reach the proper audience. We strongly advise following the WSO2 Security Vulnerability Reporting Guidelines when reporting the security issues.
+
+## License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
