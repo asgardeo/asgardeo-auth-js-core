@@ -7,6 +7,49 @@
 
 ## Table of Content
 
+-   [Introduction](#introduction)
+-   [Install](#install)
+-   [Getting Started](#getting-started)
+    -   [Using an Embedded Script](#using-an-embedded-script)
+    -   [Using a Module](#using-a-module)
+-   [Browser Compatibility](#browser-compatibility)
+-   [APIs](#apis)
+    -   [constructor](#constructor)
+    -   [getDataLayer](#getDataLayer)
+    -   [getAuthorizationURL](#getAuthorizationURL)
+    -   [requestAccessToken](#requestAccessToken)
+    -   [signOut](#signOut)
+    -   [getSignOutURL](#getSignOutURL)
+    -   [getOIDCServiceEndpoints](#getOIDCServiceEndpoints)
+    -   [getDecodedIDToken](#getDecodedIDToken)
+    -   [getBasicUserInfo](#getBasicUserInfo)
+    -   [revokeAccessToken](#revokeAccessToken)
+    -   [refreshAccessToken](#refreshAccessToken)
+    -   [getAccessToken](#getAccessToken)
+    -   [requestCustomGrant](#requestCustomGrant)
+    -   [isAuthenticated](#isAuthenticated)
+    -   [getPKCECode](#getPKCECode)
+    -   [setPKCECode](#setPKCECode)
+    -   [isSignOutSuccessful](#isSignOutSuccessful)
+    -   [updateConfig](#updateConfig)
+-   [Data Storage](#data-storage)
+    -   [Data Layer](#data-layer)
+-   [Models](#models)
+    -   [AuthClientConfig\<T>](#AuthClientConfig<T>)
+    -   [Store](#Store)
+    -   [SignInConfig](#SignInConfig)
+    -   [TokenResponse](#TokenResponse)
+    -   [OIDCEndpoints](#OIDCEndpoints)
+    -   [DecodedIdTokenPayload](#DecodedIdTokenPayload)
+    -   [CustomGrantConfig](#CustomGrantConfig)
+        -   [Custom Grant Template Tags](#Custom-Grant-Template-Tags)
+    -   [SessionData](#SessionData)
+    -   [OIDCProviderMetaData](#OIDCProviderMetaData)
+    -   [TemporaryData](#TemporaryData)
+-   [Develop](#develop)
+-   [Contribute](#contribute)
+-   [License](#license)
+
 ## Introduction
 
 Asgardeo's JavaScript Auth SDK provides the core methods that are needed to implement OIDC authentication in JavaScript/TypeScript based apps. This SDK can be used to build SDKs for Single Page Applications, React Native, Node.JS and various other frameworks that use JavaScript.
@@ -22,7 +65,7 @@ npm install @asgardeo/auth-js
 Or simply load the SDK by importing the script into the header of your HTML file.
 
 ```html
-<script src="https://unpkg.com/@asgardeo/auth-js@0.1.26/dist/asgardeo-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-js@0.1.26/dist/asgardeo-auth.production.min.js"></script>
 ```
 
 If you want a polyfilled version of the SDK, checkout the [Browser Compatibility](#browser-compatibility) section.
@@ -770,7 +813,7 @@ All these four keys get methods to set, get and remove data as whole. In additio
 
 ## Models
 
-### AuthClientConfig<T>
+### AuthClientConfig\<T>
 
 This model has the following attributes.
 |Attribute| Required/Optional| Type | Default Value| Description|
