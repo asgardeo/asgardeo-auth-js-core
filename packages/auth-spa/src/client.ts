@@ -302,13 +302,12 @@ export class AsgardeoSPAClient {
     public async signIn(
         params?: SignInConfig,
         authorizationCode?: string,
-        sessionState?: string,
-        signInRedirectURL?: string
+        sessionState?: string
     ): Promise<BasicUserInfo> {
         await this._isInitialized();
 
         return this._client
-            .signIn(params, authorizationCode, sessionState, signInRedirectURL)
+            .signIn(params, authorizationCode, sessionState)
             .then((response: BasicUserInfo) => {
                 if (this._onSignInCallback) {
                     if (response.allowedScopes || response.displayName || response.email || response.username) {
@@ -340,10 +339,10 @@ export class AsgardeoSPAClient {
      *
      * @preserve
      */
-    public async signOut(signOutRedirectURL?: string): Promise<boolean> {
+    public async signOut(): Promise<boolean> {
         await this._validateMethod();
 
-        const signOutResponse = await this._client.signOut(signOutRedirectURL);
+        const signOutResponse = await this._client.signOut();
         this._onSignOutCallback && this._onSignOutCallback();
 
         return signOutResponse;
