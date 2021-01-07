@@ -89,13 +89,13 @@ code {
     border-radius: 10px;
 }
 
-.id-token {
+.json {
     text-align: left;
     display: block;
-    padding: 10px;
+    overflow: auto;
 }
 
-.id-token .pretty-json-container.object-container {
+.json .pretty-json-container.object-container {
     padding: 20px;
 }
 

@@ -34,26 +34,31 @@ const App = () => {
 
     const [ authenticateState, setAuthenticateState ] = useState({});
     const [ isAuth, setIsAuth ] = useState(false);
+    const [ isLoading, setIsLoading ] = useState(true);
 
     authClient.on(Hooks.SignIn, (response) => {
         authClient.getDecodedIDToken().then((idToken) => {
             setIsAuth(true);
+            setIsLoading(false);
             sessionStorage.setItem("isInitLogin", "false");
 
             setAuthenticateState({
                 ...authenticateState,
+                authenticateResponse: response,
+                decodedIdToken: idToken,
                 displayName: response.displayName,
                 email: JSON.parse(response.email) ? JSON.parse(response.email)[0] : "",
-                decodedIdToken: idToken,
                 username: response.username
             });
-    
+            
+            sessionStorage.setItem("authenticateResponse", JSON.stringify(response));
             sessionStorage.setItem("decodedIdToken", JSON.stringify(idToken));
         });
     });
 
     authClient.on(Hooks.SignOut, () => {
         setIsAuth(false);
+        setIsLoading(false);
         sessionStorage.setItem("isInitLogin", "false");
     });
 
@@ -84,15 +89,19 @@ const App = () => {
 
                 setAuthenticateState({
                     ...authenticateState,
+                    authenticateResponse: JSON.parse(sessionStorage.getItem("authenticateResponse")),
+                    decodedIdToken: JSON.parse(sessionStorage.getItem("decodedIdToken")),
                     displayName: sessionStorage.getItem("display_name"),
                     email: JSON.parse(sessionStorage.getItem("email")) ?
                         JSON.parse(sessionStorage.getItem("email"))[0] : "",
-                    decodedIdToken: JSON.parse(sessionStorage.getItem("decodedIdToken")),
                     username: sessionStorage.getItem("username")
                 });
 
                 setIsAuth(true);
+
             }
+
+            setIsLoading(false);
         }
   
     }, []);
@@ -111,33 +120,59 @@ const App = () => {
                    <>
                         <div className="header-title">
                             <h1>
-                                Javascript Based React SPA Authentication Sample <br /> (OIDC - Authorization Code Grant)
+                                JavaScript Based React SPA Authentication Sample <br /> (OIDC - Authorization Code Grant)
                             </h1>
                         </div>
                         <div className="content">
-                            { isAuth ?
-                                <>
-                                    <h3>Decoded ID Token data</h3>
-                                    <div className="id-token">
-                                        <ReactJson src={ authenticateState.decodedIdToken } theme="monokai" />
-                                    </div>
-                                    <button className="btn primary" onClick={ handleLogout }>Logout</button>
-                            
-                                </>
+                            { isLoading ?
+                                <div>Loading ...</div>
                             :
                                 <>
+                                    { isAuth ?
+                                        <>
+                                            <h3>Authentication response</h3>
+                                            <div className="json">
+                                                <ReactJson 
+                                                    src={ authenticateState.authenticateResponse }
+                                                    name={ null }
+                                                    enableClipboard={ false }
+                                                    displayDataTypes={ false }
+                                                    iconStyle="square"
+                                                    theme="monokai"
+                                                />
+                                            </div>
 
-                                    <div className="home-image">
-                                        <img src={ JS_LOGO } className="js-logo-image logo" />
-                                        <span className="logo-plus">+</span>
-                                        <img src={ REACT_LOGO } className="react-logo-image logo" />
-                                    </div>
-                                    <h3>
-                                        Sample demo to showcase how to authenticate a simple client side application using <b>Asgardeo</b> with the <a href="https://github.com/asgardeo/asgardeo-js-oidc-sdk" 
-                                            target="_blank">Asgardeo Auth JS SDK</a>
-                                    </h3>
-                                    <button className="btn primary" onClick={ handleLogin }>Login</button>
-                                
+                                            <h3>Decoded ID Token data</h3>
+                                            <div className="json">
+                                                <ReactJson 
+                                                    src={ authenticateState.decodedIdToken }
+                                                    name={ null }
+                                                    enableClipboard={ false }
+                                                    displayDataTypes={ false }
+                                                    iconStyle="square"
+                                                    theme="monokai"
+                                                />
+                                            </div>
+
+                                            <button className="btn primary" onClick={ handleLogout }>Logout</button>
+                                    
+                                        </>
+                                    :
+                                        <>
+
+                                            <div className="home-image">
+                                                <img src={ JS_LOGO } className="js-logo-image logo" />
+                                                <span className="logo-plus">+</span>
+                                                <img src={ REACT_LOGO } className="react-logo-image logo" />
+                                            </div>
+                                            <h3>
+                                                Sample demo to showcase how to authenticate a simple client side application using <b>Asgardeo</b> with the <a href="https://github.com/asgardeo/asgardeo-js-oidc-sdk" 
+                                                    target="_blank">Asgardeo Auth JS SDK</a>
+                                            </h3>
+                                            <button className="btn primary" onClick={ handleLogin }>Login</button>
+                                        
+                                        </>
+                                    }
                                 </>
                             }
                         </div>
