@@ -46,7 +46,7 @@ export interface StrictDecodedIdTokenPayload {
     tenant_domain?: string;
 }
 
-export interface DecodedIDTokenPayload extends StrictDecodedIdTokenPayload {
+export interface DecodedIdTokenPayload extends StrictDecodedIdTokenPayload {
     /**
      * Other custom claims;
      */

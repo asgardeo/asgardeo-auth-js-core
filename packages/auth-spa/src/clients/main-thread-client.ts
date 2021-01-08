@@ -22,7 +22,7 @@ import {
     AuthClientConfig,
     BasicUserInfo,
     CustomGrantConfig,
-    DecodedIDTokenPayload,
+    DecodedIdTokenPayload,
     OIDCEndpoints,
     PKCE_CODE_VERIFIER,
     ResponseMode,
@@ -291,7 +291,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return _authenticationClient.getBasicUserInfo();
     };
 
-    const getDecodedIDToken = (): DecodedIDTokenPayload => {
+    const getDecodedIDToken = (): DecodedIdTokenPayload => {
         return _authenticationClient.getDecodedIDToken();
     };
 
