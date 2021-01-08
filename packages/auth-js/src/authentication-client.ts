@@ -33,6 +33,9 @@ import {
 
 /**
  * This class provides the necessary methods needed to implement authentication.
+ *
+ * @export
+ * @class AsgardeoAuthClient
  */
 export class AsgardeoAuthClient<T> {
     private _dataLayer: DataLayer<T>;
