@@ -777,7 +777,7 @@ To address this issue, we recommend storing the authorization code in a server s
 
 You can refer to a sample implementation using JSP [here](../../samples/using-oidc-js-sdk/java-webapp).
 
-### Storage
+## Storage
 
 Asgardeo allows the session information including the access token to be stored in three different places, namely,
 
@@ -788,21 +788,34 @@ Asgardeo allows the session information including the access token to be stored 
 
 Of the four methods, storing the session information in the **web worker** is the **safest** method. This is because the web worker cannot be accessed by third-party libraries and data there cannot be stolen through XSS attacks. However, when using a web worker to store the session information, the [`httpRequest`](#httprequest) method has to be used to send http requests. This method will route the request through the web worker and the web worker will attach the access token to the request before sending it to the server.
 
-#### ServiceResourceTypes
-
-| Attribute           | Type     | Default Value                                              | Description                                                  |
-| :------------------ | :------- | :--------------------------------------------------------- | :----------------------------------------------------------- |
-| `authorize`         | `string` | `"/oauth2/authorize"`                                      | The endpoint to send the authorization request to.           |
-| `jwks`              | `string` | `"/oauth2/jwks"`                                           | The endpoint from which the JSON Web Keyset can be obtained` |
-| `logout`            | `string` | `"/oidc/logout"`                                           | The endpoint to send the logout request to.                  |
-| `oidcSessionIFrame` | `string` | `"/oidc/checksession"`                                     | The URL of the OIDC session iframe.                          |
-| `revoke`            | `string` | `"/oauth2/revoke"`                                         | The endpoint to send the revoke-access-token request to.     |
-| `token`             | `string` | `"/oauth2/token"`                                          | The endpoint to send the token request to.                   |
-| `wellKnown`         | `string` | `"/oauth2/oidcdiscovery/.well-known/openid-configuration"` | The endpoint to receive the OIDC endpoints from              |
-
 ```TypeScript
 auth.initialize(config);
 ```
+
+## Models
+
+### AuthClientConfig<Config>
+
+The `AuthClientConfig<Config>` interface extends the `AuthClientConfig<T>` interface provided by the `Asgardeo JavaScript Auth SDK` with the `Config` interface. This table lists the attributes that the `AuthClientConfig<T>` interface takes.
+
+This table shows the extended attributes provided by the `Config` interface.
+| Attribute | Required/Optional | Type | Default Value | Description |
+|:----|:----|:----|:----|:----|
+| [`storage`](#storage) | Optional | `"sessionStorage"`, `"webWorker"`, `"localStorage"` | `"sessionStorage"` | The storage medium where the session information such as the access token should be stored.| |
+| `resourceServerURLs` |Required if the `storage` is set to `webWorker` | `string[]` | `[]` | The URLs of the API endpoints. This is needed only if the storage method is set to `webWorker`. When API calls are made through the [`httpRequest`](#httprequest) or the [`httpRequestAll`](#httprequestall) method, only the calls to the endpoints specified in the `baseURL` attribute will be allowed. Everything else will be denied. | |
+|`requestTimeout` | Optional | `number`| 60000 (seconds) | Specifies in seconds how long a request to the web worker should wait before being timed out. |
+
+### BasicUserInfo
+
+### SignInConfig
+
+### OIDCEndpoints
+
+### CustomGrantConfig
+
+#### The data attribute
+
+### DecodedIdTokenPayload
 
 ## Develop
 
@@ -832,60 +845,3 @@ Important: And please be advised that security issues must be reported to securi
 ## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
-
-## Models
-
-### AuthClientConfig<T>
-
-| Attribute                                                             | Type                                                | Default Value                                               | Description                                                                                                                                                                                                                                                                                                                                                        |
-| :-------------------------------------------------------------------- | :-------------------------------------------------- | :---------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `signInRedirectURL`                                                   | `string`                                            | ""                                                          | The URL to redirect to after the user authorizes the client app. eg: `https://conotoso.com/login`                                                                                                                                                                                                                                                                  |
-| `clientID`                                                            | `string`                                            | ""                                                          | The client ID of the OIDC application hosted in the Asgardeo.                                                                                                                                                                                                                                                                                                      |
-| `serverOrigin`                                                        | `string`                                            | ""                                                          | The origin of the Identity Provider. eg: `https://www.asgardeo.io`                                                                                                                                                                                                                                                                                                 |
-| `signOutRedirectURL` (optional)                                       | `string`                                            | `signInRedirectURL`                                         | The URL to redirect to after the user signs out. eg: `https://conotoso.com/logout`                                                                                                                                                                                                                                                                                 |
-| `clientHost` (optional)                                               | `string`                                            | The origin of the client app obtained using `window.origin` | The hostname of the client app. eg: `https://contoso.com`                                                                                                                                                                                                                                                                                                          |
-| `clientSecret` (optional)                                             | `string`                                            | ""                                                          | The client secret of the OIDC application                                                                                                                                                                                                                                                                                                                          |
-| `enablePKCE` (optional)                                               | `boolean`                                           | `true`                                                      | Specifies if a PKCE should be sent with the request for the authorization code.                                                                                                                                                                                                                                                                                    |
-| `prompt` (optional)                                                   | `string`                                            | ""                                                          | Specifies the prompt type of an OIDC request                                                                                                                                                                                                                                                                                                                       |
-| `responseMode` (optional)                                             | `string`                                            | `"query"`                                                   | Specifies the response mode. The value can either be `query` or `form_post`                                                                                                                                                                                                                                                                                        |
-| `scope` (optional)                                                    | `string[]`                                          | `["openid"]`                                                | Specifies the requested scopes                                                                                                                                                                                                                                                                                                                                     |
-| [`storage`](#storage) (optional)                                      | `"sessionStorage"`, `"webWorker"`, `"localStorage"` | `"sessionStorage"`                                          | The storage medium where the session information such as the access token should be stored.                                                                                                                                                                                                                                                                        |
-| `resourceServerURLs` (required if the `storage` is set to `webWorker` | `string[]`                                          | ""                                                          | The URLs of the API endpoints. This is needed only if the storage method is set to `webWorker`. When API calls are made through the [`httpRequest`](#httprequest) or the [`httpRequestAll`](#httprequestall) method, only the calls to the endpoints specified in the `baseURL` attribute will be allowed. Everything else will be denied.                         |
-| `endpoints` (optional)                                                | [`ServiceResourceTypes`](#serviceresourcetypes)     | [ServiceResource Default Values](#serviceresourcetypes)     | The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be used.                                                                                                                             |
-| `authorizationCode` (optional)                                        | `string`                                            | ""                                                          | When the `responseMode` is set to `from_post`, the authorization code is returned as a `POST` request. Apps can use this attribute to pass the obtained authorization code to the SDK. Since client applications can't handle `POST` requests, the application's backend should implement the logic to receive the authorization code and send it back to the SDK. |
-| `sessionState` (optional)                                             | `string`                                            | ""                                                          | When the `responseMode` is set to `from_post`, the session state is returned as a `POST` request. Apps can use this attribute to pass the obtained session state to the SDK. Since client applications can't handle `POST` requests, the application's backend should implement the logic to receive the session state and send it back to the SDK.                |
-| `validateIDToken`(optional)                                           | `boolean`                                           | `true`                                                      | Allows you to enable/disable JWT ID token validation after obtaining the ID token.                                                                                                                                                                                                                                                                                 |
-| `clockTolerance`(optional)                                            | `number`                                            | `60`                                                        | Allows you to configure the leeway when validating the id_token.                                                                                                                                                                                                                                                                                                   |
-
-### BasicUserInfo
-
-### SignInConfig
-
-### OIDCEndpoints
-
-### CustomGrantConfig
-
-| Attribute        | Type      | Description                                                                                                                                                                    |
-| :--------------- | :-------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`             | `string`  | A unique id for the custom grant. This allows developers to use multiple custom grants.                                                                                        |
-| `data`           | `any`     | The data to be attached to the body of the request to the Identity Server                                                                                                      |
-| `signInRequired` | `boolean` | Specifies if the custom grant requires an active user session.                                                                                                                 |
-| `attachToken`    | `boolean` | Specifies if the access token should be attached to the header of the request.                                                                                                 |
-| `returnsSession` | `boolean` | Specifies if the response to the custom grant request would return session information. If set to yes, then the current session will be updated with the returned session.     |
-| `returnResponse` | `boolean` | Specifies if the response returned by the custom grant should be returned back. If the `returnsSession` attribute is set to `true` then only the user information is returned. |
-
-#### The data attribute
-
-Often, you may have to send session information in the body of a custom grant request. Since when using a web worker to store the session information, you won't have access to the session information, Asgardeo provides template tags to attach the necessary session information. When a template tag is used, the SDK automatically replaces the tag with the relevant session information before sending the request. For example, if the access token should be send in the body of the request, you can use the `{{token}}` template tag. The SDK will replace this tag with the access token before dispatching the request.
-
-The following template tags are at your disposal.
-
-| Template Tags        | Session Information Attached |
-| :------------------- | :--------------------------- |
-| `"{{token}}"`        | The access token             |
-| `"{{username}}"`     | The username                 |
-| `"{{scope}}"`        | The allowed scopes           |
-| `"{{clientId}}"`     | The client ID                |
-| `"{{clientSecret}}"` | The client secret            |
-
-### DecodedIdTokenPayload
