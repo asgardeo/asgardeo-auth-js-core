@@ -33,7 +33,7 @@ import {
     AuthorizationURLParams,
     BasicUserInfo,
     CustomGrantConfig,
-    DecodedIdTokenPayload,
+    DecodedIDTokenPayload,
     OIDCEndpoints,
     OIDCProviderMetaData,
     TokenResponse
@@ -425,9 +425,9 @@ export class AuthenticationCore<T> {
         };
     }
 
-    public getDecodedIDToken(): DecodedIdTokenPayload {
+    public getDecodedIDToken(): DecodedIDTokenPayload {
         const idToken = this._dataLayer.getSessionData().id_token;
-        const payload: DecodedIdTokenPayload = CryptoUtils.decodeIDToken(idToken);
+        const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
 
         return payload;
     }
