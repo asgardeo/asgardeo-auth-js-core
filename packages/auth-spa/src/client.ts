@@ -279,7 +279,7 @@ export class AsgardeoSPAClient {
      * **To learn more about the `on()` method:**
      * @see {@link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#on}
      *
-     * @param {SignInConfig} params - The sign-in config.
+     * @param {SignInConfig} config - The sign-in config.
      * The `SignInConfig` object has these two attributes in addition to any custom key-value pairs.
      *  1. fidp - Specifies the FIDP parameter that is used to take the user directly to an IdP login page.
      *  2. forceInit: Specifies if the OIDC Provider Meta Data should be loaded again from the `well-known`
@@ -300,14 +300,14 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async signIn(
-        params?: SignInConfig,
+        config?: SignInConfig,
         authorizationCode?: string,
         sessionState?: string
     ): Promise<BasicUserInfo> {
         await this._isInitialized();
 
         return this._client
-            .signIn(params, authorizationCode, sessionState)
+            .signIn(config, authorizationCode, sessionState)
             .then((response: BasicUserInfo) => {
                 if (this._onSignInCallback) {
                     if (response.allowedScopes || response.displayName || response.email || response.username) {
@@ -447,9 +447,9 @@ export class AsgardeoSPAClient {
     /**
      * This method allows you to send a request with a custom grant.
      *
-     * @param {CustomGrantRequestParams} requestParams - The request parameters.
+     * @param {CustomGrantRequestParams} config - The request parameters.
      *
-     * @return {Promise< boolean | HttpResponse<any> | SignInResponse>} - A Promise that resolves with
+     * @return {Promise<HttpResponse<any> | SignInResponse>} - A Promise that resolves with
      * the value returned by the custom grant request.
      *
      * @example
@@ -476,15 +476,15 @@ export class AsgardeoSPAClient {
      * @preserve
      */
     public async requestCustomGrant(
-        requestParams: CustomGrantConfig
-    ): Promise<boolean | HttpResponse<any> | BasicUserInfo> {
-        if (requestParams.signInRequired) {
+        config: CustomGrantConfig
+    ): Promise<HttpResponse<any> | BasicUserInfo> {
+        if (config.signInRequired) {
             await this._validateMethod();
         } else {
             await this._validateMethod();
         }
 
-        if (!requestParams.id) {
+        if (!config.id) {
             return Promise.reject(
                 new AsgardeoSPAException(
                     "AUTH_CLIENT-RCG-NF01",
@@ -496,10 +496,10 @@ export class AsgardeoSPAClient {
             );
         }
 
-        const customGrantResponse = await this._client.requestCustomGrant(requestParams);
+        const customGrantResponse = await this._client.requestCustomGrant(config);
 
-        this._onCustomGrant?.get(requestParams.id) &&
-            this._onCustomGrant?.get(requestParams.id)(this._onCustomGrant?.get(requestParams.id));
+        this._onCustomGrant?.get(config.id) &&
+            this._onCustomGrant?.get(config.id)(this._onCustomGrant?.get(config.id));
 
         return customGrantResponse;
     }
