@@ -4,7 +4,7 @@
 
 ### Register an Application
 
-Follow the instructions in the [Try Out the Sample Apps](../../packages/oidc-js/README.md#try-out-the-sample-apps) section to register an application.
+Follow the instructions in the [Try Out the Sample Apps](../../../packages/oidc-js/README.md#try-out-the-sample-apps) section to register an application.
 
 Make sure to add `http://localhost:3000` as a Redirect URL and also add it under allowed origins. 
 
@@ -14,7 +14,7 @@ Make sure to add `http://localhost:3000` as a Redirect URL and also add it under
 
 Note: You will only have to paste in the `client ID` generated for the application you registered.
 
-Read more about the SDK configurations [here](../../packages/oidc-js/README.md#initialize) .
+Read more about the SDK configurations [here](../../../packages/oidc-js/README.md#initialize) .
 
 ```json
 {
