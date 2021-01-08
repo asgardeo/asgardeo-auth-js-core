@@ -46,6 +46,7 @@
     -   [SessionData](#SessionData)
     -   [OIDCProviderMetaData](#OIDCProviderMetaData)
     -   [TemporaryData](#TemporaryData)
+    -   [BasicUserInfo](#BasicUserInfo)
 -   [Develop](#develop)
 -   [Contribute](#contribute)
 -   [License](#license)
@@ -1002,6 +1003,17 @@ The `StoreValue` is a type that accepts strings, string arrays, booleans, number
 ```TypeScript
 type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 ```
+
+### BasicUserInfo
+
+| Attribute       | Type     | Description                                                                                        |
+| :-------------- | :------- | :------------------------------------------------------------------------------------------------- |
+| `email`         | `string` | The email address of the user.                                                                     |
+| `username`      | `string` | The username of the user.                                                                          |
+| `displayName`   | `string` | The display name of the user. It is the `preferred_username` in the id token payload or the `sub`. |
+| `allowedScopes` | `string` | The scopes allowed for the user.                                                                   |
+| `tenantDomain`  | `string` | The tenant domain to which the user belongs.                                                       |
+| `sessionState`  | `string` | The session state.                                                                                 |
 
 ## Develop
 
