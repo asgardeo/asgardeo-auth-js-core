@@ -879,19 +879,19 @@ const config: AuthClientConfig<Bar> ={
 
 ### OIDCEndpoints
 
-| Method                  | Type     | Description                                                               |
-| ----------------------- | -------- | ------------------------------------------------------------------------- |
-| `authorizationEndpoint` | `string` | The authorization endpoint.                                               |
-| `tokenEndpoint`         | `string` | The token endpoint.                                                       |
-| `userinfoEndpoint`      | `string` | The user-info endpoint.                                                   |
-| `jwksUri`               | `string` | The JWKS URI.                                                             |
-| `registrationEndpoint`  | `string` | The registration endpoint.                                                |
-| `revocationEndpoint`    | `string` | The token-revocation endpoint.                                            |
-| `introspectionEndpoint` | `string` | The introspection endpoint.                                               |
-| `checkSessionIframe`    | `string` | The check-session endpoint.                                               |
-| `endSessionEndpoint`    | `string` | The end-session endpoint.                                                 |
-| `issuer`                | `string` | The issuer of the token.                                                  |
-| `wellKnownEndpoint`     | `string` | The well-known endpoint. This is the default endpoint defined in the SDK. |
+| Method                  | Type     | Default Value                                      | Description                                                               |
+| ----------------------- | -------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+| `authorizationEndpoint` | `string` | `"/oauth2/authorize"`                              | The authorization endpoint.                                               |
+| `tokenEndpoint`         | `string` | `"/oauth2/token"`                                  | The token endpoint.                                                       |
+| `userinfoEndpoint`      | `string` | ""                                                 | The user-info endpoint.                                                   |
+| `jwksUri`               | `string` | `"/oauth2/jwks"`                                   | The JWKS URI.                                                             |
+| `registrationEndpoint`  | `string` | ""                                                 | The registration endpoint.                                                |
+| `revocationEndpoint`    | `string` | `"/oauth2/revoke"`                                 | The token-revocation endpoint.                                            |
+| `introspectionEndpoint` | `string` | ""                                                 | The introspection endpoint.                                               |
+| `checkSessionIframe`    | `string` | `"/oidc/checksession"`                             | The check-session endpoint.                                               |
+| `endSessionEndpoint`    | `string` | `"/oidc/logout"`                                   | The end-session endpoint.                                                 |
+| `issuer`                | `string` | ""                                                 | The issuer of the token.                                                  |
+| `wellKnownEndpoint`     | `string` | `"/oauth2/token/.well-known/openid-configuration"` | The well-known endpoint. This is the default endpoint defined in the SDK. |
 
 ### DecodedIdTokenPayload
 
