@@ -36,6 +36,15 @@
     -   [enableHttpHandler](#enableHttpHandler)
     -   [disableHttpHandler](#disableHttpHandler) -[updateConfig](#updateConfig) -[getHttpClient](#getHttpClient)
 -   [Using the `form_post` Response Mode](#using-the-form_post-response-mode)
+-   [Storage](#storage)
+-   [Models](#Models)
+    -   [AuthClientConfig\<Config>](#AuthClientConfig<Config>)
+    -   [BasicUserInfo](#BasicUserInfo)
+    -   [SignInConfig](#SignInConfig)
+    -   [OIDCEndpoints](#OIDCEndpoints)
+    -   [CustomGrantConfig](#CustomGrantConfig)
+    -   [Custom Grant Template Tags](#Custom-Grant-Template-Tags)
+    -   [DecodedIDTokenPayload](#DecodedIDTokenPayload)
 -   [Develop](#develop)
     -   [Prerequisites](#prerequisites)
     -   [Installing Dependencies](#installing-dependencies)
@@ -794,7 +803,7 @@ auth.initialize(config);
 
 ## Models
 
-### AuthClientConfig<Config>
+### AuthClientConfig\<Config>
 
 The `AuthClientConfig<Config>` interface extends the `AuthClientConfig<T>` interface provided by the `Asgardeo JavaScript Auth SDK` with the `Config` interface. This table lists the attributes that the `AuthClientConfig<T>` interface takes.
 
@@ -807,15 +816,72 @@ This table shows the extended attributes provided by the `Config` interface.
 
 ### BasicUserInfo
 
+| Attribute       | Type     | Description                                                                                        |
+| :-------------- | :------- | :------------------------------------------------------------------------------------------------- |
+| `email`         | `string` | The email address of the user.                                                                     |
+| `username`      | `string` | The username of the user.                                                                          |
+| `displayName`   | `string` | The display name of the user. It is the `preferred_username` in the id token payload or the `sub`. |
+| `allowedScopes` | `string` | The scopes allowed for the user.                                                                   |
+| `tenantDomain`  | `string` | The tenant domain to which the user belongs.                                                       |
+| `sessionState`  | `string` | The session state.                                                                                 |
+
 ### SignInConfig
+
+| Method        | Required/Optional | Type                  | Default Value | Description                                                                                                                                                            |
+| ------------- | ----------------- | --------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fidp`        | Optional          | `string`              | ""            | The `fidp` parameter that can be used to redirect a user directly to an IdP's sign-in page.                                                                            |
+| `forceInit`   | Optional          | `boolean`             | `false`       | Forces obtaining the OIDC endpoints from the `.well-known` endpoint. A request to this endpoint is not sent if a request has already been sent. This forces a request. |
+| key: `string` | Optional          | `string` \| `boolean` | ""            | Any key-value pair to be appended as path parameters to the authorization URL.                                                                                         |
 
 ### OIDCEndpoints
 
+| Method                  | Type     | Default Value                                      | Description                                                               |
+| ----------------------- | -------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+| `authorizationEndpoint` | `string` | `"/oauth2/authorize"`                              | The authorization endpoint.                                               |
+| `tokenEndpoint`         | `string` | `"/oauth2/token"`                                  | The token endpoint.                                                       |
+| `userinfoEndpoint`      | `string` | ""                                                 | The user-info endpoint.                                                   |
+| `jwksUri`               | `string` | `"/oauth2/jwks"`                                   | The JWKS URI.                                                             |
+| `registrationEndpoint`  | `string` | ""                                                 | The registration endpoint.                                                |
+| `revocationEndpoint`    | `string` | `"/oauth2/revoke"`                                 | The token-revocation endpoint.                                            |
+| `introspectionEndpoint` | `string` | ""                                                 | The introspection endpoint.                                               |
+| `checkSessionIframe`    | `string` | `"/oidc/checksession"`                             | The check-session endpoint.                                               |
+| `endSessionEndpoint`    | `string` | `"/oidc/logout"`                                   | The end-session endpoint.                                                 |
+| `issuer`                | `string` | ""                                                 | The issuer of the token.                                                  |
+| `wellKnownEndpoint`     | `string` | `"/oauth2/token/.well-known/openid-configuration"` | The well-known endpoint. This is the default endpoint defined in the SDK. |
+
 ### CustomGrantConfig
+
+| Attribute        | Required/Optional | Type      | Default Value | Description                                                                                                                                                                                                                   |
+| ---------------- | ----------------- | --------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | Required          | `string`  | ""            | Every custom-grant request should have an id. This attributes takes that id.                                                                                                                                                  |
+| `data`           | Required          | `any`     | `null`        | The data that should be sent in the body of the custom-grant request. You can use template tags to send session information. Refer to the [Custom Grant Template Tags](#custom-grant-template-tags) section for more details. |
+| `signInRequired` | Required          | `boolean` | `false`       | Specifies if teh user should be sign-in or not to dispatch this custom-grant request.                                                                                                                                         |
+| `attachToken`    | Required          | `boolean` | `false`       | Specifies if the access token should be attached to the header of the request.                                                                                                                                                |
+| `returnsSession` | Required          | `boolean` | `false`       | Specifies if the the request returns session information such as the access token.                                                                                                                                            |
+
+#### Custom Grant Template Tags
+
+Session information can be attached to the body of a custom-grant request using template tags. This is useful when the session information is not exposed outside the SDK but you want such information to be used in custom-grant requests. The following table lists the available template tags.
+|Tag|Data|
+|--|--|
+|"{{token}}" | The access token.|
+|{{username}}" | The username.|
+|"{{scope}}" | The scope.|
+|{{clientID}}" | The client ID.|
+|"{{clientSecret}}" | The client secret.|
 
 #### The data attribute
 
-### DecodedIdTokenPayload
+### DecodedIDTokenPayload
+
+| Method             | Type                   | Description                                    |
+| ------------------ | ---------------------- | ---------------------------------------------- |
+| aud                | `string` \| `string[]` | The audience.                                  |
+| sub                | `string`               | The subject. This is the username of teh user. |
+| iss                | `string`               | The token issuer.                              |
+| email              | `string`               | The email address.                             |
+| preferred_username | `string`               | The preferred username.                        |
+| tenant_domain      | `string`               | The tenant domain to which the user belongs.   |
 
 ## Develop
 
