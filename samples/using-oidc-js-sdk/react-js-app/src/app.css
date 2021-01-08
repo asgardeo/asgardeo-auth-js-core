@@ -45,6 +45,14 @@ a:hover {
     text-decoration: none;;
 }
 
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mt-4 {
+    margin-top: 40px !important;
+}
+
 .home-image {
     vertical-align: middle;
     margin-bottom: 50px;
@@ -74,16 +82,59 @@ img.logo-image {
 }
 
 code {
-    background: #eee;
+    background: #272822;
     padding: 4px;
     font-size: 90%;
-    color: #008aa2;
+    color: #fd971f;
+}
+
+.code {
+    background: #272822;
+    display: block;
+    word-break: break-all;
+    padding: 20px;
+    text-align: left;
+}
+
+.code .id-token-0 {
+    color: #cc6633;
+}
+
+.code .id-token-1 {
+    color: #f9f8f5;
+}
+
+.code .id-token-2 {
+    color: #fd971f;
+}
+
+.row {
+    width: 100%;
+    display: flex;
+    text-align: left;
+}
+
+.row > .column {
+    flex: 40%;
+    margin-right: 15px;
+}
+
+.row > .column:last-child {
+    flex: 60%;
+    margin-right: 0;
+}
+
+@media screen and (max-width: 600px) {
+    .column {
+        width: 100%;
+        margin-right: 0;
+    }
 }
 
 .container {
     background: #fff;
     border: 1px solid #e2e2e2;
-    width: 789px;
+    width: 980px;
     margin: 0 auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -93,6 +144,7 @@ code {
     text-align: left;
     display: block;
     overflow: auto;
+    word-break: break-all;
 }
 
 .json .pretty-json-container.object-container {
