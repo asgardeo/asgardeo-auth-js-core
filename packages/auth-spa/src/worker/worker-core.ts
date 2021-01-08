@@ -22,7 +22,7 @@ import {
     AuthorizationURLParams,
     BasicUserInfo,
     CustomGrantConfig,
-    DecodedIdTokenPayload,
+    DecodedIDTokenPayload,
     OIDCEndpoints,
     SESSION_STATE,
     Store,
@@ -318,7 +318,7 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         return _authenticationClient.getBasicUserInfo();
     };
 
-    const getDecodedIDToken = (): DecodedIdTokenPayload => {
+    const getDecodedIDToken = (): DecodedIDTokenPayload => {
         return _authenticationClient.getDecodedIDToken();
     };
 

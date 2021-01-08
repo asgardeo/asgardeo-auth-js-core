@@ -40,7 +40,7 @@
     -   [SignInConfig](#SignInConfig)
     -   [TokenResponse](#TokenResponse)
     -   [OIDCEndpoints](#OIDCEndpoints)
-    -   [DecodedIdTokenPayload](#DecodedIdTokenPayload)
+    -   [DecodedIDTokenPayload](#DecodedIDTokenPayload)
     -   [CustomGrantConfig](#CustomGrantConfig)
         -   [Custom Grant Template Tags](#Custom-Grant-Template-Tags)
     -   [SessionData](#SessionData)
@@ -456,12 +456,12 @@ const oidcEndpoints = auth.getOIDCServiceEndpoints();
 ### getDecodedIDToken
 
 ```TypeScript
-getDecodedIDToken(): DecodedIdTokenPayload
+getDecodedIDToken(): DecodedIDTokenPayload
 ```
 
 #### Returns
 
-decodedIDTokenPayload: [`DecodedIdTokenPayload`](#DecodedIdTokenPayload)
+decodedIDTokenPayload: [`DecodedIDTokenPayload`](#DecodedIDTokenPayload)
 The decoded ID token payload.
 
 #### Description
@@ -489,7 +489,7 @@ An object containing basic user information obtained from the id token.
 
 #### Description
 
-This method returns the basic user information obtained from the payload. To learn more about what information is returned, checkout the [`DecodedIdTokenPayload`](#DecodedIdTokenPayload) model.
+This method returns the basic user information obtained from the payload. To learn more about what information is returned, checkout the [`DecodedIDTokenPayload`](#DecodedIDTokenPayload) model.
 
 #### Example
 
@@ -893,7 +893,7 @@ const config: AuthClientConfig<Bar> ={
 | `issuer`                | `string` | The issuer of the token.                                                  |
 | `wellKnownEndpoint`     | `string` | The well-known endpoint. This is the default endpoint defined in the SDK. |
 
-### DecodedIdTokenPayload
+### DecodedIDTokenPayload
 
 | Method             | Type                   | Description                                    |
 | ------------------ | ---------------------- | ---------------------------------------------- |
