@@ -16,7 +16,7 @@
 * under the License.
 */
 
-import { AuthenticatedUserInfo, DecodedIDTokenPayload, TokenRequestHeader } from "../models";
+import { AuthenticatedUserInfo, DecodedIdTokenPayload, TokenRequestHeader } from "../models";
 import { CryptoUtils } from "../utils";
 
 export class AuthenticationUtils {
@@ -24,7 +24,7 @@ export class AuthenticationUtils {
     private constructor() {}
 
     public static getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
-        const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
+        const payload: DecodedIdTokenPayload = CryptoUtils.decodeIDToken(idToken);
         const emailAddress: string = payload.email ? payload.email : null;
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
 
@@ -37,7 +37,7 @@ export class AuthenticationUtils {
     }
 
     public static getTenantDomainFromIdTokenPayload = (
-        payload: DecodedIDTokenPayload,
+        payload: DecodedIdTokenPayload,
         uidSeparator: string = "@"
     ): string => {
         // If the `tenant_domain` claim is available in the ID token payload, give precedence.

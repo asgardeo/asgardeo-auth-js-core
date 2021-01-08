@@ -21,7 +21,7 @@ import {
     AuthClientConfig,
     BasicUserInfo,
     CustomGrantConfig,
-    DecodedIDTokenPayload,
+    DecodedIdTokenPayload,
     OIDCEndpoints,
     OIDCProviderMetaData,
     ResponseMode,
@@ -496,12 +496,12 @@ export const WebWorkerClient = (config: AuthClientConfig<WebWorkerClientConfig>)
             });
     };
 
-    const getDecodedIDToken = (): Promise<DecodedIDTokenPayload> => {
+    const getDecodedIDToken = (): Promise<DecodedIdTokenPayload> => {
         const message: Message<null> = {
             type: GET_DECODED_ID_TOKEN
         };
 
-        return communicate<null, DecodedIDTokenPayload>(message)
+        return communicate<null, DecodedIdTokenPayload>(message)
             .then((response) => {
                 return Promise.resolve(response);
             })

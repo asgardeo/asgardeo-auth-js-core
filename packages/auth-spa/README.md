@@ -534,12 +534,12 @@ auth.getOIDCServiceEndpoints().then((endpoints) => {
 ### getDecodedIDToken
 
 ```typescript
-getDecodedIDToken(): Promise<DecodedIDTokenPayload>
+getDecodedIDToken(): Promise<DecodedIdTokenPayload>
 ```
 
 #### Returns
 
-A promise that returns with the [`DecodedIDTokenPayload`](#DecodedIDTokenPayload) object.
+A promise that returns with the [`DecodedIdTokenPayload`](#DecodedIdTokenPayload) object.
 
 #### Description
 
@@ -890,4 +890,4 @@ The following template tags are at your disposal.
 | `"{{clientId}}"`     | The client ID                |
 | `"{{clientSecret}}"` | The client secret            |
 
-### DecodedIDTokenPayload
+### DecodedIdTokenPayload

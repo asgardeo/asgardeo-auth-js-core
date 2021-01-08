@@ -21,7 +21,7 @@ import {
     AuthorizationURLParams,
     BasicUserInfo,
     CustomGrantConfig,
-    DecodedIDTokenPayload,
+    DecodedIdTokenPayload,
     OIDCEndpoints
 } from "@asgardeo/auth-js";
 import { HttpError, HttpRequestConfig, HttpResponse, Message } from ".";
@@ -52,7 +52,7 @@ export interface WebWorkerCoreInterface {
     refreshAccessToken(): Promise<BasicUserInfo>;
     revokeAccessToken(): Promise<boolean>;
     getBasicUserInfo(): BasicUserInfo;
-    getDecodedIDToken(): DecodedIDTokenPayload;
+    getDecodedIDToken(): DecodedIdTokenPayload;
     getOIDCServiceEndpoints(): OIDCEndpoints;
     getAccessToken(): string;
     isAuthenticated(): boolean;
