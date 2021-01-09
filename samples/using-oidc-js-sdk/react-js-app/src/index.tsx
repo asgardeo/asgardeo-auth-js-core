@@ -29,7 +29,7 @@ const clientHost = origin;
 
 // Initialize the client
 auth.initialize({
-    clientID: "hl2pS3ppWi1tkjzEWfkTOdStFoEa",
+    clientID: "client-id",
     resourceServerURLs: [serverOrigin],
     serverOrigin: serverOrigin,
     signInRedirectURL: clientHost + "/sign-in",
