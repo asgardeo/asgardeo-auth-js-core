@@ -39,3 +39,5 @@ export {
     AxiosPromise as HttpPromise,
     AxiosInstance as HttpInstance
 } from "axios";
+
+export { HttpClientInstance } from "../http-client";
