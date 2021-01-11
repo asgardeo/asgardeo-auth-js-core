@@ -20,7 +20,7 @@ import {
     AuthClientConfig,
     BasicUserInfo,
     CustomGrantConfig,
-    DecodedIdTokenPayload,
+    DecodedIDTokenPayload,
     OIDCEndpoints,
     OIDC_SCOPE,
     SignInConfig
@@ -614,7 +614,7 @@ export class AsgardeoSPAClient {
      *
      * @preserve
      */
-    public async getDecodedIDToken(): Promise<DecodedIdTokenPayload> {
+    public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
         await this._validateMethod();
 
         return this._client.getDecodedIDToken();
