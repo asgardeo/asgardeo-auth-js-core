@@ -24,7 +24,7 @@ import sha256 from "crypto-js/sha256";
 import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
 import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
 import { AsgardeoAuthException } from "../exception";
-import { DecodedIdTokenPayload, JWKInterface } from "../models";
+import { DecodedIDTokenPayload, JWKInterface } from "../models";
 
 export class CryptoUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -152,7 +152,7 @@ export class CryptoUtils {
      *
      * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
      */
-    public static decodeIDToken(idToken: string): DecodedIdTokenPayload {
+    public static decodeIDToken(idToken: string): DecodedIDTokenPayload {
         try {
             const words = Base64.parse(idToken.split(".")[1]);
             const utf8String = utf8.stringify(words);
