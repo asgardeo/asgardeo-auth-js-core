@@ -650,7 +650,7 @@ The `on` method is used to hook callback functions to authentication methods. Th
 | `"http-request-finish"`  | `httpRequest()` (Called after an http request is sent and response is received.) |
 | `"http-request-error"`   | `httpRequest()` (Called when an http request returns an error)                   |
 | `"http-request-success"` | `httpRequest()` (Called when an http requests returns a response successfully)   |
-| `"end-user-session"`     | `endUserSession()`                                                               | A boolean value indicating if the process was successful or not                         |
+| `"revoke-access-token"`     | `revokeAccessToken()`                                                               | A boolean value indicating if the process was successful or not                         |
 | `"custom-grant"`         | `customGrant()`                                                                  | Returns the response from the custom grant request.                                     |
 
 **When the user signs out, the user is taken to the identity server's logout page and then redirected back to the SPA on successful log out. Hence, developers should ensure that the `"sign-out"` hook is called when the page the user is redirected to loads.**
