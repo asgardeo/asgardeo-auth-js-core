@@ -57,11 +57,10 @@ const DefaultConfig: Partial<AuthClientConfig<Config>> = {
 const PRIMARY_INSTANCE = "primaryInstance";
 
 /**
- * AsgardeoSPAClient class constructor.
+ * This class provides the necessary methods to implement authentication in a Single Page Application.
  *
  * @export
  * @class AsgardeoSPAClient
- * @implements {ConfigInterface} - Configuration interface.
  */
 export class AsgardeoSPAClient {
     private static _instances: Map<string, AsgardeoSPAClient> = new Map<string, AsgardeoSPAClient>();
@@ -149,7 +148,7 @@ export class AsgardeoSPAClient {
      * const auth = AsgardeoSPAClient.getInstance();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getinstance
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#getinstance
      *
      * @memberof AsgardeoSPAClient
      *
@@ -183,14 +182,14 @@ export class AsgardeoSPAClient {
      * @example
      * ```
      * auth.initialize({
-     *     signInRedirectURL: "http://localhost:9443/myaccount/login",
-     *     clientHost: "http://localhost:9443/myaccount/",
+     *     signInRedirectURL: "http://localhost:3000/sign-in",
+     *     clientHost: "http://localhost:3000",
      *     clientID: "client ID",
      *     serverOrigin: "http://localhost:9443"
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#initialize
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#initialize
      *
      * @memberof AsgardeoSPAClient
      *
@@ -255,7 +254,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getuserinfo
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#getuserinfo
      *
      * @memberof AsgardeoSPAClient
      *
@@ -278,9 +277,9 @@ export class AsgardeoSPAClient {
      *
      * **To fire a callback function after signing in, use the `on()` method.**
      * **To learn more about the `on()` method:**
-     * @see {@link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     * @see {@link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#on}
      *
-     * @param {SignInConfig} params - The sign-in config.
+     * @param {SignInConfig} config - The sign-in config.
      * The `SignInConfig` object has these two attributes in addition to any custom key-value pairs.
      *  1. fidp - Specifies the FIDP parameter that is used to take the user directly to an IdP login page.
      *  2. forceInit: Specifies if the OIDC Provider Meta Data should be loaded again from the `well-known`
@@ -294,22 +293,21 @@ export class AsgardeoSPAClient {
      * auth.signIn();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#signin
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#signin
      *
      * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
     public async signIn(
-        params?: SignInConfig,
+        config?: SignInConfig,
         authorizationCode?: string,
-        sessionState?: string,
-        signInRedirectURL?: string
+        sessionState?: string
     ): Promise<BasicUserInfo> {
         await this._isInitialized();
 
         return this._client
-            .signIn(params, authorizationCode, sessionState, signInRedirectURL)
+            .signIn(config, authorizationCode, sessionState)
             .then((response: BasicUserInfo) => {
                 if (this._onSignInCallback) {
                     if (response.allowedScopes || response.displayName || response.email || response.username) {
@@ -326,7 +324,7 @@ export class AsgardeoSPAClient {
      *
      * **To fire a callback function after signing out, use the `on()` method.**
      * **To learn more about the `on()` method:**
-     * @see {@link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     * @see {@link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#on}
      *
      * @return {Promise<boolean>} - Returns a promise that resolves with `true` if sign out is successful.
      *
@@ -335,16 +333,16 @@ export class AsgardeoSPAClient {
      * auth.signOut();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#signout
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#signout
      *
      * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
-    public async signOut(signOutRedirectURL?: string): Promise<boolean> {
+    public async signOut(): Promise<boolean> {
         await this._validateMethod();
 
-        const signOutResponse = await this._client.signOut(signOutRedirectURL);
+        const signOutResponse = await this._client.signOut();
         this._onSignOutCallback && this._onSignOutCallback();
 
         return signOutResponse;
@@ -381,7 +379,7 @@ export class AsgardeoSPAClient {
      *      });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#httprequest
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#httprequest
      *
      * @memberof AsgardeoSPAClient
      *
@@ -434,7 +432,7 @@ export class AsgardeoSPAClient {
      *      });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#httprequestall
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#httprequestall
      *
      * @memberof AsgardeoSPAClient
      *
@@ -449,9 +447,9 @@ export class AsgardeoSPAClient {
     /**
      * This method allows you to send a request with a custom grant.
      *
-     * @param {CustomGrantRequestParams} requestParams - The request parameters.
+     * @param {CustomGrantRequestParams} config - The request parameters.
      *
-     * @return {Promise< boolean | HttpResponse<any> | SignInResponse>} - A Promise that resolves with
+     * @return {Promise<HttpResponse<any> | SignInResponse>} - A Promise that resolves with
      * the value returned by the custom grant request.
      *
      * @example
@@ -471,22 +469,22 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#customgrant
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#customgrant
      *
      * @memberof AsgardeoSPAClient
      *
      * @preserve
      */
     public async requestCustomGrant(
-        requestParams: CustomGrantConfig
-    ): Promise<boolean | HttpResponse<any> | BasicUserInfo> {
-        if (requestParams.signInRequired) {
+        config: CustomGrantConfig
+    ): Promise<HttpResponse<any> | BasicUserInfo> {
+        if (config.signInRequired) {
             await this._validateMethod();
         } else {
             await this._validateMethod();
         }
 
-        if (!requestParams.id) {
+        if (!config.id) {
             return Promise.reject(
                 new AsgardeoSPAException(
                     "AUTH_CLIENT-RCG-NF01",
@@ -498,10 +496,10 @@ export class AsgardeoSPAClient {
             );
         }
 
-        const customGrantResponse = await this._client.requestCustomGrant(requestParams);
+        const customGrantResponse = await this._client.requestCustomGrant(config);
 
-        this._onCustomGrant?.get(requestParams.id) &&
-            this._onCustomGrant?.get(requestParams.id)(this._onCustomGrant?.get(requestParams.id));
+        this._onCustomGrant?.get(config.id) &&
+            this._onCustomGrant?.get(config.id)(this._onCustomGrant?.get(config.id));
 
         return customGrantResponse;
     }
@@ -511,7 +509,7 @@ export class AsgardeoSPAClient {
      *
      * **To fire a callback function after ending user session, use the `on()` method.**
      * **To learn more about the `on()` method:**
-     * @see {@link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on}
+     * @see {@link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#on}
      *
      * @return {Promise<boolean>} - A promise that resolves with `true` if the process is successful.
      *
@@ -520,7 +518,7 @@ export class AsgardeoSPAClient {
      * auth.endUserSession();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#endusersession
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#endusersession
      *
      * @memberof AsgardeoSPAClient
      *
@@ -549,7 +547,7 @@ export class AsgardeoSPAClient {
      *  });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getserviceendpoints
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#getserviceendpoints
      *
      * @memberof AsgardeoSPAClient
      *
@@ -610,7 +608,7 @@ export class AsgardeoSPAClient {
      *     // console.error(error);
      * });
      * ```
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getdecodedidtoken
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#getdecodedidtoken
      *
      * @memberof AsgardeoSPAClient
      *
@@ -638,7 +636,7 @@ export class AsgardeoSPAClient {
      *   });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#getaccesstoken
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#getaccesstoken
      *
      * @memberof AsgardeoSPAClient
      *
@@ -678,7 +676,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#refreshtoken
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#refreshtoken
      *
      * @memberof AsgardeoSPAClient
      *
@@ -719,7 +717,7 @@ export class AsgardeoSPAClient {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#on
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#on
      *
      * @memberof AsgardeoSPAClient
      *
@@ -817,7 +815,7 @@ export class AsgardeoSPAClient {
      * auth.enableHttpHandler();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#enableHttpHandler
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#enableHttpHandler
      *
      * @memberof AsgardeoSPAClient
      *
@@ -839,7 +837,7 @@ export class AsgardeoSPAClient {
      * auth.disableHttpHandler();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-js-oidc-sdk/tree/master/packages/oidc-js#disableHttpHandler
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib/oidc-js#disableHttpHandler
      *
      * @memberof AsgardeoSPAClient
      *
