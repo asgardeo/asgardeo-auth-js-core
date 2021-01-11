@@ -306,17 +306,15 @@ export class AsgardeoSPAClient {
     ): Promise<BasicUserInfo> {
         await this._isInitialized();
 
-        return this._client
-            .signIn(config, authorizationCode, sessionState)
-            .then((response: BasicUserInfo) => {
-                if (this._onSignInCallback) {
-                    if (response.allowedScopes || response.displayName || response.email || response.username) {
-                        this._onSignInCallback(response);
-                    }
+        return this._client.signIn(config, authorizationCode, sessionState).then((response: BasicUserInfo) => {
+            if (this._onSignInCallback) {
+                if (response.allowedScopes || response.displayName || response.email || response.username) {
+                    this._onSignInCallback(response);
                 }
+            }
 
-                return response;
-            });
+            return response;
+        });
     }
 
     /**
@@ -475,9 +473,7 @@ export class AsgardeoSPAClient {
      *
      * @preserve
      */
-    public async requestCustomGrant(
-        config: CustomGrantConfig
-    ): Promise<HttpResponse<any> | BasicUserInfo> {
+    public async requestCustomGrant(config: CustomGrantConfig): Promise<HttpResponse<any> | BasicUserInfo> {
         if (config.signInRequired) {
             await this._validateMethod();
         } else {
@@ -498,8 +494,7 @@ export class AsgardeoSPAClient {
 
         const customGrantResponse = await this._client.requestCustomGrant(config);
 
-        this._onCustomGrant?.get(config.id) &&
-            this._onCustomGrant?.get(config.id)(this._onCustomGrant?.get(config.id));
+        this._onCustomGrant?.get(config.id) && this._onCustomGrant?.get(config.id)(this._onCustomGrant?.get(config.id));
 
         return customGrantResponse;
     }
@@ -849,6 +844,27 @@ export class AsgardeoSPAClient {
         return this._client.disableHttpHandler();
     }
 
+    /**
+     * This method updates the configuration that was passed into the constructor when instantiating this class.
+     *
+     * @param {Partial<AuthClientConfig<T>>} config - A config object to update the SDK configurations with.
+     *
+     * @example
+     * ```
+     * const config = {
+     *     signInRedirectURL: "http://localhost:3000/sign-in",
+     *     clientHost: "http://localhost:3000",
+     *     clientID: "client ID",
+     *     serverOrigin: "http://localhost:9443"
+     * }
+     * const auth.updateConfig(config);
+     * ```
+     * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master/lib#updateConfig
+     *
+     * @memberof AsgardeoAuthClient
+     *
+     * @preserve
+     */
     public async updateConfig(config: Partial<AuthClientConfig<Config>>): Promise<void> {
         await this._isInitialized();
         if (this._storage === Storage.WebWorker) {
