@@ -721,7 +721,7 @@ export class AsgardeoSPAClient {
     public on(hook: Hooks.CustomGrant, callback: (response?: any) => void, id: string): void;
     public on(
         hook:
-            | Hooks.EndUserSession
+            | Hooks.RevokeAccessToken
             | Hooks.HttpRequestError
             | Hooks.HttpRequestFinish
             | Hooks.HttpRequestStart
@@ -743,7 +743,7 @@ export class AsgardeoSPAClient {
                         this._onSignOutCallback();
                     }
                     break;
-                case Hooks.EndUserSession:
+                case Hooks.RevokeAccessToken:
                     this._onEndUserSession = callback;
                     break;
                 case Hooks.Initialize:
