@@ -46,25 +46,18 @@ export class AsgardeoAuthClient<T> {
     /**
      * This is the constructor method that returns an instance of the .
      *
-     * @param {AuthClientConfig<T>} config - The config object to initialize with.
      * @param {Store} store - The store object.
      *
      * @example
      * ```
      * const _store: Store = new DataStore();
-     * const config = {
-     *     signInRedirectURL: "http://localhost:3000/sign-in",
-     *     clientHost: "http://localhost:3000",
-     *     clientID: "client ID",
-     *     serverOrigin: "http://localhost:9443"
-     * }
-     * const auth = new AsgardeoAuthClient<CustomClientConfig>(config, _store);
+     * const auth = new AsgardeoAuthClient<CustomClientConfig>(_store);
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#constructor
      * @preserve
      */
-    public constructor(config: AuthClientConfig<T>, store: Store) {
+    public constructor(store: Store) {
         if (!AsgardeoAuthClient._instanceID) {
             AsgardeoAuthClient._instanceID = 0;
         } else {
@@ -72,7 +65,30 @@ export class AsgardeoAuthClient<T> {
         }
         this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer);
-        this._dataLayer.setConfigData(config);
+    }
+
+    /**
+     *
+     * This method initializes the SDK with the config data.
+     *
+     * @param {AuthClientConfig<T>} config - The config object to initialize with.
+     *
+     * @example
+     * const config = {
+     *     signInRedirectURL: "http://localhost:3000/sign-in",
+     *     clientHost: "http://localhost:3000",
+     *     clientID: "client ID",
+     *     serverOrigin: "http://localhost:9443"
+     * }
+     *
+     * await auth.initialize(config);
+     *
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#initialize
+     *
+     * @preserve
+     */
+    public async initialize(config: AuthClientConfig<T>): Promise<void> {
+        await this._dataLayer.setConfigData(config);
     }
 
     /**
@@ -122,7 +138,7 @@ export class AsgardeoAuthClient<T> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
 
-        if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
+        if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return this._authenticationCore.getAuthorizationURL(authRequestConfig);
         }
 
@@ -155,8 +171,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
-        if (this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
+    public async requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+        if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
         }
 
@@ -168,11 +184,11 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method clears all authentication data and returns the sign-out URL.
      *
-     * @return {string} - The sign-out URL.
+     * @return {Promise<string>} - A Promise that resolves with the sign-out URL.
      *
      * @example
      * ```
-     * const signOutUrl = auth.signOut();
+     * const signOutUrl = await auth.signOut();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#signOut
@@ -181,7 +197,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public signOut(): string {
+    public async signOut(): Promise<string> {
         return this._authenticationCore.signOut();
     }
 
@@ -190,11 +206,11 @@ export class AsgardeoAuthClient<T> {
      *
      * **This doesn't clear the authentication data.**
      *
-     * @return {string} - The sign-out URL.
+     * @return {Promise<string>} - A Promise that resolves with the sign-out URL.
      *
      * @example
      * ```
-     * const signOutUrl = auth.getSignOutURL();
+     * const signOutUrl = await auth.getSignOutURL();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getSignOutURL
@@ -203,18 +219,18 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public getSignOutURL(): string {
+    public async getSignOutURL(): Promise<string> {
         return this._authenticationCore.getSignOutURL();
     }
 
     /**
      * This method returns OIDC service endpoints that are fetched from teh `.well-known` endpoint.
      *
-     * @return {OIDCEndpoints} - An object containing the OIDC service endpoints.
+     * @return {Promise<OIDCEndpoints>} - A Promise that resolves with an object containing the OIDC service endpoints.
      *
      * @example
      * ```
-     * const endpoints = auth.getOIDCServiceEndpoints();
+     * const endpoints = await auth.getOIDCServiceEndpoints();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getOIDCServiceEndpoints
@@ -223,18 +239,18 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public getOIDCServiceEndpoints(): OIDCEndpoints {
+    public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
         return this._authenticationCore.getOIDCServiceEndpoints();
     }
 
     /**
      * This method decodes the payload of the ID token and returns it.
      *
-     * @return {DecodedIDTokenPayload} - The decoded ID token payload.
+     * @return {Promise<DecodedIDTokenPayload>} - A Promise that resolves with the decoded ID token payload.
      *
      * @example
      * ```
-     * const decodedIdToken = auth.getDecodedIDToken();
+     * const decodedIdToken = await auth.getDecodedIDToken();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getDecodedIDToken
@@ -243,18 +259,18 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public getDecodedIDToken(): DecodedIDTokenPayload {
+    public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
         return this._authenticationCore.getDecodedIDToken();
     }
 
     /**
      * This method returns the basic user information obtained from the ID token.
      *
-     * @return {BasicUserInfo} - An object containing the basic user information.
+     * @return {Promise<BasicUserInfo>} - A Promise that resolves with an object containing the basic user information.
      *
      * @example
      * ```
-     * const userInfo = auth.getBasicUserInfo();
+     * const userInfo = await auth.getBasicUserInfo();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getBasicUserInfo
@@ -263,7 +279,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public getBasicUserInfo(): BasicUserInfo {
+    public async getBasicUserInfo(): Promise<BasicUserInfo> {
         return this._authenticationCore.getBasicUserInfo();
     }
 
@@ -321,11 +337,11 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method returns the access token.
      *
-     * @return {string} - The access token.
+     * @return {Promise<string>} - A Promise that resolves with the access token.
      *
      * @example
      * ```
-     * const accessToken = auth.getAccessToken();
+     * const accessToken = await auth.getAccessToken();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getAccessToken
@@ -334,7 +350,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public getAccessToken(): string {
+    public async getAccessToken(): Promise<string> {
         return this._authenticationCore.getAccessToken();
     }
 
@@ -383,11 +399,11 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method returns if the user is authenticated or not.
      *
-     * @return {boolean} - `true` if the user is authenticated, `false` otherwise.
+     * @return {Promise<boolean>} - A Promise that resolves with `true` if the user is authenticated, `false` otherwise.
      *
      * @example
      * ```
-     * auth.isAuthenticated();
+     * await auth.isAuthenticated();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#isAuthenticated
@@ -396,18 +412,18 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public isAuthenticated(): boolean {
+    public async isAuthenticated(): Promise<boolean> {
         return this._authenticationCore.isAuthenticated();
     }
 
     /**
      * This method returns the PKCE code generated during the generation of the authentication URL.
      *
-     * @return {string} - The PKCE code.
+     * @return {Promise<string>} - A Promise that resolves with the PKCE code.
      *
      * @example
      * ```
-     * const pkce = getPKCECode();
+     * const pkce = await getPKCECode();
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getPKCECode
@@ -416,7 +432,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public getPKCECode(): string {
+    public async getPKCECode(): Promise<string> {
         return this._authenticationCore.getPKCECode();
     }
 
@@ -427,7 +443,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @example
      * ```
-     * auth.setPKCECode("pkce_code")
+     * await auth.setPKCECode("pkce_code")
      * ```
      *
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#setPKCECode
@@ -436,8 +452,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public setPKCECode(pkce: string): void {
-        this._authenticationCore.setPKCECode(pkce);
+    public async setPKCECode(pkce: string): Promise<void> {
+        await this._authenticationCore.setPKCECode(pkce);
     }
 
     /**
@@ -477,7 +493,8 @@ export class AsgardeoAuthClient<T> {
      *     clientID: "client ID",
      *     serverOrigin: "http://localhost:9443"
      * }
-     * const auth.updateConfig(config);
+     *
+     * await auth.updateConfig(config);
      * ```
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#updateConfig
      *
