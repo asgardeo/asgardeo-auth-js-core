@@ -58,7 +58,7 @@ const ctx: WebWorkerClass<any> = self as any;
 
 let webWorker: WebWorkerCoreInterface;
 
-ctx.onmessage = ({ data, ports }) => {
+ctx.onmessage = async ({ data, ports }) => {
     const port = ports[0];
     if (data.type !== INIT && !webWorker) {
         port.postMessage(
@@ -80,7 +80,7 @@ ctx.onmessage = ({ data, ports }) => {
         case INIT:
             try {
                 const config: AuthClientConfig<WebWorkerClientConfig> = { ...data.data };
-                webWorker = WebWorkerCore(config);
+                webWorker = await WebWorkerCore(config);
                 webWorker.setHttpRequestError(onRequestErrorCallback);
                 webWorker.setHttpRequestFinish(onRequestFinishCallback);
                 webWorker.setHttpRequestStartCallback(onRequestStartCallback);
@@ -137,7 +137,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case SIGN_OUT:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.signOut()));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.signOut()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -166,7 +166,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case GET_OIDC_SERVICE_ENDPOINTS:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getOIDCServiceEndpoints()));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.getOIDCServiceEndpoints()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -174,7 +174,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case GET_BASIC_USER_INFO:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getBasicUserInfo()));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.getBasicUserInfo()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -182,7 +182,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case GET_DECODED_ID_TOKEN:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getDecodedIDToken()));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.getDecodedIDToken()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -200,7 +200,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case IS_AUTHENTICATED:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.isAuthenticated()));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.isAuthenticated()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -208,7 +208,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case GET_SIGN_OUT_URL:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.getSignOutURL()));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.getSignOutURL()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -216,7 +216,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case REFRESH_ACCESS_TOKEN:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.refreshAccessToken()));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.refreshAccessToken()));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -232,7 +232,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case SET_SESSION_STATE:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.setSessionState(data?.data)));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.setSessionState(data?.data)));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
@@ -240,7 +240,7 @@ ctx.onmessage = ({ data, ports }) => {
             break;
         case UPDATE_CONFIG:
             try {
-                port.postMessage(MessageUtils.generateSuccessMessage(webWorker.updateConfig(data?.data)));
+                port.postMessage(MessageUtils.generateSuccessMessage(await webWorker.updateConfig(data?.data)));
             } catch (error) {
                 port.postMessage(MessageUtils.generateFailureMessage(error));
             }
