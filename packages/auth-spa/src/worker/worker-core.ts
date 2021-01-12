@@ -41,9 +41,13 @@ import {
 } from "../models";
 import { MemoryStore } from "../stores";
 
-export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): WebWorkerCoreInterface => {
+export const WebWorkerCore = async (
+    config: AuthClientConfig<WebWorkerClientConfig>
+): Promise<WebWorkerCoreInterface> => {
     const _store: Store = new MemoryStore();
-    const _authenticationClient = new AsgardeoAuthClient<WebWorkerClientConfig>(config, _store);
+    const _authenticationClient = new AsgardeoAuthClient<WebWorkerClientConfig>(_store);
+    await _authenticationClient.initialize(config);
+
     const _spaHelper = new SPAHelper<WebWorkerClientConfig>(_authenticationClient);
     const _dataLayer = _authenticationClient.getDataLayer();
 
@@ -53,10 +57,10 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
     let _onHttpRequestError: (error: HttpError) => void;
     const _httpClient: HttpClientInstance = HttpClient.getInstance();
 
-    const attachToken = (request: HttpRequestConfig): void => {
+    const attachToken = async (request: HttpRequestConfig): Promise<void> => {
         request.headers = {
             ...request.headers,
-            Authorization: `Bearer ${_authenticationClient.getAccessToken()}`
+            Authorization: `Bearer ${await _authenticationClient.getAccessToken()}`
         };
     };
 
@@ -85,9 +89,9 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         _onHttpRequestError = callback;
     };
 
-    const httpRequest = (config: HttpRequestConfig): Promise<HttpResponse> => {
+    const httpRequest = async (config: HttpRequestConfig): Promise<HttpResponse> => {
         let matches = false;
-        _dataLayer.getConfigData().resourceServerURLs.forEach((baseUrl) => {
+        (await _dataLayer.getConfigData()).resourceServerURLs.forEach((baseUrl) => {
             if (config?.url?.startsWith(baseUrl)) {
                 matches = true;
             }
@@ -144,9 +148,9 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         }
     };
 
-    const httpRequestAll = (configs: HttpRequestConfig[]): Promise<HttpResponse[]> => {
+    const httpRequestAll = async (configs: HttpRequestConfig[]): Promise<HttpResponse[]> => {
         let matches = false;
-        _dataLayer.getConfigData().resourceServerURLs.forEach((baseUrl) => {
+        (await _dataLayer.getConfigData()).resourceServerURLs.forEach((baseUrl) => {
             if (configs.every((config) => config.url.startsWith(baseUrl))) {
                 matches = true;
             }
@@ -215,11 +219,9 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         _httpClient.disableHandler();
     };
 
-    const getAuthorizationURL = (
-        params?: AuthorizationURLParams
-    ): Promise<AuthorizationResponse> => {
-        return _authenticationClient.getAuthorizationURL(params).then((url: string) => {
-            return { authorizationURL: url, pkce: _authenticationClient.getPKCECode() as string };
+    const getAuthorizationURL = async (params?: AuthorizationURLParams): Promise<AuthorizationResponse> => {
+        return _authenticationClient.getAuthorizationURL(params).then(async (url: string) => {
+            return { authorizationURL: url, pkce: (await _authenticationClient.getPKCECode()) as string };
         });
     };
 
@@ -228,15 +230,15 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         _spaHelper.refreshAccessTokenAutomatically();
 
         return;
-    }
+    };
 
-    const requestAccessToken = (
+    const requestAccessToken = async (
         authorizationCode?: string,
         sessionState?: string,
         pkce?: string
     ): Promise<BasicUserInfo> => {
         if (pkce) {
-            _authenticationClient.setPKCECode(pkce);
+            await _authenticationClient.setPKCECode(pkce);
         }
 
         if (authorizationCode && sessionState) {
@@ -263,20 +265,20 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
         );
     };
 
-    const signOut = (): string => {
+    const signOut = async (): Promise<string> => {
         _spaHelper.clearRefreshTokenTimeout();
 
-        return _authenticationClient.signOut();
+        return await _authenticationClient.signOut();
     };
 
-    const getSignOutURL = (): string => {
-        return _authenticationClient.getSignOutURL();
+    const getSignOutURL = async (): Promise<string> => {
+        return await _authenticationClient.getSignOutURL();
     };
 
-    const requestCustomGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
+    const requestCustomGrant = async (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
             .requestCustomGrant(config)
-            .then((response: HttpResponse | TokenResponse) => {
+            .then(async (response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
                     _spaHelper.refreshAccessTokenAutomatically();
 
@@ -314,37 +316,37 @@ export const WebWorkerCore = (config: AuthClientConfig<WebWorkerClientConfig>): 
             .catch((error) => Promise.reject(error));
     };
 
-    const getBasicUserInfo = (): BasicUserInfo => {
+    const getBasicUserInfo = async (): Promise<BasicUserInfo> => {
         return _authenticationClient.getBasicUserInfo();
     };
 
-    const getDecodedIDToken = (): DecodedIDTokenPayload => {
+    const getDecodedIDToken = async (): Promise<DecodedIDTokenPayload> => {
         return _authenticationClient.getDecodedIDToken();
     };
 
-    const getOIDCServiceEndpoints = (): OIDCEndpoints => {
+    const getOIDCServiceEndpoints = async (): Promise<OIDCEndpoints> => {
         return _authenticationClient.getOIDCServiceEndpoints();
     };
 
-    const getAccessToken = (): string => {
+    const getAccessToken = (): Promise<string> => {
         return _authenticationClient.getAccessToken();
     };
 
-    const isAuthenticated = (): boolean => {
+    const isAuthenticated = (): Promise<boolean> => {
         return _authenticationClient.isAuthenticated();
     };
 
     const setSessionState = async (sessionState: string): Promise<void> => {
-        _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+        await _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
 
         return;
-    }
+    };
 
     const updateConfig = async (config: Partial<AuthClientConfig<WebWorkerClientConfig>>): Promise<void> => {
-        _authenticationClient.updateConfig(config);
+        await _authenticationClient.updateConfig(config);
 
         return;
-    }
+    };
 
     return {
         disableHttpHandler,
