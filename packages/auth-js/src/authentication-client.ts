@@ -224,7 +224,7 @@ export class AsgardeoAuthClient<T> {
     }
 
     /**
-     * This method returns OIDC service endpoints that are fetched from teh `.well-known` endpoint.
+     * This method returns OIDC service endpoints that are fetched from the `.well-known` endpoint.
      *
      * @return {Promise<OIDCEndpoints>} - A Promise that resolves with an object containing the OIDC service endpoints.
      *
