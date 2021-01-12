@@ -19,7 +19,7 @@
 /**
  * Interface for the payload of a Decoded ID Token.
  */
-export interface StrictDecodedIdTokenPayload {
+export interface StrictDecodedIDTokenPayload {
     /**
      * The audience for which this token is intended.
      */
@@ -46,7 +46,7 @@ export interface StrictDecodedIdTokenPayload {
     tenant_domain?: string;
 }
 
-export interface DecodedIDTokenPayload extends StrictDecodedIdTokenPayload {
+export interface DecodedIDTokenPayload extends StrictDecodedIDTokenPayload {
     /**
      * Other custom claims;
      */
