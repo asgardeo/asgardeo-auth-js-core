@@ -409,7 +409,7 @@ export class AuthenticationCore<T> {
                         "authentication-core",
                         "requestCustomGrant",
                         "The custom grant request failed.",
-                        "The request sent to get teh custom grant failed.",
+                        "The request sent to get the custom grant failed.",
                         error?.code,
                         error?.message,
                         error?.response?.status,

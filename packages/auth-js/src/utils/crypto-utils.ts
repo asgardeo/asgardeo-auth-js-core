@@ -150,7 +150,7 @@ export class CryptoUtils {
      *
      * @param {string} idToken - The id token to be decoded.
      *
-     * @return {DecodedIdTokenPayloadInterface} - The decoded payload of teh id token.
+     * @return {DecodedIdTokenPayloadInterface} - The decoded payload of the id token.
      */
     public static decodeIDToken(idToken: string): DecodedIDTokenPayload {
         try {

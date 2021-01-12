@@ -686,7 +686,7 @@ export class AsgardeoSPAClient {
     /**
      * This method specifies if the user is authenticated or not.
      *
-     * @return {Promise<boolean>} - A Promise that resolves with `true` if teh user is authenticated.
+     * @return {Promise<boolean>} - A Promise that resolves with `true` if the user is authenticated.
      *
      * @memberof AsgardeoSPAClient
      *
