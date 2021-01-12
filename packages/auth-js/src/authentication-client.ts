@@ -24,7 +24,7 @@ import {
     AuthClientConfig,
     BasicUserInfo,
     CustomGrantConfig,
-    DecodedIdTokenPayload,
+    DecodedIDTokenPayload,
     OIDCEndpoints,
     SignInConfig,
     Store,
@@ -230,7 +230,7 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method decodes the payload of the ID token and returns it.
      *
-     * @return {DecodedIdTokenPayload} - The decoded ID token payload.
+     * @return {DecodedIDTokenPayload} - The decoded ID token payload.
      *
      * @example
      * ```
@@ -243,7 +243,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public getDecodedIDToken(): DecodedIdTokenPayload {
+    public getDecodedIDToken(): DecodedIDTokenPayload {
         return this._authenticationCore.getDecodedIDToken();
     }
 
