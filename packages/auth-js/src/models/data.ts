@@ -33,34 +33,34 @@ export interface SessionData {
 }
 
 export interface DataLayer<T> {
-    setSessionData(sessionData: SessionData): void;
-    setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData): void;
-    setConfigData(config: AuthClientConfig<T>): void;
-    setTemporaryData(data: TemporaryData): void;
-    getSessionData(): SessionData;
-    getOIDCProviderMetaData(): OIDCProviderMetaData;
-    getConfigData(): AuthClientConfig<T>;
-    getTemporaryData(): { [key: string]: StoreValue };
-    removeSessionData(): void;
-    removeOIDCProviderMetaData(): void;
-    removeConfigData(): void;
-    removeTemporaryData(): void;
-    setSessionDataParameter(key: keyof SessionData, value: StoreValue): void;
-    setOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData, value: StoreValue): void;
-    setConfigDataParameter(key: keyof AuthClientConfig<T>, value: StoreValue): void;
-    setTemporaryDataParameter(key: string, value: StoreValue): void;
-    getSessionDataParameter(key: keyof SessionData): StoreValue;
-    getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): StoreValue;
-    getConfigDataParameter(key: keyof AuthClientConfig<T>): StoreValue;
-    getTemporaryDataParameter(key: string): StoreValue;
-    removeSessionDataParameter(key: keyof SessionData): void;
-    removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): void;
-    removeConfigDataParameter(key: keyof AuthClientConfig<T>): void;
-    removeTemporaryDataParameter(key: string): void;
+    setSessionData(sessionData: SessionData): Promise<void>;
+    setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData): Promise<void>;
+    setConfigData(config: AuthClientConfig<T>): Promise<void>;
+    setTemporaryData(data: TemporaryData): Promise<void>;
+    getSessionData(): Promise<SessionData>;
+    getOIDCProviderMetaData(): Promise<OIDCProviderMetaData>;
+    getConfigData(): Promise<AuthClientConfig<T>>;
+    getTemporaryData(): Promise<{ [key: string]: StoreValue }>;
+    removeSessionData(): Promise<void>;
+    removeOIDCProviderMetaData(): Promise<void>;
+    removeConfigData(): Promise<void>;
+    removeTemporaryData(): Promise<void>;
+    setSessionDataParameter(key: keyof SessionData, value: StoreValue): Promise<void>;
+    setOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData, value: StoreValue): Promise<void>;
+    setConfigDataParameter(key: keyof AuthClientConfig<T>, value: StoreValue): Promise<void>;
+    setTemporaryDataParameter(key: string, value: StoreValue): Promise<void>;
+    getSessionDataParameter(key: keyof SessionData): Promise<StoreValue>;
+    getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): Promise<StoreValue>;
+    getConfigDataParameter(key: keyof AuthClientConfig<T>): Promise<StoreValue>;
+    getTemporaryDataParameter(key: string): Promise<StoreValue>;
+    removeSessionDataParameter(key: keyof SessionData): Promise<void>;
+    removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): Promise<void>;
+    removeConfigDataParameter(key: keyof AuthClientConfig<T>): Promise<void>;
+    removeTemporaryDataParameter(key: string): Promise<void>;
 }
 
 export interface Store {
-    setData(key: string, value: string);
-    getData(key: string): string;
-    removeData(key: string);
+    setData(key: string, value: string): Promise<void>;
+    getData(key: string): Promise<string>;
+    removeData(key: string): Promise<void>;
 }
