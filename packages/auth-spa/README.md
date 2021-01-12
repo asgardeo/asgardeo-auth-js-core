@@ -1,4 +1,4 @@
-# Asgardeo JavaScript SPA SDK
+# Asgardeo Auth SPA SDK
 
 ![Builder](https://github.com/asgardeo/asgardeo-js-oidc-sdk/workflows/Builder/badge.svg)
 [![Stackoverflow](https://img.shields.io/badge/Ask%20for%20help%20on-Stackoverflow-orange)](https://stackoverflow.com/questions/tagged/wso2is)
@@ -325,7 +325,7 @@ signIn(config?: SignInConfig, authorizationCode?: string, sessionState?: string)
 
 #### Description
 
-As the name implies, this method is used to sign-in users. This method will have to be called twice to implement the two phases of the authentication process. The first phase generates generates teh authorization URl and takes the user to the single-sign-on page of the identity server, while second phase triggers the token request to complete the authentication process. So, this method should be called when initiating authentication and when the user is redirected back to the app after authentication themselves with the server.
+As the name implies, this method is used to sign-in users. This method will have to be called twice to implement the two phases of the authentication process. The first phase generates generates the authorization URl and takes the user to the single-sign-on page of the identity server, while second phase triggers the token request to complete the authentication process. So, this method should be called when initiating authentication and when the user is redirected back to the app after authentication themselves with the server.
 
 The `sign-in` hook is used to fire a callback function after signing in is successful. Check the [on()](#on) section for more information.
 
@@ -448,8 +448,8 @@ requestCustomGrant(config: CustomGranConfig): Promise<HttpResponse | BasicUserIn
 
 #### Arguments
 
-1.config: [`CustomGrantConfig`](#CustomGrantConfig)
-A config object to configure the custom-grant request. To learn more about the different attributes that can be used with config object, see the [`CustomGrantConfig`](#CustomGrantConfig) section.
+1. config: [`CustomGrantConfig`](#CustomGrantConfig)
+    A config object to configure the custom-grant request. To learn more about the different attributes that can be used with config object, see the [`CustomGrantConfig`](#CustomGrantConfig) section.
 
 #### Returns
 
@@ -574,7 +574,7 @@ getAccessToken(): Promise<string>;
 
 #### Returns
 
-A Promise that resolves with teh access token.
+A Promise that resolves with the access token.
 
 #### Description
 
@@ -611,7 +611,7 @@ This method also returns a Promise that resolves with an object containing the a
 `"expiresIn"`| The expiry time in seconds|
 `"idToken"`| The ID token|
 `"refreshToken"`| The refresh token|
-`"scope"`| The scope of teh access token|
+`"scope"`| The scope of the access token|
 `"tokenType"`| The type of the token. E.g.: Bearer|
 
 #### Example
@@ -636,10 +636,14 @@ on(hook: string, callback: () => void, id?: string): void
    The name of the hook.
 2. callback: `() => void`
    The callback function that should be fired.
+3. id?: `string`
+    An id for the method. This is required only when the hook type is `custom-grant`.
 
-#### description
+#### Description
 
 The `on` method is used to hook callback functions to authentication methods. The method accepts a hook name and a callback function as the only arguments except when the hook name is "custom-grant", in which case the id of the custom grant should be passed as the third argument. The following hooks are available.
+
+If you are using TypeScript, you may want to use the `Hooks` enum that consists of the following string literals instead of directly inputting the string value.
 
 | Hook                     | Method to which the callback function is attached                                | Returned Response                                                                       |
 | :----------------------- | :------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
@@ -857,7 +861,7 @@ This table shows the extended attributes provided by the `Config` interface.
 | ---------------- | ----------------- | --------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`             | Required          | `string`  | ""            | Every custom-grant request should have an id. This attributes takes that id.                                                                                                                                                  |
 | `data`           | Required          | `any`     | `null`        | The data that should be sent in the body of the custom-grant request. You can use template tags to send session information. Refer to the [Custom Grant Template Tags](#custom-grant-template-tags) section for more details. |
-| `signInRequired` | Required          | `boolean` | `false`       | Specifies if teh user should be sign-in or not to dispatch this custom-grant request.                                                                                                                                         |
+| `signInRequired` | Required          | `boolean` | `false`       | Specifies if the user should be sign-in or not to dispatch this custom-grant request.                                                                                                                                         |
 | `attachToken`    | Required          | `boolean` | `false`       | Specifies if the access token should be attached to the header of the request.                                                                                                                                                |
 | `returnsSession` | Required          | `boolean` | `false`       | Specifies if the the request returns session information such as the access token.                                                                                                                                            |
 
@@ -879,7 +883,7 @@ Session information can be attached to the body of a custom-grant request using 
 | Method             | Type                   | Description                                    |
 | ------------------ | ---------------------- | ---------------------------------------------- |
 | aud                | `string` \| `string[]` | The audience.                                  |
-| sub                | `string`               | The subject. This is the username of teh user. |
+| sub                | `string`               | The subject. This is the username of the user. |
 | iss                | `string`               | The token issuer.                              |
 | email              | `string`               | The email address.                             |
 | preferred_username | `string`               | The preferred username.                        |
@@ -906,7 +910,7 @@ Please read [Contributing to the Code Base](http://wso2.github.io/) for details 
 
 ### Reporting issues
 
-We encourage you to report issues, improvements, and feature requests creating [Github Issues](https://github.com/asgardeo/asgardeo-js-oidc-sdk/issues).
+We encourage you to report issues, improvements, and feature requests creating [Github Issues](https://github.com/asgardeo/asgardeo-auth-react-sdk/issues).
 
 Important: And please be advised that security issues must be reported to security@wso2com, not as GitHub issues, in order to reach the proper audience. We strongly advise following the WSO2 Security Vulnerability Reporting Guidelines when reporting the security issues.
 
