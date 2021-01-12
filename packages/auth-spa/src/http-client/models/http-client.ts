@@ -29,16 +29,16 @@ export interface HttpClientStatic<S> {
  */
 export interface HttpClientInterface<T, U, V> {
     init(isHandlerEnabled: boolean,
-         attachToken: () => void,
+         attachToken: () => Promise<void>,
          requestStartCallback: () => void,
          requestSuccessCallback: (response: U) => void,
          requestErrorCallback: (error: V) => void,
          requestFinishCallback: () => void
-    ): void;
+    ): Promise<void>
     disableHandler: () => void;
     disableHandlerWithTimeout: (timeout: number) => void;
     enableHandler: () => void;
     errorHandler(error: V): V;
-    requestHandler(request: T): T;
+    requestHandler(request: T): Promise<T>;
     successHandler(response: U): U;
 }
