@@ -15,6 +15,7 @@
 -   [Browser Compatibility](#browser-compatibility)
 -   [APIs](#apis)
     -   [constructor](#constructor)
+    -   [initialize](#initialize)
     -   [getDataLayer](#getDataLayer)
     -   [getAuthorizationURL](#getAuthorizationURL)
     -   [requestAccessToken](#requestAccessToken)
@@ -88,17 +89,17 @@ const config = {
 // Create a Store class to store the authentication data. The following implementation uses the session storage.
 class SessionStore {
     // Saves the data to the store.
-    setData(key, value) {
+    async setData(key, value) {
         sessionStorage.setItem(key, value);
     }
 
     // Gets the data from the store.
-    getData(key) {
+    async getData(key) {
         return sessionStorage.getItem(key);
     }
 
     // Removes the date from the store.
-    removeData(key) {
+    async removeData(key) {
         sessionStorage.removeItem(key);
     }
 }
@@ -106,8 +107,11 @@ class SessionStore {
 // Instantiate the SessionStore class
 const store = new SessionStore();
 
-// Instantiate the AsgardeoAuthClient and pass the config object and the store object as an argument into the constructor.
-const auth = new AsgardeoAuth.AsgardeoAuthClient(config, store);
+// Instantiate the AsgardeoAuthClient and pass the store object as an argument into the constructor.
+const auth = new AsgardeoAuth.AsgardeoAuthClient(store);
+
+// Initialize the instance with the config object.
+auth.initialize(config);
 
 // To get the authorization URL, simply call this method.
 auth.getAuthorizationURL()
@@ -150,17 +154,17 @@ const config = {
 // Create a Store class to store the authentication data. The following implementation uses the session storage.
 class SessionStore {
     // Saves the data to the store.
-    setData(key, value) {
+    async setData(key, value) {
         sessionStorage.setItem(key, value);
     }
 
     // Gets the data from the store.
-    getData(key) {
+    async getData(key) {
         return sessionStorage.getItem(key);
     }
 
     // Removes the date from the store.
-    removeData(key) {
+    async removeData(key) {
         sessionStorage.removeItem(key);
     }
 }
@@ -168,8 +172,11 @@ class SessionStore {
 // Instantiate the SessionStore class
 const store = new SessionStore();
 
-// Instantiate the AsgardeoAuthClient and pass the config object and the store object as an argument into the constructor.
-const auth = new AsgardeoAuthClient(config, store);
+// Instantiate the AsgardeoAuthClient and pass the store object as an argument into the constructor.
+const auth = new AsgardeoAuthClient(store);
+
+// Initialize the instance with the config object.
+auth.initialize(config);
 
 // To get the authorization URL, simply call this method.
 auth.getAuthorizationURL()
@@ -231,11 +238,46 @@ You can instantiate the class and use the object to access the provided methods.
 ### constructor
 
 ```TypeScript
-new AsgardeoAuthClient(config: AuthClientConfig<T>);
+new AsgardeoAuthClient(store: Store);
 ```
 
 #### Arguments
+1. store: [`Store`](#Store)
 
+    This is the object of interface [`Store`](#Store) that is used by the SDK to store all the necessary data used ranging from the configuration data to the access token. You can implement the Store to create a class with your own implementation logic and pass an instance of the class as the second argument. This way, you will be able to get the data stored in your preferred place. To know more about implementing the [`Store`](#Store) interface, refer to the [Data Storage](#data-storage) section.
+
+#### Description
+
+This creates an instance of the `AsgardeoAuthClient` class and returns it.
+
+#### Example
+
+```TypeScript
+class SessionStore implements Store {
+    public async setData(key: string, value: string): void {
+        sessionStorage.setItem(key, value);
+    }
+
+    public async getData(key: string): string {
+        return sessionStorage.getItem(key);
+    }
+
+    public async removeData(key: string): void {
+        sessionStorage.removeItem(key);
+    }
+}
+
+const store = new SessionStore();
+
+const auth = new AsgardeoAuthClient(store);
+```
+
+---
+### initialize
+```TypeScript
+initialize(config: AuthClientConfig<T>): Promise<void>;
+```
+#### Arguments
 1. config: [`AuthClientConfig<T>`](#AuthClientConfig<T>)
 
     This contains the configuration information needed to implement authentication such as the client ID, server origin etc. Additional configuration information that is needed to be stored can be passed by extending the type of this argument using the generic type parameter. For example, if you want the config to have an attribute called `foo`, you can create an interface called `Bar` in TypeScript and then pass that interface as the generic type to `AuthClientConfig` interface. To learn more about what attributes can be passed into this object, refer to the [`AuthClientConfig<T>`](#AuthClientConfig<T>) section.
@@ -249,42 +291,27 @@ new AsgardeoAuthClient(config: AuthClientConfig<T>);
     }
     ```
 
-2. store: [`Store`](#Store)
-
-    This is the object of interface [`Store`](#Store) that is used by the SDK to store all the necessary data used ranging from the configuration data to the access token. You can implement the Store to create a class with your own implementation logic and pass an instance of the class as the second argument. This way, you will be able to get the data stored in your preferred place. To know more about implementing the [`Store`](#Store) interface, refer to the [Data Storage](#data-storage) section.
-
 #### Description
-
-This creates an instance of the `AsgardeoAuthClient` class and returns it.
+This method initializes the instance with the config data.
 
 #### Example
-
 ```TypeScript
-class SessionStore implements Store {
-    public setData(key: string, value: string): void {
-        sessionStorage.setItem(key, value);
-    }
+const config = {
+    signInRedirectURL: "http://localhost:3000/sign-in",
+    signOutRedirectURL: "http://localhost:3000/dashboard",
+    clientHost: "http://localhost:3000",
+    clientID: "client ID",
+    serverOrigin: "https://localhost:9443"
+};
 
-    public getData(key: string): string {
-        return sessionStorage.getItem(key);
-    }
-
-    public removeData(key: string): void {
-        sessionStorage.removeItem(key);
-    }
-}
-
-const store = new SessionStore();
-
-const auth = new AsgardeoAuthClient(config, store);
+await auth.initialize(config);
 ```
-
 ---
 
 ### getDataLayer
 
 ```TypeScript
-getDatLayer(): DataLayer<T>
+getDataLayer(): DataLayer<T>
 ```
 
 #### Returns
@@ -385,12 +412,12 @@ auth.requestAccessToken("auth-code", "session-state").then((tokenResponse)=>{
 ### signOut
 
 ```TypeScript
-signOut(): string
+signOut(): Promise<string>
 ```
 
 #### Returns
 
-signOutURL: `string`
+signOutURL: `Promise<string>`
 
 The user should be redirected to this URL in order to sign out of the server.
 
@@ -401,7 +428,8 @@ This clears the authentication data from the store, generates the sign-out URL a
 #### Example
 
 ```TypeScript
-const signOutURL = auth.signOut();
+// This should be within an async function.
+const signOutURL = await auth.signOut();
 ```
 
 ---
@@ -409,12 +437,12 @@ const signOutURL = auth.signOut();
 ### getSignOutURL
 
 ```TypeScript
-getSignOutURL(): string
+getSignOutURL(): Promise<string>
 ```
 
 #### Returns
 
-signOutURL: `string`
+signOutURL: `Promise<string>`
 
 The user should be redirected to this URL in order to sign out of the server.
 
@@ -425,7 +453,8 @@ This method returns the sign-out URL to which the user should be redirected to b
 #### Example
 
 ```TypeScript
-const signOutURL = auth.getSignOutURL();
+// This should be within an async function.
+const signOutURL = await auth.getSignOutURL();
 ```
 
 ---
@@ -433,12 +462,12 @@ const signOutURL = auth.getSignOutURL();
 ### getOIDCServiceEndpoints
 
 ```TypeScript
-getOIDCServiceEndpoints(): OIDCEndpoints
+getOIDCServiceEndpoints(): Promise<OIDCEndpoints>
 ```
 
 #### Returns
 
-oidcEndpoints: [`OIDCEndpoints`](#OIDCEndpoints)
+oidcEndpoints: `Promise<[OIDCEndpoints](#OIDCEndpoints)>`
 
 An object containing the OIDC service endpoints returned by the `.well-known` endpoint.
 
@@ -449,7 +478,8 @@ This method returns the OIDC service endpoints obtained from the `.well-known` e
 #### Example
 
 ```TypeScript
-const oidcEndpoints = auth.getOIDCServiceEndpoints();
+// This should be within an async function.
+const oidcEndpoints = await auth.getOIDCServiceEndpoints();
 ```
 
 ---
@@ -457,12 +487,12 @@ const oidcEndpoints = auth.getOIDCServiceEndpoints();
 ### getDecodedIDToken
 
 ```TypeScript
-getDecodedIDToken(): DecodedIDTokenPayload
+getDecodedIDToken(): Promise<DecodedIDTokenPayload>
 ```
 
 #### Returns
 
-decodedIDTokenPayload: [`DecodedIDTokenPayload`](#DecodedIDTokenPayload)
+decodedIDTokenPayload: `Promise<[DecodedIDTokenPayload](#DecodedIDTokenPayload)>`
 The decoded ID token payload.
 
 #### Description
@@ -472,7 +502,7 @@ This method decodes the payload of the id token and returns the decoded values.
 #### Example
 
 ```TypeScript
-const decodedIDTokenPayload = auth.getDecodedIDToken();
+const decodedIDTokenPayload = await auth.getDecodedIDToken();
 ```
 
 ---
@@ -480,12 +510,12 @@ const decodedIDTokenPayload = auth.getDecodedIDToken();
 ### getBasicUserInfo
 
 ```TypeScript
-getBasicUserInfo(): BasicUserInfo
+getBasicUserInfo(): Promise<BasicUserInfo>
 ```
 
 #### Returns
 
-basicUserInfo: [`BasicUserInfo`](#BasicUserInfo)
+basicUserInfo: `Promise<[BasicUserInfo](#BasicUserInfo)>`
 An object containing basic user information obtained from the id token.
 
 #### Description
@@ -495,7 +525,8 @@ This method returns the basic user information obtained from the payload. To lea
 #### Example
 
 ```TypeScript
-const basicUserInfo = auth.getBasicUserInfo();
+// This should be used within an async function.
+const basicUserInfo = await auth.getBasicUserInfo();
 ```
 
 ---
@@ -555,7 +586,7 @@ auth.refreshAccessToken().then((response)=>{
 ### getAccessToken
 
 ```TypeScript
-getAccessToken(): string
+getAccessToken(): Promise<string>
 ```
 
 #### Returns
@@ -570,7 +601,8 @@ This method returns the access token stored in the store. If you want to send a 
 #### Example
 
 ```TypeScript
-const accessToken = auth.getAccessToken();
+// This should be used within an async function.
+const accessToken = await auth.getAccessToken();
 ```
 
 ---
@@ -623,7 +655,7 @@ This method can be used to send custom-grant requests to the identity server.
 ### isAuthenticated
 
 ```TypeScript
-isAuthenticated(): boolean
+isAuthenticated(): Promise<boolean>
 ```
 
 #### Returns
@@ -638,7 +670,8 @@ This method returns a boolean value indicating if the user is authenticated or n
 #### Example
 
 ```TypeScript
-const isAuth = auth.isAuthenticated();
+// This should be within an async function.
+const isAuth = await auth.isAuthenticated();
 ```
 
 ---
@@ -726,7 +759,7 @@ const isSignedOut = auth.isSignOutSuccessful(window.location.href);
 ### updateConfig
 
 ```TypeScript
-updateConfig(config: Partial<AuthClientConfig<T>>): void
+updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void>
 ```
 
 #### Arguments
@@ -742,7 +775,8 @@ This method can be used to update the configurations passed into the constructor
 #### Example
 
 ```TypeScript
-auth.updateConfig({
+// This should be within an async function.
+await auth.updateConfig({
     signOutRedirectURL: "http://localhost:3000/sign-out"
 });
 ```
@@ -791,30 +825,30 @@ The data layer is implemented within the SDK encapsulating the `Store` object pa
 All these four keys get methods to set, get and remove data as whole. In addition to this, all these keys get methods to set, get, and remove specific data referred to by their respective keys. The following table describes the methods provided by the data layer.
 |Method|Arguments|Returns|Description|
 |--|--|--|--|
-|setSessionData |sessionData: [`SessionData`](#SessionData) | `void` | Saves session data in bulk.|
-|setOIDCProviderMetaData |oidcProviderMetaData: [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `void` |Saves OIDC Provider Meta data in bulk.|
-|setConfigData |config: [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `void` | Saves config data in bulk.|
-|setTemporaryData |data: [`TemporaryData`](#TemporaryData) | `void` | Saves temporary data in bulk.|
-|getSessionData | | [`SessionData`](#SessionData) | Retrieves session data in bulk.|
-|getOIDCProviderMetaData | |[`OIDCProviderMetaData`](#OIDCProviderMetaData) | Retrieves OIDC Provider Meta data in bulk.|
-|getConfigData | | [`AuthClientConfig<T>`](#`AuthClientConfig<T>`) | Retrieves config data in bulk.|
-|getTemporaryData | | { [key: `string`]: [`StoreValue` ](#StoreValue)} Retrieves temporary data in bulk.| |
-|removeSessionData | | `void` | Removes session data in bulk.|
-|removeOIDCProviderMetaData | | `void` | Removes OIDC Provider Meta data in bulk.|
-|removeConfigData | | `void` | Removes config data in bulk.|
-|removeTemporaryData | | `void` | Removes temporary data in bulk.|
-|setSessionDataParameter |key: keyof [`SessionData`](#SessionData), value: [`StoreValue`](#StoreValue) | `void` | Saves the passed data against the specified key in the session data.|
-|setOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData), value: [`StoreValue`](#StoreValue) | `void` | Saves the passed data against the specified key in the OIDC Provider Meta data.|
-|setConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>), value: [`StoreValue`](#`StoreValue`) | `void` | Saves the passed data against the specified key in the config data.|
-|setTemporaryDataParameter |key: `string`, value: [`StoreValue`](#`StoreValue`) | `void` | Saves the passed data against the specified key in the temporary data.|
-|getSessionDataParameter |key: keyof [`SessionData`](#SessionData) | [`StoreValue`](#`StoreValue`) | Retrieves the data for the specified key from the session data.|
-|getOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | [`StoreValue`](#StoreValue) | Retrieves the data for the specified key from the OIDC Provider Meta data.|
-|getConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>) | [`StoreValue` ](#StoreValue)| Retrieves the data for the specified key from the config data.|
-|getTemporaryDataParameter |key: `string` | [`StoreValue`](#StoreValue) | Retrieves the data for the specified key from the temporary data.|
-|removeSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `void` | Removes the data with the specified key from the session data.|
-|removeOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `void` | Removes the data with the specified key from the OIDC Provider Meta data.|
-|removeConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `void` | Removes the data with the specified key from the config data.|
-|removeTemporaryDataParameter |key: `string` | `void` | Removes the data with the specified key from the temporary data.|
+|setSessionData |sessionData: [`SessionData`](#SessionData) | `Promise<void>` | Saves session data in bulk.|
+|setOIDCProviderMetaData |oidcProviderMetaData: [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` |Saves OIDC Provider Meta data in bulk.|
+|setConfigData |config: [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `Promise<void>` | Saves config data in bulk.|
+|setTemporaryData |data: [`TemporaryData`](#TemporaryData) | `Promise<void>` | Saves temporary data in bulk.|
+|getSessionData | | `Promise<`[`SessionData`](#SessionData)`>` | Retrieves session data in bulk.|
+|getOIDCProviderMetaData | |`Promise<`[`OIDCProviderMetaData`](#OIDCProviderMetaData)`>` | Retrieves OIDC Provider Meta data in bulk.|
+|getConfigData | | `Promise<`[`AuthClientConfig<T>`](#`AuthClientConfig<T>`)`>` | Retrieves config data in bulk.|
+|getTemporaryData | | `Promise<`{ [key: `string`]: [`StoreValue` ](#StoreValue)}`>` | Retrieves temporary data in bulk.|
+|removeSessionData | | `Promise<void>` | Removes session data in bulk.|
+|removeOIDCProviderMetaData | | `Promise<void>` | Removes OIDC Provider Meta data in bulk.|
+|removeConfigData | | `Promise<void>` | Removes config data in bulk.|
+|removeTemporaryData | | `Promise<void>` | Removes temporary data in bulk.|
+|setSessionDataParameter |key: keyof [`SessionData`](#SessionData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the session data.|
+|setOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the OIDC Provider Meta data.|
+|setConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>), value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the config data.|
+|setTemporaryDataParameter |key: `string`, value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the temporary data.|
+|getSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the session data.|
+|getOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the OIDC Provider Meta data.|
+|getConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `Promise<`[`StoreValue`](#StoreValue)`>`| Retrieves the data for the specified key from the config data.|
+|getTemporaryDataParameter |key: `string` | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the temporary data.|
+|removeSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<void>` | Removes the data with the specified key from the session data.|
+|removeOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` | Removes the data with the specified key from the OIDC Provider Meta data.|
+|removeConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `Promise<void>` | Removes the data with the specified key from the config data.|
+|removeTemporaryDataParameter |key: `string` | `Promise<void>` | Removes the data with the specified key from the temporary data.|
 
 ## Models
 
@@ -853,11 +887,11 @@ const config: AuthClientConfig<Bar> ={
 
 ### Store
 
-| Method       | Required/Optional | Arguments                      | Returns                                                                                                                                            | Description                                                                                                                         |
-| ------------ | ----------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `setData`    | Required          | key: `string`, value: `string` | `void`                                                                                                                                             | This method saves the passed value to the store. The data to be saved is JSON stringified so will be passed by the SDK as a string. |
-| `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns it. Since the SDK stores the data as a JSON string, the returned value will be a string. |
-| `removeData` | Required          | key: `string`                  | `void`                                                                                                                                             | Removes the data with the specified key from the store.                                                                             |
+| Method       | Required/Optional | Arguments                      | Returns                                                                                                                                                                         | Description                                                                                                                         |
+| ------------ | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `setData`    | Required          | key: `string`, value: `string` | `Promise<void>`                                                                                                                                                                 | This method saves the passed value to the store. The data to be saved is JSON stringified so will be passed by the SDK as a string. |
+| `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns a Promise that resolves with it. Since the SDK stores the data as a JSON string, the returned value will be a string. |
+| `removeData` | Required          | key: `string`                  | `Promise<void>`                                                                                                                                                                 | Removes the data with the specified key from the store.                                                                             |
 
 ### SignInConfig
 
