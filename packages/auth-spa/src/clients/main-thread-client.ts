@@ -57,9 +57,13 @@ const initiateStore = (store: Storage): Store => {
     }
 };
 
-export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig>): MainThreadClientInterface => {
+export const MainThreadClient = async (
+    config: AuthClientConfig<MainThreadClientConfig>
+): Promise<MainThreadClientInterface> => {
     const _store: Store = initiateStore(config.storage);
-    const _authenticationClient = new AsgardeoAuthClient<MainThreadClientConfig>(config, _store);
+    const _authenticationClient = new AsgardeoAuthClient<MainThreadClientConfig>(_store);
+    await _authenticationClient.initialize(config);
+
     const _spaHelper = new SPAHelper<MainThreadClientConfig>(_authenticationClient);
     const _dataLayer = _authenticationClient.getDataLayer();
     const _sessionManagementHelper = SessionManagementHelper();
@@ -70,10 +74,10 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     let _onHttpRequestError: (error: HttpError) => void;
     const _httpClient: HttpClientInstance = HttpClient.getInstance();
 
-    const attachToken = (request: HttpRequestConfig): void => {
+    const attachToken = async (request: HttpRequestConfig): Promise<void> => {
         request.headers = {
             ...request.headers,
-            Authorization: `Bearer ${_authenticationClient.getAccessToken()}`
+            Authorization: `Bearer ${await _authenticationClient.getAccessToken()}`
         };
     };
 
@@ -131,13 +135,13 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         return true;
     };
 
-    const checkSession = (): void => {
-        const oidcEndpoints: OIDCEndpoints = _authenticationClient.getOIDCServiceEndpoints();
+    const checkSession = async (): Promise<void> => {
+        const oidcEndpoints: OIDCEndpoints = await _authenticationClient.getOIDCServiceEndpoints();
 
         _sessionManagementHelper.initialize(
             config.clientID,
             oidcEndpoints.checkSessionIframe,
-            _authenticationClient.getBasicUserInfo().sessionState,
+            (await _authenticationClient.getBasicUserInfo()).sessionState,
             config.checkSessionInterval,
             config.signInRedirectURL,
             oidcEndpoints.authorizationEndpoint
@@ -149,16 +153,15 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         authorizationCode?: string,
         sessionState?: string
     ): Promise<BasicUserInfo> => {
-        const isLoggingOut =
-            (await _sessionManagementHelper.receivePromptNoneResponse(
-                async () => {
-                    return _authenticationClient.signOut();
-                },
-                async (sessionState: string) => {
-                    _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
-                    return;
-                }
-            ));
+        const isLoggingOut = await _sessionManagementHelper.receivePromptNoneResponse(
+            async () => {
+                return _authenticationClient.signOut();
+            },
+            async (sessionState: string) => {
+                await _dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+                return;
+            }
+        );
 
         if (isLoggingOut) {
             return Promise.resolve({
@@ -171,12 +174,12 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             });
         }
 
-        if (_authenticationClient.isAuthenticated()) {
+        if (await _authenticationClient.isAuthenticated()) {
             _spaHelper.clearRefreshTokenTimeout();
             _spaHelper.refreshAccessTokenAutomatically();
             checkSession();
 
-            return Promise.resolve(_authenticationClient.getBasicUserInfo());
+            return Promise.resolve(await _authenticationClient.getBasicUserInfo());
         }
 
         let resolvedAuthorizationCode: string;
@@ -195,14 +198,14 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             if (config.storage === Storage.BrowserMemory) {
                 const pkce = SPAUtils.getPKCE();
 
-                _dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
+                await _dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
             }
 
             return _authenticationClient
                 .requestAccessToken(resolvedAuthorizationCode, resolvedSessionState)
-                .then(() => {
+                .then(async () => {
                     if (config.storage === Storage.BrowserMemory) {
-                        SPAUtils.setSignOutURL(_authenticationClient.getSignOutURL());
+                        SPAUtils.setSignOutURL(await _authenticationClient.getSignOutURL());
                     }
 
                     _spaHelper.clearRefreshTokenTimeout();
@@ -216,9 +219,9 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
                 });
         }
 
-        return _authenticationClient.getAuthorizationURL(signInConfig).then((url: string) => {
+        return _authenticationClient.getAuthorizationURL(signInConfig).then(async (url: string) => {
             if (config.storage === Storage.BrowserMemory) {
-                SPAUtils.setPKCE(_dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string);
+                SPAUtils.setPKCE((await _dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)) as string);
             }
 
             location.href = url;
@@ -234,9 +237,9 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
         });
     };
 
-    const signOut = (): boolean => {
-        if (_authenticationClient.isAuthenticated()) {
-            location.href = _authenticationClient.signOut();
+    const signOut = async (): Promise<boolean> => {
+        if (await _authenticationClient.isAuthenticated()) {
+            location.href = await _authenticationClient.signOut();
         } else {
             location.href = SPAUtils.getSignOutURL();
         }
@@ -249,7 +252,7 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
     const requestCustomGrant = (config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse> => {
         return _authenticationClient
             .requestCustomGrant(config)
-            .then((response: HttpResponse | TokenResponse) => {
+            .then(async (response: HttpResponse | TokenResponse) => {
                 if (config.returnsSession) {
                     _spaHelper.refreshAccessTokenAutomatically();
 
@@ -287,29 +290,29 @@ export const MainThreadClient = (config: AuthClientConfig<MainThreadClientConfig
             .catch((error) => Promise.reject(error));
     };
 
-    const getBasicUserInfo = (): BasicUserInfo => {
+    const getBasicUserInfo = async (): Promise<BasicUserInfo> => {
         return _authenticationClient.getBasicUserInfo();
     };
 
-    const getDecodedIDToken = (): DecodedIDTokenPayload => {
+    const getDecodedIDToken = async (): Promise<DecodedIDTokenPayload> => {
         return _authenticationClient.getDecodedIDToken();
     };
 
-    const getOIDCServiceEndpoints = (): OIDCEndpoints => {
+    const getOIDCServiceEndpoints = async (): Promise<OIDCEndpoints> => {
         return _authenticationClient.getOIDCServiceEndpoints();
     };
 
-    const getAccessToken = (): string => {
+    const getAccessToken = async (): Promise<string> => {
         return _authenticationClient.getAccessToken();
     };
 
-    const isAuthenticated = (): boolean => {
+    const isAuthenticated = async (): Promise<boolean> => {
         return _authenticationClient.isAuthenticated();
     };
 
-    const updateConfig = (newConfig: Partial<AuthClientConfig<MainThreadClientConfig>>): void => {
+    const updateConfig = async (newConfig: Partial<AuthClientConfig<MainThreadClientConfig>>): Promise<void> => {
         config = { ...config, ...newConfig };
-        _authenticationClient.updateConfig(config);
+        await _authenticationClient.updateConfig(config);
     };
 
     return {
