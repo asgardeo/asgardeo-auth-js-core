@@ -67,12 +67,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/asgardeo/asgardeo-js-oidc-sdk.git"
+        "url": "git+https://github.com/asgardeo/asgardeo-auth-js-sdk.git"
     },
     "bugs": {
-        "url": "https://github.com/asgardeo/asgardeo-js-oidc-sdk/issues"
+        "url": "https://github.com/asgardeo/asgardeo-auth-js-sdk/issues"
     },
-    "homepage": "https://github.com/asgardeo/asgardeo-js-oidc-sdk#readme",
+    "homepage": "https://github.com/asgardeo/asgardeo-auth-js-sdk#readme",
     "browserslist": [
         "> 0.2%"
     ]
