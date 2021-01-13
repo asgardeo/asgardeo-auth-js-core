@@ -1,6 +1,6 @@
 {
-    "name": "asgardeo-js-oidc-sdk",
-    "description": "Asgardeo Authentication SDK and Sample Apps",
+    "name": "asgardeo-auth-js-sdk",
+    "description": "Asgardeo Auth JavaScript SDK and Sample Apps",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
