@@ -54,7 +54,7 @@ export class AsgardeoAuthClient<T> {
      * const auth = new AsgardeoAuthClient<CustomClientConfig>(_store);
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#constructor
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#constructor
      * @preserve
      */
     public constructor(store: Store) {
@@ -83,7 +83,7 @@ export class AsgardeoAuthClient<T> {
      *
      * await auth.initialize(config);
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#initialize
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#initialize
      *
      * @preserve
      */
@@ -101,7 +101,7 @@ export class AsgardeoAuthClient<T> {
      * const data = auth.getDataLayer();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getDataLayer
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getDataLayer
      *
      * @memberof AsgardeoAuthClient
      *
@@ -128,7 +128,7 @@ export class AsgardeoAuthClient<T> {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getAuthorizationURL
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getAuthorizationURL
      *
      * @memberof AsgardeoAuthClient
      *
@@ -165,7 +165,7 @@ export class AsgardeoAuthClient<T> {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#requestAccessToken
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#requestAccessToken
      *
      * @memberof AsgardeoAuthClient
      *
@@ -191,7 +191,7 @@ export class AsgardeoAuthClient<T> {
      * const signOutUrl = await auth.signOut();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#signOut
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#signOut
      *
      * @memberof AsgardeoAuthClient
      *
@@ -213,7 +213,7 @@ export class AsgardeoAuthClient<T> {
      * const signOutUrl = await auth.getSignOutURL();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getSignOutURL
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getSignOutURL
      *
      * @memberof AsgardeoAuthClient
      *
@@ -233,7 +233,7 @@ export class AsgardeoAuthClient<T> {
      * const endpoints = await auth.getOIDCServiceEndpoints();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getOIDCServiceEndpoints
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getOIDCServiceEndpoints
      *
      * @memberof AsgardeoAuthClient
      *
@@ -253,7 +253,7 @@ export class AsgardeoAuthClient<T> {
      * const decodedIdToken = await auth.getDecodedIDToken();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getDecodedIDToken
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getDecodedIDToken
      *
      * @memberof AsgardeoAuthClient
      *
@@ -273,7 +273,7 @@ export class AsgardeoAuthClient<T> {
      * const userInfo = await auth.getBasicUserInfo();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getBasicUserInfo
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getBasicUserInfo
      *
      * @memberof AsgardeoAuthClient
      *
@@ -299,7 +299,7 @@ export class AsgardeoAuthClient<T> {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#revokeAccessToken
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#revokeAccessToken
      *
      * @memberof AsgardeoAuthClient
      *
@@ -324,7 +324,7 @@ export class AsgardeoAuthClient<T> {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#refreshAccessToken
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#refreshAccessToken
      *
      * @memberof AsgardeoAuthClient
      *
@@ -344,7 +344,7 @@ export class AsgardeoAuthClient<T> {
      * const accessToken = await auth.getAccessToken();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getAccessToken
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getAccessToken
      *
      * @memberof AsgardeoAuthClient
      *
@@ -386,7 +386,7 @@ export class AsgardeoAuthClient<T> {
      * });
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#requestCustomGrant
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#requestCustomGrant
      *
      * @memberof AsgardeoAuthClient
      *
@@ -406,7 +406,7 @@ export class AsgardeoAuthClient<T> {
      * await auth.isAuthenticated();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#isAuthenticated
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#isAuthenticated
      *
      * @memberof AsgardeoAuthClient
      *
@@ -426,7 +426,7 @@ export class AsgardeoAuthClient<T> {
      * const pkce = await getPKCECode();
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#getPKCECode
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getPKCECode
      *
      * @memberof AsgardeoAuthClient
      *
@@ -446,7 +446,7 @@ export class AsgardeoAuthClient<T> {
      * await auth.setPKCECode("pkce_code")
      * ```
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#setPKCECode
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#setPKCECode
      *
      * @memberof AsgardeoAuthClient
      *
@@ -466,7 +466,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @return {boolean} - `true` if successful, `false` otherwise.
      *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#isSignOutSuccessful
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#isSignOutSuccessful
      *
      * @memberof AsgardeoAuthClient
      *
@@ -496,7 +496,7 @@ export class AsgardeoAuthClient<T> {
      *
      * await auth.updateConfig(config);
      * ```
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib#updateConfig
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#updateConfig
      *
      * @memberof AsgardeoAuthClient
      *
