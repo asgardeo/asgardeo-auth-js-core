@@ -24,15 +24,15 @@ export class MemoryStore implements Store {
         this._data = new Map();
     }
 
-    public setData(key: string, value: string): void {
+    public async setData(key: string, value: string): Promise<void> {
         this._data.set(key, value);
     }
 
-    public getData(key: string): string {
+    public async getData(key: string): Promise<string> {
         return this._data?.get(key);
     }
 
-    public removeData(key: string): void {
+    public async removeData(key: string): Promise<void> {
         this._data.delete(key);
     }
 }

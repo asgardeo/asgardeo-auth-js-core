@@ -26,23 +26,24 @@ export class SPAHelper<T> {
         this._dataLayer = this._authenticationClient.getDataLayer();
     }
 
-    public refreshAccessTokenAutomatically(): void {
-        if (this._dataLayer.getSessionData().refresh_token) {
+    public async refreshAccessTokenAutomatically(): Promise<void> {
+        const sessionData = await this._dataLayer.getSessionData();
+        if (sessionData.refresh_token) {
             // Refresh 10 seconds before the expiry time
-            const expiryTime = parseInt(this._dataLayer.getSessionData().expires_in);
+            const expiryTime = parseInt(sessionData.expires_in);
             const time = expiryTime <= 10 ? expiryTime : expiryTime - 10;
 
-            const timer = setTimeout(() => {
-                this._authenticationClient.refreshAccessToken();
+            const timer = setTimeout(async () => {
+                await this._authenticationClient.refreshAccessToken();
             }, time * 1000);
 
-            this._dataLayer.setTemporaryDataParameter(REFRESH_TOKEN_TIMER, JSON.stringify(timer));
+            await this._dataLayer.setTemporaryDataParameter(REFRESH_TOKEN_TIMER, JSON.stringify(timer));
         }
     }
 
-    public clearRefreshTokenTimeout(): void {
-        if (this._dataLayer.getTemporaryDataParameter(REFRESH_TOKEN_TIMER)) {
-            const oldTimer = JSON.parse(this._dataLayer.getTemporaryDataParameter(REFRESH_TOKEN_TIMER) as string);
+    public async clearRefreshTokenTimeout(): Promise<void> {
+        if (await this._dataLayer.getTemporaryDataParameter(REFRESH_TOKEN_TIMER)) {
+            const oldTimer = JSON.parse(await this._dataLayer.getTemporaryDataParameter(REFRESH_TOKEN_TIMER) as string);
 
             clearTimeout(oldTimer);
         }

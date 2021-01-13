@@ -42,19 +42,23 @@ import { AuthenticationUtils, CryptoUtils } from "../utils";
 
 export class AuthenticationCore<T> {
     private _dataLayer: DataLayer<T>;
-    private _config: () => AuthClientConfig;
-    private _oidcProviderMetaData: () => OIDCProviderMetaData;
+    private _config: () => Promise<AuthClientConfig>;
+    private _oidcProviderMetaData: () => Promise<OIDCProviderMetaData>;
     private _authenticationHelper: AuthenticationHelper<T>;
 
     public constructor(dataLayer: DataLayer<T>) {
         this._authenticationHelper = new AuthenticationHelper(dataLayer);
         this._dataLayer = dataLayer;
-        this._config = () => this._dataLayer.getConfigData();
-        this._oidcProviderMetaData = () => this._dataLayer.getOIDCProviderMetaData();
+        this._config = async () => await this._dataLayer.getConfigData();
+        this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public getAuthorizationURL(config?: AuthorizationURLParams): string {
-        const authorizeEndpoint = this._dataLayer.getOIDCProviderMetaDataParameter(AUTHORIZATION_ENDPOINT) as string;
+    public async getAuthorizationURL(config?: AuthorizationURLParams): Promise<string> {
+        const authorizeEndpoint = (await this._dataLayer.getOIDCProviderMetaDataParameter(
+            AUTHORIZATION_ENDPOINT
+        )) as string;
+
+        const configData = await this._config();
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -67,34 +71,34 @@ export class AuthenticationCore<T> {
             );
         }
 
-        let authorizeRequest = authorizeEndpoint + "?response_type=code&client_id=" + this._config().clientID;
+        let authorizeRequest = authorizeEndpoint + "?response_type=code&client_id=" + configData.clientID;
 
         let scope = OIDC_SCOPE;
 
-        if (this._config().scope && this._config().scope.length > 0) {
-            if (!this._config().scope.includes(OIDC_SCOPE)) {
-                this._config().scope.push(OIDC_SCOPE);
+        if (configData.scope && configData.scope.length > 0) {
+            if (!configData.scope.includes(OIDC_SCOPE)) {
+                configData.scope.push(OIDC_SCOPE);
             }
-            scope = this._config().scope.join(" ");
+            scope = configData.scope.join(" ");
         }
 
         authorizeRequest += "&scope=" + scope;
-        const redirectURL = this._config().signInRedirectURL;
+        const redirectURL = configData.signInRedirectURL;
         authorizeRequest += "&redirect_uri=" + redirectURL;
 
-        if (this._config().responseMode) {
-            authorizeRequest += "&response_mode=" + this._config().responseMode;
+        if (configData.responseMode) {
+            authorizeRequest += "&response_mode=" + configData.responseMode;
         }
 
-        if (this._config().enablePKCE) {
+        if (configData.enablePKCE) {
             const codeVerifier = CryptoUtils.getCodeVerifier();
             const codeChallenge = CryptoUtils.getCodeChallenge(codeVerifier);
-            this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
+            await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest += "&code_challenge_method=S256&code_challenge=" + codeChallenge;
         }
 
-        if (this._config().prompt) {
-            authorizeRequest += "&prompt=" + this._config().prompt;
+        if (configData.prompt) {
+            authorizeRequest += "&prompt=" + configData.prompt;
         }
 
         const customParams = config;
@@ -109,8 +113,9 @@ export class AuthenticationCore<T> {
         return authorizeRequest;
     }
 
-    public requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
-        const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
+    public async requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+        const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
+        const configData = await this._config();
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
             return Promise.reject(
@@ -125,24 +130,24 @@ export class AuthenticationCore<T> {
             );
         }
 
-        this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+        await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
 
         const body = [];
-        body.push(`client_id=${this._config().clientID}`);
+        body.push(`client_id=${configData.clientID}`);
 
-        if (this._config().clientSecret && this._config().clientSecret.trim().length > 0) {
-            body.push(`client_secret=${this._config().clientSecret}`);
+        if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
+            body.push(`client_secret=${configData.clientSecret}`);
         }
 
         const code = authorizationCode;
         body.push(`code=${code}`);
 
         body.push("grant_type=authorization_code");
-        body.push(`redirect_uri=${this._config().signInRedirectURL}`);
+        body.push(`redirect_uri=${configData.signInRedirectURL}`);
 
-        if (this._config().enablePKCE) {
-            body.push(`code_verifier=${this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)}`);
-            this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
+        if (configData.enablePKCE) {
+            body.push(`code_verifier=${await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)}`);
+            await this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
         }
 
         return axios
@@ -181,10 +186,12 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public refreshAccessToken(): Promise<TokenResponse> {
-        const tokenEndpoint = this._oidcProviderMetaData().token_endpoint;
+    public async refreshAccessToken(): Promise<TokenResponse> {
+        const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
+        const configData = await this._config();
+        const sessionData = await this._dataLayer.getSessionData();
 
-        if (!this._dataLayer.getSessionData().refresh_token) {
+        if (!sessionData.refresh_token) {
             return Promise.reject(
                 new AsgardeoAuthException(
                     "AUTH_CORE-RAT2-NF01",
@@ -211,12 +218,12 @@ export class AuthenticationCore<T> {
         }
 
         const body = [];
-        body.push(`client_id=${this._config().clientID}`);
-        body.push(`refresh_token=${this._dataLayer.getSessionData().refresh_token}`);
+        body.push(`client_id=${configData.clientID}`);
+        body.push(`refresh_token=${sessionData.refresh_token}`);
         body.push("grant_type=refresh_token");
 
-        if (this._config().clientSecret && this._config().clientSecret.trim().length > 0) {
-            body.push(`client_secret=${this._config().clientSecret}`);
+        if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
+            body.push(`client_secret=${configData.clientSecret}`);
         }
 
         return axios
@@ -255,8 +262,9 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public revokeAccessToken(): Promise<AxiosResponse> {
-        const revokeTokenEndpoint = this._oidcProviderMetaData().revocation_endpoint;
+    public async revokeAccessToken(): Promise<AxiosResponse> {
+        const revokeTokenEndpoint = (await this._oidcProviderMetaData()).revocation_endpoint;
+        const configData = await this._config();
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
             return Promise.reject(
@@ -272,8 +280,8 @@ export class AuthenticationCore<T> {
         }
 
         const body = [];
-        body.push(`client_id=${this._config().clientID}`);
-        body.push(`token=${this._dataLayer.getSessionData().access_token}`);
+        body.push(`client_id=${configData.clientID}`);
+        body.push(`token=${(await this._dataLayer.getSessionData()).access_token}`);
         body.push("token_type_hint=access_token");
 
         return axios
@@ -317,11 +325,10 @@ export class AuthenticationCore<T> {
             });
     }
 
-    public requestCustomGrant = (customGrantParams: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> => {
-        if (
-            !this._oidcProviderMetaData().token_endpoint ||
-            this._oidcProviderMetaData().token_endpoint.trim().length === 0
-        ) {
+    public async requestCustomGrant(customGrantParams: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> {
+        const oidcProviderMetadata = await this._oidcProviderMetaData();
+
+        if (!oidcProviderMetadata.token_endpoint || oidcProviderMetadata.token_endpoint.trim().length === 0) {
             return Promise.reject(
                 new AsgardeoAuthException(
                     "AUTH_CORE-RCG-NF01",
@@ -347,13 +354,13 @@ export class AuthenticationCore<T> {
                 ...AuthenticationUtils.getTokenRequestHeaders()
             },
             method: "POST",
-            url: this._oidcProviderMetaData().token_endpoint
+            url: oidcProviderMetadata.token_endpoint
         };
 
         if (customGrantParams.attachToken) {
             requestConfig.headers = {
                 ...requestConfig.headers,
-                Authorization: `Bearer ${this._dataLayer.getSessionData().access_token}`
+                Authorization: `Bearer ${(await this._dataLayer.getSessionData()).access_token}`
             };
         }
 
@@ -402,7 +409,7 @@ export class AuthenticationCore<T> {
                         "authentication-core",
                         "requestCustomGrant",
                         "The custom grant request failed.",
-                        "The request sent to get teh custom grant failed.",
+                        "The request sent to get the custom grant failed.",
                         error?.code,
                         error?.message,
                         error?.response?.status,
@@ -410,10 +417,10 @@ export class AuthenticationCore<T> {
                     )
                 );
             });
-    };
+    }
 
-    public getBasicUserInfo(): BasicUserInfo {
-        const sessionData = this._dataLayer.getSessionData();
+    public async getBasicUserInfo(): Promise<BasicUserInfo> {
+        const sessionData = await this._dataLayer.getSessionData();
         const authenticatedUser = AuthenticationUtils.getAuthenticatedUserInfo(sessionData?.id_token);
         return {
             allowedScopes: sessionData.scope,
@@ -425,23 +432,23 @@ export class AuthenticationCore<T> {
         };
     }
 
-    public getDecodedIDToken(): DecodedIDTokenPayload {
-        const idToken = this._dataLayer.getSessionData().id_token;
+    public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
+        const idToken = (await this._dataLayer.getSessionData()).id_token;
         const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
 
         return payload;
     }
 
-    public getOIDCProviderMetaData(forceInit: boolean): Promise<boolean> {
-        if (!forceInit && this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
+    public async getOIDCProviderMetaData(forceInit: boolean): Promise<boolean> {
+        if (!forceInit && await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return Promise.resolve(true);
         }
 
-        const wellKnownEndpoint = this._authenticationHelper.resolveWellKnownEndpoint();
+        const wellKnownEndpoint = await this._authenticationHelper.resolveWellKnownEndpoint();
 
         return axios
             .get(wellKnownEndpoint)
-            .then((response: { data: OIDCProviderMetaData; status: number }) => {
+            .then(async (response: { data: OIDCProviderMetaData; status: number }) => {
                 if (response.status !== 200) {
                     return Promise.reject(
                         new AsgardeoAuthException(
@@ -456,37 +463,44 @@ export class AuthenticationCore<T> {
                     );
                 }
 
-                this._dataLayer.setOIDCProviderMetaData(this._authenticationHelper.resolveEndpoints(response.data));
-                this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+                await this._dataLayer.setOIDCProviderMetaData(
+                    await this._authenticationHelper.resolveEndpoints(response.data)
+                );
+                await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
                 return Promise.resolve(true);
             })
-            .catch(() => {
-                this._dataLayer.setOIDCProviderMetaData(this._authenticationHelper.resolveFallbackEndpoints());
-                this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+            .catch(async () => {
+                await this._dataLayer.setOIDCProviderMetaData(
+                    await this._authenticationHelper.resolveFallbackEndpoints()
+                );
+                await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
                 return Promise.resolve(true);
             });
     }
 
-    public getOIDCServiceEndpoints(): OIDCEndpoints {
+    public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
+        const oidcProviderMetaData = await this._oidcProviderMetaData();
+
         return {
-            authorizationEndpoint: this._oidcProviderMetaData().authorization_endpoint,
-            checkSessionIframe: this._oidcProviderMetaData().check_session_iframe,
-            endSessionEndpoint: this._oidcProviderMetaData().end_session_endpoint,
-            introspectionEndpoint: this._oidcProviderMetaData().introspection_endpoint,
-            issuer: this._oidcProviderMetaData().issuer,
-            jwksUri: this._oidcProviderMetaData().jwks_uri,
-            registrationEndpoint: this._oidcProviderMetaData().registration_endpoint,
-            revocationEndpoint: this._oidcProviderMetaData().revocation_endpoint,
-            tokenEndpoint: this._oidcProviderMetaData().token_endpoint,
-            userinfoEndpoint: this._oidcProviderMetaData().userinfo_endpoint,
-            wellKnownEndpoint: this._authenticationHelper.resolveWellKnownEndpoint()
+            authorizationEndpoint: oidcProviderMetaData.authorization_endpoint,
+            checkSessionIframe: oidcProviderMetaData.check_session_iframe,
+            endSessionEndpoint: oidcProviderMetaData.end_session_endpoint,
+            introspectionEndpoint: oidcProviderMetaData.introspection_endpoint,
+            issuer: oidcProviderMetaData.issuer,
+            jwksUri: oidcProviderMetaData.jwks_uri,
+            registrationEndpoint: oidcProviderMetaData.registration_endpoint,
+            revocationEndpoint: oidcProviderMetaData.revocation_endpoint,
+            tokenEndpoint: oidcProviderMetaData.token_endpoint,
+            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint,
+            wellKnownEndpoint: await this._authenticationHelper.resolveWellKnownEndpoint()
         };
     }
 
-    public getSignOutURL(): string {
-        const logoutEndpoint = this._oidcProviderMetaData()?.end_session_endpoint;
+    public async getSignOutURL(): Promise<string> {
+        const logoutEndpoint = (await this._oidcProviderMetaData())?.end_session_endpoint;
+        const configData = await this._config();
 
         if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -499,7 +513,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const idToken = this._dataLayer.getSessionData()?.id_token;
+        const idToken = (await this._dataLayer.getSessionData())?.id_token;
 
         if (!idToken || idToken.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -511,7 +525,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const callbackURL = this._config()?.signOutRedirectURL ?? this._config()?.signInRedirectURL;
+        const callbackURL = configData?.signOutRedirectURL ?? configData?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -533,30 +547,30 @@ export class AuthenticationCore<T> {
         return logoutCallback;
     }
 
-    public signOut(): string {
-        const signOutURL = this.getSignOutURL();
+    public async signOut(): Promise<string> {
+        const signOutURL = await this.getSignOutURL();
         this._authenticationHelper.clearUserSessionData();
 
         return signOutURL;
     }
 
-    public getAccessToken(): string {
-        return this._dataLayer.getSessionData()?.access_token;
+    public async getAccessToken(): Promise<string> {
+        return (await this._dataLayer.getSessionData())?.access_token;
     }
 
-    public isAuthenticated(): boolean {
-        return Boolean(this.getAccessToken());
+    public async isAuthenticated(): Promise<boolean> {
+        return Boolean(await this.getAccessToken());
     }
 
-    public getPKCECode(): string {
-        return this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) as string;
+    public async getPKCECode(): Promise<string> {
+        return (await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)) as string;
     }
 
-    public setPKCECode(pkce: string): void {
-        return this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
+    public async setPKCECode(pkce: string): Promise<void> {
+        return await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
     }
 
-    public updateConfig(config: Partial<AuthClientConfig<T>>): void {
-        this._dataLayer.setConfigData(config);
+    public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
+        await this._dataLayer.setConfigData(config);
     }
 }

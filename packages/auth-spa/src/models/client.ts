@@ -44,16 +44,16 @@ export interface MainThreadClientInterface {
         sessionState?: string,
         signInRedirectURL?: string
     ): Promise<BasicUserInfo>;
-    signOut(signOutRedirectURL?: string): boolean;
+    signOut(signOutRedirectURL?: string): Promise<boolean>;
     requestCustomGrant(config: CustomGrantConfig): Promise<BasicUserInfo | HttpResponse>;
     refreshAccessToken(): Promise<BasicUserInfo>;
     revokeAccessToken(): Promise<boolean>;
-    getBasicUserInfo(): BasicUserInfo;
-    getDecodedIDToken(): DecodedIDTokenPayload;
-    getOIDCServiceEndpoints(): OIDCEndpoints;
-    getAccessToken(): string;
-    isAuthenticated(): boolean;
-    updateConfig(config: Partial<AuthClientConfig<MainThreadClientConfig>>): void;
+    getBasicUserInfo(): Promise<BasicUserInfo>;
+    getDecodedIDToken(): Promise<DecodedIDTokenPayload>;
+    getOIDCServiceEndpoints(): Promise<OIDCEndpoints>;
+    getAccessToken(): Promise<string>;
+    isAuthenticated(): Promise<boolean>;
+    updateConfig(config: Partial<AuthClientConfig<MainThreadClientConfig>>): Promise<void>;
 }
 
 export interface WebWorkerClientInterface {

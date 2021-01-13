@@ -18,15 +18,15 @@
 import { Store } from "@asgardeo/auth-js";
 
 export class LocalStore implements Store {
-    public setData(key: string, value: string): void {
+    public async setData(key: string, value: string): Promise<void> {
         localStorage.setItem(key, value);
     }
 
-    public getData(key: string): string {
+    public async getData(key: string): Promise<string> {
         return localStorage.getItem(key);
     }
 
-    public removeData(key: string): void {
+    public async removeData(key: string): Promise<void> {
         localStorage.removeItem(key);
     }
 }

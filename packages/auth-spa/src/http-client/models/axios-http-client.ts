@@ -30,12 +30,12 @@ import {
 export interface HttpClientInstance extends HttpInstance {
     init?(
         isHandlerEnabled: boolean,
-        attachToken: (request: HttpRequestConfig) => void,
+        attachToken: (request: HttpRequestConfig) => Promise<void>,
         requestStartCallback: (request: HttpRequestConfig) => void,
         requestSuccessCallback: (response: HttpResponse) => void,
         requestErrorCallback: (error: HttpError) => void,
         requestFinishCallback: () => void
-    ): void;
+    ): Promise<void>;
     disableHandler?: () => void;
     disableHandlerWithTimeout?: (timeout: number) => void;
     enableHandler?: () => void;

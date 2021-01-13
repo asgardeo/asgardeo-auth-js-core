@@ -195,7 +195,7 @@ export class AsgardeoSPAClient {
      *
      * @preserve
      */
-    public initialize(config: AuthClientConfig<Config>): Promise<boolean> {
+    public async initialize(config: AuthClientConfig<Config>): Promise<boolean> {
         this._storage = config.storage ?? Storage.SessionStorage;
         this._initialized = false;
         this._startedInitialize = true;
@@ -205,7 +205,7 @@ export class AsgardeoSPAClient {
             if (!this._client) {
                 const mainThreadClientConfig = config as AuthClientConfig<MainThreadClientConfig>;
                 const defaultConfig = { ...DefaultConfig } as Partial<AuthClientConfig<MainThreadClientConfig>>;
-                this._client = MainThreadClient({ ...defaultConfig, ...mainThreadClientConfig });
+                this._client = await MainThreadClient({ ...defaultConfig, ...mainThreadClientConfig });
             }
 
             if (this._onInitialize) {
@@ -686,7 +686,7 @@ export class AsgardeoSPAClient {
     /**
      * This method specifies if the user is authenticated or not.
      *
-     * @return {Promise<boolean>} - A Promise that resolves with `true` if teh user is authenticated.
+     * @return {Promise<boolean>} - A Promise that resolves with `true` if the user is authenticated.
      *
      * @memberof AsgardeoSPAClient
      *

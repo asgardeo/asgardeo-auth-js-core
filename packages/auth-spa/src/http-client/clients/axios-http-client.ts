@@ -53,7 +53,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
     private static axiosInstance: HttpClientInstance;
     private static clientInstance: HttpClient;
     private static isHandlerEnabled: boolean;
-    private attachToken: (request: HttpRequestConfig) => void;
+    private attachToken: (request: HttpRequestConfig) => Promise<void>;
     private requestStartCallback: (request: HttpRequestConfig) => void;
     private requestSuccessCallback: (response: HttpResponse) => void;
     private requestErrorCallback: (error: HttpError) => void;
@@ -90,7 +90,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
 
         // Register request interceptor
         this.axiosInstance.interceptors.request.use(
-            (request) => this.clientInstance.requestHandler(request)
+            async (request) => await this.clientInstance.requestHandler(request)
         );
 
         // Register response interceptor
@@ -123,8 +123,8 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
      * @param {HttpRequestConfig} request - Original request.
      * @return {HttpRequestConfig}
      */
-    public requestHandler(request: HttpRequestConfig): HttpRequestConfig {
-        this.attachToken(request);
+    public async requestHandler(request: HttpRequestConfig): Promise<HttpRequestConfig> {
+        await this.attachToken(request);
 
         if (HttpClient.isHandlerEnabled) {
             if (this.requestStartCallback && typeof this.requestStartCallback === "function") {
@@ -183,14 +183,14 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
      * @param requestErrorCallback - Callback function to be triggered on request error.
      * @param requestFinishCallback - Callback function to be triggered on request error.
      */
-    public init(
+    public async init(
         isHandlerEnabled = true,
-        attachToken: (request: HttpRequestConfig) => void,
+        attachToken: (request: HttpRequestConfig) => Promise<void>,
         requestStartCallback: (request: HttpRequestConfig) => void,
         requestSuccessCallback: (response: HttpResponse) => void,
         requestErrorCallback: (error: HttpError) => void,
         requestFinishCallback: () => void
-    ): void {
+    ): Promise<void> {
         HttpClient.isHandlerEnabled = isHandlerEnabled;
 
         if (this.requestStartCallback
