@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       Type:
-        dscription: 'Choose which version to bump'
+        description: 'Choose which version to bump'
         required: true
         default: 'patch'
 
