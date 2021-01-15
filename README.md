@@ -1058,7 +1058,7 @@ type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 
 ### Installing Dependencies
 
-The repository is a mono repository. The SDK repository is found in the [lib]() directory. You can install the dependencies by running the following command at the root.
+The repository is a mono repository. The SDK repository is found in the [lib](https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib) directory. You can install the dependencies by running the following command at the root.
 
 ```
 npm run build
