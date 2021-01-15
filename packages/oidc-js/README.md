@@ -1,3 +1,13 @@
+# This SDK been deprecated and is no longer maintained.
+
+The `@asgardio/oidc-js` SDK has been deprecated in favor of the following SDKs.
+| SDK |Purpose|
+|--|--|
+|[`@asgardeo/auth-js`](https://github.com/asgardeo/asgardeo-auth-js-sdk/) | This allows you to add authentication to various JavaScript and TypeScript applications such as a Single-Page Application, a Node.JS application, React Native application, etc.|
+|[`@asgardeo/auth-spa`](https://github.com/asgardeo/asgardeo-auth-spa-sdk/) | This allows you implement authentication in your Single-Page Applications.|
+|[`@asgardeo/auth-react`](https://github.com/asgardeo/asgardeo-auth-react-sdk/)| This allows you to implement authentication in your React applications.|
+| [`@asgardeo/auth-angular`](https://github.com/asgardeo/asgardeo-auth-angular-sdk/)|This allows you to implement authentication in Angular applications. |
+
 # Asgardio JavaScript OIDC SDK
 ![Builder](https://github.com/asgardio/asgardio-js-oidc-sdk/workflows/Builder/badge.svg)
 [![Stackoverflow](https://img.shields.io/badge/Ask%20for%20help%20on-Stackoverflow-orange)](https://stackoverflow.com/questions/tagged/wso2is)
