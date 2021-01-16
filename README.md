@@ -82,7 +82,6 @@ If you want a polyfilled version of the SDK, checkout the [Browser Compatibility
 const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
     signOutRedirectURL: "http://localhost:3000/dashboard",
-    clientHost: "http://localhost:3000",
     clientID: "client ID",
     serverOrigin: "https://localhost:9443"
 };
@@ -147,7 +146,6 @@ import { AsgardeoAuthClient } from "@asgardeo/auth-js";
 const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
     signOutRedirectURL: "http://localhost:3000/dashboard",
-    clientHost: "http://localhost:3000",
     clientID: "client ID",
     serverOrigin: "https://localhost:9443"
 };
@@ -300,7 +298,6 @@ This method initializes the instance with the config data.
 const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
     signOutRedirectURL: "http://localhost:3000/dashboard",
-    clientHost: "http://localhost:3000",
     clientID: "client ID",
     serverOrigin: "https://localhost:9443"
 };
