@@ -37,7 +37,7 @@
 -   [Data Storage](#data-storage)
     -   [Data Layer](#data-layer)
 -   [Models](#models)
-    -   [AuthClientConfig\<T>](#AuthClientConfig<T>)
+    -   [AuthClientConfig\<T>](#AuthClientConfigT)
     -   [Store](#Store)
     -   [SignInConfig](#SignInConfig)
     -   [TokenResponse](#TokenResponse)
@@ -277,9 +277,9 @@ const auth = new AsgardeoAuthClient(store);
 initialize(config: AuthClientConfig<T>): Promise<void>;
 ```
 #### Arguments
-1. config: [`AuthClientConfig<T>`](#AuthClientConfig<T>)
+1. config: [`AuthClientConfig<T>`](#AuthClientConfigT)
 
-    This contains the configuration information needed to implement authentication such as the client ID, server origin etc. Additional configuration information that is needed to be stored can be passed by extending the type of this argument using the generic type parameter. For example, if you want the config to have an attribute called `foo`, you can create an interface called `Bar` in TypeScript and then pass that interface as the generic type to `AuthClientConfig` interface. To learn more about what attributes can be passed into this object, refer to the [`AuthClientConfig<T>`](#AuthClientConfig<T>) section.
+    This contains the configuration information needed to implement authentication such as the client ID, server origin etc. Additional configuration information that is needed to be stored can be passed by extending the type of this argument using the generic type parameter. For example, if you want the config to have an attribute called `foo`, you can create an interface called `Bar` in TypeScript and then pass that interface as the generic type to `AuthClientConfig` interface. To learn more about what attributes can be passed into this object, refer to the [`AuthClientConfig<T>`](#AuthClientConfigT) section.
 
     ```TypeScript
     interface Bar {
@@ -762,9 +762,9 @@ updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void>
 
 #### Arguments
 
-1. config: [`AuthClientConfig<T>`](#AuthClientConfig<T>)
+1. config: [`AuthClientConfig<T>`](#AuthClientConfigT)
 
-The config object containing the attributes that can be used to configure the SDK. To learn more about the available attributes, refer to the [`AuthClientConfig>T>`](#AuthClientConfig<T>) model.
+The config object containing the attributes that can be used to configure the SDK. To learn more about the available attributes, refer to the [`AuthClientConfig>T>`](#AuthClientConfigT) model.
 
 #### Description
 
@@ -816,7 +816,7 @@ The data layer is implemented within the SDK encapsulating the `Store` object pa
 2. OIDC Provider Meta Data
    Stores regarding OIDC Meta Data obtained from the `.well-known` endpoint. Refer to [`OIDCProviderMetaData`](#OIDCProviderMetaData) for the full list of data stored.
 3. Config Data
-   Stores the config data passed to the constructor. Refer to [`AuthClientConfig<T>`](#AuthClientConfig<T>) for the full list of data stored.
+   Stores the config data passed to the constructor. Refer to [`AuthClientConfig<T>`](#AuthClientConfigT) for the full list of data stored.
 4. Temporary Data
    Stores data that is temporary. In most cases, you wouldn't need this.
 
@@ -825,7 +825,7 @@ All these four keys get methods to set, get and remove data as whole. In additio
 |--|--|--|--|
 |setSessionData |sessionData: [`SessionData`](#SessionData) | `Promise<void>` | Saves session data in bulk.|
 |setOIDCProviderMetaData |oidcProviderMetaData: [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` |Saves OIDC Provider Meta data in bulk.|
-|setConfigData |config: [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `Promise<void>` | Saves config data in bulk.|
+|setConfigData |config: [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<void>` | Saves config data in bulk.|
 |setTemporaryData |data: [`TemporaryData`](#TemporaryData) | `Promise<void>` | Saves temporary data in bulk.|
 |getSessionData | | `Promise<`[`SessionData`](#SessionData)`>` | Retrieves session data in bulk.|
 |getOIDCProviderMetaData | |`Promise<`[`OIDCProviderMetaData`](#OIDCProviderMetaData)`>` | Retrieves OIDC Provider Meta data in bulk.|
@@ -837,15 +837,15 @@ All these four keys get methods to set, get and remove data as whole. In additio
 |removeTemporaryData | | `Promise<void>` | Removes temporary data in bulk.|
 |setSessionDataParameter |key: keyof [`SessionData`](#SessionData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the session data.|
 |setOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the OIDC Provider Meta data.|
-|setConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>), value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the config data.|
+|setConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT), value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the config data.|
 |setTemporaryDataParameter |key: `string`, value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the temporary data.|
 |getSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the session data.|
 |getOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the OIDC Provider Meta data.|
-|getConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `Promise<`[`StoreValue`](#StoreValue)`>`| Retrieves the data for the specified key from the config data.|
+|getConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<`[`StoreValue`](#StoreValue)`>`| Retrieves the data for the specified key from the config data.|
 |getTemporaryDataParameter |key: `string` | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the temporary data.|
 |removeSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<void>` | Removes the data with the specified key from the session data.|
 |removeOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` | Removes the data with the specified key from the OIDC Provider Meta data.|
-|removeConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfig<T>) | `Promise<void>` | Removes the data with the specified key from the config data.|
+|removeConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<void>` | Removes the data with the specified key from the config data.|
 |removeTemporaryDataParameter |key: `string` | `Promise<void>` | Removes the data with the specified key from the temporary data.|
 
 ## Models
