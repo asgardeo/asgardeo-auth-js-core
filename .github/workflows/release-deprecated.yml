@@ -28,7 +28,7 @@ jobs:
 
     - name: publish
       env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        NODE_AUTH_TOKEN: ${{secrets.DEPRECATED_NPM_TOKEN}}
       run: |
         cd packages/oidc-js
         npm publish --access public
