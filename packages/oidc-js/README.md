@@ -217,7 +217,7 @@ This method takes a `config` object as the only argument. The attributes of the 
 |`clientID`| `string` |""|The client ID of the OIDC application hosted in the Asgardio.|
 |`serverOrigin`|`string`|""|The origin of the Identity Provider. eg: `https://www.asgardio.io`|
 |`signOutRedirectURL` (optional)|`string`|`signInRedirectURL` |The URL to redirect to after the user signs out. eg: `https://conotoso.com/logout` |
-|`clientHost` (optional)|`string`|The origin of the client app obtained using `window.origin`|The hostname of the client app.  eg: `https://contoso.com`|
+|`clientHost` (optional)|`string`|The origin of the client app obtained using `window.origin`|The hostname of the client app.  eg: `https://localhost:3000`|
 |`clientSecret` (optional)|`string`|""|The client secret of the OIDC application|
 |`enablePKCE` (optional)|`boolean`|`true`|Specifies if a PKCE should be sent with the request for the authorization code. |
 |`prompt` (optional)|`string`|""|Specifies the prompt type of an OIDC request|
