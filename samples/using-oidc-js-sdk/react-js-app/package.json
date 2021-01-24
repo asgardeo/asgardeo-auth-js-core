@@ -1,6 +1,6 @@
 {
     "name": "@asgardeo/react-js-app-sample",
-    "version": "0.1.36",
+    "version": "0.1.37",
     "description": "React based sample SPA to demonstrate Asgardeo Auth Javascript SDK usage",
     "keywords": [
         "Asgardeo",
@@ -25,7 +25,7 @@
         "start": "webpack-dev-server --mode development --inline --hot --open"
     },
     "dependencies": {
-        "@asgardio/oidc-js": "^0.1.36",
+        "@asgardio/oidc-js": "^0.1.37",
         "react": "^16.13.1",
         "react-dom": "^16.13.1"
     },
