@@ -480,7 +480,7 @@ export function sendRevokeTokenRequest(
  */
 export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterface => {
     const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken?.split(".")[1]));
-    const emailAddress: string = payload.email ? payload.email : null;
+    const emailAddress: string = payload.email ? payload.email : payload.sub;
     const tenantDomain: string = getTenantDomainFromIdTokenPayload(payload);
 
     return {
