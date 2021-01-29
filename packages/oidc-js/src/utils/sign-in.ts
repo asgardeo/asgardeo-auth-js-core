@@ -139,7 +139,10 @@ export function sendAuthorizationRequest(
         return Promise.reject(new Error("Invalid authorize endpoint found."));
     }
 
-    let authorizeRequest = authorizeEndpoint + "?response_type=code&client_id=" + requestParams.clientID;
+    const authorizeRequest = new URL(authorizeEndpoint);
+
+    authorizeRequest.searchParams.append("response_type", "code");
+    authorizeRequest.searchParams.append("client_id", requestParams.clientID);
 
     let scope = OIDC_SCOPE;
 
@@ -150,45 +153,46 @@ export function sendAuthorizationRequest(
         scope = requestParams.scope.join(" ");
     }
 
-    authorizeRequest += "&scope=" + scope;
-    authorizeRequest += "&redirect_uri=" + requestParams.signInRedirectURL;
+    authorizeRequest.searchParams.append("scope", scope);
+    authorizeRequest.searchParams.append("redirect_uri", requestParams.signInRedirectURL);
 
     if (requestParams.responseMode) {
-        authorizeRequest += "&response_mode=" + requestParams.responseMode;
+        authorizeRequest.searchParams.append("response_mode", requestParams.responseMode);
     }
 
     if (requestParams.enablePKCE) {
         const codeVerifier = getCodeVerifier();
         const codeChallenge = getCodeChallenge(codeVerifier);
         setSessionParameter(PKCE_CODE_VERIFIER, codeVerifier, requestParams);
-        authorizeRequest += "&code_challenge_method=S256&code_challenge=" + codeChallenge;
+        authorizeRequest.searchParams.append("code_challenge_method", "S256");
+        authorizeRequest.searchParams.append("code_challenge", codeChallenge);
     }
 
     if (requestParams.prompt) {
-        authorizeRequest += "&prompt=" + requestParams.prompt;
+        authorizeRequest.searchParams.append("prompt", requestParams.prompt);
     }
 
     if (fidp) {
-        authorizeRequest += "&fidp=" + fidp;
+        authorizeRequest.searchParams.append("fidp", fidp);
     }
 
     const customParams = requestParams.customParams;
     if (customParams) {
         for (const [ key, value ] of Object.entries(customParams)) {
             if (key != "" && value != "") {
-                authorizeRequest += "&" + key + "=" + value;
+                authorizeRequest.searchParams.append(key, value.toString());
             }
         }
     }
 
     if (requestParams.storage === Storage.WebWorker) {
         return Promise.resolve({
-            code: authorizeRequest,
+            code: authorizeRequest.toString(),
             pkce: getSessionParameter(PKCE_CODE_VERIFIER, requestParams),
             type: AUTH_REQUIRED
         });
     } else {
-        document.location.href = authorizeRequest;
+        document.location.href = authorizeRequest.toString();
     }
 
     return;
