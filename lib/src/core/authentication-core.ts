@@ -94,7 +94,9 @@ export class AuthenticationCore<T> {
 
         if (configData.enablePKCE) {
             const codeVerifier = CryptoUtils.getCodeVerifier();
+            console.log(codeVerifier);
             const codeChallenge = CryptoUtils.getCodeChallenge(codeVerifier);
+            console.log(codeChallenge);
             await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest.searchParams.append("code_challenge_method", "S256");
             authorizeRequest.searchParams.append("code_challenge", codeChallenge);
