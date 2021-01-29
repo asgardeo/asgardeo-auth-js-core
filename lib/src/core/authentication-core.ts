@@ -97,7 +97,7 @@ export class AuthenticationCore<T> {
             const codeChallenge = CryptoUtils.getCodeChallenge(codeVerifier);
             await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest.searchParams.append("code_challenge_method", "S256");
-            authorizeRequest.searchParams.append("ode_challenge", codeChallenge);
+            authorizeRequest.searchParams.append("code_challenge", codeChallenge);
         }
 
         if (configData.prompt) {
