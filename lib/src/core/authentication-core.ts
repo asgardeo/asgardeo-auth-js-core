@@ -71,7 +71,10 @@ export class AuthenticationCore<T> {
             );
         }
 
-        let authorizeRequest = authorizeEndpoint + "?response_type=code&client_id=" + configData.clientID;
+        const authorizeRequest = new URL(authorizeEndpoint);
+
+        authorizeRequest.searchParams.append("response_type", "code");
+        authorizeRequest.searchParams.append("client_id", configData.clientID);
 
         let scope = OIDC_SCOPE;
 
@@ -82,35 +85,35 @@ export class AuthenticationCore<T> {
             scope = configData.scope.join(" ");
         }
 
-        authorizeRequest += "&scope=" + scope;
-        const redirectURL = configData.signInRedirectURL;
-        authorizeRequest += "&redirect_uri=" + redirectURL;
+        authorizeRequest.searchParams.append("scope", scope);
+        authorizeRequest.searchParams.append("redirect_uri", configData.signInRedirectURL);
 
         if (configData.responseMode) {
-            authorizeRequest += "&response_mode=" + configData.responseMode;
+             authorizeRequest.searchParams.append("response_mode", configData.responseMode);
         }
 
         if (configData.enablePKCE) {
             const codeVerifier = CryptoUtils.getCodeVerifier();
             const codeChallenge = CryptoUtils.getCodeChallenge(codeVerifier);
             await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
-            authorizeRequest += "&code_challenge_method=S256&code_challenge=" + codeChallenge;
+            authorizeRequest.searchParams.append("code_challenge_method", "S256");
+            authorizeRequest.searchParams.append("code_challenge", codeChallenge);
         }
 
         if (configData.prompt) {
-            authorizeRequest += "&prompt=" + configData.prompt;
+            authorizeRequest.searchParams.append("prompt", configData.prompt);
         }
 
         const customParams = config;
         if (customParams) {
             for (const [key, value] of Object.entries(customParams)) {
                 if (key != "" && value != "") {
-                    authorizeRequest += "&" + key + "=" + value;
+                    authorizeRequest.searchParams.append(key, value.toString());
                 }
             }
         }
 
-        return authorizeRequest;
+        return authorizeRequest.toString();
     }
 
     public async requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
