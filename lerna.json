@@ -5,7 +5,8 @@
         }
     },
     "packages": [
-        "lib"
+        "lib",
+        "samples/*"
     ],
     "version": "0.2.0"
 }
