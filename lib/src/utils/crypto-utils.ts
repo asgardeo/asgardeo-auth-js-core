@@ -19,12 +19,11 @@
 import base64url from "base64url";
 import sha256 from "fast-sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
+import randombytes from "randombytes";
 import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
 import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
 import { AsgardeoAuthException } from "../exception";
 import { DecodedIDTokenPayload, JWKInterface } from "../models";
-import { REACT_NATIVE } from "../constants";
-import randombytes from "randombytes";
 
 export class CryptoUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -45,11 +44,6 @@ export class CryptoUtils {
      * @returns {string} code verifier.
      */
     public static getCodeVerifier(): string {
-/*         const env = process.env.ENVIRONMENT;
-        if (env === REACT_NATIVE) {
-            return this.base64URLEncode(value)
-        } */
-
         return this.base64URLEncode(randombytes(32));
     }
 
