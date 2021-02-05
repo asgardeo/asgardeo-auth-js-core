@@ -275,6 +275,26 @@ export class AsgardeoAuthClient<T> {
     }
 
     /**
+     * This method return the ID token.
+     *
+     * @return {Promise<string>} - A Promise that resolves with the ID token.
+     *
+     * @example
+     * ```
+     * const idToken = await auth.getIDToken();
+     * ```
+     *
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getIDToken
+     *
+     * @memberof AsgardeoAuthClient
+     *
+     * @preserve
+     */
+    public async getIDToken(): Promise<string> {
+        return this._authenticationCore.getIDToken();
+    }
+
+    /**
      * This method returns the basic user information obtained from the ID token.
      *
      * @return {Promise<BasicUserInfo>} - A Promise that resolves with an object containing the basic user information.
