@@ -425,14 +425,34 @@ export class AuthenticationCore<T> {
     public async getBasicUserInfo(): Promise<BasicUserInfo> {
         const sessionData = await this._dataLayer.getSessionData();
         const authenticatedUser = AuthenticationUtils.getAuthenticatedUserInfo(sessionData?.id_token);
-        return {
+
+        let basicUserInfo: BasicUserInfo = {
             allowedScopes: sessionData.scope,
-            displayName: authenticatedUser.displayName,
-            email: authenticatedUser.email,
             sessionState: sessionData.session_state,
-            tenantDomain: authenticatedUser.tenantDomain,
             username: authenticatedUser.username
         };
+
+        if (authenticatedUser.displayName) {
+            basicUserInfo = { ...basicUserInfo, displayName: authenticatedUser.displayName };
+        }
+
+        if (authenticatedUser.email) {
+            basicUserInfo = { ...basicUserInfo, email: authenticatedUser.email };
+        }
+
+        if (authenticatedUser.familyName) {
+            basicUserInfo = { ...basicUserInfo, familyName: authenticatedUser.familyName };
+        }
+
+        if (authenticatedUser.givenName) {
+            basicUserInfo = { ...basicUserInfo, givenName: authenticatedUser.givenName };
+        }
+
+        if (authenticatedUser.tenantDomain) {
+            basicUserInfo = { ...basicUserInfo, tenantDomain: authenticatedUser.tenantDomain };
+        }
+
+        return basicUserInfo;
     }
 
     public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
