@@ -462,6 +462,10 @@ export class AuthenticationCore<T> {
         return payload;
     }
 
+    public async getIDToken(): Promise<string> {
+        return (await this._dataLayer.getSessionData()).id_token;
+    }
+
     public async getOIDCProviderMetaData(forceInit: boolean): Promise<boolean> {
         if (!forceInit && await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
             return Promise.resolve(true);
