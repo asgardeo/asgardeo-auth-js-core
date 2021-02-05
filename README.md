@@ -24,6 +24,7 @@
     -   [getSignOutURL](#getSignOutURL)
     -   [getOIDCServiceEndpoints](#getOIDCServiceEndpoints)
     -   [getDecodedIDToken](#getDecodedIDToken)
+    -   [getIDToken](#getIDToken)
     -   [getBasicUserInfo](#getBasicUserInfo)
     -   [revokeAccessToken](#revokeAccessToken)
     -   [refreshAccessToken](#refreshAccessToken)
@@ -501,6 +502,28 @@ This method decodes the payload of the id token and returns the decoded values.
 
 ```TypeScript
 const decodedIDTokenPayload = await auth.getDecodedIDToken();
+```
+
+---
+### getIDToken
+
+```TypeScript
+getIDToken(): Promise<string>
+```
+
+#### Returns
+
+idToken: `Promise<string>`
+The id token.
+
+#### Description
+
+This method returns the id token.
+
+#### Example
+
+```TypeScript
+const idToken = await auth.getIDToken();
 ```
 
 ---

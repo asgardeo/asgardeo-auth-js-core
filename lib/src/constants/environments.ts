@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+* Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * WSO2 Inc. licenses this file to you under the Apache License,
 * Version 2.0 (the "License"); you may not use this file except
@@ -16,10 +16,4 @@
 * under the License.
 */
 
-export * from "./client-config";
-export * from "./oidc-endpoints";
-export * from "./custom-grant-template-tags";
-export * from "./data";
-export * from "./parameters";
-export * from "./scopes";
-export * from "./environments";
+export const REACT_NATIVE = "react-native";

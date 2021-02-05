@@ -25,31 +25,52 @@ export class AuthenticationUtils {
 
     public static getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
         const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
-        const emailAddress: string = payload.email ? payload.email : null;
+        const emailAddress: string = payload.email ? payload.email : "";
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
+        const username: string = this.extractUserName(payload);
+
+        const givenName: string = payload.given_name ?? "";
+        const familyName: string = payload.family_name ?? "";
+        const fullName: string =
+            givenName && familyName
+                ? `${givenName} ${familyName}`
+                : givenName
+                ? givenName
+                : familyName
+                ? familyName
+                : "";
+        const displayName: string = payload.preferred_username ?? fullName;
 
         return {
-            displayName: payload.preferred_username ? payload.preferred_username : payload.sub,
+            displayName: displayName,
             email: emailAddress,
+            familyName: familyName,
+            givenName: givenName,
             tenantDomain,
-            username: payload.sub
+            username: username
         };
     }
+
+    public static extractUserName = (payload: DecodedIDTokenPayload, uidSeparator: string = "@"): string => {
+        const uid = payload.sub;
+        const parts = uid.split(uidSeparator);
+
+        parts.length > 2 && parts.pop();
+
+        return parts.join(uidSeparator);
+    };
 
     public static getTenantDomainFromIdTokenPayload = (
         payload: DecodedIDTokenPayload,
         uidSeparator: string = "@"
     ): string => {
-        // If the `tenant_domain` claim is available in the ID token payload, give precedence.
-        if (payload.tenant_domain) {
-            return payload.tenant_domain;
-        }
-
         // Try to extract the tenant domain from the `sub` claim.
         const uid = payload.sub;
         const tokens = uid.split(uidSeparator);
 
-        return tokens[tokens.length - 1];
+        // This works only when the email is used as the username
+        // and the tenant domain is appended to the`sub` attribute.
+        return tokens.length > 2 ? tokens[tokens.length - 1] : "";
     };
 
     public static getTokenRequestHeaders(): TokenRequestHeader {

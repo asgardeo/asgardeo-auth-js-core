@@ -17,12 +17,14 @@
 */
 
 export interface BasicUserInfo {
-    email: string;
+    email?: string;
     username: string;
-    displayName: string;
+    displayName?: string;
     allowedScopes: string;
-    tenantDomain: string;
+    tenantDomain?: string;
     sessionState: string;
+    givenName?: string;
+    familyName?: string;
 }
 
 /**
@@ -54,4 +56,6 @@ export interface AuthenticatedUserInfo {
      * Authenticated user's username.
      */
     username: string;
+    givenName: string;
+    familyName: string;
 }

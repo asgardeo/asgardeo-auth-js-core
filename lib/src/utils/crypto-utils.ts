@@ -16,11 +16,10 @@
  * under the License.
  */
 
-import Base64 from "crypto-js/enc-base64";
-import utf8 from "crypto-js/enc-utf8";
-import WordArray from "crypto-js/lib-typedarrays";
-import sha256 from "crypto-js/sha256";
+import base64url from "base64url";
+import sha256 from "fast-sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
+import randombytes from "randombytes";
 import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
 import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
 import { AsgardeoAuthException } from "../exception";
@@ -35,8 +34,8 @@ export class CryptoUtils {
      * @param {CryptoJS.WordArray} value.
      * @returns {string} base 64 url encoded value.
      */
-    public static base64URLEncode(value: CryptoJS.WordArray): string {
-        return Base64.stringify(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    public static base64URLEncode(value: Buffer | string): string {
+        return base64url.encode(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
     }
 
     /**
@@ -45,7 +44,7 @@ export class CryptoUtils {
      * @returns {string} code verifier.
      */
     public static getCodeVerifier(): string {
-        return this.base64URLEncode(WordArray.random(32));
+        return this.base64URLEncode(randombytes(32));
     }
 
     /**
@@ -55,7 +54,7 @@ export class CryptoUtils {
      * @returns {string} code challenge.
      */
     public static getCodeChallenge(verifier: string): string {
-        return this.base64URLEncode(sha256(verifier));
+        return this.base64URLEncode(new Buffer(sha256(new TextEncoder().encode(verifier))));
     }
 
     /**
@@ -154,8 +153,7 @@ export class CryptoUtils {
      */
     public static decodeIDToken(idToken: string): DecodedIDTokenPayload {
         try {
-            const words = Base64.parse(idToken.split(".")[1]);
-            const utf8String = utf8.stringify(words);
+            const utf8String = base64url.decode(idToken.split(".")[1], "utf8");
             const payload = JSON.parse(utf8String);
 
             return payload;
