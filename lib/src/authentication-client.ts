@@ -17,7 +17,7 @@
  */
 
 import { AxiosResponse } from "axios";
-import { OP_CONFIG_INITIATED, SIGN_OUT_SUCCESS_PARAM } from "./constants";
+import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -30,6 +30,18 @@ import {
     Store,
     TokenResponse
 } from "./models";
+
+/**
+ * Default configurations.
+ */
+const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
+    clientHost: origin,
+    clockTolerance: 300,
+    enablePKCE: true,
+    responseMode: ResponseMode.query,
+    scope: [OIDC_SCOPE],
+    validateIDToken: true
+};
 
 /**
  * This class provides the necessary methods needed to implement authentication.
@@ -87,7 +99,7 @@ export class AsgardeoAuthClient<T> {
      * @preserve
      */
     public async initialize(config: AuthClientConfig<T>): Promise<void> {
-        await this._dataLayer.setConfigData(config);
+        await this._dataLayer.setConfigData({ ...DefaultConfig, ...config });
     }
 
     /**
