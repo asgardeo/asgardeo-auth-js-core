@@ -275,7 +275,7 @@ export class AsgardeoAuthClient<T> {
     }
 
     /**
-     * This method return the ID token.
+     * This method returns the ID token.
      *
      * @return {Promise<string>} - A Promise that resolves with the ID token.
      *
