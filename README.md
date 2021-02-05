@@ -514,7 +514,7 @@ getIDToken(): Promise<string>
 #### Returns
 
 idToken: `Promise<string>`
-The ID token.
+The id token.
 
 #### Description
 
