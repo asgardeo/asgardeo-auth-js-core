@@ -29,9 +29,23 @@ export class AuthenticationUtils {
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
         const username: string = this.extractUserName(payload);
 
+        const givenName: string = payload.given_name ?? "";
+        const familyName: string = payload.family_name ?? "";
+        const fullName: string =
+            givenName && familyName
+                ? `${givenName} ${familyName}`
+                : givenName
+                ? givenName
+                : familyName
+                ? familyName
+                : "";
+        const displayName: string = payload.preferred_username ?? fullName;
+
         return {
-            displayName: payload.preferred_username && "",
+            displayName: displayName,
             email: emailAddress,
+            familyName: familyName,
+            givenName: givenName,
             tenantDomain,
             username: username
         };
