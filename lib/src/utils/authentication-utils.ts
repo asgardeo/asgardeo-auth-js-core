@@ -25,7 +25,6 @@ export class AuthenticationUtils {
 
     public static getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
         const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
-        const emailAddress: string = payload.email ? payload.email : "";
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
         const username: string = this.extractUserName(payload);
 
@@ -43,12 +42,44 @@ export class AuthenticationUtils {
 
         return {
             displayName: displayName,
-            email: emailAddress,
-            familyName: familyName,
-            givenName: givenName,
             tenantDomain,
-            username: username
+            username: username,
+            ...this.filterClaimsFromIDTokenPayload(payload)
         };
+    }
+
+    private static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload) {
+        delete payload?.iss;
+        delete payload?.sub;
+        delete payload?.aud;
+        delete payload?.exp;
+        delete payload?.iat;
+        delete payload?.acr;
+        delete payload?.amr;
+        delete payload?.azp;
+        delete payload?.auth_time;
+        delete payload?.nonce;
+        delete payload?.c_hash;
+        delete payload?.at_hash
+        delete payload?.nbf;
+        delete payload?.isk;
+        delete payload?.sid;
+
+        const camelCasedPayload = {}
+        Object.entries(payload).forEach(([ key, value ]) => {
+            const keyParts = key.split("_");
+            const camelCasedKey = keyParts.map((key: string, index: number) => {
+                if (index === 0) {
+                    return key;
+                }
+
+                return [ key[ 0 ].toUpperCase(), ...key.slice(1) ].join("");
+            }).join("");
+
+            camelCasedPayload[ camelCasedKey ] = value;
+        });
+
+        return camelCasedPayload;
     }
 
     public static extractUserName = (payload: DecodedIDTokenPayload, uidSeparator: string = "@"): string => {
