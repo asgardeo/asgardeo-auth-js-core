@@ -69,7 +69,7 @@ npm install @asgardeo/auth-js
 Or simply load the SDK by importing the script into the header of your HTML file.
 
 ```html
-<script src="https://unpkg.com/@asgardeo/auth-js@0.2.1/dist/asgardeo-auth.production.min.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-js@0.2.2/dist/asgardeo-auth.production.min.js"></script>
 ```
 
 If you want a polyfilled version of the SDK, checkout the [Browser Compatibility](#browser-compatibility) section.
@@ -210,7 +210,7 @@ The SDK supports all major browsers and provides polyfills to support incompatib
 To embed a polyfilled script in an HTML page:
 
 ```html
-<script src="https://unpkg.com/@asgardeo/auth-js@0.1.26/dist/polyfilled/asgardeo-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-js@0.2.2/dist/polyfilled/asgardeo-oidc.production.min.js.js"></script>
 ```
 
 You can also import a polyfilled module into your modular app. Asgardeo provides two different modules each supporting UMD and ESM.
