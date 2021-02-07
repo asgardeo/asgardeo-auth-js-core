@@ -25,11 +25,17 @@ import { DecodedIdTokenPayloadInterface } from "../models";
  * @param {string} uidSeparator - Separator to split the uid.
  * @return {string} Extracted tenant domain.
  */
-export const getTenantDomainFromIdTokenPayload = (payload: DecodedIdTokenPayloadInterface): string => {
+export const getTenantDomainFromIdTokenPayload = (payload: DecodedIdTokenPayloadInterface,
+                                                  uidSeparator: string = "@"): string => {
 
-    if (payload?.iss) {
-        return payload.iss.match(/\/t\/([^/]+)\//)[1];
+    // If the `tenant_domain` claim is available in the ID token payload, give precedence.
+    if (payload.tenant_domain) {
+        return payload.tenant_domain;
     }
 
-    return "";
+    // Try to extract the tenant domain from the `sub` claim.
+    const uid = payload.sub;
+    const tokens = uid.split(uidSeparator);
+
+    return tokens[ tokens.length - 1 ];
 };
