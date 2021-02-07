@@ -1,6 +1,6 @@
 # This SDK been deprecated and is no longer maintained.
 
-The `@asgardio/oidc-js` SDK has been deprecated in favor of the following SDKs.
+The `@wso2/oidc-js` SDK has been deprecated in favor of the following SDKs.
 | SDK |Purpose|
 |--|--|
 |[`@asgardeo/auth-js`](https://github.com/asgardeo/asgardeo-auth-js-sdk/) | This allows you to add authentication to various JavaScript and TypeScript applications such as a Single-Page Application, a Node.JS application, React Native application, etc.|
@@ -8,8 +8,8 @@ The `@asgardio/oidc-js` SDK has been deprecated in favor of the following SDKs.
 |[`@asgardeo/auth-react`](https://github.com/asgardeo/asgardeo-auth-react-sdk/)| This allows you to implement authentication in your React applications.|
 | [`@asgardeo/auth-angular`](https://github.com/asgardeo/asgardeo-auth-angular-sdk/)|This allows you to implement authentication in Angular applications. |
 
-# Asgardio JavaScript OIDC SDK
-![Builder](https://github.com/asgardio/asgardio-js-oidc-sdk/workflows/Builder/badge.svg)
+# Wso2 JavaScript OIDC SDK
+![Builder](https://github.com/wso2/wso2-js-oidc-sdk/workflows/Builder/badge.svg)
 [![Stackoverflow](https://img.shields.io/badge/Ask%20for%20help%20on-Stackoverflow-orange)](https://stackoverflow.com/questions/tagged/wso2is)
 [![Join the chat at https://join.slack.com/t/wso2is/shared_invite/enQtNzk0MTI1OTg5NjM1LTllODZiMTYzMmY0YzljYjdhZGExZWVkZDUxOWVjZDJkZGIzNTE1NDllYWFhM2MyOGFjMDlkYzJjODJhOWQ4YjE](https://img.shields.io/badge/Join%20us%20on-Slack-%23e01563.svg)](https://join.slack.com/t/wso2is/shared_invite/enQtNzk0MTI1OTg5NjM1LTllODZiMTYzMmY0YzljYjdhZGExZWVkZDUxOWVjZDJkZGIzNTE1NDllYWFhM2MyOGFjMDlkYzJjODJhOWQ4YjE)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/wso2/product-is/blob/master/LICENSE)
@@ -50,19 +50,19 @@ The `@asgardio/oidc-js` SDK has been deprecated in favor of the following SDKs.
 - [License](#license)
 
 ## Introduction
-Asgardio's OIDC SDK for JavaScript allows Single Page Applications to use OIDC or OAuth2 authentication in a simple and secure way. By using Asgardio and the JavaScript OIDC SDK, developers will be able to add identity management to their Single Page Applications in a jiffy.
+Wso2's OIDC SDK for JavaScript allows Single Page Applications to use OIDC or OAuth2 authentication in a simple and secure way. By using Wso2 and the JavaScript OIDC SDK, developers will be able to add identity management to their Single Page Applications in a jiffy.
 
 ## Install
 Install the JavaScript library from the npm registry.
 ```
-npm install --save @asgardio/oidc-js
+npm install --save @wso2/oidc-js
 ```
 Or simply load the SDK by importing the script into the header of your HTML file.
 ```html
-<script src="https://unpkg.com/@asgardio/oidc-js@0.1.37/dist/asgardio-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@wso2/oidc-js@0.1.37/dist/wso2-oidc.production.min.js.js"></script>
 
 <script>
-var auth = AsgardioAuth.IdentityClient.getInstance();
+var auth = Wso2Auth.IdentityClient.getInstance();
 </script>
 ```
 
@@ -70,7 +70,7 @@ var auth = AsgardioAuth.IdentityClient.getInstance();
 ### Using Embedded Scripts
 ```javascript
 // This client is a singleton and can be instantiated as follows.
-var auth = AsgardioAuth.IdentityClient.getInstance();
+var auth = Wso2Auth.IdentityClient.getInstance();
 
 // Once instantiated, the  client can be initialized by passing the relevant parameters such as the server origin, redirect URL, client ID, etc.
 auth.initialize({
@@ -93,7 +93,7 @@ auth.on("sign-in", (response) => {
 ### Using modules
 ```javascript
 // The SDK provides a client that can be used to carry out the authentication.
-import { IdentityClient } from "@asgardio/oidc-js";
+import { IdentityClient } from "@wso2/oidc-js";
 
 // This client is a singleton and can be instantiated as follows.
 const auth = IdentityClient.getInstance();
@@ -171,20 +171,20 @@ The SDK supports all major browsers and provides polyfills to support incompatib
 
 To embed a polyfilled script in an HTML page:
 ```html
-<script src="https://unpkg.com/@asgardio/oidc-js@0.1.26/dist/polyfilled/asgardio-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@wso2/oidc-js@0.1.26/dist/polyfilled/wso2-oidc.production.min.js.js"></script>
 ```
 
-You can also import a polyfilled module into your modular app. Asgardio provides two different modules each supporting UMD and ESM.
+You can also import a polyfilled module into your modular app. Wso2 provides two different modules each supporting UMD and ESM.
 You can specify the preferred module type by appending the type to the module name as follows.
 
 To import a polyfilled ESM module:
 ```javascript
-import { IdentityClient } from "@asgardio/oidc-js/polyfilled/esm";
+import { IdentityClient } from "@wso2/oidc-js/polyfilled/esm";
 ```
 
 To import a polyfilled UMD module:
 ```javascript
-import { IdentityClient } from "@asgardio/oidc-js/polyfilled/umd";
+import { IdentityClient } from "@wso2/oidc-js/polyfilled/umd";
 ```
 
 **Note that using a polyfilled modules comes at the cost of the bundle size being twice as big as the default, non-polyfilled bundle.**
@@ -214,8 +214,8 @@ This method takes a `config` object as the only argument. The attributes of the 
 |Attribute| Type | Default Value| Description|
 |:-----|:----|:----|:----|
 |`signInRedirectURL`|`string`|""|The URL to redirect to after the user authorizes the client app. eg: `https://conotoso.com/login` |
-|`clientID`| `string` |""|The client ID of the OIDC application hosted in the Asgardio.|
-|`serverOrigin`|`string`|""|The origin of the Identity Provider. eg: `https://www.asgardio.io`|
+|`clientID`| `string` |""|The client ID of the OIDC application hosted in the Wso2.|
+|`serverOrigin`|`string`|""|The origin of the Identity Provider. eg: `https://www.wso2.io`|
 |`signOutRedirectURL` (optional)|`string`|`signInRedirectURL` |The URL to redirect to after the user signs out. eg: `https://conotoso.com/logout` |
 |`clientHost` (optional)|`string`|The origin of the client app obtained using `window.origin`|The hostname of the client app.  eg: `https://localhost:3000`|
 |`clientSecret` (optional)|`string`|""|The client secret of the OIDC application|
@@ -235,7 +235,7 @@ The `initialize` hook is used to fire a callback function after initializing is 
 
 ### Storage
 
-Asgardio allows the session information including the access token to be stored in three different places, namely,
+Wso2 allows the session information including the access token to be stored in three different places, namely,
 
 1. Session storage
 2. Local storage
@@ -377,7 +377,7 @@ The `custom-grant` hook is used to fire a callback function after a custom grant
 
 #### The data attribute
 
-Often, you may have to send session information in the body of a custom grant request. Since when using a web worker to store the session information, you won't have access to the session information, Asgardio provides template tags to attach the necessary session information. When a template tag is used, the SDK automatically replaces the tag with the relevant session information before sending the request. For example, if the access token should be send in the body of the request, you can use the `{{token}}` template tag. The SDK will replace this tag with the access token before dispatching the request.
+Often, you may have to send session information in the body of a custom grant request. Since when using a web worker to store the session information, you won't have access to the session information, Wso2 provides template tags to attach the necessary session information. When a template tag is used, the SDK automatically replaces the tag with the relevant session information before sending the request. For example, if the access token should be send in the body of the request, you can use the `{{token}}` template tag. The SDK will replace this tag with the access token before dispatching the request.
 
 The following template tags are at your disposal.
 
@@ -537,7 +537,7 @@ Please read [Contributing to the Code Base](http://wso2.github.io/) for details 
 
 ### Reporting issues
 
-We encourage you to report issues, improvements, and feature requests creating [Github Issues](https://github.com/asgardio/asgardio-js-oidc-sdk/issues).
+We encourage you to report issues, improvements, and feature requests creating [Github Issues](https://github.com/wso2/wso2-js-oidc-sdk/issues).
 
 Important: And please be advised that security issues must be reported to security@wso2com, not as GitHub issues, in order to reach the proper audience. We strongly advise following the WSO2 Security Vulnerability Reporting Guidelines when reporting the security issues.
 

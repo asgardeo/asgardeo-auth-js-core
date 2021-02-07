@@ -105,7 +105,7 @@ const resolveFileName = (bundleType) => {
         case ESM_BUNDLE:
             return pkg.module;
         case BROWSER_BUNDLE:
-            return "dist/asgardio-oidc.production.min.js";
+            return "dist/wso2-oidc.production.min.js";
         default:
             return pkg.main;
     }
