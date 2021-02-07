@@ -210,7 +210,7 @@ The SDK supports all major browsers and provides polyfills to support incompatib
 To embed a polyfilled script in an HTML page:
 
 ```html
-<script src="https://unpkg.com/@asgardeo/auth-js@0.2.2/dist/polyfilled/asgardeo-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-js@latest/dist/polyfilled/asgardeo-auth.production.min.js"></script>
 ```
 
 You can also import a polyfilled module into your modular app. Asgardeo provides two different modules each supporting UMD and ESM.
