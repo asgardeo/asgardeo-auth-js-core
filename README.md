@@ -69,7 +69,7 @@ npm install @asgardeo/auth-js
 Or simply load the SDK by importing the script into the header of your HTML file.
 
 ```html
-<script src="https://unpkg.com/@asgardeo/auth-js@0.2.2/dist/asgardeo-auth.production.min.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-js@latest/dist/asgardeo-auth.production.min.js"></script>
 ```
 
 If you want a polyfilled version of the SDK, checkout the [Browser Compatibility](#browser-compatibility) section.
