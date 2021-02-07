@@ -16,11 +16,11 @@
 * under the License.
 */
 
-export type AuthorizationURLParams = Omit<SignInConfig, "forceInit">;
+export type AuthorizationURLParams = Omit<GetAuthURLConfig, "forceInit">;
 
-export interface StrictSignInConfig {
+export interface StrictGetAuthURLConfig {
     fidp?: string;
     forceInit?: boolean;
 }
 
-export type SignInConfig = StrictSignInConfig & Record<string, string | boolean>;
+export type GetAuthURLConfig = StrictGetAuthURLConfig & Record<string, string | boolean>;

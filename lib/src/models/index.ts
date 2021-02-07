@@ -22,6 +22,6 @@ export * from "./oidc-provider-meta-data";
 export * from "./token";
 export * from "./custom-grant";
 export * from "./id-token";
-export * from "./sign-in";
+export * from "./authorization-url";
 export * from "./user";
 export * from "./crypto";

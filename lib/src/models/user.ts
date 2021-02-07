@@ -23,8 +23,7 @@ export interface BasicUserInfo {
     allowedScopes: string;
     tenantDomain?: string;
     sessionState: string;
-    givenName?: string;
-    familyName?: string;
+    [ key: string ]: string;
 }
 
 /**
@@ -56,6 +55,5 @@ export interface AuthenticatedUserInfo {
      * Authenticated user's username.
      */
     username: string;
-    givenName: string;
-    familyName: string;
+    [ key: string ]: string;
 }

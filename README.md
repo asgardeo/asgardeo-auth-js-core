@@ -40,7 +40,7 @@
 -   [Models](#models)
     -   [AuthClientConfig\<T>](#AuthClientConfigT)
     -   [Store](#Store)
-    -   [SignInConfig](#SignInConfig)
+    -   [GetAuthURLConfig](#GetAuthURLConfig)
     -   [TokenResponse](#TokenResponse)
     -   [OIDCEndpoints](#OIDCEndpoints)
     -   [DecodedIDTokenPayload](#DecodedIDTokenPayload)
@@ -69,7 +69,7 @@ npm install @asgardeo/auth-js
 Or simply load the SDK by importing the script into the header of your HTML file.
 
 ```html
-<script src="https://unpkg.com/@asgardeo/auth-js@0.1.26/dist/asgardeo-auth.production.min.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-js@latest/dist/asgardeo-auth.production.min.js"></script>
 ```
 
 If you want a polyfilled version of the SDK, checkout the [Browser Compatibility](#browser-compatibility) section.
@@ -210,7 +210,7 @@ The SDK supports all major browsers and provides polyfills to support incompatib
 To embed a polyfilled script in an HTML page:
 
 ```html
-<script src="https://unpkg.com/@asgardeo/auth-js@0.1.26/dist/polyfilled/asgardeo-oidc.production.min.js.js"></script>
+<script src="https://unpkg.com/@asgardeo/auth-js@latest/dist/polyfilled/asgardeo-auth.production.min.js"></script>
 ```
 
 You can also import a polyfilled module into your modular app. Asgardeo provides two different modules each supporting UMD and ESM.
@@ -334,12 +334,12 @@ const dataLayer = auth.getDataLayer();
 ### getAuthorizationURL
 
 ```TypeScript
-getAuthorizationURL(config?: SignInConfig): Promise<string>
+getAuthorizationURL(config?: GetAuthURLConfig): Promise<string>
 ```
 
 #### Arguments
 
-1. config: [`SignInConfig`](#SignInConfig) (optional)
+1. config: [`GetAuthURLConfig`](#GetAuthURLConfig) (optional)
 
     An optional config object that has the necessary attributes to configure this method. The `forceInit` attribute can be set to `true` to trigger a request to the `.well-known` endpoint and obtain the OIDC endpoints. By default, a request to the `.well-known` endpoint will be sent only if a request to it had not been sent before. If you wish to force a request to the endpoint, you can use this attribute.
 
@@ -914,7 +914,7 @@ const config: AuthClientConfig<Bar> ={
 | `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns a Promise that resolves with it. Since the SDK stores the data as a JSON string, the returned value will be a string. |
 | `removeData` | Required          | key: `string`                  | `Promise<void>`                                                                                                                                                                 | Removes the data with the specified key from the store.                                                                             |
 
-### SignInConfig
+### GetAuthURLConfig
 
 | Method        | Required/Optional | Type                  | Default Value | Description                                                                                                                                                            |
 | ------------- | ----------------- | --------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1069,6 +1069,8 @@ type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 | `allowedScopes` | `string` | The scopes allowed for the user.                                                                   |
 | `tenantDomain`  | `string` | The tenant domain to which the user belongs.                                                       |
 | `sessionState`  | `string` | The session state.                                                                                 |
+
+In addition to the above attributes, this object will also contain any other claim found in the ID token payload.
 
 ## Develop
 

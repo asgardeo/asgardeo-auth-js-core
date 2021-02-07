@@ -432,25 +432,15 @@ export class AuthenticationCore<T> {
             username: authenticatedUser.username
         };
 
-        if (authenticatedUser.displayName) {
-            basicUserInfo = { ...basicUserInfo, displayName: authenticatedUser.displayName };
+        if (!authenticatedUser.displayName || authenticatedUser.displayName === "") {
+            delete authenticatedUser.displayName;
         }
 
-        if (authenticatedUser.email) {
-            basicUserInfo = { ...basicUserInfo, email: authenticatedUser.email };
+        if (!authenticatedUser.tenantDomain || authenticatedUser.tenantDomain === "") {
+            delete authenticatedUser.tenantDomain;
         }
 
-        if (authenticatedUser.familyName) {
-            basicUserInfo = { ...basicUserInfo, familyName: authenticatedUser.familyName };
-        }
-
-        if (authenticatedUser.givenName) {
-            basicUserInfo = { ...basicUserInfo, givenName: authenticatedUser.givenName };
-        }
-
-        if (authenticatedUser.tenantDomain) {
-            basicUserInfo = { ...basicUserInfo, tenantDomain: authenticatedUser.tenantDomain };
-        }
+        basicUserInfo = { ...basicUserInfo, ...authenticatedUser };
 
         return basicUserInfo;
     }

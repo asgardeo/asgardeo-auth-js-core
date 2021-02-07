@@ -25,11 +25,11 @@ import {
     BasicUserInfo,
     CustomGrantConfig,
     DecodedIDTokenPayload,
+    GetAuthURLConfig,
     OIDCEndpoints,
-    SignInConfig,
     Store,
     TokenResponse
-} from "./models";
+}from "./models";
 
 /**
  * Default configurations.
@@ -125,7 +125,7 @@ export class AsgardeoAuthClient<T> {
     /**
      * This is an async method that returns a Promise that resolves with the authorization URL.
      *
-     * @param {SignInConfig} config - (Optional) A config object to force initialization and pass
+     * @param {GetAuthURLConfig} config - (Optional) A config object to force initialization and pass
      * custom path parameters such as the fidp parameter.
      *
      * @return {Promise<string>} - A promise that resolves with the authorization URL.
@@ -145,7 +145,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getAuthorizationURL(config?: SignInConfig): Promise<string> {
+    public async getAuthorizationURL(config?: GetAuthURLConfig): Promise<string> {
         const authRequestConfig = { ...config };
         delete authRequestConfig?.forceInit;
 
