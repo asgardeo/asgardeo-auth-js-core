@@ -62,23 +62,13 @@ export class AuthenticationHelper<T> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
-        configData.endpoints &&
-            Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const camelCasedName = endpointName
-                    .split("_")
-                    .map((name: string, index: number) => {
-                        if (index !== 0) {
-                            return name[0].toUpperCase() + name.substring(1);
-                        }
-
-                        return name;
-                    })
-                    .join("");
-
-                if (configData.overrideWellEndpointConfig && configData.endpoints[camelCasedName]) {
-                    oidcProviderMetaData[camelCasedName] = configData.endpoints[camelCasedName];
-                }
-            });
+        if (configData.overrideWellEndpointConfig) {
+            configData.endpoints &&
+                Object.keys(configData.endpoints).forEach((endpointName: string) => {
+                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                    oidcProviderMetaData[ snakeCasedName ] = configData.endpoints[ endpointName ];
+                });
+        }
 
         return { ...response, ...oidcProviderMetaData };
     }
