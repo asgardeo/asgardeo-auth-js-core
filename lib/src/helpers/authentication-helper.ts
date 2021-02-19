@@ -66,7 +66,10 @@ export class AuthenticationHelper<T> {
             configData.endpoints &&
                 Object.keys(configData.endpoints).forEach((endpointName: string) => {
                     const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                    oidcProviderMetaData[ snakeCasedName ] = configData.endpoints[ endpointName ];
+                    oidcProviderMetaData[snakeCasedName] =
+                        configData?.endpoints
+                            ? configData.endpoints[ endpointName ]
+                            : "";
                 });
         }
 
@@ -77,7 +80,7 @@ export class AuthenticationHelper<T> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
-        configData.endpoints &&
+        configData?.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
                 const camelCasedName = endpointName
                     .split("_")
@@ -90,7 +93,9 @@ export class AuthenticationHelper<T> {
                     })
                     .join("");
 
-                oidcProviderMetaData[camelCasedName] = configData.endpoints[camelCasedName];
+                oidcProviderMetaData[ camelCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ camelCasedName ]
+                    : "";
             });
 
         const defaultEndpoints = {
@@ -162,8 +167,8 @@ export class AuthenticationHelper<T> {
                                         "AUTH_HELPER-VIT-ES03",
                                         "authentication-helper",
                                         "validateIdToken",
-                                        null,
-                                        null,
+                                        undefined,
+                                        undefined,
                                         error
                                     )
                                 );
@@ -175,8 +180,8 @@ export class AuthenticationHelper<T> {
                                 "AUTH_HELPER-VIT-ES04",
                                 "authentication-helper",
                                 "validateIdToken",
-                                null,
-                                null,
+                                undefined,
+                                undefined,
                                 error
                             )
                         );
@@ -190,7 +195,7 @@ export class AuthenticationHelper<T> {
                         "validateIdToken",
                         "Request to jwks endpoint failed.",
                         "The request sent to get the jwks from the server failed.",
-                        error?.code,
+                        error?.code ?? "",
                         error?.message,
                         error?.response?.status,
                         error?.response?.data
@@ -216,7 +221,7 @@ export class AuthenticationHelper<T> {
             .replace(USERNAME_TAG, AuthenticationUtils.getAuthenticatedUserInfo(sessionData.id_token).username)
             .replace(SCOPE_TAG, scope)
             .replace(CLIENT_ID_TAG, configData.clientID)
-            .replace(CLIENT_SECRET_TAG, configData.clientSecret);
+            .replace(CLIENT_SECRET_TAG, configData.clientSecret ?? "");
     }
 
     public async clearUserSessionData(): Promise<void> {
@@ -271,8 +276,8 @@ export class AuthenticationHelper<T> {
                             "AUTH_HELPER-HAT-ES03",
                             "authentication-helper",
                             "handleTokenResponse",
-                            null,
-                            null,
+                            undefined,
+                            undefined,
                             error
                         )
                     );

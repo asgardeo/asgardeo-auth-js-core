@@ -20,19 +20,19 @@ import { AsgardeoAuthNetworkException } from ".";
 
 export class AsgardeoAuthException extends Error {
     public name: string;
-    public code: string;
+    public code: string | undefined;
     public file: string;
     public method: string;
-    public description: string;
-    public error: AsgardeoAuthException | AsgardeoAuthNetworkException;
+    public description: string | undefined;
+    public error: AsgardeoAuthException | AsgardeoAuthNetworkException | undefined;
 
     public constructor(
-        code: string,
+        code: string | undefined,
         file: string,
         method: string,
         message?: string,
         description?: string,
-        error?: AsgardeoAuthException | AsgardeoAuthNetworkException
+        error?: AsgardeoAuthException | AsgardeoAuthNetworkException | undefined
     ) {
         super(message ?? error?.message);
         this.name = this.constructor.name;

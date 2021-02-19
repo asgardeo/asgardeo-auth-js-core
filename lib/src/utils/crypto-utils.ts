@@ -119,7 +119,7 @@ export class CryptoUtils {
         clientID: string,
         issuer: string,
         username: string,
-        clockTolerance: number
+        clockTolerance: number | undefined
     ): Promise<boolean> {
         return jwtVerify(idToken, jwk, {
             algorithms: this.getSupportedSignatureAlgorithms(),

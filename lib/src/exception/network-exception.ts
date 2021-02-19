@@ -21,18 +21,18 @@ import { AsgardeoAuthException } from "./exception";
 export class AsgardeoAuthNetworkException extends AsgardeoAuthException {
     public networkErrorCode: string;
     public networkErrorMessage: string;
-    public status: number;
+    public status: number | undefined;
     public networkErrorData: string;
 
     public constructor(
-        code: string,
+        code: string | undefined,
         file: string,
         method: string,
         message: string,
         description: string,
         networkErrorCode: string,
         networkErrorMessage: string,
-        status: number,
+        status: number | undefined,
         networkErrorData: string
     ) {
         super(code, file, method, message, description);
