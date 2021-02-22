@@ -49,34 +49,38 @@ export class AuthenticationUtils {
     }
 
     private static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload) {
-        delete payload?.iss;
-        delete payload?.sub;
-        delete payload?.aud;
-        delete payload?.exp;
-        delete payload?.iat;
-        delete payload?.acr;
-        delete payload?.amr;
-        delete payload?.azp;
-        delete payload?.auth_time;
-        delete payload?.nonce;
-        delete payload?.c_hash;
-        delete payload?.at_hash
-        delete payload?.nbf;
-        delete payload?.isk;
-        delete payload?.sid;
+        const optionalizedPayload: Partial<DecodedIDTokenPayload> = { ...payload };
+
+        delete optionalizedPayload?.iss;
+        delete optionalizedPayload?.sub;
+        delete optionalizedPayload?.aud;
+        delete optionalizedPayload?.exp;
+        delete optionalizedPayload?.iat;
+        delete optionalizedPayload?.acr;
+        delete optionalizedPayload?.amr;
+        delete optionalizedPayload?.azp;
+        delete optionalizedPayload?.auth_time;
+        delete optionalizedPayload?.nonce;
+        delete optionalizedPayload?.c_hash;
+        delete optionalizedPayload?.at_hash;
+        delete optionalizedPayload?.nbf;
+        delete optionalizedPayload?.isk;
+        delete optionalizedPayload?.sid;
 
         const camelCasedPayload = {}
-        Object.entries(payload).forEach(([ key, value ]) => {
+        Object.entries(optionalizedPayload).forEach(([key, value]) => {
             const keyParts = key.split("_");
-            const camelCasedKey = keyParts.map((key: string, index: number) => {
-                if (index === 0) {
-                    return key;
-                }
+            const camelCasedKey = keyParts
+                .map((key: string, index: number) => {
+                    if (index === 0) {
+                        return key;
+                    }
 
-                return [ key[ 0 ].toUpperCase(), ...key.slice(1) ].join("");
-            }).join("");
+                    return [key[0].toUpperCase(), ...key.slice(1)].join("");
+                })
+                .join("");
 
-            camelCasedPayload[ camelCasedKey ] = value;
+            camelCasedPayload[camelCasedKey] = value;
         });
 
         return camelCasedPayload;

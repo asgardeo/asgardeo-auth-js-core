@@ -17,13 +17,13 @@
 */
 
 export interface BasicUserInfo {
-    email?: string;
+    email?: string | undefined;
     username: string;
-    displayName?: string;
+    displayName?: string | undefined;
     allowedScopes: string;
-    tenantDomain?: string;
+    tenantDomain?: string | undefined;
     sessionState: string;
-    [ key: string ]: string;
+    [ key: string ]: string | undefined;
 }
 
 /**
@@ -33,27 +33,27 @@ export interface AuthenticatedUserInfo {
     /**
      * Authenticated user's display name.
      */
-    displayName?: string;
+    displayName?: string | undefined;
     /**
      * Authenticated user's display name.
      * @deprecated Use `displayName` instead.
      */
-    display_name?: string;
+    display_name?: string | undefined;
     /**
      * User's email.
      */
-    email?: string;
+    email?: string | undefined;
     /**
      * Available scopes.
      */
-    scope?: string;
+    scope?: string | undefined;
     /**
      * Authenticated user's tenant domain.
      */
-    tenantDomain?: string;
+    tenantDomain?: string | undefined;
     /**
      * Authenticated user's username.
      */
     username: string;
-    [ key: string ]: string;
+    [key: string]: string | undefined;
 }

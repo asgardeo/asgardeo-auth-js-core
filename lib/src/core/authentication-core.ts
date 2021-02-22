@@ -135,7 +135,7 @@ export class AuthenticationCore<T> {
 
         await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
 
-        const body = [];
+        const body: string[] = [];
         body.push(`client_id=${configData.clientID}`);
 
         if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
@@ -165,8 +165,8 @@ export class AuthenticationCore<T> {
                                 "AUTH_CORE-RAT1-ES02",
                                 "authentication-core",
                                 "requestAccessToken",
-                                null,
-                                null,
+                                undefined,
+                                undefined,
                                 error
                             )
                         );
@@ -180,7 +180,7 @@ export class AuthenticationCore<T> {
                         "requestAccessToken",
                         "Requesting access token failed",
                         "The request to get the access token from the server failed.",
-                        error?.code,
+                        error?.code ?? "",
                         error?.message,
                         error?.response?.status,
                         error?.response?.data
@@ -220,7 +220,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const body = [];
+        const body: string[] = [];
         body.push(`client_id=${configData.clientID}`);
         body.push(`refresh_token=${sessionData.refresh_token}`);
         body.push("grant_type=refresh_token");
@@ -241,8 +241,8 @@ export class AuthenticationCore<T> {
                                 "AUTH_CORE-RAT2-ES03",
                                 "authentication-core",
                                 "refreshAccessToken",
-                                null,
-                                null,
+                                undefined,
+                                undefined,
                                 error
                             )
                         );
@@ -256,7 +256,7 @@ export class AuthenticationCore<T> {
                         "refreshAccessToken",
                         "Refresh access token request failed.",
                         "The request to refresh the access token failed.",
-                        error?.code,
+                        error?.code ?? "",
                         error?.message,
                         error?.response?.status,
                         error?.response?.data
@@ -282,7 +282,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const body = [];
+        const body: string[] = [];
         body.push(`client_id=${configData.clientID}`);
         body.push(`token=${(await this._dataLayer.getSessionData()).access_token}`);
         body.push("token_type_hint=access_token");
@@ -319,7 +319,7 @@ export class AuthenticationCore<T> {
                         "revokeAccessToken",
                         "The request to revoke access token failed.",
                         "The request sent to revoke the access token failed.",
-                        error?.code,
+                        error?.code ?? "",
                         error?.message,
                         error?.response?.status,
                         error?.response?.data
@@ -394,8 +394,8 @@ export class AuthenticationCore<T> {
                                         "AUTH_CORE-RCG-ES03",
                                         "authentication-core",
                                         "requestCustomGrant",
-                                        null,
-                                        null,
+                                        undefined,
+                                        undefined,
                                         error
                                     )
                                 );
@@ -413,7 +413,7 @@ export class AuthenticationCore<T> {
                         "requestCustomGrant",
                         "The custom grant request failed.",
                         "The request sent to get the custom grant failed.",
-                        error?.code,
+                        error?.code ?? "",
                         error?.message,
                         error?.response?.status,
                         error?.response?.data
