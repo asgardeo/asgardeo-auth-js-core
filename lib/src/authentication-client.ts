@@ -508,7 +508,9 @@ export class AsgardeoAuthClient<T> {
         const stateParam = url.searchParams.get("state");
         const error = Boolean(url.searchParams.get("error"));
 
-        return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error: false;
+        return stateParam
+            ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error
+            : false;
     }
 
     /**
