@@ -43,6 +43,10 @@ interface BaseConfigInterface {
      * Allowed leeway for id_tokens (in seconds).
      */
     clockTolerance?: number;
+    /**
+     * Send cookie headers with request.
+     */
+    sendCookiesInRequest?: boolean;
 }
 
 /**
