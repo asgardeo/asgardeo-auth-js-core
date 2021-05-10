@@ -67,6 +67,7 @@ const DefaultConfig = {
     enablePKCE: true,
     responseMode: null,
     scope: [OIDC_SCOPE],
+    sendCookiesInRequests: false,
     validateIDToken: true
 };
 

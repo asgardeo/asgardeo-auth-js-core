@@ -217,7 +217,7 @@ export function validateIdToken(
     }
 
     return axios
-        .get(jwksEndpoint)
+        .get(jwksEndpoint, { withCredentials: requestParams.sendCookiesInRequests })
         .then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(new Error("Failed to load public keys from JWKS URI: " + jwksEndpoint));
@@ -307,7 +307,10 @@ export function sendTokenRequest(
     }
 
     return axios
-        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders() })
+        .post(tokenEndpoint, body.join("&"), {
+            headers: getTokenRequestHeaders(),
+            withCredentials: requestParams.sendCookiesInRequests
+        })
         .then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(
@@ -384,7 +387,10 @@ export function sendRefreshTokenRequest(
     }
 
     return axios
-        .post(tokenEndpoint, body.join("&"), { headers: getTokenRequestHeaders() })
+        .post(tokenEndpoint, body.join("&"), {
+            headers: getTokenRequestHeaders(),
+            withCredentials: requestParams.sendCookiesInRequests
+        })
         .then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(
@@ -460,7 +466,7 @@ export function sendRevokeTokenRequest(
     return axios
         .post(revokeTokenEndpoint, body.join("&"), {
             headers: getTokenRequestHeaders(),
-            withCredentials: true
+            withCredentials: requestParams.sendCookiesInRequests
         })
         .then((response) => {
             if (response.status !== 200) {
