@@ -44,9 +44,9 @@ interface BaseConfigInterface {
      */
     clockTolerance?: number;
     /**
-     * Send cookie headers with request.
+     * Send cookie headers in requests sent internally such as `token`, `refresh_token` etc.
      */
-    sendCookiesInRequest?: boolean;
+    sendCookiesInRequests?: boolean;
 }
 
 /**
