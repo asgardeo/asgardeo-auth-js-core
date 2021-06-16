@@ -61,7 +61,7 @@ jobs:
       - name: Pack Release Artifacts
         run: |
           mkdir artifacts
-          if [[ test -d samples ]]
+          if test -d samples
           then
             cd samples
             for dir in */ ; do
@@ -73,7 +73,7 @@ jobs:
         run: |
           version=`npm info @asgardeo/auth-js version`
           echo ${{secrets.ASGARDIO_GITHUB_BOT_TOKEN}} | gh auth login --with-token
-          if [[ test -d samples ]]
+          if test -d samples
           then
             gh release create v$version artifacts/*
           else
