@@ -17,6 +17,7 @@
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import base64url from "base64url";
 import { KeyLike } from "jose/webcrypto/types";
 import { getCodeChallenge, getCodeVerifier, getJWKForTheIdToken, isValidIdToken } from "./crypto";
 import {
@@ -74,7 +75,6 @@ import {
     UserInfo,
     WebWorkerConfigInterface
 } from "../models";
-import base64url from "base64url";
 
 /**
  * Checks whether authorization code is present.
