@@ -17,6 +17,7 @@
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import base64url from "base64url";
 import { KeyLike } from "jose/webcrypto/types";
 import { getCodeChallenge, getCodeVerifier, getJWKForTheIdToken, isValidIdToken } from "./crypto";
 import {
@@ -489,7 +490,7 @@ export function sendRevokeTokenRequest(
  * @returns {AuthenticatedUserInterface} authenticated user.
  */
 export const getAuthenticatedUser = (idToken: string): AuthenticatedUserInterface => {
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken?.split(".")[1]));
+    const payload: DecodedIdTokenPayloadInterface = JSON.parse(base64url.decode(idToken?.split(".")[1], "utf8"));
     const emailAddress: string = payload.email ? payload.email : null;
     const tenantDomain: string = getTenantDomainFromIdTokenPayload(payload);
 
@@ -727,7 +728,7 @@ export const getDecodedIDToken = (
     config: ConfigInterface | WebWorkerConfigInterface
 ): DecodedIdTokenPayloadInterface => {
     const idToken = getSessionParameter(ID_TOKEN, config);
-    const payload: DecodedIdTokenPayloadInterface = JSON.parse(atob(idToken.split(".")[1]));
+    const payload: DecodedIdTokenPayloadInterface = JSON.parse(base64url.decode(idToken.split(".")[1], "utf8"));
 
     return payload;
 };
