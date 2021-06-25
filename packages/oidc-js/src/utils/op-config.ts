@@ -259,30 +259,30 @@ export const initOPConfiguration = (
         })
         .catch(() => {
             setAuthorizeEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.authorize || SERVICE_RESOURCES.authorize),
+                requestParams?.endpoints?.authorize || (requestParams.serverOrigin + SERVICE_RESOURCES.authorize),
                 requestParams
             );
             setTokenEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.token || SERVICE_RESOURCES.token),
+                requestParams?.endpoints?.token || (requestParams.serverOrigin + SERVICE_RESOURCES.token),
                 requestParams
             );
             setRevokeTokenEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.revoke || SERVICE_RESOURCES.revoke),
+                requestParams?.endpoints?.revoke || (requestParams.serverOrigin + SERVICE_RESOURCES.revoke),
                 requestParams
             );
             setEndSessionEndpoint(
-                requestParams.serverOrigin + (requestParams?.endpoints?.logout || SERVICE_RESOURCES.logout),
+                requestParams?.endpoints?.logout || (requestParams.serverOrigin + SERVICE_RESOURCES.logout),
                 requestParams
             );
-            setJwksUri(serverHost + (requestParams?.endpoints?.jwks || SERVICE_RESOURCES.jwks), requestParams);
+            setJwksUri(requestParams?.endpoints?.jwks || (serverHost + SERVICE_RESOURCES.jwks), requestParams);
             setIssuer(
-                requestParams.serverOrigin + (requestParams?.endpoints?.token || SERVICE_RESOURCES.token),
+                requestParams?.endpoints?.token || (requestParams.serverOrigin + SERVICE_RESOURCES.token),
                 requestParams
             );
             setClientID(requestParams);
             setOIDCSessionIFrameURL(
-                requestParams.serverOrigin +
-                    (requestParams?.endpoints?.oidcSessionIFrame || SERVICE_RESOURCES.oidcSessionIFrame),
+                requestParams?.endpoints?.oidcSessionIFrame
+                || (requestParams.serverOrigin + SERVICE_RESOURCES.oidcSessionIFrame),
                 requestParams
             );
             setSignInRedirectURL(requestParams.signInRedirectURL, requestParams);
