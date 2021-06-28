@@ -75,7 +75,7 @@ export class CryptoUtils {
      */
     /* eslint-disable @typescript-eslint/no-explicit-any */
     public static getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<KeyLike> {
-        const headerJSON = JSON.parse(atob(jwtHeader));
+        const headerJSON = JSON.parse(base64url.decode(jwtHeader, "utf8"));
 
         for (const key of keys) {
             if (headerJSON.kid === key.kid) {
