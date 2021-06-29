@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import base64url from "base64url";
 import Base64 from "crypto-js/enc-base64";
 import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "crypto-js/sha256";
@@ -74,7 +75,7 @@ export const getSupportedSignatureAlgorithms = (): string[] => {
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const getJWKForTheIdToken = (jwtHeader: string, keys: JWKInterface[]): Promise<KeyLike> => {
-    const headerJSON = JSON.parse(atob(jwtHeader));
+    const headerJSON = JSON.parse(base64url.decode(jwtHeader));
 
     for (const key of keys) {
         if (headerJSON.kid === key.kid) {
