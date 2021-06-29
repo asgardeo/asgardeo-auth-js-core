@@ -23,6 +23,7 @@ import eslint from "@rollup/plugin-eslint";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import analyze from "rollup-plugin-analyzer";
+import globals from "rollup-plugin-node-globals";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
 import workerLoader from "rollup-plugin-web-worker-loader";
@@ -157,6 +158,7 @@ const generateConfig = (bundleType, polyfill, env) => {
                 preferBuiltins: true
             }),
             commonjs(),
+            globals(),
             eslint(),
             typescript(),
             replace({
