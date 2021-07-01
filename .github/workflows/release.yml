@@ -80,8 +80,6 @@ jobs:
           else
             gh release create $version
           fi
-          ls -al
-          cd lib && ls -al
 
       - name: Publish Asgardeo Auth JS SDK
         env:
