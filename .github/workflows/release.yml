@@ -49,7 +49,6 @@ jobs:
       - name: Build
         run: |
           yarn build
-          npm run remove-node-modules
 
       - name: Bump Version
         run: |
@@ -64,6 +63,7 @@ jobs:
           if test -d samples
           then
             cd samples
+            rm -rf **/node_modules/ 
             for dir in */ ; do
                 zip -r "../artifacts/${dir%/}.zip" $dir
             done
@@ -72,6 +72,7 @@ jobs:
       - name: Release Asgardeo Auth JS SDK
         run: |
           version=`npm info @asgardeo/auth-js version`
+          echo $version
           echo ${{secrets.ASGARDIO_GITHUB_BOT_TOKEN}} | gh auth login --with-token
           if test -d samples
           then
@@ -79,13 +80,13 @@ jobs:
           else
             gh release create v$version
           fi
+          ls -al
+          cd lib && ls -al
 
       - name: Publish Asgardeo Auth JS SDK
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         run: |
-          npm install
           cp README.md lib
           cd lib
-          ls -al
           npm publish --access public
