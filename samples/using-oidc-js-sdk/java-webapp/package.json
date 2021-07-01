@@ -1,6 +1,6 @@
 {
     "name": "@asgardio/oidc-sample-java",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "A sample java web app demonstrating OIDC authentication using Asgardio's SDK",
     "main": "index.js",
     "scripts": {},
