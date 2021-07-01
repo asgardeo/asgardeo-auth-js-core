@@ -54,7 +54,7 @@ jobs:
         run: |
           git config --global user.email "version.bump@github.action.com"
           git config --global user.name "asgardeo-github-bot"
-          lerna version ${{ github.event.inputs.Type }} --yes
+          npm run bump-${{ github.event.inputs.Type }}-version
           git push --follow-tags
 
       - name: Pack Release Artifacts
@@ -72,7 +72,6 @@ jobs:
       - name: Release Asgardeo Auth JS SDK
         run: |
           version=`git describe --tags --abbrev=0`
-          echo $version
           echo ${{secrets.ASGARDIO_GITHUB_BOT_TOKEN}} | gh auth login --with-token
           if test -d samples
           then
