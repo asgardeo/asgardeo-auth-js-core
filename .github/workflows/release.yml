@@ -63,7 +63,7 @@ jobs:
           if test -d samples
           then
             cd samples
-            rm -rf **/node_modules/ 
+            rm -rf **/node_modules/
             for dir in */ ; do
                 zip -r "../artifacts/${dir%/}.zip" $dir
             done
@@ -71,7 +71,7 @@ jobs:
 
       - name: Release Asgardeo Auth JS SDK
         run: |
-          version=`npm info @asgardeo/auth-js version`
+          version=`git describe --tags --abbrev=0`
           echo $version
           echo ${{secrets.ASGARDIO_GITHUB_BOT_TOKEN}} | gh auth login --with-token
           if test -d samples
