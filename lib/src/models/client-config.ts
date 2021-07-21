@@ -38,11 +38,6 @@ export interface StrictAuthClientConfig {
      * Allowed leeway for id_tokens (in seconds).
      */
     clockTolerance?: number;
-    /**
-     * The flag to specify whether https request retry
-     * should be enabled or not.
-     */
-    isHttpRequestRetryEnabled?: boolean;
 }
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
