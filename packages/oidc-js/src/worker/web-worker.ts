@@ -17,6 +17,7 @@
  */
 
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import {
     ACCESS_TOKEN,
     AUTHORIZATION_CODE,
@@ -31,7 +32,7 @@ import {
     TENANT_DOMAIN,
     USERNAME
 } from "../constants";
-import { HttpClient, HttpClientInstance } from "../http-client";
+import { HttpClient, HttpClientInstance, defaultHttpRequestRetryConfig } from "../http-client";
 import {
     CustomGrantRequestParams,
     DecodedIdTokenPayloadInterface,
@@ -205,6 +206,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
      */
     const httpRequest = (config: HttpRequestConfig): Promise<HttpResponse> => {
         let matches = false;
+        
         authConfig.baseUrls.forEach((baseUrl) => {
             if (config?.url?.startsWith(baseUrl)) {
                 matches = true;
@@ -212,6 +214,15 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
         });
 
         if (matches) {
+
+            if (authConfig.isHttpRequestRetryEnabled) {
+                if (!config?.axiosRetry) {
+                    axiosRetry(httpClient, config?.axiosRetry);
+                } else {
+                    axiosRetry(httpClient, defaultHttpRequestRetryConfig);
+                }
+            }
+            
             return httpClient.request(config)
                 .then((response: HttpResponse) => {
                     return Promise.resolve(response);
