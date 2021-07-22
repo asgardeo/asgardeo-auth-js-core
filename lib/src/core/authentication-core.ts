@@ -133,7 +133,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+        sessionState && await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
 
         const body: string[] = [];
         body.push(`client_id=${configData.clientID}`);
@@ -344,15 +344,15 @@ export class AuthenticationCore<T> {
             );
         }
 
-        let data: string = "";
 
-        Object.entries(customGrantParams.data).map(([key, value], index: number) => {
-            const newValue = this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
-            data += `${key}=${newValue}${index !== Object.entries(customGrantParams.data).length - 1 ? "&" : ""}`;
-        });
+        const data: string[] = await Promise.all(Object.entries(customGrantParams.data)
+            .map(async ([ key, value ]) => {
+            const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
+            return `${key}=${newValue}`;
+        }));
 
         const requestConfig: AxiosRequestConfig = {
-            data: data,
+            data: data.join("&"),
             headers: {
                 ...AuthenticationUtils.getTokenRequestHeaders()
             },
