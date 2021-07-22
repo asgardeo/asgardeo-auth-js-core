@@ -16,8 +16,10 @@
  * under the License.
  */
 
+import { AxiosRequestConfig } from "axios";
+import { IAxiosRetryConfig } from "axios-retry";
+
 export {
-    AxiosRequestConfig as HttpRequestConfig,
     AxiosResponse as HttpResponse,
     Method,
     AxiosTransformer as HttpTransformer,
@@ -30,3 +32,7 @@ export {
     AxiosPromise as HttpPromise,
     AxiosInstance as HttpInstance
 } from "axios";
+
+export interface HttpRequestConfig extends AxiosRequestConfig {
+    "axiosRetry"?: IAxiosRetryConfig;
+}
