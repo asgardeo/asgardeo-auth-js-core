@@ -344,15 +344,15 @@ export class AuthenticationCore<T> {
             );
         }
 
-        let data: string = "";
 
-        Object.entries(customGrantParams.data).map(async ([key, value], index: number) => {
+        const data: string[] = await Promise.all(Object.entries(customGrantParams.data)
+            .map(async ([ key, value ]) => {
             const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
-            data += `${key}=${newValue}${index !== Object.entries(customGrantParams.data).length - 1 ? "&" : ""}`;
-        });
+            return `${key}=${newValue}`;
+        }));
 
         const requestConfig: AxiosRequestConfig = {
-            data: data,
+            data: data.join("&"),
             headers: {
                 ...AuthenticationUtils.getTokenRequestHeaders()
             },
