@@ -22,4 +22,5 @@ export interface CustomGrantConfig{
     signInRequired: boolean;
     attachToken: boolean;
     returnsSession: boolean;
+    tokenEndpoint?: string;
 }
