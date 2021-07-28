@@ -16,14 +16,15 @@
  * under the License.
  */
 
-import { IAxiosRetryConfig } from "axios-retry";
+import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
 
 export const defaultHttpRequestRetryConfig: IAxiosRetryConfig = {
     retries: 3,
     retryCondition: (error) => {
-        return error.response?.data?.code === 502 || error.response?.data?.code === 503;
+
+        if (error?.response?.data?.code) {
+            return error.response.data.code === 502 || error.response.data.code === 503;
+        }
     },
-    retryDelay: (retryCount) => {
-        return retryCount * 2000;
-    }
+    retryDelay: axiosRetry.exponentialDelay
 }

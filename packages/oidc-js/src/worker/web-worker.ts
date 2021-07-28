@@ -216,7 +216,7 @@ export const WebWorker: WebWorkerSingletonInterface = ((): WebWorkerSingletonInt
         if (matches) {
 
             if (authConfig.isHttpRequestRetryEnabled) {
-                if (!config?.axiosRetry) {
+                if (config?.axiosRetry) {
                     axiosRetry(httpClient, config?.axiosRetry);
                 } else {
                     axiosRetry(httpClient, defaultHttpRequestRetryConfig);

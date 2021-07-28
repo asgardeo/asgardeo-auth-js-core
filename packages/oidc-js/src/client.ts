@@ -25,7 +25,7 @@ import {
     Storage
 }from "./constants";
 import { isWebWorkerConfig } from "./helpers";
-import { HttpClient, HttpClientInstance } from "./http-client";
+import { defaultHttpRequestRetryConfig, HttpClient, HttpClientInstance } from "./http-client";
 import {
     ConfigInterface,
     CustomGrantRequestParams,
@@ -54,6 +54,7 @@ import {
     sendRevokeTokenRequest
 } from "./utils";
 import { WebWorkerClient } from "./worker";
+import axiosRetry from "axios-retry";
 
 /**
  * Default configurations.
@@ -273,11 +274,20 @@ export class IdentityClient {
     }
 
     public async httpRequest(config: HttpRequestConfig): Promise<HttpResponse> {
+
         if (this._storage === Storage.WebWorker) {
             return this._client.httpRequest(config);
         }
 
-        return this._httpClient.request(config);
+        if (this._authConfig.isHttpRequestRetryEnabled) {
+            if (config?.axiosRetry) {
+                axiosRetry(this._httpClient, config?.axiosRetry);
+            } else {
+                axiosRetry(this._httpClient, defaultHttpRequestRetryConfig);
+            }
+
+            return this._httpClient.request(config);
+        }
     }
 
     public async httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[]> {
