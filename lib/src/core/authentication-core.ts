@@ -331,7 +331,14 @@ export class AuthenticationCore<T> {
     public async requestCustomGrant(customGrantParams: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> {
         const oidcProviderMetadata = await this._oidcProviderMetaData();
 
-        if (!oidcProviderMetadata.token_endpoint || oidcProviderMetadata.token_endpoint.trim().length === 0) {
+        let tokenEndpoint;
+        if (customGrantParams.tokenEndpoint && customGrantParams.tokenEndpoint.trim().length !== 0) {
+            tokenEndpoint = customGrantParams.tokenEndpoint;
+        } else {
+            tokenEndpoint = oidcProviderMetadata.token_endpoint;
+        }
+
+        if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
             return Promise.reject(
                 new AsgardeoAuthException(
                     "AUTH_CORE-RCG-NF01",
@@ -357,7 +364,7 @@ export class AuthenticationCore<T> {
                 ...AuthenticationUtils.getTokenRequestHeaders()
             },
             method: "POST",
-            url: oidcProviderMetadata.token_endpoint
+            url: tokenEndpoint
         };
 
         if (customGrantParams.attachToken) {
