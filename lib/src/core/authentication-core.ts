@@ -133,7 +133,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+        sessionState && await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
 
         const body: string[] = [];
         body.push(`client_id=${configData.clientID}`);
@@ -331,7 +331,14 @@ export class AuthenticationCore<T> {
     public async requestCustomGrant(customGrantParams: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> {
         const oidcProviderMetadata = await this._oidcProviderMetaData();
 
-        if (!oidcProviderMetadata.token_endpoint || oidcProviderMetadata.token_endpoint.trim().length === 0) {
+        let tokenEndpoint;
+        if (customGrantParams.tokenEndpoint && customGrantParams.tokenEndpoint.trim().length !== 0) {
+            tokenEndpoint = customGrantParams.tokenEndpoint;
+        } else {
+            tokenEndpoint = oidcProviderMetadata.token_endpoint;
+        }
+
+        if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
             return Promise.reject(
                 new AsgardeoAuthException(
                     "AUTH_CORE-RCG-NF01",
@@ -344,20 +351,20 @@ export class AuthenticationCore<T> {
             );
         }
 
-        let data: string = "";
 
-        Object.entries(customGrantParams.data).map(([key, value], index: number) => {
-            const newValue = this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
-            data += `${key}=${newValue}${index !== Object.entries(customGrantParams.data).length - 1 ? "&" : ""}`;
-        });
+        const data: string[] = await Promise.all(Object.entries(customGrantParams.data)
+            .map(async ([ key, value ]) => {
+            const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
+            return `${key}=${newValue}`;
+        }));
 
         const requestConfig: AxiosRequestConfig = {
-            data: data,
+            data: data.join("&"),
             headers: {
                 ...AuthenticationUtils.getTokenRequestHeaders()
             },
             method: "POST",
-            url: oidcProviderMetadata.token_endpoint
+            url: tokenEndpoint
         };
 
         if (customGrantParams.attachToken) {
