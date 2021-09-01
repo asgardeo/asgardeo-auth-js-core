@@ -80,23 +80,14 @@ export class AuthenticationHelper<T> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
-        configData?.endpoints &&
-            Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const camelCasedName = endpointName
-                    .split("_")
-                    .map((name: string, index: number) => {
-                        if (index !== 0) {
-                            return name[0].toUpperCase() + name.substring(1);
-                        }
-
-                        return name;
-                    })
-                    .join("");
-
-                oidcProviderMetaData[ camelCasedName ] = configData?.endpoints
-                    ? configData.endpoints[ camelCasedName ]
+        configData.endpoints &&
+        Object.keys(configData.endpoints).forEach((endpointName: string) => {
+            const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+            oidcProviderMetaData[snakeCasedName] =
+                configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
                     : "";
-            });
+        });
 
         const defaultEndpoints = {
             [AUTHORIZATION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
@@ -107,7 +98,7 @@ export class AuthenticationHelper<T> {
             [TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
         };
 
-        return { ...defaultEndpoints, ...oidcProviderMetaData };
+        return { ...oidcProviderMetaData, ...defaultEndpoints };
     }
 
     public async validateIdToken(idToken: string): Promise<boolean> {
