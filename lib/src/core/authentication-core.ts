@@ -154,7 +154,10 @@ export class AuthenticationCore<T> {
         }
 
         return axios
-            .post(tokenEndpoint, body.join("&"), { headers: AuthenticationUtils.getTokenRequestHeaders() })
+            .post(tokenEndpoint, body.join("&"), {
+                headers: AuthenticationUtils.getTokenRequestHeaders(),
+                withCredentials: configData.sendCookiesInRequests
+            })
             .then((response) => {
                 return this._authenticationHelper
                     .handleTokenResponse(response)
@@ -230,7 +233,10 @@ export class AuthenticationCore<T> {
         }
 
         return axios
-            .post(tokenEndpoint, body.join("&"), { headers: AuthenticationUtils.getTokenRequestHeaders() })
+            .post(tokenEndpoint, body.join("&"), {
+                headers: AuthenticationUtils.getTokenRequestHeaders(),
+                withCredentials: configData.sendCookiesInRequests
+            })
             .then((response) => {
                 return this._authenticationHelper
                     .handleTokenResponse(response)
@@ -290,7 +296,7 @@ export class AuthenticationCore<T> {
         return axios
             .post(revokeTokenEndpoint, body.join("&"), {
                 headers: AuthenticationUtils.getTokenRequestHeaders(),
-                withCredentials: true
+                withCredentials: configData.sendCookiesInRequests
             })
             .then((response) => {
                 if (response.status !== 200) {
@@ -330,6 +336,7 @@ export class AuthenticationCore<T> {
 
     public async requestCustomGrant(customGrantParams: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> {
         const oidcProviderMetadata = await this._oidcProviderMetaData();
+        const configData = await this._config();
 
         let tokenEndpoint;
         if (customGrantParams.tokenEndpoint && customGrantParams.tokenEndpoint.trim().length !== 0) {
@@ -364,7 +371,8 @@ export class AuthenticationCore<T> {
                 ...AuthenticationUtils.getTokenRequestHeaders()
             },
             method: "POST",
-            url: tokenEndpoint
+            url: tokenEndpoint,
+            withCredentials: configData.sendCookiesInRequests
         };
 
         if (customGrantParams.attachToken) {

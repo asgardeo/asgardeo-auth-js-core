@@ -38,6 +38,12 @@ export interface StrictAuthClientConfig {
      * Allowed leeway for id_tokens (in seconds).
      */
     clockTolerance?: number;
+    /**
+     * Specifies if cookies should be sent with access-token requests, refresh-token requests,
+     * custom-grant requests, etc.
+     *
+     */
+    sendCookiesInRequests: boolean;
 }
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
