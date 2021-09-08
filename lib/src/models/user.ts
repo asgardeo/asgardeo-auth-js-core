@@ -23,7 +23,7 @@ export interface BasicUserInfo {
     allowedScopes: string;
     tenantDomain?: string | undefined;
     sessionState: string;
-    [ key: string ]: string | undefined;
+    [ key: string ]: any;
 }
 
 /**
@@ -55,5 +55,5 @@ export interface AuthenticatedUserInfo {
      * Authenticated user's username.
      */
     username: string;
-    [key: string]: string | undefined;
+    [key: string]: any;
 }
