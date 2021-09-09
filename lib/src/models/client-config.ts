@@ -43,7 +43,7 @@ export interface StrictAuthClientConfig {
      * custom-grant requests, etc.
      *
      */
-    sendCookiesInRequests: boolean;
+    sendCookiesInRequests?: boolean;
 }
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
