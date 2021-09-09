@@ -40,6 +40,7 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     enablePKCE: true,
     responseMode: ResponseMode.query,
     scope: [OIDC_SCOPE],
+    sendCookiesInRequests: true,
     validateIDToken: true
 };
 

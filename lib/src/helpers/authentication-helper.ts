@@ -103,6 +103,7 @@ export class AuthenticationHelper<T> {
 
     public async validateIdToken(idToken: string): Promise<boolean> {
         const jwksEndpoint = (await this._dataLayer.getOIDCProviderMetaData()).jwks_uri;
+        const configData = await this._config();
 
         if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
             return Promise.reject(
@@ -118,7 +119,7 @@ export class AuthenticationHelper<T> {
         }
 
         return axios
-            .get(jwksEndpoint)
+            .get(jwksEndpoint, { withCredentials: configData?.sendCookiesInRequests })
             .then(async (response) => {
                 if (response.status !== 200) {
                     return Promise.reject(
