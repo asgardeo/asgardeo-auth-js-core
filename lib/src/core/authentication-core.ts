@@ -552,7 +552,7 @@ export class AuthenticationCore<T> {
                 "AUTH_CORE-GSOU-NF02",
                 "authentication-core",
                 "getSignOutURL",
-                "ID token n0t found.",
+                "ID token not found.",
                 "No ID token could be found. Either the session information is lost or you have not signed in."
             );
         }
