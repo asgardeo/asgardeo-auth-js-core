@@ -158,7 +158,7 @@ export class AuthenticationHelper<T> {
                             jwk,
                             (await this._config()).clientID,
                             issuer,
-                            AuthenticationUtils.getAuthenticatedUserInfo(idToken).username,
+                            CryptoUtils.decodeIDToken(idToken).sub,
                             (await this._config()).clockTolerance
                         )
                             .then((response) => response)
