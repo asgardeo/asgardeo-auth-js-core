@@ -535,7 +535,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public updateConfig(config: Partial<AuthClientConfig<T>>): void {
-        this._authenticationCore.updateConfig(config);
+    public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
+        await this._authenticationCore.updateConfig(config);
     }
 }
