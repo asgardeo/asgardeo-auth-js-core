@@ -606,7 +606,9 @@ export class AuthenticationCore<T> {
         await this._dataLayer.setConfigData(config);
 
         if (config.overrideWellEndpointConfig) {
-            config?.endpoints && (await this._dataLayer.setOIDCProviderMetaData(config.endpoints));
+            config?.endpoints && (await this._dataLayer.setOIDCProviderMetaData(
+                await this._authenticationHelper.resolveEndpoints({})
+            ));
         } else if (config?.endpoints) {
             await this.getOIDCProviderMetaData(true);
         }
