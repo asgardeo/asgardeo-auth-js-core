@@ -26,7 +26,7 @@ export class AuthenticationUtils {
     public static getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
         const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
-        const username: string = payload?.username;
+        const username: string = payload?.username ?? "";
         const givenName: string = payload.given_name ?? "";
         const familyName: string = payload.family_name ?? "";
         const fullName: string =
