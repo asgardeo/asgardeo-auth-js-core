@@ -26,8 +26,7 @@ export class AuthenticationUtils {
     public static getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
         const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
-        const username: string = this.extractUserName(payload);
-
+        const username: string = payload?.username;
         const givenName: string = payload.given_name ?? "";
         const familyName: string = payload.family_name ?? "";
         const fullName: string =
@@ -85,15 +84,6 @@ export class AuthenticationUtils {
 
         return camelCasedPayload;
     }
-
-    public static extractUserName = (payload: DecodedIDTokenPayload, uidSeparator: string = "@"): string => {
-        const uid = payload.sub;
-        const parts = uid.split(uidSeparator);
-
-        parts.length > 2 && parts.pop();
-
-        return parts.join(uidSeparator);
-    };
 
     public static getTenantDomainFromIdTokenPayload = (
         payload: DecodedIDTokenPayload,
