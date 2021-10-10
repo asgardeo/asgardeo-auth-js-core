@@ -106,7 +106,7 @@ export class AsgardeoAuthClient<T> {
      */
     public async initialize(config: AuthClientConfig<T>): Promise<void> {
         await this._dataLayer.setConfigData(
-            { ...DefaultConfig, ...config, scope: config.scope?.push(...DefaultConfig.scope ?? []) });
+            { ...DefaultConfig, ...config, scope: [...DefaultConfig.scope ?? [], ...config.scope ?? []] });
     }
 
     /**
