@@ -443,17 +443,17 @@ export class AuthenticationCore<T> {
 
         let basicUserInfo: BasicUserInfo = {
             allowedScopes: sessionData.scope,
-            sessionState: sessionData.session_state,
-            username: authenticatedUser.username
+            sessionState: sessionData.session_state
         };
 
-        if (!authenticatedUser.displayName || authenticatedUser.displayName === "") {
-            delete authenticatedUser.displayName;
-        }
-
-        if (!authenticatedUser.tenantDomain || authenticatedUser.tenantDomain === "") {
-            delete authenticatedUser.tenantDomain;
-        }
+        Object.keys(authenticatedUser).forEach((key) => {
+            if (
+                authenticatedUser[key] === undefined ||
+                authenticatedUser[key] === "" ||
+                authenticatedUser[key] === null ) {
+                delete authenticatedUser[key];
+            }
+        });
 
         basicUserInfo = { ...basicUserInfo, ...authenticatedUser };
 

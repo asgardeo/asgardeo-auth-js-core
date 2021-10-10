@@ -17,7 +17,12 @@
  */
 
 import { AxiosResponse } from "axios";
-import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM } from "./constants";
+import {
+    OIDC_SCOPE,
+    OP_CONFIG_INITIATED,
+    ResponseMode,
+    SIGN_OUT_SUCCESS_PARAM
+} from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -39,7 +44,7 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     clockTolerance: 300,
     enablePKCE: true,
     responseMode: ResponseMode.query,
-    scope: [OIDC_SCOPE],
+    scope: [ OIDC_SCOPE ],
     sendCookiesInRequests: true,
     validateIDToken: true
 };
@@ -100,7 +105,8 @@ export class AsgardeoAuthClient<T> {
      * @preserve
      */
     public async initialize(config: AuthClientConfig<T>): Promise<void> {
-        await this._dataLayer.setConfigData({ ...DefaultConfig, ...config });
+        await this._dataLayer.setConfigData(
+            { ...DefaultConfig, ...config, scope: [...DefaultConfig.scope ?? [], ...config.scope ?? []] });
     }
 
     /**

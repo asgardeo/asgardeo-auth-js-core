@@ -18,7 +18,7 @@
 
 export interface BasicUserInfo {
     email?: string | undefined;
-    username: string;
+    username?: string | undefined;
     displayName?: string | undefined;
     allowedScopes: string;
     tenantDomain?: string | undefined;
