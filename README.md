@@ -380,11 +380,11 @@ requestAccessToken(authorizationCode: string, sessionState: string): Promise<Tok
 
 1. authorizationCode: `string`
 
-    This is the authorization code obtained from the identity server after a user signs in.
+    This is the authorization code obtained from Asgardeo after a user signs in.
 
 2. sessionState: `string`
 
-    This is the session state obtained from the identity server after a user signs in.
+    This is the session state obtained from Asgardeo after a user signs in.
 
 #### Returns
 
@@ -422,7 +422,7 @@ The user should be redirected to this URL in order to sign out of the server.
 
 #### Description
 
-This clears the authentication data from the store, generates the sign-out URL and returns it. This should be used only if you want to sign out the user from the identity server as well. If you only want to revoke the access token, then use the [`revokeAccessToken`](#revokeAccessToken) method.
+This clears the authentication data from the store, generates the sign-out URL and returns it. This should be used only if you want to sign out the user from the Asgardeo as well. If you only want to revoke the access token, then use the [`revokeAccessToken`](#revokeAccessToken) method.
 
 #### Example
 
@@ -645,7 +645,7 @@ A Promise that resolves with the token information or the response returned by t
 
 #### Description
 
-This method can be used to send custom-grant requests to the identity server.
+This method can be used to send custom-grant requests to Asgardeo.
 
 #### Example
 

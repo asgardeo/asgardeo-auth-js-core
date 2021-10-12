@@ -204,7 +204,7 @@ export class AuthenticationCore<T> {
                     "authentication-core",
                     "refreshAccessToken",
                     "No refresh token found.",
-                    "There was no refresh token found. The identity server doesn't return a " +
+                    "There was no refresh token found. Asgardeo doesn't return a " +
                         "refresh token if the refresh token grant is not enabled."
                 )
             );
