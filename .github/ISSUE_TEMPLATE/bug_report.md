@@ -17,7 +17,6 @@ assignees: ''
 <!-- A clear and concise description of what you expected to happen. -->
 
 **Environment information** (_Please complete the following information; remove  any unnecessary fields_) **:**
- - Product Version: [e.g., IS 5.10.0, IS 5.9.0]
  - OS: [e.g., Windows, Linux, Mac]
  - Browser: [e.g., Chrome, Firefox]
  - SDK Version: [e.g., 0.1.0, 0.1.1]
