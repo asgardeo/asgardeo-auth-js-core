@@ -40,7 +40,6 @@ import {
  * Default configurations.
  */
 const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
-    clientHost: origin,
     clockTolerance: 300,
     enablePKCE: true,
     responseMode: ResponseMode.query,
