@@ -55,5 +55,9 @@ export interface AuthenticatedUserInfo {
      * Authenticated user's username.
      */
     username: string;
+    /**
+     * The uid corresponding to the user who the ID token belonged to.
+     */
+    sub: string;
     [key: string]: any;
 }

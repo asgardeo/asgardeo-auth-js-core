@@ -44,14 +44,13 @@ export class AuthenticationUtils {
             tenantDomain,
             username: username,
             ...this.filterClaimsFromIDTokenPayload(payload)
-        };
+        } as AuthenticatedUserInfo;
     }
 
     private static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload) {
         const optionalizedPayload: Partial<DecodedIDTokenPayload> = { ...payload };
 
         delete optionalizedPayload?.iss;
-        delete optionalizedPayload?.sub;
         delete optionalizedPayload?.aud;
         delete optionalizedPayload?.exp;
         delete optionalizedPayload?.iat;
