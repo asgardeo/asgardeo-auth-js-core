@@ -44,7 +44,7 @@ export class AuthenticationUtils {
             tenantDomain,
             username: username,
             ...this.filterClaimsFromIDTokenPayload(payload)
-        } as AuthenticatedUserInfo;
+        };
     }
 
     private static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload) {

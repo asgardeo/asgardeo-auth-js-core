@@ -16,13 +16,41 @@
 * under the License.
 */
 
+/**
+ * Interface containing the basic user information.
+ */
 export interface BasicUserInfo {
+    /**
+     * The email address of the user.
+     */
     email?: string | undefined;
+    /**
+     * 	The username of the user.
+     */
     username?: string | undefined;
+    /**
+     * The display name of the user. It is the preferred_username in the id token payload or the `sub`.
+     */
     displayName?: string | undefined;
+    /**
+     * The scopes allowed for the user.
+     */
     allowedScopes: string;
+    /**
+     * The tenant domain to which the user belongs.
+     */
     tenantDomain?: string | undefined;
+    /**
+     * The session state.
+     */
     sessionState: string;
+    /**
+     * The `uid` corresponding to the user who the ID token belongs to.
+     */
+    sub: string;
+    /**
+     * Any other attributes retrieved from teh `id_token`.
+     */
     [ key: string ]: any;
 }
 
@@ -55,9 +83,5 @@ export interface AuthenticatedUserInfo {
      * Authenticated user's username.
      */
     username: string;
-    /**
-     * The uid corresponding to the user who the ID token belonged to.
-     */
-    sub: string;
     [key: string]: any;
 }
