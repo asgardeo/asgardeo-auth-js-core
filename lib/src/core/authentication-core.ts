@@ -443,8 +443,7 @@ export class AuthenticationCore<T> {
 
         let basicUserInfo: BasicUserInfo = {
             allowedScopes: sessionData.scope,
-            sessionState: sessionData.session_state,
-            sub: authenticatedUser.sub
+            sessionState: sessionData.session_state
         };
 
         Object.keys(authenticatedUser).forEach((key) => {

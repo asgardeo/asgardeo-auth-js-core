@@ -47,7 +47,7 @@ export interface BasicUserInfo {
     /**
      * The `uid` corresponding to the user who the ID token belongs to.
      */
-    sub: string;
+    sub?: string;
     /**
      * Any other attributes retrieved from teh `id_token`.
      */
