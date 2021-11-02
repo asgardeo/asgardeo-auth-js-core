@@ -51,7 +51,6 @@ export class AuthenticationUtils {
         const optionalizedPayload: Partial<DecodedIDTokenPayload> = { ...payload };
 
         delete optionalizedPayload?.iss;
-        delete optionalizedPayload?.sub;
         delete optionalizedPayload?.aud;
         delete optionalizedPayload?.exp;
         delete optionalizedPayload?.iat;

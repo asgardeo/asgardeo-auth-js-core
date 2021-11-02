@@ -1075,6 +1075,7 @@ type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 | `allowedScopes` | `string` | The scopes allowed for the user.                                                                   |
 | `tenantDomain`  | `string` | The tenant domain to which the user belongs.                                                       |
 | `sessionState`  | `string` | The session state.                                                                                 |
+| `sub`           | `string` | The `uid` corresponding to the user to whom the ID token belongs to.                               |
 
 In addition to the above attributes, this object will also contain any other claim found in the ID token payload.
 
