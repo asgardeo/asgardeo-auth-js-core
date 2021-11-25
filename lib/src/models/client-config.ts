@@ -44,6 +44,10 @@ export interface StrictAuthClientConfig {
      *
      */
     sendCookiesInRequests?: boolean;
+    /**
+     * Sets the development environment
+     */
+     devEnvironment?: string;
 }
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
