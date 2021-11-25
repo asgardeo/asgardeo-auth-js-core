@@ -47,7 +47,7 @@ export interface StrictAuthClientConfig {
     /**
      * Sets the development environment
      */
-     devEnvironment?: string;
+     runtimeEnvironment?: string;
 }
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
