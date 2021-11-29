@@ -24,6 +24,8 @@ import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
 import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
 import { AsgardeoAuthException } from "../exception";
 import { DecodedIDTokenPayload, JWKInterface } from "../models";
+import { RuntimeEnvironments } from "../constants";
+const nodeRandomBytes = require("secure-random-bytes");
 
 export class CryptoUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -43,8 +45,17 @@ export class CryptoUtils {
      *
      * @returns {string} code verifier.
      */
-    public static getCodeVerifier(): string {
-        return this.base64URLEncode(randombytes(32));
+    public static getCodeVerifier(env :string): string {
+        switch(env){
+            case RuntimeEnvironments.Node:
+                return this.base64URLEncode(nodeRandomBytes(32));
+            case RuntimeEnvironments.Browser:
+                return this.base64URLEncode(randombytes(32));
+            case RuntimeEnvironments.ReactNative:
+                return this.base64URLEncode(randombytes(32));
+            default:
+                return this.base64URLEncode(randombytes(32)); //Default fallback is the browser.
+        }
     }
 
     /**

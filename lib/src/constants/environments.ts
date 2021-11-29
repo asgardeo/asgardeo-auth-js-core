@@ -17,3 +17,9 @@
 */
 
 export const REACT_NATIVE = "react-native";
+
+export enum RuntimeEnvironments {
+    ReactNative = "REACT_NATIVE",
+    Browser = "BROWSER",
+    Node = "NODE",
+}
