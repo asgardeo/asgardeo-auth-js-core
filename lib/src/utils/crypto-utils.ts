@@ -17,15 +17,15 @@
  */
 
 import base64url from "base64url";
+import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "fast-sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
 import randombytes from "randombytes";
 import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
 import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
+import { RuntimeEnvironments } from "../constants";
 import { AsgardeoAuthException } from "../exception";
 import { DecodedIDTokenPayload, JWKInterface } from "../models";
-import { RuntimeEnvironments } from "../constants";
-import WordArray from "crypto-js/lib-typedarrays";
 const nodeRandomBytes = require("secure-random-bytes");
 
 export class CryptoUtils {
