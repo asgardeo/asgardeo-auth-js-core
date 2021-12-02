@@ -25,6 +25,7 @@ import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/ver
 import { AsgardeoAuthException } from "../exception";
 import { DecodedIDTokenPayload, JWKInterface } from "../models";
 import { RuntimeEnvironments } from "../constants";
+import WordArray from "crypto-js/lib-typedarrays";
 const nodeRandomBytes = require("secure-random-bytes");
 
 export class CryptoUtils {
@@ -52,7 +53,7 @@ export class CryptoUtils {
             case RuntimeEnvironments.Browser:
                 return this.base64URLEncode(randombytes(32));
             case RuntimeEnvironments.ReactNative:
-                return this.base64URLEncode(randombytes(32));
+                return this.base64URLEncode(WordArray.random(32).toString());
             default:
                 return this.base64URLEncode(randombytes(32)); //Default fallback is the browser.
         }
