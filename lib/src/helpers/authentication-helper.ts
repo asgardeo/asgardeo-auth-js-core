@@ -35,18 +35,20 @@ import {
 } from "../constants";
 import { DataLayer } from "../data";
 import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
-import { AuthClientConfig, OIDCEndpointsInternal, OIDCProviderMetaData, TokenResponse } from "../models";
-import { AuthenticationUtils, CryptoUtils } from "../utils";
+import { AuthClientConfig, CryptoUtils, OIDCEndpointsInternal, OIDCProviderMetaData, TokenResponse } from "../models";
+import { AuthenticationUtils } from "../utils";
 
 export class AuthenticationHelper<T> {
     private _dataLayer: DataLayer<T>;
     private _config: () => Promise<AuthClientConfig>;
     private _oidcProviderMetaData: () => Promise<OIDCProviderMetaData>;
+    private _cryptoUtils: CryptoUtils;
 
-    public constructor(dataLayer: DataLayer<T>) {
+    public constructor(dataLayer: DataLayer<T>, cryptoUtils: CryptoUtils) {
         this._dataLayer = dataLayer;
         this._config = async () => await this._dataLayer.getConfigData();
         this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
+        this._cryptoUtils = cryptoUtils;
     }
 
     public async resolveWellKnownEndpoint(): Promise<string> {
@@ -142,14 +144,14 @@ export class AuthenticationHelper<T> {
                     return Promise.resolve(false);
                 }
 
-                return CryptoUtils.getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
+                return this._cryptoUtils.getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
                     .then(async (jwk: KeyLike) => {
-                        return CryptoUtils.isValidIdToken(
+                        return this._cryptoUtils.isValidIdToken(
                             idToken,
                             jwk,
                             (await this._config()).clientID,
                             issuer,
-                            CryptoUtils.decodeIDToken(idToken).sub,
+                            this._cryptoUtils.decodeIDToken(idToken).sub,
                             (await this._config()).clockTolerance
                         )
                             .then((response) => response)
@@ -210,7 +212,10 @@ export class AuthenticationHelper<T> {
 
         return text
             .replace(TOKEN_TAG, sessionData.access_token)
-            .replace(USERNAME_TAG, AuthenticationUtils.getAuthenticatedUserInfo(sessionData.id_token).username)
+            .replace(
+                USERNAME_TAG, 
+                AuthenticationUtils.getAuthenticatedUserInfo(sessionData.id_token, this._cryptoUtils).username
+            )
             .replace(SCOPE_TAG, scope)
             .replace(CLIENT_ID_TAG, configData.clientID)
             .replace(CLIENT_SECRET_TAG, configData.clientSecret ?? "");

@@ -16,15 +16,15 @@
  * under the License.
  */
 
-import { CryptoUtils } from "./crypto-utils";
-import { AuthenticatedUserInfo, DecodedIDTokenPayload, TokenRequestHeader } from "../models";
+// import { CryptoUtils } from "./crypto-utils";
+import { AuthenticatedUserInfo, CryptoUtils, DecodedIDTokenPayload, TokenRequestHeader } from "../models";
 
 export class AuthenticationUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
-    public static getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
-        const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
+    public static getAuthenticatedUserInfo(idToken: string, cryptoUtils: CryptoUtils): AuthenticatedUserInfo {
+        const payload: DecodedIDTokenPayload = cryptoUtils.decodeIDToken(idToken);
         const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
         const username: string = payload?.username ?? "";
         const givenName: string = payload.given_name ?? "";

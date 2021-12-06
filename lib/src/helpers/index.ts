@@ -17,3 +17,4 @@
 */
 
 export * from "./authentication-helper";
+export * from "./decorators";
