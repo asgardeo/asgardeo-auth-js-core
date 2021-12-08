@@ -22,7 +22,7 @@ export class AuthenticationUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
-    public static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload) {
+    public static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload): any {
         const optionalizedPayload: Partial<DecodedIDTokenPayload> = { ...payload };
 
         delete optionalizedPayload?.iss;
