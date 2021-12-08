@@ -29,13 +29,22 @@ import {
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
     SERVICE_RESOURCES,
+    SUPPORTED_SIGNATURE_ALGORITHMS,
     TOKEN_ENDPOINT,
     TOKEN_TAG,
     USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
 import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
-import { AuthClientConfig, CryptoUtils, OIDCEndpointsInternal, OIDCProviderMetaData, TokenResponse } from "../models";
+import {
+    AuthClientConfig,
+    AuthenticatedUserInfo,
+    CryptoUtils,
+    DecodedIDTokenPayload,
+    OIDCEndpointsInternal,
+    OIDCProviderMetaData,
+    TokenResponse
+} from "../models";
 import { AuthenticationUtils } from "../utils";
 
 export class AuthenticationHelper<T> {
@@ -152,7 +161,8 @@ export class AuthenticationHelper<T> {
                             (await this._config()).clientID,
                             issuer,
                             this._cryptoUtils.decodeIDToken(idToken).sub,
-                            (await this._config()).clockTolerance
+                            (await this._config()).clockTolerance,
+                            SUPPORTED_SIGNATURE_ALGORITHMS
                         )
                             .then((response) => response)
                             .catch((error) => {
@@ -198,6 +208,30 @@ export class AuthenticationHelper<T> {
             });
     }
 
+    public getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
+        const payload: DecodedIDTokenPayload = this._cryptoUtils.decodeIDToken(idToken);
+        const tenantDomain: string = AuthenticationUtils.getTenantDomainFromIdTokenPayload(payload);
+        const username: string = payload?.username ?? "";
+        const givenName: string = payload.given_name ?? "";
+        const familyName: string = payload.family_name ?? "";
+        const fullName: string =
+            givenName && familyName
+                ? `${givenName} ${familyName}`
+                : givenName
+                ? givenName
+                : familyName
+                ? familyName
+                : "";
+        const displayName: string = payload.preferred_username ?? fullName;
+
+        return {
+            displayName: displayName,
+            tenantDomain,
+            username: username,
+            ...AuthenticationUtils.filterClaimsFromIDTokenPayload(payload)
+        };
+    }
+
     public async replaceCustomGrantTemplateTags(text: string): Promise<string> {
         let scope = OIDC_SCOPE;
         const configData = await this._config();
@@ -214,7 +248,7 @@ export class AuthenticationHelper<T> {
             .replace(TOKEN_TAG, sessionData.access_token)
             .replace(
                 USERNAME_TAG, 
-                AuthenticationUtils.getAuthenticatedUserInfo(sessionData.id_token, this._cryptoUtils).username
+                this.getAuthenticatedUserInfo(sessionData.id_token).username
             )
             .replace(SCOPE_TAG, scope)
             .replace(CLIENT_ID_TAG, configData.clientID)

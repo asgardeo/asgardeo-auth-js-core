@@ -31,10 +31,8 @@ export interface JWKInterface {
 }
 
 export interface CryptoUtils {
-    base64URLEncode(value: Buffer | string): string;
-    getCodeVerifier(env :string): string;
+    getCodeVerifier(): string;
     getCodeChallenge(verifier: string): string;
-    getSupportedSignatureAlgorithms(): string[];
     getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<any>;
     isValidIdToken(
         idToken: string,
@@ -42,7 +40,8 @@ export interface CryptoUtils {
         clientID: string,
         issuer: string,
         username: string,
-        clockTolerance: number | undefined
+        clockTolerance: number | undefined,
+        supportedAlgorithms: string[]
     ): Promise<boolean>;
     decodeIDToken(idToken: string): DecodedIDTokenPayload;
 }

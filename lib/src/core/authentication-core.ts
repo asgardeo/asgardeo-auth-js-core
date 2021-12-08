@@ -96,8 +96,8 @@ export class AuthenticationCore<T> {
         }
 
         if (configData.enablePKCE) {
-            const codeVerifier = this._cryptoUtils.getCodeVerifier(configData.runtimeEnvironment!);
-            const codeChallenge = this._cryptoUtils.getCodeChallenge(codeVerifier);
+            const codeVerifier = this._cryptoUtils?.getCodeVerifier();
+            const codeChallenge = this._cryptoUtils?.getCodeChallenge(codeVerifier);
             await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest.searchParams.append("code_challenge_method", "S256");
             authorizeRequest.searchParams.append("code_challenge", codeChallenge);
@@ -442,9 +442,8 @@ export class AuthenticationCore<T> {
 
     public async getBasicUserInfo(): Promise<BasicUserInfo> {
         const sessionData = await this._dataLayer.getSessionData();
-        const authenticatedUser = AuthenticationUtils.getAuthenticatedUserInfo(
-            sessionData?.id_token,
-            this._cryptoUtils
+        const authenticatedUser = this._authenticationHelper.getAuthenticatedUserInfo(
+            sessionData?.id_token
         );
 
         let basicUserInfo: BasicUserInfo = {

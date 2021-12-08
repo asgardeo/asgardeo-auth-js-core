@@ -25,3 +25,7 @@ export enum Stores {
 
 export const REFRESH_TOKEN_TIMER = "refresh_token_timer";
 export const PKCE_CODE_VERIFIER = "pkce_code_verifier";
+
+export const SUPPORTED_SIGNATURE_ALGORITHMS = [
+    "RS256", "RS512", "RS384", "PS256"
+];
