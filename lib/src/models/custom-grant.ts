@@ -23,4 +23,5 @@ export interface CustomGrantConfig{
     attachToken: boolean;
     returnsSession: boolean;
     tokenEndpoint?: string;
+    shouldReplayAfterRefresh?: boolean;
 }
