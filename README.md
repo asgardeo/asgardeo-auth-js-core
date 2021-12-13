@@ -898,7 +898,6 @@ This model has the following attributes.
 |`validateIDToken`|Optional| `boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
 |`clockTolerance`|Optional| `number`|`60`|Allows you to configure the leeway when validating the id_token.|
 |`sendCookiesInRequests`|Optional| `boolean`|`true`|Specifies if cookies should be sent in the requests.|
-|`runtimeEnvironment`|Optional| `string`|`BROWSER`|Specifies the runtime environment of the application. Available environments:  `BROWSER`, `NODE` and `REACT_NATIVE`.|
 
 The `AuthClientConfig<T>` can be extended by passing an interface as the generic type. For example, if you want to add an attribute called `foo` to the config object, you can create an interface called `Bar` and pass that as the generic type into the `AuthClientConfig<T>` interface.
 
