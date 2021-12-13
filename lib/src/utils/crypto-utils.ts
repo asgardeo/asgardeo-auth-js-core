@@ -17,7 +17,6 @@
  */
 
 import base64url from "base64url";
-import WordArray from "crypto-js/lib-typedarrays";
 import sha256 from "fast-sha256";
 // Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
 import randombytes from "randombytes";
@@ -32,7 +31,6 @@ export class CryptoUtils {
     /**
      * Get URL encoded string.
      *
-     * @param {CryptoJS.WordArray} value.
      * @returns {string} base 64 url encoded value.
      */
     public static base64URLEncode(value: Buffer | string): string {
