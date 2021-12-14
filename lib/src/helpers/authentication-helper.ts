@@ -28,7 +28,6 @@ import {
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
     SERVICE_RESOURCES,
-    SUPPORTED_SIGNATURE_ALGORITHMS,
     TOKEN_ENDPOINT,
     TOKEN_TAG,
     USERNAME_TAG
@@ -160,8 +159,7 @@ export class AuthenticationHelper<T> {
                             (await this._config()).clientID,
                             issuer,
                             this._cryptoUtils.decodeIDToken(idToken).sub,
-                            (await this._config()).clockTolerance,
-                            SUPPORTED_SIGNATURE_ALGORITHMS
+                            (await this._config()).clockTolerance
                         )
                             .then((response) => response)
                             .catch((error) => {

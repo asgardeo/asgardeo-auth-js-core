@@ -40,8 +40,7 @@ export interface CryptoUtils {
         clientID: string,
         issuer: string,
         username: string,
-        clockTolerance: number | undefined,
-        supportedAlgorithms: string[]
+        clockTolerance: number | undefined
     ): Promise<boolean>;
     decodeIDToken(idToken: string): DecodedIDTokenPayload;
 }
