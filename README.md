@@ -974,7 +974,7 @@ const config: AuthClientConfig<Bar> ={
 | `signInRequired` | Required          | `boolean` | `false`       | Specifies if the user should be sign-in or not to dispatch this custom-grant request.                                                                                                                                         |
 | `attachToken`    | Required          | `boolean` | `false`       | Specifies if the access token should be attached to the header of the request.                                                                                                                                                |
 | `returnsSession` | Required          | `boolean` | `false`       | Specifies if the the request returns session information such as the access token.                                                                                                                                            |
-| `tokenEndpoint`  | Optional          | `string`  | `null`        | Token endpoint is an optional parameter which can be used to provide an optional token endpoint that will be used instead of default token endpoint.                                                                          | 
+| `tokenEndpoint`  | Optional          | `string`  | `null`        | Token endpoint is an optional parameter which can be used to provide an optional token endpoint that will be used instead of default token endpoint.                                                                          |
 
 #### Custom Grant Template Tags
 
@@ -1091,7 +1091,7 @@ In addition to the above attributes, this object will also contain any other cla
 The repository is a mono repository. The SDK repository is found in the [lib](https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master/lib) directory. You can install the dependencies by running the following command at the root.
 
 ```
-npm run build
+yarn build
 ```
 
 ## Contribute
