@@ -28,6 +28,7 @@ import { DataLayer } from "./data";
 import {
     AuthClientConfig,
     BasicUserInfo,
+    CryptoUtils,
     CustomGrantConfig,
     DecodedIDTokenPayload,
     GetAuthURLConfig,
@@ -74,14 +75,14 @@ export class AsgardeoAuthClient<T> {
      * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#constructor
      * @preserve
      */
-    public constructor(store: Store) {
+    public constructor(store: Store, cryptoUtils: CryptoUtils) {
         if (!AsgardeoAuthClient._instanceID) {
             AsgardeoAuthClient._instanceID = 0;
         } else {
             AsgardeoAuthClient._instanceID += 1;
         }
         this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
-        this._authenticationCore = new AuthenticationCore(this._dataLayer);
+        this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
     }
 
     /**

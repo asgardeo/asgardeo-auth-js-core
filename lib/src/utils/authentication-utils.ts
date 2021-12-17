@@ -16,38 +16,13 @@
  * under the License.
  */
 
-import { CryptoUtils } from "./crypto-utils";
-import { AuthenticatedUserInfo, DecodedIDTokenPayload, TokenRequestHeader } from "../models";
+import { DecodedIDTokenPayload, TokenRequestHeader } from "../models";
 
 export class AuthenticationUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
 
-    public static getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
-        const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
-        const tenantDomain: string = this.getTenantDomainFromIdTokenPayload(payload);
-        const username: string = payload?.username ?? "";
-        const givenName: string = payload.given_name ?? "";
-        const familyName: string = payload.family_name ?? "";
-        const fullName: string =
-            givenName && familyName
-                ? `${givenName} ${familyName}`
-                : givenName
-                ? givenName
-                : familyName
-                ? familyName
-                : "";
-        const displayName: string = payload.preferred_username ?? fullName;
-
-        return {
-            displayName: displayName,
-            tenantDomain,
-            username: username,
-            ...this.filterClaimsFromIDTokenPayload(payload)
-        };
-    }
-
-    private static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload) {
+    public static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload): any {
         const optionalizedPayload: Partial<DecodedIDTokenPayload> = { ...payload };
 
         delete optionalizedPayload?.iss;

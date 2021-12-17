@@ -16,6 +16,8 @@
  * under the License.
  */
 
+import { DecodedIDTokenPayload } from ".";
+
 /**
  * JWK Model
  */
@@ -26,4 +28,19 @@ export interface JWKInterface {
     kid: string;
     alg: string;
     n: string;
+}
+
+export interface CryptoUtils {
+    getCodeVerifier(): string;
+    getCodeChallenge(verifier: string): string;
+    getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<any>;
+    isValidIdToken(
+        idToken: string,
+        jwk: any,
+        clientID: string,
+        issuer: string,
+        username: string,
+        clockTolerance: number | undefined
+    ): Promise<boolean>;
+    decodeIDToken(idToken: string): DecodedIDTokenPayload;
 }

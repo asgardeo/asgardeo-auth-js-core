@@ -17,4 +17,3 @@
 */
 
 export const REACT_NATIVE = "react-native";
-

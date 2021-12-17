@@ -32,25 +32,28 @@ import {
     AuthClientConfig,
     AuthorizationURLParams,
     BasicUserInfo,
+    CryptoUtils,
     CustomGrantConfig,
     DecodedIDTokenPayload,
     OIDCEndpoints,
     OIDCProviderMetaData,
     TokenResponse
 } from "../models";
-import { AuthenticationUtils, CryptoUtils } from "../utils";
+import { AuthenticationUtils } from "../utils";
 
 export class AuthenticationCore<T> {
     private _dataLayer: DataLayer<T>;
     private _config: () => Promise<AuthClientConfig>;
     private _oidcProviderMetaData: () => Promise<OIDCProviderMetaData>;
     private _authenticationHelper: AuthenticationHelper<T>;
+    private _cryptoUtils: CryptoUtils;
 
-    public constructor(dataLayer: DataLayer<T>) {
-        this._authenticationHelper = new AuthenticationHelper(dataLayer);
+    public constructor(dataLayer: DataLayer<T>, cryptoUtils: CryptoUtils) {
+        this._authenticationHelper = new AuthenticationHelper(dataLayer, cryptoUtils);
         this._dataLayer = dataLayer;
         this._config = async () => await this._dataLayer.getConfigData();
         this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
+        this._cryptoUtils = cryptoUtils;
     }
 
     public async getAuthorizationURL(config?: AuthorizationURLParams): Promise<string> {
@@ -93,8 +96,8 @@ export class AuthenticationCore<T> {
         }
 
         if (configData.enablePKCE) {
-            const codeVerifier = CryptoUtils.getCodeVerifier();
-            const codeChallenge = CryptoUtils.getCodeChallenge(codeVerifier);
+            const codeVerifier = this._cryptoUtils?.getCodeVerifier();
+            const codeChallenge = this._cryptoUtils?.getCodeChallenge(codeVerifier);
             await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
             authorizeRequest.searchParams.append("code_challenge_method", "S256");
             authorizeRequest.searchParams.append("code_challenge", codeChallenge);
@@ -439,7 +442,9 @@ export class AuthenticationCore<T> {
 
     public async getBasicUserInfo(): Promise<BasicUserInfo> {
         const sessionData = await this._dataLayer.getSessionData();
-        const authenticatedUser = AuthenticationUtils.getAuthenticatedUserInfo(sessionData?.id_token);
+        const authenticatedUser = this._authenticationHelper.getAuthenticatedUserInfo(
+            sessionData?.id_token
+        );
 
         let basicUserInfo: BasicUserInfo = {
             allowedScopes: sessionData.scope,
@@ -462,7 +467,7 @@ export class AuthenticationCore<T> {
 
     public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
         const idToken = (await this._dataLayer.getSessionData()).id_token;
-        const payload: DecodedIDTokenPayload = CryptoUtils.decodeIDToken(idToken);
+        const payload: DecodedIDTokenPayload = this._cryptoUtils.decodeIDToken(idToken);
 
         return payload;
     }
