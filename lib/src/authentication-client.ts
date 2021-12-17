@@ -161,7 +161,7 @@ export class AsgardeoAuthClient<T> {
      * @preserve
      */
     public async getAuthorizationURL(config?: GetAuthURLConfig): Promise<string> {
-        const authRequestConfig = { ...config };
+        const authRequestConfig: GetAuthURLConfig = { ...config };
         delete authRequestConfig?.forceInit;
 
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
