@@ -16,25 +16,15 @@
  * under the License.
  */
 
-import base64url from "base64url";
-import sha256 from "fast-sha256";
-// Importing from node_modules since rollup doesn't support export attribute of `package.json` yet.
-import randombytes from "randombytes";
-import parseJwk from "../../node_modules/jose/dist/browser/jwk/parse";
-import jwtVerify, { KeyLike } from "../../node_modules/jose/dist/browser/jwt/verify";
+import { SUPPORTED_SIGNATURE_ALGORITHMS } from "../constants";
 import { AsgardeoAuthException } from "../exception";
-import { DecodedIDTokenPayload, JWKInterface } from "../models";
+import { CryptoUtils, DecodedIDTokenPayload, JWKInterface } from "../models";
 
-export class CryptoUtils {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private constructor() {}
-    /**
-     * Get URL encoded string.
-     *
-     * @returns {string} base 64 url encoded value.
-     */
-    public static base64URLEncode(value: Buffer | string): string {
-        return base64url.encode(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+export class CryptoHelper<T = any, R = any> {
+    private _cryptoUtils: CryptoUtils<T, R>;
+
+    public constructor(cryptoUtils: CryptoUtils<T, R>) {
+        this._cryptoUtils = cryptoUtils;
     }
 
     /**
@@ -42,8 +32,8 @@ export class CryptoUtils {
      *
      * @returns {string} code verifier.
      */
-    public static getCodeVerifier(): string {
-        return this.base64URLEncode(randombytes(32));
+    public getCodeVerifier(): string {
+        return this._cryptoUtils.base64URLencode(this._cryptoUtils.generateRandomBytes(32));
     }
 
     /**
@@ -52,17 +42,8 @@ export class CryptoUtils {
      * @param {string} verifier.
      * @returns {string} code challenge.
      */
-    public static getCodeChallenge(verifier: string): string {
-        return this.base64URLEncode(new Buffer(sha256(new TextEncoder().encode(verifier))));
-    }
-
-    /**
-     * Get the supported signing algorithms for the id_token.
-     *
-     * @returns {string[]} array of supported algorithms.
-     */
-    public static getSupportedSignatureAlgorithms(): string[] {
-        return ["RS256", "RS512", "RS384", "PS256"];
+    public getCodeChallenge(verifier: string): string {
+        return this._cryptoUtils.base64URLencode(this._cryptoUtils.hashSha256(verifier));
     }
 
     /**
@@ -73,12 +54,12 @@ export class CryptoUtils {
      * @returns {any} public key.
      */
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    public static getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<KeyLike> {
-        const headerJSON = JSON.parse(base64url.decode(jwtHeader, "utf8"));
+    public getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<R> {
+        const headerJSON = JSON.parse(this._cryptoUtils.base64URLdecode(jwtHeader));
 
         for (const key of keys) {
             if (headerJSON.kid === key.kid) {
-                return parseJwk({
+                return this._cryptoUtils.parseJwk({
                     alg: key.alg,
                     e: key.e,
                     kty: key.kty,
@@ -112,21 +93,16 @@ export class CryptoUtils {
      * @param {number} clockTolerance - Allowed leeway for id_tokens (in seconds).
      * @returns {Promise<boolean>} whether the id_token is valid.
      */
-    public static isValidIdToken(
+    public isValidIdToken(
         idToken: string,
-        jwk: KeyLike,
+        jwk: R,
         clientID: string,
         issuer: string,
         username: string,
         clockTolerance: number | undefined
     ): Promise<boolean> {
-        return jwtVerify(idToken, jwk, {
-            algorithms: this.getSupportedSignatureAlgorithms(),
-            audience: clientID,
-            clockTolerance: clockTolerance,
-            issuer: issuer,
-            subject: username
-        })
+        return this._cryptoUtils
+            .verifyJwt(idToken, jwk, SUPPORTED_SIGNATURE_ALGORITHMS, clientID, issuer, username, clockTolerance)
             .then(() => {
                 return Promise.resolve(true);
             })
@@ -150,13 +126,13 @@ export class CryptoUtils {
      *
      * @return {DecodedIdTokenPayloadInterface} - The decoded payload of the id token.
      */
-    public static decodeIDToken(idToken: string): DecodedIDTokenPayload {
+    public decodeIDToken(idToken: string): DecodedIDTokenPayload {
         try {
-            const utf8String = base64url.decode(idToken.split(".")[1], "utf8");
+            const utf8String = this._cryptoUtils.base64URLdecode(idToken.split(".")[1]);
             const payload = JSON.parse(utf8String);
 
             return payload;
-        } catch (error) {
+        } catch (error: any) {
             throw new AsgardeoAuthException(
                 "CRYPTO_UTIL-DIT-IV01",
                 "crypto-utils",
