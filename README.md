@@ -37,6 +37,7 @@
     -   [updateConfig](#updateConfig)
 -   [Data Storage](#data-storage)
     -   [Data Layer](#data-layer)
+-   [CryptoUtils](#CryptoUtils)
 -   [Models](#models)
     -   [AuthClientConfig\<T>](#AuthClientConfigT)
     -   [Store](#Store)
@@ -50,6 +51,7 @@
     -   [OIDCProviderMetaData](#OIDCProviderMetaData)
     -   [TemporaryData](#TemporaryData)
     -   [BasicUserInfo](#BasicUserInfo)
+    -   [JWKInterface](#JWKInterface)
 -   [Develop](#develop)
 -   [Contribute](#contribute)
 -   [License](#license)
@@ -70,78 +72,9 @@ Install the library from the npm registry.
 npm install @asgardeo/auth-js
 ```
 
-Or simply load the SDK by importing the script into the header of your HTML file.
-
-```html
-<script src="https://unpkg.com/@asgardeo/auth-js@latest/dist/asgardeo-auth.production.min.js"></script>
-```
-
-If you want a polyfilled version of the SDK, checkout the [Browser Compatibility](#browser-compatibility) section.
-
 ## Getting Started
 
 ### Using an Embedded Script
-
-```javascript
-// Create a config object containing the necessary configurations.
-const config = {
-    signInRedirectURL: "http://localhost:3000/sign-in",
-    signOutRedirectURL: "http://localhost:3000/dashboard",
-    clientID: "client ID",
-    serverOrigin: "https://api.asgardeo.io/t/<org_name>"
-};
-
-// Create a Store class to store the authentication data. The following implementation uses the session storage.
-class SessionStore {
-    // Saves the data to the store.
-    async setData(key, value) {
-        sessionStorage.setItem(key, value);
-    }
-
-    // Gets the data from the store.
-    async getData(key) {
-        return sessionStorage.getItem(key);
-    }
-
-    // Removes the date from the store.
-    async removeData(key) {
-        sessionStorage.removeItem(key);
-    }
-}
-
-// Instantiate the SessionStore class
-const store = new SessionStore();
-
-// Instantiate the AsgardeoAuthClient and pass the store object as an argument into the constructor.
-const auth = new AsgardeoAuth.AsgardeoAuthClient(store);
-
-// Initialize the instance with the config object.
-auth.initialize(config);
-
-// To get the authorization URL, simply call this method.
-auth.getAuthorizationURL()
-    .then((url) => {
-        // Redirect the user to the authentication URL. If this is used in a browser,
-        // you may want to do something like this:
-        window.location.href = url;
-    })
-    .catch((error) => {
-        console.error(error);
-    });
-
-// Once you obtain the authentication code and the session state from the server, you can use this method
-// to get the access token.
-auth.requestAccessToken()
-    .then((response) => {
-        // Obtain the token and other related from the response;
-        console.log(response);
-    })
-    .catch((error) => {
-        console.error(error);
-    });
-```
-
-### Using a Module
 
 ```javascript
 // The SDK provides a client that can be used to carry out the authentication.
@@ -170,6 +103,59 @@ class SessionStore {
     // Removes the date from the store.
     async removeData(key) {
         sessionStorage.removeItem(key);
+    }
+}
+
+class CryptoUtils {
+    // Encodes the input data into base64 URL encoded string.
+    public base64URLEncode(value) {
+        return base64url.encode(value).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    }
+
+    // Decodes the base64 URL encoded string into the original data.
+    public base64URLDecode(value) {
+        return base64url.decode(value).toString();
+    }
+
+    // Hashes the input data using SHA256.
+    public hashSha256(data) {
+        return Buffer.from(sha256(new TextEncoder().encode(data)));
+    }
+
+    // Generates a random bytes of the specified length.
+    public generateRandomBytes(length) {
+        return randombytes(length);
+    }
+
+    // Parses the key object into a format that would be accepted by verifyJwt()
+    public parseJwk(key) {
+        return parseJwk({
+            alg: key.alg,
+            e: key.e,
+            kty: key.kty,
+            n: key.n
+        });
+    }
+
+    // Verifies the JWT signature.
+    public verifyJwt(
+        idToken,
+        jwk,
+        algorithms,
+        clientID,
+        issuer,
+        subject,
+        clockTolerance
+    ) {
+        return jwtVerify(idToken, jwk, {
+            algorithms: algorithms,
+            audience: clientID,
+            clockTolerance: clockTolerance,
+            issuer: issuer,
+            subject: subject
+        }).then(() => {
+            return Promise.resolve(true);
+        });
     }
 }
 
@@ -207,33 +193,6 @@ auth.requestAccessToken()
 
 [Learn more](#apis).
 
-## Browser Compatibility
-
-The SDK supports all major browsers and provides polyfills to support incompatible browsers. If you want the SDK to run on Internet Explorer or any other old browser, you can use the polyfilled script instead of the default one.
-
-To embed a polyfilled script in an HTML page:
-
-```html
-<script src="https://unpkg.com/@asgardeo/auth-js@latest/dist/polyfilled/asgardeo-auth.production.min.js"></script>
-```
-
-You can also import a polyfilled module into your modular app. Asgardeo provides two different modules each supporting UMD and ESM.
-You can specify the preferred module type by appending the type to the module name as follows.
-
-To import a polyfilled ESM module:
-
-```javascript
-import { AsgardeoSPAClient } from "@asgardeo/auth-js/polyfilled/esm";
-```
-
-To import a polyfilled UMD module:
-
-```javascript
-import { AsgardeoSPAClient } from "@asgardeo/auth-js/polyfilled/umd";
-```
-
-**Note that using a polyfilled modules comes at the cost of the bundle size being twice as big as the default non-polyfilled bundle.**
-
 ## APIs
 
 The SDK provides a client class called `AsgardeoAuthClient` that provides you with the necessary methods to implement authentication.
@@ -242,13 +201,18 @@ You can instantiate the class and use the object to access the provided methods.
 ### constructor
 
 ```TypeScript
-new AsgardeoAuthClient(store: Store);
+new AsgardeoAuthClient(store: Store, cryptoUtils: CryptoUtils);
 ```
 
 #### Arguments
+
 1. store: [`Store`](#Store)
 
     This is the object of interface [`Store`](#Store) that is used by the SDK to store all the necessary data used ranging from the configuration data to the access token. You can implement the Store to create a class with your own implementation logic and pass an instance of the class as the second argument. This way, you will be able to get the data stored in your preferred place. To know more about implementing the [`Store`](#Store) interface, refer to the [Data Storage](#data-storage) section.
+
+2. cryptoUtils: [`CryptoUtils`](#CryptoUtils)
+
+    This is the object of the interface [`CryptoUtils`](#CryptoUtils) that is used by the SDK to perform cryptographic functions. Since the crypto implementation varies from environment to environment, this object is used to inject environment-specific crypto implementation. So, developers are expected to implement this interface and pass an object of this interface as an argument to the constructor. To know more about implementing this interface, refer to the [`CryptoUtils`](#CryptoUtils) section.
 
 #### Description
 
@@ -277,11 +241,15 @@ const auth = new AsgardeoAuthClient(store);
 ```
 
 ---
+
 ### initialize
+
 ```TypeScript
 initialize(config: AuthClientConfig<T>): Promise<void>;
 ```
+
 #### Arguments
+
 1. config: [`AuthClientConfig<T>`](#AuthClientConfigT)
 
     This contains the configuration information needed to implement authentication such as the client ID, server origin etc. Additional configuration information that is needed to be stored can be passed by extending the type of this argument using the generic type parameter. For example, if you want the config to have an attribute called `foo`, you can create an interface called `Bar` in TypeScript and then pass that interface as the generic type to `AuthClientConfig` interface. To learn more about what attributes can be passed into this object, refer to the [`AuthClientConfig<T>`](#AuthClientConfigT) section.
@@ -296,9 +264,11 @@ initialize(config: AuthClientConfig<T>): Promise<void>;
     ```
 
 #### Description
+
 This method initializes the instance with the config data.
 
 #### Example
+
 ```TypeScript
 const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
@@ -309,6 +279,7 @@ const config = {
 
 await auth.initialize(config);
 ```
+
 ---
 
 ### getDataLayer
@@ -509,6 +480,7 @@ const decodedIDTokenPayload = await auth.getDecodedIDToken();
 ```
 
 ---
+
 ### getIDToken
 
 ```TypeScript
@@ -808,7 +780,7 @@ await auth.updateConfig({
 
 ## Data Storage
 
-Since the SDK was developed with the view of being able to support various platforms such as mobile apps, browsers and node JS servers, the SDK allows developers to use their preferred mode of storage. To that end, the SDK allows you to pass a store object when instantiating the `AsgardeoAuthClient`. This store object contains methods that can be used to store, retrieve and delete data. The SDK provides a Store interface that you can implement to create your own Store class. You can refer to the [`Store`](#store) section to learn mire about the `Store` interface.
+Since the SDK was developed with the view of being able to support various platforms such as mobile apps, browsers and node.js servers, the SDK allows developers to use their preferred mode of storage. To that end, the SDK allows you to pass a store object when instantiating the `AsgardeoAuthClient`. This store object contains methods that can be used to store, retrieve and delete data. The SDK provides a Store interface that you can implement to create your own Store class. You can refer to the [`Store`](#store) section to learn mire about the `Store` interface.
 
 There are three methods that are to be implemented by the developer. They are
 
@@ -874,6 +846,22 @@ All these four keys get methods to set, get and remove data as whole. In additio
 |removeOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` | Removes the data with the specified key from the OIDC Provider Meta data.|
 |removeConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<void>` | Removes the data with the specified key from the config data.|
 |removeTemporaryDataParameter |key: `string` | `Promise<void>` | Removes the data with the specified key from the temporary data.|
+
+## CryptoUtils
+
+The CryptoUtils interface defines the methods required to perform cryptographic operations such as producing a PKCE code and verifying ID tokens. The following table describes the methods provided by the CryptoUtils interface.
+|Method|Arguments|Returns|Description|
+|--|--|--|--|
+|`base64urlEncode` |input: `T` | `string` | Encodes the passed input string to a base64url encoded string.|
+|`base64urlDecode` |input: `string` | `string` | Decodes the passed input string from a base64url encoded string.|
+|`hashSha256` |input: `string` | `T` | Hashes the passed input string using SHA-256.|
+|`generateRandomBytes` |length: `number` | `T` | Generates random bytes of the specified length.|
+|`parseJwk` |jwk: [`JWKInterface`](#JWKInterface) | `Promise<R>` | Parses the passed JWK string to a JWK object.|
+|`verifyJwt`|jwt: `string`, jwk: `R` | `Promise<boolean>` | Verifies the passed JWT using the passed JWK.|
+
+**NOTE: The return type of the `hashSha256` and `generateRandomBytes` method should be the same as the type of the argument of the `base64urlEncode` method.**
+
+These methods should be implemented in a class and the instance of the class should be passed as an argument into the constructor of `AsgardeoAuthClient`.
 
 ## Models
 
@@ -1078,6 +1066,17 @@ type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 | `sub`           | `string` | The `uid` corresponding to the user to whom the ID token belongs to.                               |
 
 In addition to the above attributes, this object will also contain any other claim found in the ID token payload.
+
+### JWKInterface
+
+| Attribute | Type     | Description                                                        |
+| --------- | -------- | ------------------------------------------------------------------ |
+| `kty`     | `string` | The type of the key. Must be one of `RSA`, `EC`, `oct` or `OKP`.   |
+| `kid`     | `string` | The key ID.                                                        |
+| `use`     | `string` | The intended use of the public key. Must be one of `sig` or `enc`. |
+| `alg`     | `string` | The algorithm intended for use with the key.                       |
+| `n`       | `string` | The public modulus.                                                |
+| `e`       | `string` | The public exponent.                                               |
 
 ## Develop
 
