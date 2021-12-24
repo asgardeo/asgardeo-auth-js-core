@@ -28,6 +28,11 @@ export interface JWKInterface {
     n: string;
 }
 
+/**
+ * The interface that defines the CryptoUtils methods.
+ *
+ * T is the type of the data passed as the argument into the `base64URLEncode` method.
+ */
 export interface CryptoUtils<T = any, R = any> {
     /**
      * Encode the provided data in base64url format.
