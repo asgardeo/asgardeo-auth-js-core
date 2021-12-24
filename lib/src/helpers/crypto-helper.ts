@@ -33,7 +33,7 @@ export class CryptoHelper<T = any, R = any> {
      * @returns {string} code verifier.
      */
     public getCodeVerifier(): string {
-        return this._cryptoUtils.base64URLencode(this._cryptoUtils.generateRandomBytes(32));
+        return this._cryptoUtils.base64URLEncode(this._cryptoUtils.generateRandomBytes(32));
     }
 
     /**
@@ -43,7 +43,7 @@ export class CryptoHelper<T = any, R = any> {
      * @returns {string} code challenge.
      */
     public getCodeChallenge(verifier: string): string {
-        return this._cryptoUtils.base64URLencode(this._cryptoUtils.hashSha256(verifier));
+        return this._cryptoUtils.base64URLEncode(this._cryptoUtils.hashSha256(verifier));
     }
 
     /**
@@ -55,7 +55,7 @@ export class CryptoHelper<T = any, R = any> {
      */
     /* eslint-disable @typescript-eslint/no-explicit-any */
     public getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<R> {
-        const headerJSON = JSON.parse(this._cryptoUtils.base64URLdecode(jwtHeader));
+        const headerJSON = JSON.parse(this._cryptoUtils.base64URLDecode(jwtHeader));
 
         for (const key of keys) {
             if (headerJSON.kid === key.kid) {
@@ -128,7 +128,7 @@ export class CryptoHelper<T = any, R = any> {
      */
     public decodeIDToken(idToken: string): DecodedIDTokenPayload {
         try {
-            const utf8String = this._cryptoUtils.base64URLdecode(idToken.split(".")[1]);
+            const utf8String = this._cryptoUtils.base64URLDecode(idToken.split(".")[1]);
             const payload = JSON.parse(utf8String);
 
             return payload;

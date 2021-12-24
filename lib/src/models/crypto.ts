@@ -29,8 +29,8 @@ export interface JWKInterface {
 }
 
 export interface CryptoUtils<T = any, R = any> {
-    base64URLencode(value: T): string;
-    base64URLdecode(value: string): string;
+    base64URLEncode(value: T): string;
+    base64URLDecode(value: string): string;
     generateRandomBytes(length: number): T;
     hashSha256(data: string): T;
     parseJwk(key: Partial<JWKInterface>): Promise<R>;
