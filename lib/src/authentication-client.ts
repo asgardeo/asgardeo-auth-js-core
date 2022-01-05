@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { AxiosResponse } from "axios";
 import {
     OIDC_SCOPE,
     OP_CONFIG_INITIATED,
@@ -31,11 +30,12 @@ import {
     CryptoUtils,
     CustomGrantConfig,
     DecodedIDTokenPayload,
+    FetchResponse,
     GetAuthURLConfig,
     OIDCEndpoints,
     Store,
     TokenResponse
-}from "./models";
+} from "./models";
 
 /**
  * Default configurations.
@@ -44,7 +44,7 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     clockTolerance: 300,
     enablePKCE: true,
     responseMode: ResponseMode.query,
-    scope: [ OIDC_SCOPE ],
+    scope: [OIDC_SCOPE],
     sendCookiesInRequests: true,
     validateIDToken: true
 };
@@ -113,7 +113,7 @@ export class AsgardeoAuthClient<T> {
                     ...DefaultConfig.scope ?? [],
                     ...config.scope?.filter(
                         (scope: string) => !DefaultConfig?.scope?.includes(scope)
-                    ) ?? [] ]
+                    ) ?? []]
             });
     }
 
@@ -334,7 +334,7 @@ export class AsgardeoAuthClient<T> {
      *
      * **This method also clears the authentication data.**
      *
-     * @return {Promise<AxiosResponse>} - A Promise that returns the response of the revoke-access-token request.
+     * @return {Promise<FetchResponse>} - A Promise that returns the response of the revoke-access-token request.
      *
      * @example
      * ```
@@ -351,7 +351,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public revokeAccessToken(): Promise<AxiosResponse> {
+    public revokeAccessToken(): Promise<FetchResponse> {
         return this._authenticationCore.revokeAccessToken();
     }
 
@@ -406,7 +406,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @param {CustomGrantConfig} config - A config object containing the custom grant configurations.
      *
-     * @return {Promise<TokenResponse | AxiosResponse>} - A Promise that resolves with the response depending
+     * @return {Promise<TokenResponse | FetchResponse>} - A Promise that resolves with the response depending
      * on your configurations.
      *
      * @example
@@ -438,7 +438,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> {
+    public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | FetchResponse> {
         return this._authenticationCore.requestCustomGrant(config);
     }
 

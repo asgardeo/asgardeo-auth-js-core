@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import { DecodedIDTokenPayload, TokenRequestHeader } from "../models";
+import { DecodedIDTokenPayload } from "../models";
 
 export class AuthenticationUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private constructor() {}
+    private constructor() { }
 
     public static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload): any {
         const optionalizedPayload: Partial<DecodedIDTokenPayload> = { ...payload };
@@ -72,7 +72,7 @@ export class AuthenticationUtils {
         return tokens.length > 2 ? tokens[tokens.length - 1] : "";
     };
 
-    public static getTokenRequestHeaders(): TokenRequestHeader {
+    public static getTokenRequestHeaders(): HeadersInit {
         return {
             Accept: "application/json",
             "Content-Type": "application/x-www-form-urlencoded"

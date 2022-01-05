@@ -15,10 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import {
     AUTHORIZATION_ENDPOINT,
+    FetchCredentialTypes,
     OIDC_SCOPE,
     OP_CONFIG_INITIATED,
     PKCE_CODE_VERIFIER,
@@ -35,8 +34,12 @@ import {
     CryptoUtils,
     CustomGrantConfig,
     DecodedIDTokenPayload,
+    FetchError,
+    FetchRequestConfig,
+    FetchResponse,
     OIDCEndpoints,
     OIDCProviderMetaData,
+    OIDCProviderMetaDataResponse,
     TokenResponse
 } from "../models";
 import { AuthenticationUtils } from "../utils";
@@ -70,7 +73,7 @@ export class AuthenticationCore<T> {
                 "getAuthorizationURL",
                 "No authorization endpoint found.",
                 "No authorization endpoint was found in the OIDC provider meta data from the well-known endpoint " +
-                    "or the authorization endpoint passed to the SDK is empty."
+                "or the authorization endpoint passed to the SDK is empty."
             );
         }
 
@@ -92,7 +95,7 @@ export class AuthenticationCore<T> {
         authorizeRequest.searchParams.append("redirect_uri", configData.signInRedirectURL);
 
         if (configData.responseMode) {
-             authorizeRequest.searchParams.append("response_mode", configData.responseMode);
+            authorizeRequest.searchParams.append("response_mode", configData.responseMode);
         }
 
         if (configData.enablePKCE) {
@@ -131,7 +134,7 @@ export class AuthenticationCore<T> {
                     "requestAccessToken",
                     "Token endpoint not found.",
                     "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                        "or the token endpoint passed to the SDK is empty."
+                    "or the token endpoint passed to the SDK is empty."
                 )
             );
         }
@@ -156,11 +159,12 @@ export class AuthenticationCore<T> {
             await this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
         }
 
-        return axios
-            .post(tokenEndpoint, body.join("&"), {
-                headers: AuthenticationUtils.getTokenRequestHeaders(),
-                withCredentials: configData.sendCookiesInRequests
-            })
+        return fetch(tokenEndpoint, {
+            method: "POST",
+            body: body.join("&"),
+            headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+        })
             .then((response) => {
                 return this._authenticationHelper
                     .handleTokenResponse(response)
@@ -178,7 +182,7 @@ export class AuthenticationCore<T> {
                         );
                     });
             })
-            .catch((error: AxiosError) => {
+            .catch((error: FetchError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RAT1-NR03",
@@ -189,7 +193,7 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.data
+                        error?.response?.body //TODO: Get the error description from response 
                     )
                 );
             });
@@ -208,7 +212,7 @@ export class AuthenticationCore<T> {
                     "refreshAccessToken",
                     "No refresh token found.",
                     "There was no refresh token found. Asgardeo doesn't return a " +
-                        "refresh token if the refresh token grant is not enabled."
+                    "refresh token if the refresh token grant is not enabled."
                 )
             );
         }
@@ -221,7 +225,7 @@ export class AuthenticationCore<T> {
                     "refreshAccessToken",
                     "No refresh token endpoint found.",
                     "No refresh token endpoint was in the OIDC provider meta data returned by the well-known " +
-                        "endpoint or the refresh token endpoint passed to the SDK is empty."
+                    "endpoint or the refresh token endpoint passed to the SDK is empty."
                 )
             );
         }
@@ -235,11 +239,12 @@ export class AuthenticationCore<T> {
             body.push(`client_secret=${configData.clientSecret}`);
         }
 
-        return axios
-            .post(tokenEndpoint, body.join("&"), {
-                headers: AuthenticationUtils.getTokenRequestHeaders(),
-                withCredentials: configData.sendCookiesInRequests
-            })
+        return fetch(tokenEndpoint, {
+            method: "POST",
+            body: body.join("&"),
+            headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+        })
             .then((response) => {
                 return this._authenticationHelper
                     .handleTokenResponse(response)
@@ -257,7 +262,7 @@ export class AuthenticationCore<T> {
                         );
                     });
             })
-            .catch((error: AxiosError) => {
+            .catch((error: FetchError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RAT2-NR03",
@@ -268,13 +273,13 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.data
+                        error?.response?.body //TODO: Get the error description from the response
                     )
                 );
             });
     }
 
-    public async revokeAccessToken(): Promise<AxiosResponse> {
+    public async revokeAccessToken(): Promise<FetchResponse> {
         const revokeTokenEndpoint = (await this._oidcProviderMetaData()).revocation_endpoint;
         const configData = await this._config();
 
@@ -286,7 +291,7 @@ export class AuthenticationCore<T> {
                     "revokeAccessToken",
                     "No revoke access token endpoint found.",
                     "No revoke access token endpoint was found in the OIDC provider meta data returned by " +
-                        "the well-known endpoint or the revoke access token endpoint passed to the SDK is empty."
+                    "the well-known endpoint or the revoke access token endpoint passed to the SDK is empty."
                 )
             );
         }
@@ -296,13 +301,14 @@ export class AuthenticationCore<T> {
         body.push(`token=${(await this._dataLayer.getSessionData()).access_token}`);
         body.push("token_type_hint=access_token");
 
-        return axios
-            .post(revokeTokenEndpoint, body.join("&"), {
-                headers: AuthenticationUtils.getTokenRequestHeaders(),
-                withCredentials: configData.sendCookiesInRequests
-            })
+        return fetch(revokeTokenEndpoint, {
+            method: "POST",
+            body: body.join("&"),
+            headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+        })
             .then((response) => {
-                if (response.status !== 200) {
+                if (!response.ok) {
                     return Promise.reject(
                         new AsgardeoAuthException(
                             "AUTH_CORE-RAT3-NR02",
@@ -310,8 +316,8 @@ export class AuthenticationCore<T> {
                             "revokeAccessToken",
                             "Invalid response status received for revoke access token request.",
                             "The request sent to revoke the access token returned " +
-                                response.status +
-                                " , which is invalid."
+                            response.status +
+                            " , which is invalid."
                         )
                     );
                 }
@@ -320,7 +326,7 @@ export class AuthenticationCore<T> {
 
                 return Promise.resolve(response);
             })
-            .catch((error: AxiosError) => {
+            .catch((error: FetchError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RAT3-NR03",
@@ -331,13 +337,13 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.data
+                        error?.response?.body //TODO: Get the error description from the response
                     )
                 );
             });
     }
 
-    public async requestCustomGrant(customGrantParams: CustomGrantConfig): Promise<TokenResponse | AxiosResponse> {
+    public async requestCustomGrant(customGrantParams: CustomGrantConfig): Promise<TokenResponse | FetchResponse> {
         const oidcProviderMetadata = await this._oidcProviderMetaData();
         const configData = await this._config();
 
@@ -356,39 +362,41 @@ export class AuthenticationCore<T> {
                     "requestCustomGrant",
                     "Token endpoint not found.",
                     "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                        "or the token endpoint passed to the SDK is empty."
+                    "or the token endpoint passed to the SDK is empty."
                 )
             );
         }
 
 
         const data: string[] = await Promise.all(Object.entries(customGrantParams.data)
-            .map(async ([ key, value ]) => {
-            const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
-            return `${key}=${newValue}`;
-        }));
+            .map(async ([key, value]) => {
+                const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
+                return `${key}=${newValue}`;
+            }));
 
-        const requestConfig: AxiosRequestConfig = {
-            data: data.join("&"),
-            headers: {
-                ...AuthenticationUtils.getTokenRequestHeaders()
-            },
-            method: "POST",
-            url: tokenEndpoint,
-            withCredentials: configData.sendCookiesInRequests
-        };
+
+        let requestHeaders = {
+            ...AuthenticationUtils.getTokenRequestHeaders()
+        }
 
         if (customGrantParams.attachToken) {
-            requestConfig.headers = {
-                ...requestConfig.headers,
+            requestHeaders = {
+                ...requestHeaders,
                 Authorization: `Bearer ${(await this._dataLayer.getSessionData()).access_token}`
             };
         }
 
-        return axios(requestConfig)
+        const requestConfig: FetchRequestConfig = {
+            body: data.join("&"),
+            headers: new Headers(requestHeaders),
+            method: "POST",
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+        };
+
+        return fetch(tokenEndpoint, requestConfig)
             .then(
-                (response: AxiosResponse): Promise<AxiosResponse | TokenResponse> => {
-                    if (response.status !== 200) {
+                (response: FetchResponse): Promise<FetchResponse | TokenResponse> => {
+                    if (!response.ok) {
                         return Promise.reject(
                             new AsgardeoAuthException(
                                 "AUTH_CORE-RCG-NR02",
@@ -396,8 +404,8 @@ export class AuthenticationCore<T> {
                                 "requestCustomGrant",
                                 "Invalid response status received for the custom grant request.",
                                 "The request sent to get the custom grant returned " +
-                                    response.status +
-                                    " , which is invalid."
+                                response.status +
+                                " , which is invalid."
                             )
                         );
                     }
@@ -423,7 +431,7 @@ export class AuthenticationCore<T> {
                     }
                 }
             )
-            .catch((error: AxiosError) => {
+            .catch((error: FetchError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_CORE-RCG-NR04",
@@ -434,7 +442,7 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.data
+                        error?.response?.body //TODO: Get the error description from the response
                     )
                 );
             });
@@ -455,7 +463,7 @@ export class AuthenticationCore<T> {
             if (
                 authenticatedUser[key] === undefined ||
                 authenticatedUser[key] === "" ||
-                authenticatedUser[key] === null ) {
+                authenticatedUser[key] === null) {
                 delete authenticatedUser[key];
             }
         });
@@ -483,10 +491,9 @@ export class AuthenticationCore<T> {
 
         const wellKnownEndpoint = await this._authenticationHelper.resolveWellKnownEndpoint();
 
-        return axios
-            .get(wellKnownEndpoint)
-            .then(async (response: { data: OIDCProviderMetaData; status: number }) => {
-                if (response.status !== 200) {
+        return fetch(wellKnownEndpoint)
+            .then(async (response: OIDCProviderMetaDataResponse) => {
+                if (!response.ok) {
                     return Promise.reject(
                         new AsgardeoAuthException(
                             "AUTH_CORE-GOPM-NR01",
@@ -494,14 +501,14 @@ export class AuthenticationCore<T> {
                             "getOIDCProviderMetaData",
                             "Invalid response status received for OIDC provider meta data request.",
                             "The request sent to the well-known endpoint to get the OIDC provider meta data returned " +
-                                response.status +
-                                " , which is invalid."
+                            response.status +
+                            " , which is invalid."
                         )
                     );
                 }
 
                 await this._dataLayer.setOIDCProviderMetaData(
-                    await this._authenticationHelper.resolveEndpoints(response.data)
+                    await this._authenticationHelper.resolveEndpoints(await response.json())
                 );
                 await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
@@ -546,7 +553,7 @@ export class AuthenticationCore<T> {
                 "getSignOutURL",
                 "Sign-out endpoint not found.",
                 "No sign-out endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                    "or the sign-out endpoint passed to the SDK is empty."
+                "or the sign-out endpoint passed to the SDK is empty."
             );
         }
 
@@ -571,7 +578,7 @@ export class AuthenticationCore<T> {
                 "getSignOutURL",
                 "No sign-out redirect URL found.",
                 "The sign-out redirect URL cannot be found or the URL passed to the SDK is empty. " +
-                    "No sign-in redirect URL has been found either. "
+                "No sign-in redirect URL has been found either. "
             );
         }
 
