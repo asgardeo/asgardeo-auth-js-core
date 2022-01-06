@@ -10,17 +10,17 @@ export type Method =
     | "patch" | "PATCH"
     | "purge" | "PURGE"
     | "link" | "LINK"
-    | "unlink" | "UNLINK"
+    | "unlink" | "UNLINK";
 
 export type FetchCredentials =
     | "omit"
     | "same-origin"
-    | "include"
+    | "include";
 
 export type FetchRedirect =
     | "follow"
     | "error"
-    | "manual"
+    | "manual";
 
 export interface FetchRequestConfig extends RequestInit {
     method?: Method;
@@ -34,7 +34,7 @@ export interface FetchRequestConfig extends RequestInit {
     mode?: RequestMode,
     redirect?: FetchRedirect,
     referrer?: string,
-    referrerPolicy?: ReferrerPolicy
+    referrerPolicy?: ReferrerPolicy;
 }
 
 export interface FetchResponse<T = any> extends ResponseInit {
@@ -43,13 +43,13 @@ export interface FetchResponse<T = any> extends ResponseInit {
     bodyUsed?: boolean,
     redirected?: boolean,
     type: ResponseType,
-    url: string
+    url: string;
     //TODO: Implement trailer property once the MDN docs are completed
     json(),
     text(),
     formData(),
     blob(),
-    arrayBuffer()
+    arrayBuffer();
 }
 
 export interface FetchError<T = any> extends Error {
@@ -58,11 +58,11 @@ export interface FetchError<T = any> extends Error {
     request?: any;
     response?: FetchResponse<T>;
     isFetchError: boolean;
+    // eslint-disable-next-line @typescript-eslint/ban-types
     toJSON: () => object;
 }
 
 export interface OIDCProviderMetaDataResponse extends FetchResponse {
     status: number,
-    data?: OIDCProviderMetaData
+    data?: OIDCProviderMetaData;
 }
-

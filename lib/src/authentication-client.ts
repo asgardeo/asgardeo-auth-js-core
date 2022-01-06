@@ -44,7 +44,7 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     clockTolerance: 300,
     enablePKCE: true,
     responseMode: ResponseMode.query,
-    scope: [OIDC_SCOPE],
+    scope: [ OIDC_SCOPE ],
     sendCookiesInRequests: true,
     validateIDToken: true
 };
@@ -81,7 +81,7 @@ export class AsgardeoAuthClient<T> {
         } else {
             AsgardeoAuthClient._instanceID += 1;
         }
-        this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
+        this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
     }
 
@@ -113,7 +113,7 @@ export class AsgardeoAuthClient<T> {
                     ...DefaultConfig.scope ?? [],
                     ...config.scope?.filter(
                         (scope: string) => !DefaultConfig?.scope?.includes(scope)
-                    ) ?? []]
+                    ) ?? [] ]
             });
     }
 

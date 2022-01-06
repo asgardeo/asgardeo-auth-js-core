@@ -75,10 +75,10 @@ export class AuthenticationHelper<T> {
         if (configData.overrideWellEndpointConfig) {
             configData.endpoints &&
                 Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-                    oidcProviderMetaData[snakeCasedName] =
+                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                    oidcProviderMetaData[ snakeCasedName ] =
                         configData?.endpoints
-                            ? configData.endpoints[endpointName]
+                            ? configData.endpoints[ endpointName ]
                             : "";
                 });
         }
@@ -92,20 +92,20 @@ export class AuthenticationHelper<T> {
 
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-                oidcProviderMetaData[snakeCasedName] =
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] =
                     configData?.endpoints
-                        ? configData.endpoints[endpointName]
+                        ? configData.endpoints[ endpointName ]
                         : "";
             });
 
         const defaultEndpoints = {
-            [AUTHORIZATION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
-            [END_SESSION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
-            [JWKS_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
-            [OIDC_SESSION_IFRAME_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
-            [REVOKE_TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
-            [TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
+            [ AUTHORIZATION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
+            [ END_SESSION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
+            [ JWKS_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
+            [ OIDC_SESSION_IFRAME_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
+            [ REVOKE_TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
+            [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
         };
 
         return { ...oidcProviderMetaData, ...defaultEndpoints };
@@ -128,6 +128,7 @@ export class AuthenticationHelper<T> {
             );
         }
 
+        // eslint-disable-next-line max-len
         return fetch(jwksEndpoint, { credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin })
             .then(async (response) => {
                 if (!response.ok) {
@@ -143,7 +144,7 @@ export class AuthenticationHelper<T> {
                 }
 
                 const issuer = (await this._oidcProviderMetaData()).issuer;
-                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[0];
+                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
 
                 // Return false if the issuer in the open id config doesn't match
                 // the issuer in the well known endpoint URL.
@@ -152,7 +153,7 @@ export class AuthenticationHelper<T> {
                 }
                 const parsedResponse = await response.json();
 
-                return this._cryptoUtils.getJWKForTheIdToken(idToken.split(".")[0], parsedResponse.keys)
+                return this._cryptoUtils.getJWKForTheIdToken(idToken.split(".")[ 0 ], parsedResponse.keys)
                     .then(async (jwk: any) => {
                         return this._cryptoUtils.isValidIdToken(
                             idToken,
@@ -214,7 +215,7 @@ export class AuthenticationHelper<T> {
         const familyName: string = payload.family_name ?? "";
         const fullName: string =
             givenName && familyName
-                ? `${givenName} ${familyName}`
+                ? `${ givenName } ${ familyName }`
                 : givenName
                     ? givenName
                     : familyName

@@ -112,7 +112,7 @@ export class AuthenticationCore<T> {
 
         const customParams = config;
         if (customParams) {
-            for (const [key, value] of Object.entries(customParams)) {
+            for (const [ key, value ] of Object.entries(customParams)) {
                 if (key != "" && value != "") {
                     authorizeRequest.searchParams.append(key, value.toString());
                 }
@@ -142,20 +142,20 @@ export class AuthenticationCore<T> {
         sessionState && await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
 
         const body: string[] = [];
-        body.push(`client_id=${configData.clientID}`);
+        body.push(`client_id=${ configData.clientID }`);
 
         if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
-            body.push(`client_secret=${configData.clientSecret}`);
+            body.push(`client_secret=${ configData.clientSecret }`);
         }
 
         const code = authorizationCode;
-        body.push(`code=${code}`);
+        body.push(`code=${ code }`);
 
         body.push("grant_type=authorization_code");
-        body.push(`redirect_uri=${configData.signInRedirectURL}`);
+        body.push(`redirect_uri=${ configData.signInRedirectURL }`);
 
         if (configData.enablePKCE) {
-            body.push(`code_verifier=${await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)}`);
+            body.push(`code_verifier=${ await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) }`);
             await this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
         }
 
@@ -193,7 +193,7 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.body //TODO: Get the error description from response 
+                        error?.response?.body //TODO: Get the error description from response
                     )
                 );
             });
@@ -231,12 +231,12 @@ export class AuthenticationCore<T> {
         }
 
         const body: string[] = [];
-        body.push(`client_id=${configData.clientID}`);
-        body.push(`refresh_token=${sessionData.refresh_token}`);
+        body.push(`client_id=${ configData.clientID }`);
+        body.push(`refresh_token=${ sessionData.refresh_token }`);
         body.push("grant_type=refresh_token");
 
         if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
-            body.push(`client_secret=${configData.clientSecret}`);
+            body.push(`client_secret=${ configData.clientSecret }`);
         }
 
         return fetch(tokenEndpoint, {
@@ -297,8 +297,8 @@ export class AuthenticationCore<T> {
         }
 
         const body: string[] = [];
-        body.push(`client_id=${configData.clientID}`);
-        body.push(`token=${(await this._dataLayer.getSessionData()).access_token}`);
+        body.push(`client_id=${ configData.clientID }`);
+        body.push(`token=${ (await this._dataLayer.getSessionData()).access_token }`);
         body.push("token_type_hint=access_token");
 
         return fetch(revokeTokenEndpoint, {
@@ -369,20 +369,20 @@ export class AuthenticationCore<T> {
 
 
         const data: string[] = await Promise.all(Object.entries(customGrantParams.data)
-            .map(async ([key, value]) => {
+            .map(async ([ key, value ]) => {
                 const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
-                return `${key}=${newValue}`;
+                return `${ key }=${ newValue }`;
             }));
 
 
         let requestHeaders = {
             ...AuthenticationUtils.getTokenRequestHeaders()
-        }
+        };
 
         if (customGrantParams.attachToken) {
             requestHeaders = {
                 ...requestHeaders,
-                Authorization: `Bearer ${(await this._dataLayer.getSessionData()).access_token}`
+                Authorization: `Bearer ${ (await this._dataLayer.getSessionData()).access_token }`
             };
         }
 
@@ -461,10 +461,10 @@ export class AuthenticationCore<T> {
 
         Object.keys(authenticatedUser).forEach((key) => {
             if (
-                authenticatedUser[key] === undefined ||
-                authenticatedUser[key] === "" ||
-                authenticatedUser[key] === null) {
-                delete authenticatedUser[key];
+                authenticatedUser[ key ] === undefined ||
+                authenticatedUser[ key ] === "" ||
+                authenticatedUser[ key ] === null) {
+                delete authenticatedUser[ key ];
             }
         });
 
@@ -583,9 +583,9 @@ export class AuthenticationCore<T> {
         }
 
         const logoutCallback =
-            `${logoutEndpoint}?` +
-            `id_token_hint=${idToken}` +
-            `&post_logout_redirect_uri=${callbackURL}&state=` +
+            `${ logoutEndpoint }?` +
+            `id_token_hint=${ idToken }` +
+            `&post_logout_redirect_uri=${ callbackURL }&state=` +
             SIGN_OUT_SUCCESS_PARAM;
 
         return logoutCallback;

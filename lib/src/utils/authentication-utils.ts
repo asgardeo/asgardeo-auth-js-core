@@ -40,8 +40,8 @@ export class AuthenticationUtils {
         delete optionalizedPayload?.isk;
         delete optionalizedPayload?.sid;
 
-        const camelCasedPayload = {}
-        Object.entries(optionalizedPayload).forEach(([key, value]) => {
+        const camelCasedPayload = {};
+        Object.entries(optionalizedPayload).forEach(([ key, value ]) => {
             const keyParts = key.split("_");
             const camelCasedKey = keyParts
                 .map((key: string, index: number) => {
@@ -49,11 +49,11 @@ export class AuthenticationUtils {
                         return key;
                     }
 
-                    return [key[0].toUpperCase(), ...key.slice(1)].join("");
+                    return [ key[ 0 ].toUpperCase(), ...key.slice(1) ].join("");
                 })
                 .join("");
 
-            camelCasedPayload[camelCasedKey] = value;
+            camelCasedPayload[ camelCasedKey ] = value;
         });
 
         return camelCasedPayload;
@@ -69,7 +69,7 @@ export class AuthenticationUtils {
 
         // This works only when the email is used as the username
         // and the tenant domain is appended to the`sub` attribute.
-        return tokens.length > 2 ? tokens[tokens.length - 1] : "";
+        return tokens.length > 2 ? tokens[ tokens.length - 1 ] : "";
     };
 
     public static getTokenRequestHeaders(): HeadersInit {
