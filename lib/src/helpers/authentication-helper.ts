@@ -129,9 +129,13 @@ export class AuthenticationHelper<T> {
         }
 
         // eslint-disable-next-line max-len
-        return fetch(jwksEndpoint, { credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin })
+        return fetch(jwksEndpoint, {
+            credentials: configData.sendCookiesInRequests
+                ? FetchCredentialTypes.Include
+                : FetchCredentialTypes.SameOrigin
+        })
             .then(async (response) => {
-                if (!response.ok) {
+                if (response.status !== 200) {
                     return Promise.reject(
                         new AsgardeoAuthException(
                             "AUTH_HELPER-VIT-NR02",
@@ -261,7 +265,7 @@ export class AuthenticationHelper<T> {
     }
 
     public async handleTokenResponse(response: FetchResponse): Promise<TokenResponse> {
-        if (!response.ok) {
+        if (response.status !== 200) {
             return Promise.reject(
                 new AsgardeoAuthException(
                     "AUTH_HELPER-HTR-NR01",

@@ -161,8 +161,9 @@ export class AuthenticationCore<T> {
 
         return fetch(tokenEndpoint, {
             body: body.join("&"),
-            // eslint-disable-next-line max-len
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
+            credentials: configData.sendCookiesInRequests
+                ? FetchCredentialTypes.Include
+                : FetchCredentialTypes.SameOrigin,
             headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
             method: "POST"
         })
@@ -194,7 +195,7 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.body //TODO: Get the error description from response
+                        error?.response?.body
                     )
                 );
             });
@@ -242,8 +243,9 @@ export class AuthenticationCore<T> {
 
         return fetch(tokenEndpoint, {
             body: body.join("&"),
-            // eslint-disable-next-line max-len
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
+            credentials: configData.sendCookiesInRequests
+            ? FetchCredentialTypes.Include
+            : FetchCredentialTypes.SameOrigin,
             headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
             method: "POST"
         })
@@ -275,7 +277,7 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.body //TODO: Get the error description from the response
+                        error?.response?.body
                     )
                 );
             });
@@ -305,13 +307,14 @@ export class AuthenticationCore<T> {
 
         return fetch(revokeTokenEndpoint, {
             body: body.join("&"),
-            // eslint-disable-next-line max-len
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
+            credentials: configData.sendCookiesInRequests
+                ? FetchCredentialTypes.Include
+                : FetchCredentialTypes.SameOrigin,
             headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
             method: "POST"
         })
             .then((response) => {
-                if (!response.ok) {
+                if (response.status !== 200) {
                     return Promise.reject(
                         new AsgardeoAuthException(
                             "AUTH_CORE-RAT3-NR02",
@@ -340,7 +343,7 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.body //TODO: Get the error description from the response
+                        error?.response?.body
                     )
                 );
             });
@@ -391,8 +394,9 @@ export class AuthenticationCore<T> {
 
         const requestConfig: FetchRequestConfig = {
             body: data.join("&"),
-            // eslint-disable-next-line max-len
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
+            credentials: configData.sendCookiesInRequests
+                ? FetchCredentialTypes.Include
+                : FetchCredentialTypes.SameOrigin,
             headers: new Headers(requestHeaders),
             method: "POST"
         };
@@ -400,7 +404,7 @@ export class AuthenticationCore<T> {
         return fetch(tokenEndpoint, requestConfig)
             .then(
                 (response: FetchResponse): Promise<FetchResponse | TokenResponse> => {
-                    if (!response.ok) {
+                    if (response.status !== 200) {
                         return Promise.reject(
                             new AsgardeoAuthException(
                                 "AUTH_CORE-RCG-NR02",
@@ -446,7 +450,7 @@ export class AuthenticationCore<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.body //TODO: Get the error description from the response
+                        error?.response?.body
                     )
                 );
             });
@@ -497,7 +501,7 @@ export class AuthenticationCore<T> {
 
         return fetch(wellKnownEndpoint)
             .then(async (response: OIDCProviderMetaDataResponse) => {
-                if (!response.ok) {
+                if (response.status !== 200) {
                     return Promise.reject(
                         new AsgardeoAuthException(
                             "AUTH_CORE-GOPM-NR01",
