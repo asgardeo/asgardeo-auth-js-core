@@ -160,10 +160,11 @@ export class AuthenticationCore<T> {
         }
 
         return fetch(tokenEndpoint, {
-            method: "POST",
             body: body.join("&"),
+            // eslint-disable-next-line max-len
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
             headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+            method: "POST"
         })
             .then((response) => {
                 return this._authenticationHelper
@@ -240,10 +241,11 @@ export class AuthenticationCore<T> {
         }
 
         return fetch(tokenEndpoint, {
-            method: "POST",
             body: body.join("&"),
+            // eslint-disable-next-line max-len
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
             headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+            method: "POST"
         })
             .then((response) => {
                 return this._authenticationHelper
@@ -302,10 +304,11 @@ export class AuthenticationCore<T> {
         body.push("token_type_hint=access_token");
 
         return fetch(revokeTokenEndpoint, {
-            method: "POST",
             body: body.join("&"),
+            // eslint-disable-next-line max-len
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
             headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+            method: "POST"
         })
             .then((response) => {
                 if (!response.ok) {
@@ -388,9 +391,10 @@ export class AuthenticationCore<T> {
 
         const requestConfig: FetchRequestConfig = {
             body: data.join("&"),
+            // eslint-disable-next-line max-len
+            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin,
             headers: new Headers(requestHeaders),
-            method: "POST",
-            credentials: configData.sendCookiesInRequests ? FetchCredentialTypes.Include : FetchCredentialTypes.SameOrigin
+            method: "POST"
         };
 
         return fetch(tokenEndpoint, requestConfig)
