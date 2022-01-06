@@ -15,13 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import axios, { AxiosError, AxiosResponse } from "axios";
 import {
     AUTHORIZATION_ENDPOINT,
     CLIENT_ID_TAG,
     CLIENT_SECRET_TAG,
     END_SESSION_ENDPOINT,
+    FetchCredentialTypes,
     JWKS_ENDPOINT,
     OIDC_SCOPE,
     OIDC_SESSION_IFRAME_ENDPOINT,
@@ -39,6 +38,8 @@ import {
     AuthenticatedUserInfo,
     CryptoUtils,
     DecodedIDTokenPayload,
+    FetchError,
+    FetchResponse,
     OIDCEndpointsInternal,
     OIDCProviderMetaData,
     TokenResponse
@@ -75,7 +76,7 @@ export class AuthenticationHelper<T> {
             configData.endpoints &&
                 Object.keys(configData.endpoints).forEach((endpointName: string) => {
                     const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                    oidcProviderMetaData[snakeCasedName] =
+                    oidcProviderMetaData[ snakeCasedName ] =
                         configData?.endpoints
                             ? configData.endpoints[ endpointName ]
                             : "";
@@ -90,21 +91,21 @@ export class AuthenticationHelper<T> {
         const configData = await this._config();
 
         configData.endpoints &&
-        Object.keys(configData.endpoints).forEach((endpointName: string) => {
-            const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-            oidcProviderMetaData[snakeCasedName] =
-                configData?.endpoints
-                    ? configData.endpoints[ endpointName ]
-                    : "";
-        });
+            Object.keys(configData.endpoints).forEach((endpointName: string) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] =
+                    configData?.endpoints
+                        ? configData.endpoints[ endpointName ]
+                        : "";
+            });
 
         const defaultEndpoints = {
-            [AUTHORIZATION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
-            [END_SESSION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
-            [JWKS_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
-            [OIDC_SESSION_IFRAME_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
-            [REVOKE_TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
-            [TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
+            [ AUTHORIZATION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
+            [ END_SESSION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
+            [ JWKS_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
+            [ OIDC_SESSION_IFRAME_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
+            [ REVOKE_TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
+            [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
         };
 
         return { ...oidcProviderMetaData, ...defaultEndpoints };
@@ -122,13 +123,17 @@ export class AuthenticationHelper<T> {
                     "validateIdToken",
                     "JWKS endpoint not found.",
                     "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                        "or the JWKS endpoint passed to the SDK is empty."
+                    "or the JWKS endpoint passed to the SDK is empty."
                 )
             );
         }
 
-        return axios
-            .get(jwksEndpoint, { withCredentials: configData?.sendCookiesInRequests })
+        // eslint-disable-next-line max-len
+        return fetch(jwksEndpoint, {
+            credentials: configData.sendCookiesInRequests
+                ? FetchCredentialTypes.Include
+                : FetchCredentialTypes.SameOrigin
+        })
             .then(async (response) => {
                 if (response.status !== 200) {
                     return Promise.reject(
@@ -143,15 +148,16 @@ export class AuthenticationHelper<T> {
                 }
 
                 const issuer = (await this._oidcProviderMetaData()).issuer;
-                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[0];
+                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
 
                 // Return false if the issuer in the open id config doesn't match
                 // the issuer in the well known endpoint URL.
                 if (!issuer || issuer !== issuerFromURL) {
                     return Promise.resolve(false);
                 }
+                const parsedResponse = await response.json();
 
-                return this._cryptoUtils.getJWKForTheIdToken(idToken.split(".")[0], response.data.keys)
+                return this._cryptoUtils.getJWKForTheIdToken(idToken.split(".")[ 0 ], parsedResponse.keys)
                     .then(async (jwk: any) => {
                         return this._cryptoUtils.isValidIdToken(
                             idToken,
@@ -188,7 +194,7 @@ export class AuthenticationHelper<T> {
                         );
                     });
             })
-            .catch((error: AxiosError) => {
+            .catch((error: FetchError) => {
                 return Promise.reject(
                     new AsgardeoAuthNetworkException(
                         "AUTH_HELPER-VIT-NR05",
@@ -199,7 +205,7 @@ export class AuthenticationHelper<T> {
                         error?.code ?? "",
                         error?.message,
                         error?.response?.status,
-                        error?.response?.data
+                        error?.response?.body
                     )
                 );
             });
@@ -213,12 +219,12 @@ export class AuthenticationHelper<T> {
         const familyName: string = payload.family_name ?? "";
         const fullName: string =
             givenName && familyName
-                ? `${givenName} ${familyName}`
+                ? `${ givenName } ${ familyName }`
                 : givenName
-                ? givenName
-                : familyName
-                ? familyName
-                : "";
+                    ? givenName
+                    : familyName
+                        ? familyName
+                        : "";
         const displayName: string = payload.preferred_username ?? fullName;
 
         return {
@@ -244,7 +250,7 @@ export class AuthenticationHelper<T> {
         return text
             .replace(TOKEN_TAG, sessionData.access_token)
             .replace(
-                USERNAME_TAG, 
+                USERNAME_TAG,
                 this.getAuthenticatedUserInfo(sessionData.id_token).username
             )
             .replace(SCOPE_TAG, scope)
@@ -258,7 +264,7 @@ export class AuthenticationHelper<T> {
         await this._dataLayer.removeSessionData();
     }
 
-    public async handleTokenResponse(response: AxiosResponse): Promise<TokenResponse> {
+    public async handleTokenResponse(response: FetchResponse): Promise<TokenResponse> {
         if (response.status !== 200) {
             return Promise.reject(
                 new AsgardeoAuthException(
@@ -270,19 +276,23 @@ export class AuthenticationHelper<T> {
                 )
             );
         }
+
+        //Get the response in JSON
+        const parsedResponse = await response.json();
+
         if ((await this._config()).validateIDToken) {
-            return this.validateIdToken(response.data.id_token)
+            return this.validateIdToken(parsedResponse.id_token)
                 .then(async (valid) => {
                     if (valid) {
-                        await this._dataLayer.setSessionData(response.data);
+                        await this._dataLayer.setSessionData(parsedResponse);
 
                         const tokenResponse: TokenResponse = {
-                            accessToken: response.data.access_token,
-                            expiresIn: response.data.expires_in,
-                            idToken: response.data.id_token,
-                            refreshToken: response.data.refresh_token,
-                            scope: response.data.scope,
-                            tokenType: response.data.token_type
+                            accessToken: parsedResponse.access_token,
+                            expiresIn: parsedResponse.expires_in,
+                            idToken: parsedResponse.id_token,
+                            refreshToken: parsedResponse.refresh_token,
+                            scope: parsedResponse.scope,
+                            tokenType: parsedResponse.token_type
                         };
 
                         return Promise.resolve(tokenResponse);
@@ -312,14 +322,14 @@ export class AuthenticationHelper<T> {
                 });
         } else {
             const tokenResponse: TokenResponse = {
-                accessToken: response.data.access_token,
-                expiresIn: response.data.expires_in,
-                idToken: response.data.id_token,
-                refreshToken: response.data.refresh_token,
-                scope: response.data.scope,
-                tokenType: response.data.token_type
+                accessToken: parsedResponse.access_token,
+                expiresIn: parsedResponse.expires_in,
+                idToken: parsedResponse.id_token,
+                refreshToken: parsedResponse.refresh_token,
+                scope: parsedResponse.scope,
+                tokenType: parsedResponse.token_type
             };
-            await this._dataLayer.setSessionData(response.data);
+            await this._dataLayer.setSessionData(parsedResponse);
 
             return Promise.resolve(tokenResponse);
         }

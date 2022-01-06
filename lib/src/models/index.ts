@@ -25,3 +25,4 @@ export * from "./id-token";
 export * from "./authorization-url";
 export * from "./user";
 export * from "./crypto";
+export * from "./fetch";

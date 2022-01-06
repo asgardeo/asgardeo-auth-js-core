@@ -47,7 +47,7 @@ export class DataLayer<T> {
         const existingDataJSON = (await this._store.getData(key)) ?? null;
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
 
-        const dataToBeSaved = { ...existingData, [attribute]: value };
+        const dataToBeSaved = { ...existingData, [ attribute ]: value };
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
 
         await this._store.setData(key, dataToBeSavedJSON);
@@ -61,13 +61,13 @@ export class DataLayer<T> {
         const existingData = existingDataJSON && JSON.parse(existingDataJSON);
 
         const dataToBeSaved = { ...existingData };
-        delete dataToBeSaved[attribute];
+        delete dataToBeSaved[ attribute ];
         const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
     private _resolveKey(store: Stores): string {
-        return `${store}-${this._id}`;
+        return `${ store }-${ this._id }`;
     }
 
     public async setConfigData(config: Partial<AuthClientConfig<T>>): Promise<void> {
@@ -121,25 +121,25 @@ export class DataLayer<T> {
     public async getConfigDataParameter(key: keyof AuthClientConfig<T>): Promise<StoreValue> {
         const data = await this._store.getData(this._resolveKey(Stores.ConfigData));
 
-        return data && JSON.parse(data)[key];
+        return data && JSON.parse(data)[ key ];
     }
 
     public async getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): Promise<StoreValue> {
         const data = await this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData));
 
-        return data && JSON.parse(data)[key];
+        return data && JSON.parse(data)[ key ];
     }
 
     public async getTemporaryDataParameter(key: keyof TemporaryData): Promise<StoreValue> {
         const data = await this._store.getData(this._resolveKey(Stores.TemporaryData));
 
-        return data && JSON.parse(data)[key];
+        return data && JSON.parse(data)[ key ];
     }
 
     public async getSessionDataParameter(key: keyof SessionData): Promise<StoreValue> {
         const data = await this._store.getData(this._resolveKey(Stores.SessionData));
 
-        return data && JSON.parse(data)[key];
+        return data && JSON.parse(data)[ key ];
     }
 
     public async setConfigDataParameter(key: keyof AuthClientConfig<T>, value: StoreValue): Promise<void> {

@@ -28,7 +28,3 @@ export interface TokenResponse {
     tokenType: string;
 }
 
-export interface TokenRequestHeader {
-    Accept: string;
-    "Content-Type": string;
-}
