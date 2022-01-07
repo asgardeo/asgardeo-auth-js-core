@@ -1,6 +1,6 @@
 {
     "name": "@asgardeo/auth-js",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Asgardeo Auth JS SDK to be used in JavaScript and TypeScript applications.",
     "keywords": [
         "Asgardeo",
@@ -26,7 +26,6 @@
     },
     "author": "Asgardeo",
     "license": "Apache-2.0",
-    "peerDependencies": {},
     "devDependencies": {
         "@rollup/plugin-commonjs": "^16.0.0",
         "@rollup/plugin-eslint": "^8.0.0",
