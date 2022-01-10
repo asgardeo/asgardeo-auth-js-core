@@ -15,6 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import { CryptoHelper } from "./crypto-helper";
 import {
     AUTHORIZATION_ENDPOINT,
     CLIENT_ID_TAG,
@@ -36,7 +38,6 @@ import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exceptio
 import {
     AuthClientConfig,
     AuthenticatedUserInfo,
-    CryptoUtils,
     DecodedIDTokenPayload,
     FetchError,
     FetchResponse,
@@ -50,13 +51,13 @@ export class AuthenticationHelper<T> {
     private _dataLayer: DataLayer<T>;
     private _config: () => Promise<AuthClientConfig>;
     private _oidcProviderMetaData: () => Promise<OIDCProviderMetaData>;
-    private _cryptoUtils: CryptoUtils;
+    private _cryptoHelper: CryptoHelper;
 
-    public constructor(dataLayer: DataLayer<T>, cryptoUtils: CryptoUtils) {
+    public constructor(dataLayer: DataLayer<T>, cryptoHelper: CryptoHelper) {
         this._dataLayer = dataLayer;
         this._config = async () => await this._dataLayer.getConfigData();
         this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
-        this._cryptoUtils = cryptoUtils;
+        this._cryptoHelper = cryptoHelper;
     }
 
     public async resolveWellKnownEndpoint(): Promise<string> {
@@ -155,18 +156,20 @@ export class AuthenticationHelper<T> {
                 if (!issuer || issuer !== issuerFromURL) {
                     return Promise.resolve(false);
                 }
-                const parsedResponse = await response.json();
+				const parsedResponse = await response.json();
 
-                return this._cryptoUtils.getJWKForTheIdToken(idToken.split(".")[ 0 ], parsedResponse.keys)
+                return this._cryptoHelper
+                    .getJWKForTheIdToken(idToken.split(".")[0], parsedResponse.keys)
                     .then(async (jwk: any) => {
-                        return this._cryptoUtils.isValidIdToken(
-                            idToken,
-                            jwk,
-                            (await this._config()).clientID,
-                            issuer,
-                            this._cryptoUtils.decodeIDToken(idToken).sub,
-                            (await this._config()).clockTolerance
-                        )
+                        return this._cryptoHelper
+                            .isValidIdToken(
+                                idToken,
+                                jwk,
+                                (await this._config()).clientID,
+                                issuer,
+                                this._cryptoHelper.decodeIDToken(idToken).sub,
+                                (await this._config()).clockTolerance
+                            )
                             .then((response) => response)
                             .catch((error) => {
                                 return Promise.reject(
@@ -212,7 +215,7 @@ export class AuthenticationHelper<T> {
     }
 
     public getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
-        const payload: DecodedIDTokenPayload = this._cryptoUtils.decodeIDToken(idToken);
+        const payload: DecodedIDTokenPayload = this._cryptoHelper.decodeIDToken(idToken);
         const tenantDomain: string = AuthenticationUtils.getTenantDomainFromIdTokenPayload(payload);
         const username: string = payload?.username ?? "";
         const givenName: string = payload.given_name ?? "";

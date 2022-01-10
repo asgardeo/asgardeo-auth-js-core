@@ -16,8 +16,6 @@
  * under the License.
  */
 
-import { DecodedIDTokenPayload } from ".";
-
 /**
  * JWK Model
  */
@@ -30,17 +28,77 @@ export interface JWKInterface {
     n: string;
 }
 
-export interface CryptoUtils {
-    getCodeVerifier(): string;
-    getCodeChallenge(verifier: string): string;
-    getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<any>;
-    isValidIdToken(
+/**
+ * The interface that defines the CryptoUtils methods.
+ *
+ * T is the type of the data passed as the argument into the `base64URLEncode` method.
+ */
+export interface CryptoUtils<T = any, R = any> {
+    /**
+     * Encode the provided data in base64url format.
+     *
+     * @param {T} value Data to be encoded.
+     *
+     * @returns {string} Encoded data.
+     */
+    base64URLEncode(value: T): string;
+
+    /**
+     * Decode the provided data encoded in base64url format.
+     *
+     * @param {string} value Data to be decoded.
+     *
+     * @returns {string} Decoded data.
+     */
+    base64URLDecode(value: string): string;
+
+    /**
+     * Generate random bytes.
+     *
+     * @param {number} length Length of the random bytes to be generated.
+     *
+     * @returns {T} Random bytes.
+     */
+    generateRandomBytes(length: number): T;
+
+    /**
+     * Hash the provided data using SHA-256.
+     *
+     * @param {string} data  Data to be hashed.
+     *
+     * @returns {T} Hashed data.
+     */
+    hashSha256(data: string): T;
+
+    /**
+     * Parse the provided JWK.
+     *
+     * @param {JWKInterface} key  JWK to be parsed.
+     *
+     * @returns {Promise<R>} Parsed JWK.
+     */
+    parseJwk(key: Partial<JWKInterface>): Promise<R>;
+
+    /**
+     * Verify the provided JWT.
+     *
+     * @param {string} idToken ID Token to be verified.
+     * @param {R} jwk JWK to be used for verification. The output of the parseJwk method.
+     * @param {string[]} algorithms Algorithms to be used for verification.
+     * @param {string} clientID Client ID to be used for verification.
+     * @param {string} issuer Issuer to be used for verification.
+     * @param {string} subject Subject to be used for verification.
+     * @param {string} clockTolerance Clock tolerance to be used for verification.
+     *
+     * @returns {Promise<boolean>} True if the ID Token is valid, false otherwise.
+     */
+    verifyJwt(
         idToken: string,
-        jwk: any,
+        jwk: R,
+        algorithms: string[],
         clientID: string,
         issuer: string,
-        username: string,
-        clockTolerance: number | undefined
+        subject: string,
+        clockTolerance?: number
     ): Promise<boolean>;
-    decodeIDToken(idToken: string): DecodedIDTokenPayload;
 }
