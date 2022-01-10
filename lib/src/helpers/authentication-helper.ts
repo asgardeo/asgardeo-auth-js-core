@@ -15,6 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import { CryptoHelper } from "./crypto-helper";
 import {
     AUTHORIZATION_ENDPOINT,
     CLIENT_ID_TAG,
@@ -155,7 +157,7 @@ export class AuthenticationHelper<T> {
                     return Promise.resolve(false);
                 }
 				const parsedResponse = await response.json();
-				
+
                 return this._cryptoHelper
                     .getJWKForTheIdToken(idToken.split(".")[0], parsedResponse.keys)
                     .then(async (jwk: any) => {
