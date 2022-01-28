@@ -160,16 +160,17 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getAuthorizationURL(config?: GetAuthURLConfig): Promise<string> {
+    public async getAuthorizationURL(sessionId: string, config?: GetAuthURLConfig): Promise<string> {
+        //TODO: Fix intellisense if the logic is good
         const authRequestConfig: GetAuthURLConfig = { ...config };
         delete authRequestConfig?.forceInit;
 
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.getAuthorizationURL(authRequestConfig);
+            return this._authenticationCore.getAuthorizationURL(sessionId, authRequestConfig);
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(config?.forceInit as boolean).then(() => {
-            return this._authenticationCore.getAuthorizationURL(authRequestConfig);
+            return this._authenticationCore.getAuthorizationURL(sessionId, authRequestConfig);
         });
     }
 
@@ -197,13 +198,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+    public async requestAccessToken(authorizationCode: string, sessionState: string, sessionId: string)
+        : Promise<TokenResponse> {
+        //TODO: Fix intellisense if the logic is good
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, sessionId);
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(false).then(() => {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, sessionId);
         });
     }
 
@@ -478,8 +481,9 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getPKCECode(): Promise<string> {
-        return this._authenticationCore.getPKCECode();
+    public async getPKCECode(sessionId: string): Promise<string> {
+        //TODO: Fix intellisense if the logic is good
+        return this._authenticationCore.getPKCECode(sessionId);
     }
 
     /**
@@ -498,8 +502,9 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async setPKCECode(pkce: string): Promise<void> {
-        await this._authenticationCore.setPKCECode(pkce);
+    public async setPKCECode(pkce: string, sessionId: string): Promise<void> {
+        //TODO: Fix intellisense if the logic is good
+        await this._authenticationCore.setPKCECode(pkce, sessionId);
     }
 
     /**

@@ -37,6 +37,7 @@ export interface DataLayer<T> {
     setOIDCProviderMetaData(oidcProviderMetaData: OIDCProviderMetaData): Promise<void>;
     setConfigData(config: AuthClientConfig<T>): Promise<void>;
     setTemporaryData(data: TemporaryData): Promise<void>;
+    getPKCECode(sessionId: string): Promise<PKCECode>;
     getSessionData(): Promise<SessionData>;
     getOIDCProviderMetaData(): Promise<OIDCProviderMetaData>;
     getConfigData(): Promise<AuthClientConfig<T>>;
@@ -57,6 +58,11 @@ export interface DataLayer<T> {
     removeOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): Promise<void>;
     removeConfigDataParameter(key: keyof AuthClientConfig<T>): Promise<void>;
     removeTemporaryDataParameter(key: string): Promise<void>;
+}
+
+export interface PKCECode {
+    sessionId: string,
+    PKCE: string
 }
 
 export interface Store {

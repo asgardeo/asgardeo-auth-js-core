@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { Stores } from "../constants";
-import { AuthClientConfig, OIDCProviderMetaData, SessionData, Store, StoreValue, TemporaryData } from "../models";
+import { PKCE_CODE_VERIFIER, Stores } from "../constants";
+import { AuthClientConfig, OIDCProviderMetaData, PKCECode, SessionData, Store, StoreValue, TemporaryData } from "../models";
 
 export class DataLayer<T> {
     private _id: string;
@@ -134,6 +134,15 @@ export class DataLayer<T> {
         const data = await this._store.getData(this._resolveKey(Stores.TemporaryData));
 
         return data && JSON.parse(data)[ key ];
+    }
+
+    public async getPKCECode(sessionId: string): Promise<PKCECode> {
+        const data = JSON.parse(await this._store.getData(this._resolveKey(Stores.TemporaryData)))[PKCE_CODE_VERIFIER];
+        const PKCEData = data.filter((session: PKCECode) => {
+            return session.sessionId === sessionId;
+        });
+
+        return PKCEData;
     }
 
     public async getSessionDataParameter(key: keyof SessionData): Promise<StoreValue> {

@@ -40,6 +40,7 @@ import {
     OIDCEndpoints,
     OIDCProviderMetaData,
     OIDCProviderMetaDataResponse,
+    PKCECode,
     TokenResponse
 } from "../models";
 import { AuthenticationUtils } from "../utils";
@@ -61,7 +62,7 @@ export class AuthenticationCore<T> {
         this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public async getAuthorizationURL(config?: AuthorizationURLParams): Promise<string> {
+    public async getAuthorizationURL(sessionId:string, config?: AuthorizationURLParams): Promise<string> {
         const authorizeEndpoint = (await this._dataLayer.getOIDCProviderMetaDataParameter(
             AUTHORIZATION_ENDPOINT
         )) as string;
@@ -101,11 +102,32 @@ export class AuthenticationCore<T> {
         }
 
         if (configData.enablePKCE) {
-            const codeVerifier = this._cryptoHelper?.getCodeVerifier();
-            const codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
-            await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier);
-            authorizeRequest.searchParams.append("code_challenge_method", "S256");
-            authorizeRequest.searchParams.append("code_challenge", codeChallenge);
+            //See if the PKCE code is already stored against the session ID
+            const exsitingCodeVerifier = await this._dataLayer.getPKCECode(sessionId);
+            //If not, create a new PKCE and store in the session
+            if (!exsitingCodeVerifier) {
+                const codeVerifier = this._cryptoHelper?.getCodeVerifier();
+                const codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
+                //Get the existing code array
+                const PKCEArray = JSON.parse(await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)
+                    .toString());
+                //Append the new session
+                PKCEArray.push({
+                    PKCE: codeVerifier,
+                    sessionId: sessionId //It is mandatory to send in a session ID with every function call?
+                });
+                //Store back the stringified session array
+                await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, JSON.stringify(PKCEArray));
+                authorizeRequest.searchParams.append("code_challenge_method", "S256");
+                authorizeRequest.searchParams.append("code_challenge", codeChallenge);
+            } else {
+                //Vaidate the session ID
+                if (exsitingCodeVerifier.sessionId === sessionId) {
+                    const codeChallenge = this._cryptoHelper?.getCodeChallenge(exsitingCodeVerifier.PKCE);
+                    authorizeRequest.searchParams.append("code_challenge_method", "S256");
+                    authorizeRequest.searchParams.append("code_challenge", codeChallenge);
+                }
+            }
         }
 
         if (configData.prompt) {
@@ -124,7 +146,8 @@ export class AuthenticationCore<T> {
         return authorizeRequest.toString();
     }
 
-    public async requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+    public async requestAccessToken(authorizationCode: string, sessionState: string, sessionId: string)
+        : Promise<TokenResponse> {
         const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
         const configData = await this._config();
 
@@ -157,7 +180,8 @@ export class AuthenticationCore<T> {
         body.push(`redirect_uri=${ configData.signInRedirectURL }`);
 
         if (configData.enablePKCE) {
-            body.push(`code_verifier=${ await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER) }`);
+            body.push(`code_verifier=${ await this._dataLayer.getPKCECode(sessionId) }`);
+            //TODO: Why removing?
             await this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
         }
 
@@ -616,12 +640,22 @@ export class AuthenticationCore<T> {
         return Boolean(await this.getAccessToken());
     }
 
-    public async getPKCECode(): Promise<string> {
-        return (await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)) as string;
+    public async getPKCECode(sessionId: string): Promise<string> {
+        const PKCEArray = JSON.parse(await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER).toString());
+        const PKCEData = PKCEArray.filter((session: PKCECode) => {
+            return session.sessionId === sessionId;
+        });
+        return PKCEData.PKCE as string;
     }
 
-    public async setPKCECode(pkce: string): Promise<void> {
-        return await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce);
+    public async setPKCECode(pkce: string, sessionId: string): Promise<void> {
+        const PKCEArray = JSON.parse(await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)
+            .toString());
+        PKCEArray.push({
+            PKCE: pkce,
+            sessionId: sessionId
+        });
+        return await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, JSON.stringify(PKCEArray));
     }
 
     public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
