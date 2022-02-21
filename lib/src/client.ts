@@ -81,7 +81,7 @@ export class AsgardeoAuthClient<T> {
         } else {
             AsgardeoAuthClient._instanceID += 1;
         }
-        this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
+        this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
     }
 
@@ -105,16 +105,14 @@ export class AsgardeoAuthClient<T> {
      * @preserve
      */
     public async initialize(config: AuthClientConfig<T>): Promise<void> {
-        await this._dataLayer.setConfigData(
-            {
-                ...DefaultConfig,
-                ...config,
-                scope: [
-                    ...DefaultConfig.scope ?? [],
-                    ...config.scope?.filter(
-                        (scope: string) => !DefaultConfig?.scope?.includes(scope)
-                    ) ?? [] ]
-            });
+        await this._dataLayer.setConfigData({
+            ...DefaultConfig,
+            ...config,
+            scope: [
+                ...(DefaultConfig.scope ?? []),
+                ...(config.scope?.filter((scope: string) => !DefaultConfig?.scope?.includes(scope)) ?? [])
+            ]
+        });
     }
 
     /**
@@ -160,16 +158,16 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getAuthorizationURL(config?: GetAuthURLConfig): Promise<string> {
+    public async getAuthorizationURL(config?: GetAuthURLConfig, userID?: string): Promise<string> {
         const authRequestConfig: GetAuthURLConfig = { ...config };
         delete authRequestConfig?.forceInit;
 
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.getAuthorizationURL(authRequestConfig);
+            return this._authenticationCore.getAuthorizationURL(authRequestConfig, userID);
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(config?.forceInit as boolean).then(() => {
-            return this._authenticationCore.getAuthorizationURL(authRequestConfig);
+            return this._authenticationCore.getAuthorizationURL(authRequestConfig, userID);
         });
     }
 
@@ -197,13 +195,17 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+    public async requestAccessToken(
+        authorizationCode: string,
+        sessionState: string,
+        userID?: string
+    ): Promise<TokenResponse> {
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, userID);
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(false).then(() => {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, userID);
         });
     }
 
@@ -223,8 +225,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async signOut(): Promise<string> {
-        return this._authenticationCore.signOut();
+    public async signOut(userID?: string): Promise<string> {
+        return this._authenticationCore.signOut(userID);
     }
 
     /**
@@ -245,8 +247,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getSignOutURL(): Promise<string> {
-        return this._authenticationCore.getSignOutURL();
+    public async getSignOutURL(userID?: string): Promise<string> {
+        return this._authenticationCore.getSignOutURL(userID);
     }
 
     /**
@@ -285,8 +287,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
-        return this._authenticationCore.getDecodedIDToken();
+    public async getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload> {
+        return this._authenticationCore.getDecodedIDToken(userID);
     }
 
     /**
@@ -305,8 +307,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getIDToken(): Promise<string> {
-        return this._authenticationCore.getIDToken();
+    public async getIDToken(userID?: string): Promise<string> {
+        return this._authenticationCore.getIDToken(userID);
     }
 
     /**
@@ -325,8 +327,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getBasicUserInfo(): Promise<BasicUserInfo> {
-        return this._authenticationCore.getBasicUserInfo();
+    public async getBasicUserInfo(userID?: string): Promise<BasicUserInfo> {
+        return this._authenticationCore.getBasicUserInfo(userID);
     }
 
     /**
@@ -351,8 +353,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public revokeAccessToken(): Promise<FetchResponse> {
-        return this._authenticationCore.revokeAccessToken();
+    public revokeAccessToken(userID?: string): Promise<FetchResponse> {
+        return this._authenticationCore.revokeAccessToken(userID);
     }
 
     /**
@@ -376,8 +378,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public refreshAccessToken(): Promise<TokenResponse> {
-        return this._authenticationCore.refreshAccessToken();
+    public refreshAccessToken(userID): Promise<TokenResponse> {
+        return this._authenticationCore.refreshAccessToken(userID);
     }
 
     /**
@@ -396,8 +398,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getAccessToken(): Promise<string> {
-        return this._authenticationCore.getAccessToken();
+    public async getAccessToken(userID): Promise<string> {
+        return this._authenticationCore.getAccessToken(userID);
     }
 
     /**
@@ -438,8 +440,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | FetchResponse> {
-        return this._authenticationCore.requestCustomGrant(config);
+    public requestCustomGrant(config: CustomGrantConfig, userID?: string): Promise<TokenResponse | FetchResponse> {
+        return this._authenticationCore.requestCustomGrant(config, userID);
     }
 
     /**
@@ -458,8 +460,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async isAuthenticated(): Promise<boolean> {
-        return this._authenticationCore.isAuthenticated();
+    public async isAuthenticated(userID?: string): Promise<boolean> {
+        return this._authenticationCore.isAuthenticated(userID);
     }
 
     /**
@@ -478,8 +480,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getPKCECode(): Promise<string> {
-        return this._authenticationCore.getPKCECode();
+    public async getPKCECode(userID?: string): Promise<string> {
+        return this._authenticationCore.getPKCECode(userID);
     }
 
     /**
@@ -498,8 +500,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async setPKCECode(pkce: string): Promise<void> {
-        await this._authenticationCore.setPKCECode(pkce);
+    public async setPKCECode(pkce: string, userID?: string): Promise<void> {
+        await this._authenticationCore.setPKCECode(pkce, userID);
     }
 
     /**
@@ -523,9 +525,7 @@ export class AsgardeoAuthClient<T> {
         const stateParam = url.searchParams.get("state");
         const error = Boolean(url.searchParams.get("error"));
 
-        return stateParam
-            ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error
-            : false;
+        return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error : false;
     }
 
     /**

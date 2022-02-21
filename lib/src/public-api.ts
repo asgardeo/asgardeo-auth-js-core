@@ -16,7 +16,7 @@
 * under the License.
 */
 
-export * from "./authentication-client";
+export * from "./client";
 export * from "./models";
 export * from "./constants/client-config";
 export * from "./constants/custom-grant-template-tags";
