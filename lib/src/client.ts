@@ -76,7 +76,7 @@ export class AsgardeoAuthClient<T> {
         } else {
             AsgardeoAuthClient._instanceID += 1;
         }
-        this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
+        this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
     }
 
@@ -135,6 +135,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @param {GetAuthURLConfig} config - (Optional) A config object to force initialization and pass
      * custom path parameters such as the fidp parameter.
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A promise that resolves with the authorization URL.
      *
@@ -172,6 +174,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @param {string} authorizationCode - The authorization code.
      * @param {string} sessionState - The session state.
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<TokenResponse>} - A Promise that resolves with the token response.
      *
@@ -207,6 +211,9 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method clears all authentication data and returns the sign-out URL.
      *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
+     *
      * @return {Promise<string>} - A Promise that resolves with the sign-out URL.
      *
      * @example
@@ -226,6 +233,9 @@ export class AsgardeoAuthClient<T> {
 
     /**
      * This method returns the sign-out URL.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * **This doesn't clear the authentication data.**
      *
@@ -269,6 +279,9 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method decodes the payload of the ID token and returns it.
      *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
+     *
      * @return {Promise<DecodedIDTokenPayload>} - A Promise that resolves with the decoded ID token payload.
      *
      * @example
@@ -288,6 +301,9 @@ export class AsgardeoAuthClient<T> {
 
     /**
      * This method returns the ID token.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A Promise that resolves with the ID token.
      *
@@ -309,6 +325,9 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method returns the basic user information obtained from the ID token.
      *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
+     *
      * @return {Promise<BasicUserInfo>} - A Promise that resolves with an object containing the basic user information.
      *
      * @example
@@ -328,6 +347,9 @@ export class AsgardeoAuthClient<T> {
 
     /**
      * This method revokes the access token.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * **This method also clears the authentication data.**
      *
@@ -356,6 +378,9 @@ export class AsgardeoAuthClient<T> {
      * This method refreshes the access token and returns a Promise that resolves with the new access
      * token and other relevant data.
      *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
+     *
      * @return {Promise<TokenResponse>} - A Promise that resolves with the token response.
      *
      * @example
@@ -380,6 +405,9 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method returns the access token.
      *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
+     *
      * @return {Promise<string>} - A Promise that resolves with the access token.
      *
      * @example
@@ -402,6 +430,8 @@ export class AsgardeoAuthClient<T> {
      * depending on the config passed.
      *
      * @param {CustomGrantConfig} config - A config object containing the custom grant configurations.
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<TokenResponse | FetchResponse>} - A Promise that resolves with the response depending
      * on your configurations.
@@ -442,6 +472,9 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method returns if the user is authenticated or not.
      *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
+     *
      * @return {Promise<boolean>} - A Promise that resolves with `true` if the user is authenticated, `false` otherwise.
      *
      * @example
@@ -461,6 +494,9 @@ export class AsgardeoAuthClient<T> {
 
     /**
      * This method returns the PKCE code generated during the generation of the authentication URL.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A Promise that resolves with the PKCE code.
      *
@@ -483,6 +519,9 @@ export class AsgardeoAuthClient<T> {
      * This method sets the PKCE code to the data store.
      *
      * @param {string} pkce - The PKCE code.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @example
      * ```
