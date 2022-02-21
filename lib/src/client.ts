@@ -16,12 +16,7 @@
  * under the License.
  */
 
-import {
-    OIDC_SCOPE,
-    OP_CONFIG_INITIATED,
-    ResponseMode,
-    SIGN_OUT_SUCCESS_PARAM
-} from "./constants";
+import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -81,7 +76,7 @@ export class AsgardeoAuthClient<T> {
         } else {
             AsgardeoAuthClient._instanceID += 1;
         }
-        this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
+        this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
     }
 
@@ -378,7 +373,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public refreshAccessToken(userID): Promise<TokenResponse> {
+    public refreshAccessToken(userID?: string): Promise<TokenResponse> {
         return this._authenticationCore.refreshAccessToken(userID);
     }
 
@@ -398,7 +393,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getAccessToken(userID): Promise<string> {
+    public async getAccessToken(userID?: string): Promise<string> {
         return this._authenticationCore.getAccessToken(userID);
     }
 
