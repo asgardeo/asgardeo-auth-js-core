@@ -309,7 +309,7 @@ const dataLayer = auth.getDataLayer();
 ### getAuthorizationURL
 
 ```TypeScript
-getAuthorizationURL(config?: GetAuthURLConfig): Promise<string>
+getAuthorizationURL(config?: GetAuthURLConfig, userID?: string): Promise<string>
 ```
 
 #### Arguments
@@ -319,7 +319,9 @@ getAuthorizationURL(config?: GetAuthURLConfig): Promise<string>
     An optional config object that has the necessary attributes to configure this method. The `forceInit` attribute can be set to `true` to trigger a request to the `.well-known` endpoint and obtain the OIDC endpoints. By default, a request to the `.well-known` endpoint will be sent only if a request to it had not been sent before. If you wish to force a request to the endpoint, you can use this attribute.
 
     The object can only contain key-value pairs that you wish to append as path parameters to the authorization URL. For example, to set the `fidp` parameter, you can insert `fidp` as a key and its value to this object.
+2. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here to generate an authorization URL specific to that user. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 A Promise that resolves with the authorization URL
@@ -348,7 +350,7 @@ auth.getAuthorizationURL(config).then((url)=>{
 ### requestAccessToken
 
 ```TypeScript
-requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse>
+requestAccessToken(authorizationCode: string, sessionState: string, userID?: string): Promise<TokenResponse>
 ```
 
 #### Arguments
@@ -360,6 +362,9 @@ requestAccessToken(authorizationCode: string, sessionState: string): Promise<Tok
 2. sessionState: `string`
 
     This is the session state obtained from Asgardeo after a user signs in.
+3. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here to request an access token  specific to that user. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -386,9 +391,13 @@ auth.requestAccessToken("auth-code", "session-state").then((tokenResponse)=>{
 ### signOut
 
 ```TypeScript
-signOut(): Promise<string>
+signOut(userID?: string): Promise<string>
 ```
 
+#### Argument
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 signOutURL: `Promise<string>`
@@ -411,9 +420,12 @@ const signOutURL = await auth.signOut();
 ### getSignOutURL
 
 ```TypeScript
-getSignOutURL(): Promise<string>
+getSignOutURL(userID?: string): Promise<string>
 ```
+#### Argument
+1. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 signOutURL: `Promise<string>`
@@ -461,9 +473,13 @@ const oidcEndpoints = await auth.getOIDCServiceEndpoints();
 ### getDecodedIDToken
 
 ```TypeScript
-getDecodedIDToken(): Promise<DecodedIDTokenPayload>
+getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload>
 ```
 
+#### Argument
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 decodedIDTokenPayload: `Promise<[DecodedIDTokenPayload](#DecodedIDTokenPayload)>`
@@ -484,9 +500,14 @@ const decodedIDTokenPayload = await auth.getDecodedIDToken();
 ### getIDToken
 
 ```TypeScript
-getIDToken(): Promise<string>
+getIDToken(userID?: string): Promise<string>
 ```
 
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 idToken: `Promise<string>`
@@ -507,9 +528,13 @@ const idToken = await auth.getIDToken();
 ### getBasicUserInfo
 
 ```TypeScript
-getBasicUserInfo(): Promise<BasicUserInfo>
+getBasicUserInfo(userID?: string): Promise<BasicUserInfo>
 ```
 
+#### Argument
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 basicUserInfo: `Promise<[BasicUserInfo](#BasicUserInfo)>`
@@ -531,9 +556,14 @@ const basicUserInfo = await auth.getBasicUserInfo();
 ### revokeAccessToken
 
 ```TypeScript
-revokeAccessToken(): Promise<AxiosResponse>
+revokeAccessToken(userID?: string): Promise<AxiosResponse>
 ```
 
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 A Promise that resolves with the response returned by the server.
@@ -557,9 +587,12 @@ auth.revokeAccessToken().then((response)=>{
 ### refreshAccessToken
 
 ```TypeScript
-refreshAccessToken(): Promise<TokenResponse>
+refreshAccessToken(userID?: string): Promise<TokenResponse>
 ```
+#### Argument
+1. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 A Promise that resolves with the token response that contains the token information.
@@ -583,9 +616,12 @@ auth.refreshAccessToken().then((response)=>{
 ### getAccessToken
 
 ```TypeScript
-getAccessToken(): Promise<string>
+getAccessToken(userID?: string): Promise<string>
 ```
+#### Argument
+1. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 accessToken: `string`
@@ -607,14 +643,16 @@ const accessToken = await auth.getAccessToken();
 ### requestCustomGrant
 
 ```TypeScript
-requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | AxiosResponse>
+requestCustomGrant(config: CustomGrantConfig, userID?: string): Promise<TokenResponse | AxiosResponse>
 ```
 
 #### Arguments
 
 1. config: [`CustomGrantConfig`](#CustomGrantConfig)
    The config object contains attributes that would be used to configure the custom grant request. To learn more about the different configurations available, checkout the [`CustomGrantConfig`](#CustomGrantConfig) model.
+2. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 A Promise that resolves with the token information or the response returned by the server depending on the configuration passed.
@@ -652,9 +690,12 @@ This method can be used to send custom-grant requests to Asgardeo.
 ### isAuthenticated
 
 ```TypeScript
-isAuthenticated(): Promise<boolean>
+isAuthenticated(userID?: string): Promise<boolean>
 ```
+#### Argument
+1. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 isAuth: `boolean`
@@ -676,9 +717,12 @@ const isAuth = await auth.isAuthenticated();
 ### getPKCECode
 
 ```TypeScript
-getPKCECode(): string
+getPKCECode(userID?: string): string
 ```
+#### Argument
+1. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Returns
 
 pkce: `string`
@@ -700,7 +744,7 @@ const pkce = auth.getPKCECode();
 ### setPKCECode
 
 ```TypeScript
-setPKCECode(pkce: string): void
+setPKCECode(pkce: string, userID?: string): void
 ```
 
 #### Arguments
@@ -708,7 +752,9 @@ setPKCECode(pkce: string): void
 1. pkce: `string`
 
 The PKCE code generated by the [`getAuthorizationURL`](#getAuthorizationURL) method.
+2. userID: `string` (optional)
 
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 #### Description
 
 This method sets the PKCE code to the store. The PKCE code is usually stored in the store by the SDK. But there could be instances when the store could be cleared such as when the data is stored in the memory and the user is redirected to the authorization endpoint in a Single Page Application. When the user is redirected back to the app, the authorization code, session state, and the PKCE code will have to be sent to the server to obtain the access token. However, since, during redirection, everything in the memory is cleared, the PKCE code cannot be obtained. In such instances, the [`getPKCECode`](#getPKCECode) method can be used to get the PKCE code before redirection and store it in a place from where it can be retrieved after redirection, and then this method can be used to save the PKCE code to the store so that the [`requestAccessToken`](#requestAccessToken) method can run successfully.
