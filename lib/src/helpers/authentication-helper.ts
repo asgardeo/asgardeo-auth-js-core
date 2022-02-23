@@ -76,11 +76,10 @@ export class AuthenticationHelper<T> {
         if (configData.overrideWellEndpointConfig) {
             configData.endpoints &&
                 Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                    oidcProviderMetaData[ snakeCasedName ] =
-                        configData?.endpoints
-                            ? configData.endpoints[ endpointName ]
-                            : "";
+                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+                    oidcProviderMetaData[snakeCasedName] = configData?.endpoints
+                        ? configData.endpoints[endpointName]
+                        : "";
                 });
         }
 
@@ -93,20 +92,17 @@ export class AuthenticationHelper<T> {
 
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                oidcProviderMetaData[ snakeCasedName ] =
-                    configData?.endpoints
-                        ? configData.endpoints[ endpointName ]
-                        : "";
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+                oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : "";
             });
 
         const defaultEndpoints = {
-            [ AUTHORIZATION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
-            [ END_SESSION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
-            [ JWKS_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
-            [ OIDC_SESSION_IFRAME_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
-            [ REVOKE_TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
-            [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
+            [AUTHORIZATION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
+            [END_SESSION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
+            [JWKS_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
+            [OIDC_SESSION_IFRAME_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
+            [REVOKE_TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
+            [TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
         };
 
         return { ...oidcProviderMetaData, ...defaultEndpoints };
@@ -124,7 +120,7 @@ export class AuthenticationHelper<T> {
                     "validateIdToken",
                     "JWKS endpoint not found.",
                     "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                    "or the JWKS endpoint passed to the SDK is empty."
+                        "or the JWKS endpoint passed to the SDK is empty."
                 )
             );
         }
@@ -149,14 +145,14 @@ export class AuthenticationHelper<T> {
                 }
 
                 const issuer = (await this._oidcProviderMetaData()).issuer;
-                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
+                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[0];
 
                 // Return false if the issuer in the open id config doesn't match
                 // the issuer in the well known endpoint URL.
                 if (!issuer || issuer !== issuerFromURL) {
                     return Promise.resolve(false);
                 }
-				const parsedResponse = await response.json();
+                const parsedResponse = await response.json();
 
                 return this._cryptoHelper
                     .getJWKForTheIdToken(idToken.split(".")[0], parsedResponse.keys)
@@ -222,12 +218,12 @@ export class AuthenticationHelper<T> {
         const familyName: string = payload.family_name ?? "";
         const fullName: string =
             givenName && familyName
-                ? `${ givenName } ${ familyName }`
+                ? `${givenName} ${familyName}`
                 : givenName
-                    ? givenName
-                    : familyName
-                        ? familyName
-                        : "";
+                ? givenName
+                : familyName
+                ? familyName
+                : "";
         const displayName: string = payload.preferred_username ?? fullName;
 
         return {
@@ -238,10 +234,10 @@ export class AuthenticationHelper<T> {
         };
     }
 
-    public async replaceCustomGrantTemplateTags(text: string): Promise<string> {
+    public async replaceCustomGrantTemplateTags(text: string, userID?: string): Promise<string> {
         let scope = OIDC_SCOPE;
         const configData = await this._config();
-        const sessionData = await this._dataLayer.getSessionData();
+        const sessionData = await this._dataLayer.getSessionData(userID);
 
         if (configData.scope && configData.scope.length > 0) {
             if (!configData.scope.includes(OIDC_SCOPE)) {
@@ -252,22 +248,18 @@ export class AuthenticationHelper<T> {
 
         return text
             .replace(TOKEN_TAG, sessionData.access_token)
-            .replace(
-                USERNAME_TAG,
-                this.getAuthenticatedUserInfo(sessionData.id_token).username
-            )
+            .replace(USERNAME_TAG, this.getAuthenticatedUserInfo(sessionData.id_token).username)
             .replace(SCOPE_TAG, scope)
             .replace(CLIENT_ID_TAG, configData.clientID)
             .replace(CLIENT_SECRET_TAG, configData.clientSecret ?? "");
     }
 
-    public async clearUserSessionData(): Promise<void> {
-        await this._dataLayer.removeOIDCProviderMetaData();
-        await this._dataLayer.removeTemporaryData();
-        await this._dataLayer.removeSessionData();
+    public async clearUserSessionData(userID?: string): Promise<void> {
+        await this._dataLayer.removeTemporaryData(userID);
+        await this._dataLayer.removeSessionData(userID);
     }
 
-    public async handleTokenResponse(response: FetchResponse): Promise<TokenResponse> {
+    public async handleTokenResponse(response: FetchResponse, userID?: string): Promise<TokenResponse> {
         if (response.status !== 200) {
             return Promise.reject(
                 new AsgardeoAuthException(
@@ -287,7 +279,7 @@ export class AuthenticationHelper<T> {
             return this.validateIdToken(parsedResponse.id_token)
                 .then(async (valid) => {
                     if (valid) {
-                        await this._dataLayer.setSessionData(parsedResponse);
+                        await this._dataLayer.setSessionData(parsedResponse, userID);
 
                         const tokenResponse: TokenResponse = {
                             accessToken: parsedResponse.access_token,
@@ -332,7 +324,7 @@ export class AuthenticationHelper<T> {
                 scope: parsedResponse.scope,
                 tokenType: parsedResponse.token_type
             };
-            await this._dataLayer.setSessionData(parsedResponse);
+            await this._dataLayer.setSessionData(parsedResponse, userID);
 
             return Promise.resolve(tokenResponse);
         }

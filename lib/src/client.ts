@@ -16,12 +16,7 @@
  * under the License.
  */
 
-import {
-    OIDC_SCOPE,
-    OP_CONFIG_INITIATED,
-    ResponseMode,
-    SIGN_OUT_SUCCESS_PARAM
-} from "./constants";
+import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -81,7 +76,7 @@ export class AsgardeoAuthClient<T> {
         } else {
             AsgardeoAuthClient._instanceID += 1;
         }
-        this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
+        this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
     }
 
@@ -105,16 +100,14 @@ export class AsgardeoAuthClient<T> {
      * @preserve
      */
     public async initialize(config: AuthClientConfig<T>): Promise<void> {
-        await this._dataLayer.setConfigData(
-            {
-                ...DefaultConfig,
-                ...config,
-                scope: [
-                    ...DefaultConfig.scope ?? [],
-                    ...config.scope?.filter(
-                        (scope: string) => !DefaultConfig?.scope?.includes(scope)
-                    ) ?? [] ]
-            });
+        await this._dataLayer.setConfigData({
+            ...DefaultConfig,
+            ...config,
+            scope: [
+                ...(DefaultConfig.scope ?? []),
+                ...(config.scope?.filter((scope: string) => !DefaultConfig?.scope?.includes(scope)) ?? [])
+            ]
+        });
     }
 
     /**
@@ -142,6 +135,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @param {GetAuthURLConfig} config - (Optional) A config object to force initialization and pass
      * custom path parameters such as the fidp parameter.
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A promise that resolves with the authorization URL.
      *
@@ -160,16 +155,16 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getAuthorizationURL(config?: GetAuthURLConfig): Promise<string> {
+    public async getAuthorizationURL(config?: GetAuthURLConfig, userID?: string): Promise<string> {
         const authRequestConfig: GetAuthURLConfig = { ...config };
         delete authRequestConfig?.forceInit;
 
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.getAuthorizationURL(authRequestConfig);
+            return this._authenticationCore.getAuthorizationURL(authRequestConfig, userID);
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(config?.forceInit as boolean).then(() => {
-            return this._authenticationCore.getAuthorizationURL(authRequestConfig);
+            return this._authenticationCore.getAuthorizationURL(authRequestConfig, userID);
         });
     }
 
@@ -179,6 +174,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @param {string} authorizationCode - The authorization code.
      * @param {string} sessionState - The session state.
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<TokenResponse>} - A Promise that resolves with the token response.
      *
@@ -197,18 +194,25 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse> {
+    public async requestAccessToken(
+        authorizationCode: string,
+        sessionState: string,
+        userID?: string
+    ): Promise<TokenResponse> {
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, userID);
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(false).then(() => {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, userID);
         });
     }
 
     /**
      * This method clears all authentication data and returns the sign-out URL.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A Promise that resolves with the sign-out URL.
      *
@@ -223,12 +227,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async signOut(): Promise<string> {
-        return this._authenticationCore.signOut();
+    public async signOut(userID?: string): Promise<string> {
+        return this._authenticationCore.signOut(userID);
     }
 
     /**
      * This method returns the sign-out URL.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * **This doesn't clear the authentication data.**
      *
@@ -245,8 +252,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getSignOutURL(): Promise<string> {
-        return this._authenticationCore.getSignOutURL();
+    public async getSignOutURL(userID?: string): Promise<string> {
+        return this._authenticationCore.getSignOutURL(userID);
     }
 
     /**
@@ -272,6 +279,9 @@ export class AsgardeoAuthClient<T> {
     /**
      * This method decodes the payload of the ID token and returns it.
      *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
+     *
      * @return {Promise<DecodedIDTokenPayload>} - A Promise that resolves with the decoded ID token payload.
      *
      * @example
@@ -285,12 +295,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
-        return this._authenticationCore.getDecodedIDToken();
+    public async getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload> {
+        return this._authenticationCore.getDecodedIDToken(userID);
     }
 
     /**
      * This method returns the ID token.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A Promise that resolves with the ID token.
      *
@@ -305,12 +318,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getIDToken(): Promise<string> {
-        return this._authenticationCore.getIDToken();
+    public async getIDToken(userID?: string): Promise<string> {
+        return this._authenticationCore.getIDToken(userID);
     }
 
     /**
      * This method returns the basic user information obtained from the ID token.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<BasicUserInfo>} - A Promise that resolves with an object containing the basic user information.
      *
@@ -325,12 +341,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getBasicUserInfo(): Promise<BasicUserInfo> {
-        return this._authenticationCore.getBasicUserInfo();
+    public async getBasicUserInfo(userID?: string): Promise<BasicUserInfo> {
+        return this._authenticationCore.getBasicUserInfo(userID);
     }
 
     /**
      * This method revokes the access token.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * **This method also clears the authentication data.**
      *
@@ -351,13 +370,16 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public revokeAccessToken(): Promise<FetchResponse> {
-        return this._authenticationCore.revokeAccessToken();
+    public revokeAccessToken(userID?: string): Promise<FetchResponse> {
+        return this._authenticationCore.revokeAccessToken(userID);
     }
 
     /**
      * This method refreshes the access token and returns a Promise that resolves with the new access
      * token and other relevant data.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<TokenResponse>} - A Promise that resolves with the token response.
      *
@@ -376,12 +398,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public refreshAccessToken(): Promise<TokenResponse> {
-        return this._authenticationCore.refreshAccessToken();
+    public refreshAccessToken(userID?: string): Promise<TokenResponse> {
+        return this._authenticationCore.refreshAccessToken(userID);
     }
 
     /**
      * This method returns the access token.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A Promise that resolves with the access token.
      *
@@ -396,8 +421,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getAccessToken(): Promise<string> {
-        return this._authenticationCore.getAccessToken();
+    public async getAccessToken(userID?: string): Promise<string> {
+        return this._authenticationCore.getAccessToken(userID);
     }
 
     /**
@@ -405,6 +430,8 @@ export class AsgardeoAuthClient<T> {
      * depending on the config passed.
      *
      * @param {CustomGrantConfig} config - A config object containing the custom grant configurations.
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<TokenResponse | FetchResponse>} - A Promise that resolves with the response depending
      * on your configurations.
@@ -438,12 +465,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | FetchResponse> {
-        return this._authenticationCore.requestCustomGrant(config);
+    public requestCustomGrant(config: CustomGrantConfig, userID?: string): Promise<TokenResponse | FetchResponse> {
+        return this._authenticationCore.requestCustomGrant(config, userID);
     }
 
     /**
      * This method returns if the user is authenticated or not.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<boolean>} - A Promise that resolves with `true` if the user is authenticated, `false` otherwise.
      *
@@ -458,12 +488,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async isAuthenticated(): Promise<boolean> {
-        return this._authenticationCore.isAuthenticated();
+    public async isAuthenticated(userID?: string): Promise<boolean> {
+        return this._authenticationCore.isAuthenticated(userID);
     }
 
     /**
      * This method returns the PKCE code generated during the generation of the authentication URL.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @return {Promise<string>} - A Promise that resolves with the PKCE code.
      *
@@ -478,14 +511,17 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getPKCECode(): Promise<string> {
-        return this._authenticationCore.getPKCECode();
+    public async getPKCECode(userID?: string): Promise<string> {
+        return this._authenticationCore.getPKCECode(userID);
     }
 
     /**
      * This method sets the PKCE code to the data store.
      *
      * @param {string} pkce - The PKCE code.
+     *
+     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+     * scenarios where each user should be uniquely identified.
      *
      * @example
      * ```
@@ -498,8 +534,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async setPKCECode(pkce: string): Promise<void> {
-        await this._authenticationCore.setPKCECode(pkce);
+    public async setPKCECode(pkce: string, userID?: string): Promise<void> {
+        await this._authenticationCore.setPKCECode(pkce, userID);
     }
 
     /**
@@ -523,9 +559,7 @@ export class AsgardeoAuthClient<T> {
         const stateParam = url.searchParams.get("state");
         const error = Boolean(url.searchParams.get("error"));
 
-        return stateParam
-            ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error
-            : false;
+        return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error : false;
     }
 
     /**
