@@ -7,7 +7,7 @@ on:
     types: [opened]
 
 jobs:
-  job1:
+  notify:
     runs-on: ubuntu-latest
     steps:
       - name: Send notification on issue creation
