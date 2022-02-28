@@ -197,14 +197,15 @@ export class AsgardeoAuthClient<T> {
     public async requestAccessToken(
         authorizationCode: string,
         sessionState: string,
+        state: string,
         userID?: string
     ): Promise<TokenResponse> {
         if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, userID);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, state, userID);
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(false).then(() => {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, userID);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, state,userID);
         });
     }
 
