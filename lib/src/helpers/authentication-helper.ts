@@ -26,6 +26,8 @@ import {
     JWKS_ENDPOINT,
     OIDC_SCOPE,
     OIDC_SESSION_IFRAME_ENDPOINT,
+    PKCE_CODE_VERIFIER,
+    PKCE_SEPARATOR,
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
     SERVICE_RESOURCES,
@@ -43,6 +45,7 @@ import {
     FetchResponse,
     OIDCEndpointsInternal,
     OIDCProviderMetaData,
+    TemporaryData,
     TokenResponse
 } from "../models";
 import { AuthenticationUtils } from "../utils";
@@ -76,9 +79,9 @@ export class AuthenticationHelper<T> {
         if (configData.overrideWellEndpointConfig) {
             configData.endpoints &&
                 Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-                    oidcProviderMetaData[snakeCasedName] = configData?.endpoints
-                        ? configData.endpoints[endpointName]
+                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                    oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                        ? configData.endpoints[ endpointName ]
                         : "";
                 });
         }
@@ -92,17 +95,17 @@ export class AuthenticationHelper<T> {
 
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-                oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : "";
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints ? configData.endpoints[ endpointName ] : "";
             });
 
         const defaultEndpoints = {
-            [AUTHORIZATION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
-            [END_SESSION_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
-            [JWKS_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
-            [OIDC_SESSION_IFRAME_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
-            [REVOKE_TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
-            [TOKEN_ENDPOINT]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
+            [ AUTHORIZATION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
+            [ END_SESSION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
+            [ JWKS_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
+            [ OIDC_SESSION_IFRAME_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
+            [ REVOKE_TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
+            [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
         };
 
         return { ...oidcProviderMetaData, ...defaultEndpoints };
@@ -120,7 +123,7 @@ export class AuthenticationHelper<T> {
                     "validateIdToken",
                     "JWKS endpoint not found.",
                     "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                        "or the JWKS endpoint passed to the SDK is empty."
+                    "or the JWKS endpoint passed to the SDK is empty."
                 )
             );
         }
@@ -145,7 +148,7 @@ export class AuthenticationHelper<T> {
                 }
 
                 const issuer = (await this._oidcProviderMetaData()).issuer;
-                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[0];
+                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
 
                 // Return false if the issuer in the open id config doesn't match
                 // the issuer in the well known endpoint URL.
@@ -155,7 +158,7 @@ export class AuthenticationHelper<T> {
                 const parsedResponse = await response.json();
 
                 return this._cryptoHelper
-                    .getJWKForTheIdToken(idToken.split(".")[0], parsedResponse.keys)
+                    .getJWKForTheIdToken(idToken.split(".")[ 0 ], parsedResponse.keys)
                     .then(async (jwk: any) => {
                         return this._cryptoHelper
                             .isValidIdToken(
@@ -218,12 +221,12 @@ export class AuthenticationHelper<T> {
         const familyName: string = payload.family_name ?? "";
         const fullName: string =
             givenName && familyName
-                ? `${givenName} ${familyName}`
+                ? `${ givenName } ${ familyName }`
                 : givenName
-                ? givenName
-                : familyName
-                ? familyName
-                : "";
+                    ? givenName
+                    : familyName
+                        ? familyName
+                        : "";
         const displayName: string = payload.preferred_username ?? fullName;
 
         return {
@@ -328,5 +331,28 @@ export class AuthenticationHelper<T> {
 
             return Promise.resolve(tokenResponse);
         }
+    }
+
+    /**
+     * This generates a PKCE key with the right index value.
+     *
+     * @param {string} userID The userID to identify a user in a multi-user scenario.
+     *
+     * @returns {string} The PKCE key.
+     */
+    public async generatePKCEKey(userID?: string): Promise<string> {
+        const tempData: TemporaryData = await this._dataLayer.getTemporaryData(userID);
+        const keys: string[] = [];
+
+        Object.keys(tempData).forEach((key: string) => {
+            if (key.startsWith(PKCE_CODE_VERIFIER)) {
+                keys.push(key);
+            }
+        });
+
+        const lastKey: string | undefined = keys.sort().pop();
+        const index: number = parseInt(lastKey?.split(PKCE_SEPARATOR)[ 1 ] ?? "-1");
+
+        return `${ PKCE_CODE_VERIFIER }${ PKCE_SEPARATOR }${ index + 1 }`;
     }
 }

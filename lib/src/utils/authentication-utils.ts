@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import { PKCE_CODE_VERIFIER, PKCE_SEPARATOR } from "../constants";
 import { DecodedIDTokenPayload } from "../models";
 
 export class AuthenticationUtils {
@@ -77,5 +78,25 @@ export class AuthenticationUtils {
             Accept: "application/json",
             "Content-Type": "application/x-www-form-urlencoded"
         };
+    }
+
+    /**
+     * This generates the state param value to be sent with an authorization request.
+     *
+     * @param {string} pkceKey The PKCE key.
+     * @param {string} state The state value to be passed. (The correlation ID will be appended to this state value.)
+     *
+     * @returns {string} The state param value.
+     */
+    public static generateStateParamForRequestCorrelation(pkceKey: string, state?: string): string {
+        const index: number = parseInt(pkceKey.split(PKCE_SEPARATOR)[ 1 ]);
+
+        return state ? `${ state }_request_${ index }` : `request_${ index }`;
+    }
+
+    public static extractPKCEKeyFromStateParam(stateParam: string): string {
+        const index: number = parseInt(stateParam.split("request_")[ 1 ]);
+
+        return `${ PKCE_CODE_VERIFIER }${ PKCE_SEPARATOR }${ index }`;
     }
 }
