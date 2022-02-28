@@ -22,7 +22,8 @@ import {
     OP_CONFIG_INITIATED,
     PKCE_CODE_VERIFIER,
     SESSION_STATE,
-    SIGN_OUT_SUCCESS_PARAM
+    SIGN_OUT_SUCCESS_PARAM,
+    STATE
 } from "../constants";
 import { DataLayer } from "../data";
 import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
@@ -75,7 +76,7 @@ export class AuthenticationCore<T> {
                 "getAuthorizationURL",
                 "No authorization endpoint found.",
                 "No authorization endpoint was found in the OIDC provider meta data from the well-known endpoint " +
-                "or the authorization endpoint passed to the SDK is empty."
+                    "or the authorization endpoint passed to the SDK is empty."
             );
         }
 
@@ -100,10 +101,13 @@ export class AuthenticationCore<T> {
             authorizeRequest.searchParams.append("response_mode", configData.responseMode);
         }
 
+        const pkceKey: string = await this._authenticationHelper.generatePKCEKey(userID);
+
         if (configData.enablePKCE) {
             const codeVerifier = this._cryptoHelper?.getCodeVerifier();
             const codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
-            await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, codeVerifier, userID);
+
+            await this._dataLayer.setTemporaryDataParameter(pkceKey, codeVerifier, userID);
             authorizeRequest.searchParams.append("code_challenge_method", "S256");
             authorizeRequest.searchParams.append("code_challenge", codeChallenge);
         }
@@ -114,12 +118,21 @@ export class AuthenticationCore<T> {
 
         const customParams = config;
         if (customParams) {
-            for (const [ key, value ] of Object.entries(customParams)) {
+            for (const [key, value] of Object.entries(customParams)) {
                 if (key != "" && value != "") {
                     authorizeRequest.searchParams.append(key, value.toString());
                 }
             }
         }
+
+        authorizeRequest.searchParams.append(
+            STATE,
+            AuthenticationUtils.generateStateParamForRequestCorrelation(
+                pkceKey,
+                authorizeRequest.searchParams.get(STATE) ?? ""
+            )
+        );
+
 
         return authorizeRequest.toString();
     }
@@ -127,6 +140,7 @@ export class AuthenticationCore<T> {
     public async requestAccessToken(
         authorizationCode: string,
         sessionState: string,
+        state: string,
         userID?: string
     ): Promise<TokenResponse> {
         const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
@@ -161,8 +175,13 @@ export class AuthenticationCore<T> {
         body.push(`redirect_uri=${ configData.signInRedirectURL }`);
 
         if (configData.enablePKCE) {
-            body.push(`code_verifier=${ await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER, userID) }`);
-            await this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER, userID);
+            body.push(`code_verifier=${ await this._dataLayer.getTemporaryDataParameter(
+                AuthenticationUtils.extractPKCEKeyFromStateParam(state), userID) }`);
+
+            await this._dataLayer.removeTemporaryDataParameter(
+                AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+                userID
+            );
         }
 
         return fetch(tokenEndpoint, {
