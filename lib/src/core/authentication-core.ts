@@ -76,7 +76,7 @@ export class AuthenticationCore<T> {
                 "getAuthorizationURL",
                 "No authorization endpoint found.",
                 "No authorization endpoint was found in the OIDC provider meta data from the well-known endpoint " +
-                    "or the authorization endpoint passed to the SDK is empty."
+                "or the authorization endpoint passed to the SDK is empty."
             );
         }
 
@@ -118,7 +118,7 @@ export class AuthenticationCore<T> {
 
         const customParams = config;
         if (customParams) {
-            for (const [key, value] of Object.entries(customParams)) {
+            for (const [ key, value ] of Object.entries(customParams)) {
                 if (key != "" && value != "") {
                     authorizeRequest.searchParams.append(key, value.toString());
                 }
@@ -132,7 +132,6 @@ export class AuthenticationCore<T> {
                 authorizeRequest.searchParams.get(STATE) ?? ""
             )
         );
-
 
         return authorizeRequest.toString();
     }
@@ -175,8 +174,12 @@ export class AuthenticationCore<T> {
         body.push(`redirect_uri=${ configData.signInRedirectURL }`);
 
         if (configData.enablePKCE) {
-            body.push(`code_verifier=${ await this._dataLayer.getTemporaryDataParameter(
-                AuthenticationUtils.extractPKCEKeyFromStateParam(state), userID) }`);
+            body.push(
+                `code_verifier=${ await this._dataLayer.getTemporaryDataParameter(
+                    AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+                    userID
+                ) }`
+            );
 
             await this._dataLayer.removeTemporaryDataParameter(
                 AuthenticationUtils.extractPKCEKeyFromStateParam(state),
