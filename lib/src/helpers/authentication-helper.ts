@@ -26,6 +26,8 @@ import {
     JWKS_ENDPOINT,
     OIDC_SCOPE,
     OIDC_SESSION_IFRAME_ENDPOINT,
+    PKCE_CODE_VERIFIER,
+    PKCE_SEPARATOR,
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
     SERVICE_RESOURCES,
@@ -43,6 +45,7 @@ import {
     FetchResponse,
     OIDCEndpointsInternal,
     OIDCProviderMetaData,
+    TemporaryData,
     TokenResponse
 } from "../models";
 import { AuthenticationUtils } from "../utils";
@@ -328,5 +331,29 @@ export class AuthenticationHelper<T> {
 
             return Promise.resolve(tokenResponse);
         }
+    }
+
+    /**
+     * This generates a PKCE key with the right index value.
+     *
+     * @param {string} userID The userID to identify a user in a multi-user scenario.
+     *
+     * @returns {string} The PKCE key.
+     */
+    public async generatePKCEKey(userID?: string): Promise<string> {
+        const tempData: TemporaryData = await this._dataLayer.getTemporaryData(userID);
+        const keys: string[] = [];
+
+        Object.keys(tempData).forEach((key: string) => {
+            if (key.startsWith(PKCE_CODE_VERIFIER)) {
+                keys.push(key);
+            }
+        });
+
+        const lastKey: string | undefined = keys.sort().pop();
+
+        const index: number = parseInt(lastKey?.split(PKCE_SEPARATOR)[ 1 ] ?? "-1");
+
+        return `${ PKCE_CODE_VERIFIER }${ PKCE_SEPARATOR }${ index + 1 }`;
     }
 }
