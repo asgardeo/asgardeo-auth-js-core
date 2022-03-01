@@ -20,7 +20,6 @@ import {
     FetchCredentialTypes,
     OIDC_SCOPE,
     OP_CONFIG_INITIATED,
-    PKCE_CODE_VERIFIER,
     SESSION_STATE,
     SIGN_OUT_SUCCESS_PARAM,
     STATE
@@ -119,17 +118,18 @@ export class AuthenticationCore<T> {
         const customParams = config;
         if (customParams) {
             for (const [ key, value ] of Object.entries(customParams)) {
-                if (key != "" && value != "") {
+                if (key != "" && value != "" && key !== STATE) {
                     authorizeRequest.searchParams.append(key, value.toString());
                 }
             }
         }
 
+
         authorizeRequest.searchParams.append(
             STATE,
             AuthenticationUtils.generateStateParamForRequestCorrelation(
                 pkceKey,
-                authorizeRequest.searchParams.get(STATE) ?? ""
+                customParams ? customParams[STATE]?.toString() : ""
             )
         );
 
