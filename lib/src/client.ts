@@ -205,7 +205,7 @@ export class AsgardeoAuthClient<T> {
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(false).then(() => {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, state,userID);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, state, userID);
         });
     }
 
@@ -498,6 +498,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
      * scenarios where each user should be uniquely identified.
+     * @param {string} state - The state parameter that was passed in the authentication URL.
      *
      * @return {Promise<string>} - A Promise that resolves with the PKCE code.
      *
@@ -512,15 +513,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getPKCECode(userID?: string): Promise<string> {
-        return this._authenticationCore.getPKCECode(userID);
+    public async getPKCECode(state: string, userID?: string): Promise<string> {
+        return this._authenticationCore.getPKCECode(state, userID);
     }
 
     /**
      * This method sets the PKCE code to the data store.
      *
      * @param {string} pkce - The PKCE code.
-     *
+     * @param {string} state - The state parameter that was passed in the authentication URL.
      * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
      * scenarios where each user should be uniquely identified.
      *
@@ -535,8 +536,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async setPKCECode(pkce: string, userID?: string): Promise<void> {
-        await this._authenticationCore.setPKCECode(pkce, userID);
+    public async setPKCECode(pkce: string, state: string, userID?: string): Promise<void> {
+        await this._authenticationCore.setPKCECode(pkce, state, userID);
     }
 
     /**
