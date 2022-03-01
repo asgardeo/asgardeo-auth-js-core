@@ -96,7 +96,9 @@ export class AuthenticationHelper<T> {
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
                 const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints ? configData.endpoints[ endpointName ] : "";
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
+                    : "";
             });
 
         const defaultEndpoints = {
