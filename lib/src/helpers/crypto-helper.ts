@@ -59,12 +59,7 @@ export class CryptoHelper<T = any, R = any> {
 
         for (const key of keys) {
             if (headerJSON.kid === key.kid) {
-                return this._cryptoUtils.parseJwk({
-                    alg: key.alg,
-                    e: key.e,
-                    kty: key.kty,
-                    n: key.n
-                });
+                return this._cryptoUtils.parseJwk(key);
             }
         }
 
