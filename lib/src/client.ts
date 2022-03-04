@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM } from "./constants";
+import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM, STATE } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -205,7 +205,7 @@ export class AsgardeoAuthClient<T> {
         }
 
         return this._authenticationCore.getOIDCProviderMetaData(false).then(() => {
-            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, state,userID);
+            return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, state, userID);
         });
     }
 
@@ -498,6 +498,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
      * scenarios where each user should be uniquely identified.
+     * @param {string} state - The state parameter that was passed in the authentication URL.
      *
      * @return {Promise<string>} - A Promise that resolves with the PKCE code.
      *
@@ -512,15 +513,15 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getPKCECode(userID?: string): Promise<string> {
-        return this._authenticationCore.getPKCECode(userID);
+    public async getPKCECode(state: string, userID?: string): Promise<string> {
+        return this._authenticationCore.getPKCECode(state, userID);
     }
 
     /**
      * This method sets the PKCE code to the data store.
      *
      * @param {string} pkce - The PKCE code.
-     *
+     * @param {string} state - The state parameter that was passed in the authentication URL.
      * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
      * scenarios where each user should be uniquely identified.
      *
@@ -535,8 +536,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async setPKCECode(pkce: string, userID?: string): Promise<void> {
-        await this._authenticationCore.setPKCECode(pkce, userID);
+    public async setPKCECode(pkce: string, state: string, userID?: string): Promise<void> {
+        await this._authenticationCore.setPKCECode(pkce, state, userID);
     }
 
     /**
@@ -557,10 +558,34 @@ export class AsgardeoAuthClient<T> {
      */
     public static isSignOutSuccessful(signOutRedirectURL: string): boolean {
         const url = new URL(signOutRedirectURL);
-        const stateParam = url.searchParams.get("state");
+        const stateParam = url.searchParams.get(STATE);
         const error = Boolean(url.searchParams.get("error"));
 
         return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error : false;
+    }
+
+    /**
+     * This method returns if the sign-out has failed or not.
+     *
+     * @param {string} signOutRedirectUrl - The URL to which the user has been redirected to after signing-out.
+     *
+     * **The server appends path parameters to the `signOutRedirectURL` and these path parameters
+     *  are required for this method to function.**
+     *
+     * @return {boolean} - `true` if successful, `false` otherwise.
+     *
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#didSignOutFail
+     *
+     * @memberof AsgardeoAuthClient
+     *
+     * @preserve
+     */
+    public static didSignOutFail(signOutRedirectURL: string): boolean {
+        const url = new URL(signOutRedirectURL);
+        const stateParam = url.searchParams.get(STATE);
+        const error = Boolean(url.searchParams.get("error"));
+
+        return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && error : false;
     }
 
     /**

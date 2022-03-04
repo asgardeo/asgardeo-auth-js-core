@@ -20,7 +20,6 @@ import {
     FetchCredentialTypes,
     OIDC_SCOPE,
     OP_CONFIG_INITIATED,
-    PKCE_CODE_VERIFIER,
     SESSION_STATE,
     SIGN_OUT_SUCCESS_PARAM,
     STATE
@@ -119,17 +118,18 @@ export class AuthenticationCore<T> {
         const customParams = config;
         if (customParams) {
             for (const [ key, value ] of Object.entries(customParams)) {
-                if (key != "" && value != "") {
+                if (key != "" && value != "" && key !== STATE) {
                     authorizeRequest.searchParams.append(key, value.toString());
                 }
             }
         }
 
+
         authorizeRequest.searchParams.append(
             STATE,
             AuthenticationUtils.generateStateParamForRequestCorrelation(
                 pkceKey,
-                authorizeRequest.searchParams.get(STATE) ?? ""
+                customParams ? customParams[STATE]?.toString() : ""
             )
         );
 
@@ -644,12 +644,18 @@ export class AuthenticationCore<T> {
         return Boolean(await this.getAccessToken(userID));
     }
 
-    public async getPKCECode(userID?: string): Promise<string> {
-        return (await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER, userID)) as string;
+    public async getPKCECode(state: string, userID?: string): Promise<string> {
+        return (await this._dataLayer.getTemporaryDataParameter(
+            AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+            userID)) as string;
     }
 
-    public async setPKCECode(pkce: string, userID?: string): Promise<void> {
-        return await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, pkce, userID);
+    public async setPKCECode(pkce: string, state: string, userID?: string): Promise<void> {
+        return await this._dataLayer.setTemporaryDataParameter(
+            AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+            pkce,
+            userID
+        );
     }
 
     public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
