@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM } from "./constants";
+import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM, STATE } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -558,10 +558,34 @@ export class AsgardeoAuthClient<T> {
      */
     public static isSignOutSuccessful(signOutRedirectURL: string): boolean {
         const url = new URL(signOutRedirectURL);
-        const stateParam = url.searchParams.get("state");
+        const stateParam = url.searchParams.get(STATE);
         const error = Boolean(url.searchParams.get("error"));
 
         return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error : false;
+    }
+
+    /**
+     * This method returns if the sign-out has failed or not.
+     *
+     * @param {string} signOutRedirectUrl - The URL to which the user has been redirected to after signing-out.
+     *
+     * **The server appends path parameters to the `signOutRedirectURL` and these path parameters
+     *  are required for this method to function.**
+     *
+     * @return {boolean} - `true` if successful, `false` otherwise.
+     *
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#didSignOutFail
+     *
+     * @memberof AsgardeoAuthClient
+     *
+     * @preserve
+     */
+    public static didSignOutFail(signOutRedirectURL: string): boolean {
+        const url = new URL(signOutRedirectURL);
+        const stateParam = url.searchParams.get(STATE);
+        const error = Boolean(url.searchParams.get("error"));
+
+        return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && error : false;
     }
 
     /**

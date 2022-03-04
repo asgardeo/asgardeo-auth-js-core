@@ -34,6 +34,7 @@
     -   [getPKCECode](#getPKCECode)
     -   [setPKCECode](#setPKCECode)
     -   [isSignOutSuccessful](#isSignOutSuccessful)
+    -   [didSignOutFail](#didSignOutFail)
     -   [updateConfig](#updateConfig)
 -   [Data Storage](#data-storage)
     -   [Data Layer](#data-layer)
@@ -794,7 +795,39 @@ A boolean value indicating if the user has been signed out or not.
 
 #### Description
 
-This method returns if the user has been successfully signed out or not. When a user signs out from the server, the user is redirected to the URL specified by the `signOutRedirectURL` in the config object passed into the constructor of the `AsgardeoAuthClient`. The server appends path parameters indicating if the sign-out is successful. This method reads the URL and returns if the sign-out is successful or not. So, make sure you pass as the argument, the URL to which the user has been redirected to after signing out from the server.
+This method returns if the user has been successfully signed out or not. When a user signs out from the server, the user is redirected to the URL specified by the `signOutRedirectURL` in the config object passed into the constructor of the `AsgardeoAuthClient`. The server appends path parameters indicating if the sign-out is successful. This method reads the URL and returns if the sign-out is successful or not. So, make sure you pass as the argument the URL to which the user has been redirected to after signing out from the server.
+
+#### Example
+
+```TypeScript
+const isSignedOut = auth.isSignOutSuccessful(window.location.href);
+```
+
+---
+
+### didSignOutFail
+
+```TypeScript
+static didSignOutFail(signOutRedirectURL: string): boolean
+```
+
+**This is a static method.**
+
+#### Arguments
+
+1. signOutRedirectURL: `string`
+
+    The URL to which the user is redirected to after signing out from the server.
+
+#### Returns
+
+didSignOutFail: `boolean`
+
+A boolean value indicating if sign-out failed or not.
+
+#### Description
+
+This method returns if sign-out failed or not. When a user signs out from the server, the user is redirected to the URL specified by the `signOutRedirectURL` in the config object passed into the constructor of the `AsgardeoAuthClient`. The server appends path parameters indicating if the sign-out is successful. This method reads the URL and returns if the sign-out failed or not. So, make sure you pass as the argument the URL to which the user has been redirected to after signing out from the server.
 
 #### Example
 
