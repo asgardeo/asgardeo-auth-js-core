@@ -30,6 +30,7 @@ export interface SessionData {
     refresh_token?: string;
     token_type: string;
     session_state: string;
+    created_at: number;
 }
 
 export interface DataLayer<T> {

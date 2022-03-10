@@ -279,6 +279,7 @@ export class AuthenticationHelper<T> {
 
         //Get the response in JSON
         const parsedResponse = await response.json();
+        parsedResponse.created_at = new Date().getTime();
 
         if ((await this._config()).validateIDToken) {
             return this.validateIdToken(parsedResponse.id_token)
@@ -288,6 +289,7 @@ export class AuthenticationHelper<T> {
 
                         const tokenResponse: TokenResponse = {
                             accessToken: parsedResponse.access_token,
+                            createdAt: parsedResponse.created_at,
                             expiresIn: parsedResponse.expires_in,
                             idToken: parsedResponse.id_token,
                             refreshToken: parsedResponse.refresh_token,
@@ -323,6 +325,7 @@ export class AuthenticationHelper<T> {
         } else {
             const tokenResponse: TokenResponse = {
                 accessToken: parsedResponse.access_token,
+                createdAt: parsedResponse.created_at,
                 expiresIn: parsedResponse.expires_in,
                 idToken: parsedResponse.id_token,
                 refreshToken: parsedResponse.refresh_token,
