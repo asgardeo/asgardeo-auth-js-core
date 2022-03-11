@@ -60,6 +60,9 @@ export class AuthenticationUtils {
         return camelCasedPayload;
     }
 
+    /**
+    * @deprecated since v1.0.6 and will be removed with the v2.0.0 release.
+    */
     public static getTenantDomainFromIdTokenPayload = (
         payload: DecodedIDTokenPayload,
         uidSeparator: string = "@"
