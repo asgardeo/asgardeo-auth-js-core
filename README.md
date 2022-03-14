@@ -1070,6 +1070,7 @@ Session information can be attached to the body of a custom-grant request using 
 | `refresh_token` | `string` | The refresh token.                               |
 | `token_type`    | `string` | The token type.                                  |
 | `session_state` | `string` | The session state obtained after authentication. |
+| `created_at`    | `number` | The time when the session was created.           |
 
 ### OIDCProviderMetaData
 
