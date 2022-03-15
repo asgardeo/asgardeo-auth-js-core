@@ -17,4 +17,3 @@
 */
 
 export * from "./exception";
-export * from "./network-exception";
