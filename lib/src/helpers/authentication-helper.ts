@@ -36,13 +36,12 @@ import {
     USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
-import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
+import { AsgardeoAuthException } from "../exception";
 import {
     AuthClientConfig,
     AuthenticatedUserInfo,
     DecodedIDTokenPayload,
-    FetchError,
-    FetchResponse,
+    JWKInterface,
     OIDCEndpointsInternal,
     OIDCProviderMetaData,
     TemporaryData,
@@ -118,101 +117,63 @@ export class AuthenticationHelper<T> {
         const configData = await this._config();
 
         if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_HELPER-VIT-NF01",
-                    "authentication-helper",
-                    "validateIdToken",
-                    "JWKS endpoint not found.",
-                    "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                    "or the JWKS endpoint passed to the SDK is empty."
-                )
+            throw new AsgardeoAuthException(
+                "JS_AUTH_HELPER-VIT-NF01",
+                "JWKS endpoint not found.",
+                "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                "or the JWKS endpoint passed to the SDK is empty."
             );
         }
 
-        // eslint-disable-next-line max-len
-        return fetch(jwksEndpoint, {
-            credentials: configData.sendCookiesInRequests
-                ? FetchCredentialTypes.Include
-                : FetchCredentialTypes.SameOrigin
-        })
-            .then(async (response) => {
-                if (response.status !== 200) {
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_HELPER-VIT-NR02",
-                            "authentication-helper",
-                            "validateIdToken",
-                            "Invalid response status received for jwks request.",
-                            "The request sent to get the jwks returned " + response.status + " , which is invalid."
-                        )
-                    );
-                }
+        let response: Response;
 
-                const issuer = (await this._oidcProviderMetaData()).issuer;
-                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
-
-                // Return false if the issuer in the open id config doesn't match
-                // the issuer in the well known endpoint URL.
-                if (!issuer || issuer !== issuerFromURL) {
-                    return Promise.resolve(false);
-                }
-                const parsedResponse = await response.json();
-
-                return this._cryptoHelper
-                    .getJWKForTheIdToken(idToken.split(".")[ 0 ], parsedResponse.keys)
-                    .then(async (jwk: any) => {
-                        return this._cryptoHelper
-                            .isValidIdToken(
-                                idToken,
-                                jwk,
-                                (await this._config()).clientID,
-                                issuer,
-                                this._cryptoHelper.decodeIDToken(idToken).sub,
-                                (await this._config()).clockTolerance
-                            )
-                            .then((response) => response)
-                            .catch((error) => {
-                                return Promise.reject(
-                                    new AsgardeoAuthException(
-                                        "AUTH_HELPER-VIT-ES03",
-                                        "authentication-helper",
-                                        "validateIdToken",
-                                        undefined,
-                                        undefined,
-                                        error
-                                    )
-                                );
-                            });
-                    })
-                    .catch((error) => {
-                        return Promise.reject(
-                            new AsgardeoAuthException(
-                                "AUTH_HELPER-VIT-ES04",
-                                "authentication-helper",
-                                "validateIdToken",
-                                undefined,
-                                undefined,
-                                error
-                            )
-                        );
-                    });
-            })
-            .catch((error: FetchError) => {
-                return Promise.reject(
-                    new AsgardeoAuthNetworkException(
-                        "AUTH_HELPER-VIT-NR05",
-                        "authentication-helper",
-                        "validateIdToken",
-                        "Request to jwks endpoint failed.",
-                        "The request sent to get the jwks from the server failed.",
-                        error?.code ?? "",
-                        error?.message,
-                        error?.response?.status,
-                        error?.response?.body
-                    )
-                );
+        try {
+            response = await fetch(jwksEndpoint, {
+                credentials: configData.sendCookiesInRequests
+                    ? FetchCredentialTypes.Include
+                    : FetchCredentialTypes.SameOrigin
             });
+        } catch (error: any) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-VIT-NE02",
+                "Request to jwks endpoint failed.",
+                error ?? "The request sent to get the jwks from the server failed."
+            );
+        }
+
+        if (response.status !== 200 || !response.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-VIT-HE03",
+                `Invalid response status received for jwks request (${ response.statusText }).`,
+                await response.json()
+            );
+        }
+
+        const issuer = (await this._oidcProviderMetaData()).issuer;
+        const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
+
+        // Throw an error if the issuer in the open id config doesn't match
+        // the issuer in the well known endpoint URL.
+        if (!issuer || issuer !== issuerFromURL) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER_VIT-IV04",
+                "Issuer mismatch.",
+                "The issuer in the open id config doesn't match the issuer in the " +
+                "well known endpoint URL and response."
+            );
+        }
+
+        const { keys }: { keys: JWKInterface[] } = await response.json();
+
+        const jwk: any = await this._cryptoHelper.getJWKForTheIdToken(idToken.split(".")[ 0 ], keys);
+        return this._cryptoHelper.isValidIdToken(
+            idToken,
+            jwk,
+            (await this._config()).clientID,
+            issuer,
+            this._cryptoHelper.decodeIDToken(idToken).sub,
+            (await this._config()).clockTolerance
+        );
     }
 
     public getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
@@ -264,16 +225,12 @@ export class AuthenticationHelper<T> {
         await this._dataLayer.removeSessionData(userID);
     }
 
-    public async handleTokenResponse(response: FetchResponse, userID?: string): Promise<TokenResponse> {
-        if (response.status !== 200) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_HELPER-HTR-NR01",
-                    "authentication-helper",
-                    "handleTokenResponse",
-                    "Invalid response status received for token request.",
-                    "The request sent to get the token returned " + response.status + " , which is invalid."
-                )
+    public async handleTokenResponse(response: Response, userID?: string): Promise<TokenResponse> {
+        if (response.status !== 200 || !response.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-HTR-NE01",
+                `Invalid response status received for token request (${ response.statusText }).`,
+                await response.json()
             );
         }
 
@@ -282,46 +239,21 @@ export class AuthenticationHelper<T> {
         parsedResponse.created_at = new Date().getTime();
 
         if ((await this._config()).validateIDToken) {
-            return this.validateIdToken(parsedResponse.id_token)
-                .then(async (valid) => {
-                    if (valid) {
-                        await this._dataLayer.setSessionData(parsedResponse, userID);
+            return this.validateIdToken(parsedResponse.id_token).then(async () => {
+                await this._dataLayer.setSessionData(parsedResponse, userID);
 
-                        const tokenResponse: TokenResponse = {
-                            accessToken: parsedResponse.access_token,
-                            createdAt: parsedResponse.created_at,
-                            expiresIn: parsedResponse.expires_in,
-                            idToken: parsedResponse.id_token,
-                            refreshToken: parsedResponse.refresh_token,
-                            scope: parsedResponse.scope,
-                            tokenType: parsedResponse.token_type
-                        };
+                const tokenResponse: TokenResponse = {
+                    accessToken: parsedResponse.access_token,
+                    createdAt: parsedResponse.created_at,
+                    expiresIn: parsedResponse.expires_in,
+                    idToken: parsedResponse.id_token,
+                    refreshToken: parsedResponse.refresh_token,
+                    scope: parsedResponse.scope,
+                    tokenType: parsedResponse.token_type
+                };
 
-                        return Promise.resolve(tokenResponse);
-                    }
-
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_HELPER-HTR-IV02",
-                            "authentication-helper",
-                            "handleTokenResponse",
-                            "The id token returned is not valid.",
-                            "The id token returned has failed the validation check."
-                        )
-                    );
-                })
-                .catch((error) => {
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_HELPER-HAT-ES03",
-                            "authentication-helper",
-                            "handleTokenResponse",
-                            undefined,
-                            undefined,
-                            error
-                        )
-                    );
-                });
+                return Promise.resolve(tokenResponse);
+            });
         } else {
             const tokenResponse: TokenResponse = {
                 accessToken: parsedResponse.access_token,
