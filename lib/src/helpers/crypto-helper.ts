@@ -106,7 +106,13 @@ export class CryptoHelper<T = any> {
                     return Promise.resolve(true);
                 }
 
-                return Promise.reject();
+                return Promise.reject(
+                    new AsgardeoAuthException(
+                        "JS-CRYPTO_HELPER-IVIT-IV01",
+                        "Invalid ID token.",
+                        "ID token validation returned false"
+                    )
+                );
             });
     }
 
@@ -126,11 +132,7 @@ export class CryptoHelper<T = any> {
 
             return payload;
         } catch (error: any) {
-            throw new AsgardeoAuthException(
-                "JS-CRYPTO_UTIL-DIT-IV01",
-                "Decoding ID token failed.",
-                error
-            );
+            throw new AsgardeoAuthException("JS-CRYPTO_UTIL-DIT-IV01", "Decoding ID token failed.", error);
         }
     }
 }
