@@ -109,7 +109,7 @@ export class AuthenticationHelper<T> {
             [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
         };
 
-        return { ...oidcProviderMetaData, ...defaultEndpoints };
+        return { ...defaultEndpoints, ...oidcProviderMetaData };
     }
 
     public async validateIdToken(idToken: string): Promise<boolean> {
