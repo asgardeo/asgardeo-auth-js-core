@@ -1208,12 +1208,14 @@ Error code consist of four parts separated by a `-`.
 -   The third part is the abbreviation of the name of the method/function that threw the error. If there are more than one method/function with the same abbreviation, then a number based on the order of declaration is appended to the abbreviation. Example: `RAT1` refers to the `requestAccessToken` method. There are two methods that can be abbreviated to `RAT` but since `1` has been appended to `RAT`, we know it refers to `requestAccessToken` since it is declared first.
 -   The fourth part refers to the type of error and is position. Example: `NE02` refers to a network error and the fact that this is the second error in the method/function. The following error types are available:
 
-    | Error Code | Description   |
-    | ---------- | ------------- |
-    | `NE`       | Network Error |
-    | `HE`       | Http Error    |
-    | `IV`       | Invalid       |
-    | `NF`       | Not Found     |
+    |   Error Code  |   Description     |
+    | :-------------| :-----------------|
+    |   `NE`        |   Network Error   |
+    |   `HE`        |   Http Error      |
+    |   `IV`        |   Invalid         |
+    |   `NF`        |   Not Found       |
+    |   `TO`        |   Timeout         |
+    |   `SE`        |   Server Error    |
 
 ## Contribute
 
