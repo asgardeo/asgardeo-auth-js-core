@@ -44,6 +44,12 @@ export interface StrictAuthClientConfig {
      *
      */
     sendCookiesInRequests?: boolean;
+    /**
+     * Specifies if a request to the `.well-known` endpoint should be made before a sign-in request.
+     * Note that if this is set to false, then the needed endpoints should be provided through
+     * the `endpoints` property.
+     */
+    sendWellKnownEndpointRequest?: boolean;
 }
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
