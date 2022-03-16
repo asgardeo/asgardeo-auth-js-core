@@ -433,6 +433,7 @@ export class AuthenticationCore<T> {
     }
 
     public async getOIDCProviderMetaData(forceInit: boolean): Promise<void> {
+        const configData = await this._config();
         if (!forceInit && (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED))) {
             return Promise.resolve();
         }
@@ -442,6 +443,10 @@ export class AuthenticationCore<T> {
         let response: Response;
 
         try {
+            if (!configData?.sendWellKnownEndpointRequest) {
+                throw new Error();
+            }
+
             response = await fetch(wellKnownEndpoint);
             if (response.status !== 200 || !response.ok) {
                 throw new Error();
