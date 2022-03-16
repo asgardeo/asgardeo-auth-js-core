@@ -176,7 +176,7 @@ auth.getAuthorizationURL()
 
 // Once you obtain the authentication code and the session state from the server, you can use this method
 // to get the access token.
-auth.requestAccessToken()
+auth.requestAccessToken("code", "session-state", "state")
     .then((response) => {
         // Obtain the token and other related from the response;
         console.log(response);
@@ -347,7 +347,7 @@ auth.getAuthorizationURL(config).then((url)=>{
 ### requestAccessToken
 
 ```TypeScript
-requestAccessToken(authorizationCode: string, sessionState: string, userID?: string): Promise<TokenResponse>
+requestAccessToken(authorizationCode: string, sessionState: string, state: string, userID?: string): Promise<TokenResponse>
 ```
 
 #### Arguments
@@ -359,8 +359,10 @@ requestAccessToken(authorizationCode: string, sessionState: string, userID?: str
 2. sessionState: `string`
 
     This is the session state obtained from Asgardeo after a user signs in.
+3. state: `string`
+    This is the the state parameter passed in the authorization URL.
 
-3. userID: `string` (optional)
+4. userID: `string` (optional)
 
     If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here to request an access token specific to that user. This can be useful when this SDK is used in backend applications.
 
@@ -377,7 +379,7 @@ This method uses the authorization code and the session state that are passed as
 #### Example
 
 ```TypeScript
-auth.requestAccessToken("auth-code", "session-state").then((tokenResponse)=>{
+auth.requestAccessToken("auth-code", "session-state", "request_0").then((tokenResponse)=>{
     console.log(tokenResponse);
 }).catch((error)=>{
     console.error(error);
@@ -960,8 +962,7 @@ The CryptoUtils interface defines the methods required to perform cryptographic 
 |`base64urlDecode` |input: `string` | `string` | Decodes the passed input string from a base64url encoded string.|
 |`hashSha256` |input: `string` | `T` | Hashes the passed input string using SHA-256.|
 |`generateRandomBytes` |length: `number` | `T` | Generates random bytes of the specified length.|
-|`parseJwk` |jwk: [`JWKInterface`](#JWKInterface) | `Promise<R>` | Parses the passed JWK string to a JWK object.|
-|`verifyJwt`|jwt: `string`, jwk: `R` | `Promise<boolean>` | Verifies the passed JWT using the passed JWK.|
+|`verifyJwt`|jwt: `string`, jwk: `JWKInterface` | `Promise<boolean>` | Verifies the passed JWT using the passed JWK.|
 
 **NOTE: The return type of the `hashSha256` and `generateRandomBytes` method should be the same as the type of the argument of the `base64urlEncode` method.**
 
