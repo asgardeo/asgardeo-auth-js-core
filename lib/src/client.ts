@@ -39,8 +39,9 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     clockTolerance: 300,
     enablePKCE: true,
     responseMode: ResponseMode.query,
-    scope: [ OIDC_SCOPE ],
+    scope: [OIDC_SCOPE],
     sendCookiesInRequests: true,
+    sendWellKnownEndpointRequest: true,
     validateIDToken: true
 };
 
