@@ -16,16 +16,17 @@
  * under the License.
  */
 
-export class AsgardeoAuthException extends Error {
+export class AsgardeoAuthException {
     public name: string;
     public code: string | undefined;
+    public message: string;
 
     public constructor(
-        code: string | undefined,
+        code: string,
         name: string,
-        message?: string
+        message: string
     ) {
-        super(message);
+        this.message = message;
         this.name = name;
         this.code = code;
         Object.setPrototypeOf(this, new.target.prototype);
