@@ -62,7 +62,7 @@
 
 ## Introduction
 
-Asgardeo Auth JavaScript SDK provides the core methods that are needed to implement OIDC authentication in JavaScript/TypeScript based apps. This SDK can be used to build SDKs for Single Page Applications, React Native, Node.JS and various other frameworks that use JavaScript.
+Asgardeo Auth JavaScript SDK provides the core methods that are needed to implement OIDC authentication in JavaScript/TypeScript-based apps. This SDK can be used to build SDKs for Single-Page Applications, React Native, Node.JS and various other frameworks that use JavaScript.
 
 ## Prerequisite
 
@@ -361,8 +361,9 @@ requestAccessToken(authorizationCode: string, sessionState: string, state: strin
 2. sessionState: `string`
 
     This is the session state obtained from Asgardeo after a user signs in.
+
 3. state: `string`
-    This is the the state parameter passed in the authorization URL.
+   This is the the state parameter passed in the authorization URL.
 
 4. userID: `string` (optional)
 
@@ -928,43 +929,43 @@ The data layer is implemented within the SDK encapsulating the `Store` object pa
    Stores data that is temporary. In most cases, you wouldn't need this.
 
 All these four keys get methods to set, get and remove data as whole. In addition to this, all these keys get methods to set, get, and remove specific data referred to by their respective keys. The following table describes the methods provided by the data layer.
-|Method|Arguments|Returns|Description|
-|--|--|--|--|
-|setSessionData |sessionData: [`SessionData`](#SessionData) | `Promise<void>` | Saves session data in bulk.|
-|setOIDCProviderMetaData |oidcProviderMetaData: [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` |Saves OIDC Provider Meta data in bulk.|
-|setConfigData |config: [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<void>` | Saves config data in bulk.|
-|setTemporaryData |data: [`TemporaryData`](#TemporaryData) | `Promise<void>` | Saves temporary data in bulk.|
-|getSessionData | | `Promise<`[`SessionData`](#SessionData)`>` | Retrieves session data in bulk.|
-|getOIDCProviderMetaData | |`Promise<`[`OIDCProviderMetaData`](#OIDCProviderMetaData)`>` | Retrieves OIDC Provider Meta data in bulk.|
-|getConfigData | | `Promise<`[`AuthClientConfig<T>`](#`AuthClientConfig<T>`)`>` | Retrieves config data in bulk.|
-|getTemporaryData | | `Promise<`{ [key: `string`]: [StoreValue](#StoreValue)}`>` | Retrieves temporary data in bulk.|
-|removeSessionData | | `Promise<void>` | Removes session data in bulk.|
-|removeOIDCProviderMetaData | | `Promise<void>` | Removes OIDC Provider Meta data in bulk.|
-|removeConfigData | | `Promise<void>` | Removes config data in bulk.|
-|removeTemporaryData | | `Promise<void>` | Removes temporary data in bulk.|
-|setSessionDataParameter |key: keyof [`SessionData`](#SessionData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the session data.|
-|setOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the OIDC Provider Meta data.|
-|setConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT), value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the config data.|
-|setTemporaryDataParameter |key: `string`, value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the temporary data.|
-|getSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the session data.|
-|getOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the OIDC Provider Meta data.|
-|getConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<`[`StoreValue`](#StoreValue)`>`| Retrieves the data for the specified key from the config data.|
-|getTemporaryDataParameter |key: `string` | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the temporary data.|
-|removeSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<void>` | Removes the data with the specified key from the session data.|
-|removeOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` | Removes the data with the specified key from the OIDC Provider Meta data.|
-|removeConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<void>` | Removes the data with the specified key from the config data.|
-|removeTemporaryDataParameter |key: `string` | `Promise<void>` | Removes the data with the specified key from the temporary data.|
+| Method                              | Arguments                                                                                      | Returns                                                      | Description                                                                     |
+|-------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------|---------------------------------------------------------------------------------|
+| setSessionData                      | sessionData: [`SessionData`](#SessionData)                                                     | `Promise<void>`                                              | Saves session data in bulk.                                                     |
+| setOIDCProviderMetaData             | oidcProviderMetaData: [`OIDCProviderMetaData`](#OIDCProviderMetaData)                          | `Promise<void>`                                              | Saves OIDC Provider Meta data in bulk.                                          |
+| setConfigData                       | config: [`AuthClientConfig<T>`](#AuthClientConfigT)                                            | `Promise<void>`                                              | Saves config data in bulk.                                                      |
+| setTemporaryData                    | data: [`TemporaryData`](#TemporaryData)                                                        | `Promise<void>`                                              | Saves temporary data in bulk.                                                   |
+| getSessionData                      |                                                                                                | `Promise<`[`SessionData`](#SessionData)`>`                   | Retrieves session data in bulk.                                                 |
+| getOIDCProviderMetaData             |                                                                                                | `Promise<`[`OIDCProviderMetaData`](#OIDCProviderMetaData)`>` | Retrieves OIDC Provider Meta data in bulk.                                      |
+| getConfigData                       |                                                                                                | `Promise<`[`AuthClientConfig<T>`](#`AuthClientConfig<T>`)`>` | Retrieves config data in bulk.                                                  |
+| getTemporaryData                    |                                                                                                | `Promise<`{ [key: `string`]: [StoreValue](#StoreValue)}`>`   | Retrieves temporary data in bulk.                                               |
+| removeSessionData                   |                                                                                                | `Promise<void>`                                              | Removes session data in bulk.                                                   |
+| removeOIDCProviderMetaData          |                                                                                                | `Promise<void>`                                              | Removes OIDC Provider Meta data in bulk.                                        |
+| removeConfigData                    |                                                                                                | `Promise<void>`                                              | Removes config data in bulk.                                                    |
+| removeTemporaryData                 |                                                                                                | `Promise<void>`                                              | Removes temporary data in bulk.                                                 |
+| setSessionDataParameter             | key: keyof [`SessionData`](#SessionData), value: [`StoreValue`](#StoreValue)                   | `Promise<void>`                                              | Saves the passed data against the specified key in the session data.            |
+| setOIDCProviderMetaDataParameter    | key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData), value: [`StoreValue`](#StoreValue) | `Promise<void>`                                              | Saves the passed data against the specified key in the OIDC Provider Meta data. |
+| setConfigDataParameter              | key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT), value: [`StoreValue`](#`StoreValue`)   | `Promise<void>`                                              | Saves the passed data against the specified key in the config data.             |
+| setTemporaryDataParameter           | key: `string`, value: [`StoreValue`](#`StoreValue`)                                            | `Promise<void>`                                              | Saves the passed data against the specified key in the temporary data.          |
+| getSessionDataParameter             | key: keyof [`SessionData`](#SessionData)                                                       | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the session data.                 |
+| getOIDCProviderMetaDataParameter    | key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData)                                     | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the OIDC Provider Meta data.      |
+| getConfigDataParameter              | key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT)                                         | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the config data.                  |
+| getTemporaryDataParameter           | key: `string`                                                                                  | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the temporary data.               |
+| removeSessionDataParameter          | key: keyof [`SessionData`](#SessionData)                                                       | `Promise<void>`                                              | Removes the data with the specified key from the session data.                  |
+| removeOIDCProviderMetaDataParameter | key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData)                                     | `Promise<void>`                                              | Removes the data with the specified key from the OIDC Provider Meta data.       |
+| removeConfigDataParameter           | key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT)                                         | `Promise<void>`                                              | Removes the data with the specified key from the config data.                   |
+| removeTemporaryDataParameter        | key: `string`                                                                                  | `Promise<void>`                                              | Removes the data with the specified key from the temporary data.                |
 
 ## CryptoUtils
 
 The CryptoUtils interface defines the methods required to perform cryptographic operations such as producing a PKCE code and verifying ID tokens. The following table describes the methods provided by the CryptoUtils interface.
-|Method|Arguments|Returns|Description|
-|--|--|--|--|
-|`base64urlEncode` |input: `T` | `string` | Encodes the passed input string to a base64url encoded string.|
-|`base64urlDecode` |input: `string` | `string` | Decodes the passed input string from a base64url encoded string.|
-|`hashSha256` |input: `string` | `T` | Hashes the passed input string using SHA-256.|
-|`generateRandomBytes` |length: `number` | `T` | Generates random bytes of the specified length.|
-|`verifyJwt`|jwt: `string`, jwk: `JWKInterface` | `Promise<boolean>` | Verifies the passed JWT using the passed JWK.|
+| Method                | Arguments                          | Returns            | Description                                                      |
+|-----------------------|------------------------------------|--------------------|------------------------------------------------------------------|
+| `base64urlEncode`     | input: `T`                         | `string`           | Encodes the passed input string to a base64url encoded string.   |
+| `base64urlDecode`     | input: `string`                    | `string`           | Decodes the passed input string from a base64url encoded string. |
+| `hashSha256`          | input: `string`                    | `T`                | Hashes the passed input string using SHA-256.                    |
+| `generateRandomBytes` | length: `number`                   | `T`                | Generates random bytes of the specified length.                  |
+| `verifyJwt`           | jwt: `string`, jwk: `JWKInterface` | `Promise<boolean>` | Verifies the passed JWT using the passed JWK.                    |
 
 **NOTE: The return type of the `hashSha256` and `generateRandomBytes` method should be the same as the type of the argument of the `base64urlEncode` method.**
 
@@ -975,25 +976,25 @@ These methods should be implemented in a class and the instance of the class sho
 ### AuthClientConfig\<T>
 
 This model has the following attributes.
-|Attribute| Required/Optional| Type | Default Value| Description|
-|--|--|--|--|--|
-|`signInRedirectURL` |Required|`string`|""|The URL to redirect to after the user authorizes the client app. eg: `https//localhost:3000/sign-in`|
-|`signOutRedirectURL` |Optional|`string`| The `signInRedirectURL` URL will be used if this value is not provided. |The URL to redirect to after the user |signs out. eg: `http://localhost:3000/dashboard`|
-|`clientHost`|Optional| `string`|The origin of the client app obtained using `window.origin`|The hostname of the client app. eg: `https://localhost:3000`|
-|`clientID`|Required| `string`|""|The client ID of the OIDC application hosted in the Asgardeo.|
-|`clientSecret`|Optional| `string`|""|The client secret of the OIDC application|
-|`enablePKCE`|Optional| `boolean`|`true`| Specifies if a PKCE should be sent with the request for the authorization code.|
-|`prompt`|Optional| `string`|""|Specifies the prompt type of an OIDC request|
-|`responseMode`|Optional| `ResponseMode`|`"query"`|Specifies the response mode. The value can either be `query` or `form_post`|
-|`scope`|Optional| `string[]`|`["openid"]`|Specifies the requested scopes.|
-|`serverOrigin`|Required| `string`|""|The origin of the Identity Provider. eg: `https://api.asgardeo.io/t/<org_name>`|
-|`endpoints`|Optional| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS |using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be |used. However, if the `overrideWellEndpointConfig` is set to `true`, then this will override the endpoints obtained from the `.well-known` endpoint. |
-|`overrideWellEndpointConfig`|Optional| `boolean` | `false` | If this option is set to `true`, then the `endpoints` object will override endpoints obtained |from the `.well-known` endpoint. If this is set to `false`, then this will be used as a fallback if the request to the `.well-known` endpoint fails.|
-|`wellKnownEndpoint`|Optional| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
-|`validateIDToken`|Optional| `boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
-|`clockTolerance`|Optional| `number`|`60`|Allows you to configure the leeway when validating the id_token.|
-|`sendCookiesInRequests`|Optional| `boolean`|`true`|Specifies if cookies should be sent in the requests.|
-|`sendWellKnownEndpointRequest`|Optional| `boolean`|`true`|Specifies if the SDK should send a request to the `.well-known` endpoint to obtain the endpoint URLs. Note that if this is set to false, then the needed endpoints should be provided through the `endpoints` property.|
+| Attribute                      | Required/Optional | Type            | Default Value                                                           | Description                                                                                                                                                                                                             |
+|--------------------------------|-------------------|-----------------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `signInRedirectURL`            | Required          | `string`        | ""                                                                      | The URL to redirect to after the user authorizes the client app. eg: `https//localhost:3000/sign-in`                                                                                                                    |
+| `signOutRedirectURL`           | Optional          | `string`        | The `signInRedirectURL` URL will be used if this value is not provided. | The URL to redirect to after the user                                                                                                                                                                                   |
+| `clientHost`                   | Optional          | `string`        | The origin of the client app obtained using `window.origin`             | The hostname of the client app. eg: `https://localhost:3000`                                                                                                                                                            |
+| `clientID`                     | Required          | `string`        | ""                                                                      | The client ID of the OIDC application hosted in the Asgardeo.                                                                                                                                                           |
+| `clientSecret`                 | Optional          | `string`        | ""                                                                      | The client secret of the OIDC application                                                                                                                                                                               |
+| `enablePKCE`                   | Optional          | `boolean`       | `true`                                                                  | Specifies if a PKCE should be sent with the request for the authorization code.                                                                                                                                         |
+| `prompt`                       | Optional          | `string`        | ""                                                                      | Specifies the prompt type of an OIDC request                                                                                                                                                                            |
+| `responseMode`                 | Optional          | `ResponseMode`  | `"query"`                                                               | Specifies the response mode. The value can either be `query` or `form_post`                                                                                                                                             |
+| `scope`                        | Optional          | `string[]`      | `["openid"]`                                                            | Specifies the requested scopes.                                                                                                                                                                                         |
+| `serverOrigin`                 | Required          | `string`        | ""                                                                      | The origin of the Identity Provider. eg: `https://api.asgardeo.io/t/<org_name>`                                                                                                                                         |
+| `endpoints`                    | Optional          | `OIDCEndpoints` | [OIDC Endpoints Default Values](#oidc-endpoints)                        | The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS                                                                                                                                                    |
+| `overrideWellEndpointConfig`   | Optional          | `boolean`       | `false`                                                                 | If this option is set to `true`, then the `endpoints` object will override endpoints obtained                                                                                                                           |
+| `wellKnownEndpoint`            | Optional          | `string`        | `"/oauth2/token/.well-known/openid-configuration"`                      | The URL of the `.well-known` endpoint.                                                                                                                                                                                  |
+| `validateIDToken`              | Optional          | `boolean`       | `true`                                                                  | Allows you to enable/disable JWT ID token validation after obtaining the ID token.                                                                                                                                      |
+| `clockTolerance`               | Optional          | `number`        | `60`                                                                    | Allows you to configure the leeway when validating the id_token.                                                                                                                                                        |
+| `sendCookiesInRequests`        | Optional          | `boolean`       | `true`                                                                  | Specifies if cookies should be sent in the requests.                                                                                                                                                                    |
+| `sendWellKnownEndpointRequest` | Optional          | `boolean`       | `true`                                                                  | Specifies if the SDK should send a request to the `.well-known` endpoint to obtain the endpoint URLs. Note that if this is set to false, then the needed endpoints should be provided through the `endpoints` property. |
 
 The `AuthClientConfig<T>` can be extended by passing an interface as the generic type. For example, if you want to add an attribute called `foo` to the config object, you can create an interface called `Bar` and pass that as the generic type into the `AuthClientConfig<T>` interface.
 
@@ -1010,15 +1011,15 @@ const config: AuthClientConfig<Bar> ={
 ### Store
 
 | Method       | Required/Optional | Arguments                      | Returns                                                                                                                                                                         | Description                                                                                                                         |
-| ------------ | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+|--------------|-------------------|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | `setData`    | Required          | key: `string`, value: `string` | `Promise<void>`                                                                                                                                                                 | This method saves the passed value to the store. The data to be saved is JSON stringified so will be passed by the SDK as a string. |
-| `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns a Promise that resolves with it. Since the SDK stores the data as a JSON string, the returned value will be a string. |
+| `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns a Promise that resolves with it. Since the SDK stores the data as a JSON string, the returned value will be a string. |                                                                                                                                     |
 | `removeData` | Required          | key: `string`                  | `Promise<void>`                                                                                                                                                                 | Removes the data with the specified key from the store.                                                                             |
 
 ### GetAuthURLConfig
 
 | Method        | Required/Optional | Type                  | Default Value | Description                                                                                                                                                            |
-| ------------- | ----------------- | --------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------|-------------------|-----------------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fidp`        | Optional          | `string`              | ""            | The `fidp` parameter that can be used to redirect a user directly to an IdP's sign-in page.                                                                            |
 | `forceInit`   | Optional          | `boolean`             | `false`       | Forces obtaining the OIDC endpoints from the `.well-known` endpoint. A request to this endpoint is not sent if a request has already been sent. This forces a request. |
 | key: `string` | Optional          | `string` \| `boolean` | ""            | Any key-value pair to be appended as path parameters to the authorization URL.                                                                                         |
@@ -1026,7 +1027,7 @@ const config: AuthClientConfig<Bar> ={
 ### TokenResponse
 
 | Method         | Type     | Description                 |
-| -------------- | -------- | --------------------------- |
+|----------------|----------|-----------------------------|
 | `accessToken`  | `string` | The access token.           |
 | `idToken`      | `string` | The id token.               |
 | `expiresIn`    | `string` | The expiry time in seconds. |
@@ -1037,7 +1038,7 @@ const config: AuthClientConfig<Bar> ={
 ### OIDCEndpoints
 
 | Method                  | Type     | Default Value                                      | Description                                                               |
-| ----------------------- | -------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+|-------------------------|----------|----------------------------------------------------|---------------------------------------------------------------------------|
 | `authorizationEndpoint` | `string` | `"/oauth2/authorize"`                              | The authorization endpoint.                                               |
 | `tokenEndpoint`         | `string` | `"/oauth2/token"`                                  | The token endpoint.                                                       |
 | `userinfoEndpoint`      | `string` | ""                                                 | The user-info endpoint.                                                   |
@@ -1053,7 +1054,7 @@ const config: AuthClientConfig<Bar> ={
 ### DecodedIDTokenPayload
 
 | Method             | Type                   | Description                                    |
-| ------------------ | ---------------------- | ---------------------------------------------- |
+|--------------------|------------------------|------------------------------------------------|
 | aud                | `string` \| `string[]` | The audience.                                  |
 | sub                | `string`               | The subject. This is the username of the user. |
 | iss                | `string`               | The token issuer.                              |
@@ -1064,7 +1065,7 @@ const config: AuthClientConfig<Bar> ={
 ### CustomGrantConfig
 
 | Attribute        | Required/Optional | Type      | Default Value | Description                                                                                                                                                                                                                   |
-| ---------------- | ----------------- | --------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------|-------------------|-----------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `id`             | Required          | `string`  | ""            | Every custom-grant request should have an id. This attributes takes that id.                                                                                                                                                  |
 | `data`           | Required          | `any`     | `null`        | The data that should be sent in the body of the custom-grant request. You can use template tags to send session information. Refer to the [Custom Grant Template Tags](#custom-grant-template-tags) section for more details. |
 | `signInRequired` | Required          | `boolean` | `false`       | Specifies if the user should be sign-in or not to dispatch this custom-grant request.                                                                                                                                         |
@@ -1075,18 +1076,18 @@ const config: AuthClientConfig<Bar> ={
 #### Custom Grant Template Tags
 
 Session information can be attached to the body of a custom-grant request using template tags. This is useful when the session information is not exposed outside the SDK but you want such information to be used in custom-grant requests. The following table lists the available template tags.
-|Tag|Data|
-|--|--|
-|"{{token}}" | The access token.|
-|{{username}}" | The username.|
-|"{{scope}}" | The scope.|
-|{{clientID}}" | The client ID.|
-|"{{clientSecret}}" | The client secret.|
+| Tag                | Data               |
+|--------------------|--------------------|
+| "{{token}}"        | The access token.  |
+| {{username}}"      | The username.      |
+| "{{scope}}"        | The scope.         |
+| {{clientID}}"      | The client ID.     |
+| "{{clientSecret}}" | The client secret. |
 
 ### SessionData
 
 | Attribute       | Type     | description                                      |
-| --------------- | -------- | ------------------------------------------------ |
+|-----------------|----------|--------------------------------------------------|
 | `access_token`  | `string` | The access token.                                |
 | `id_token`      | `string` | The id token.                                    |
 | `expires_in`    | `string` | The expiry time.                                 |
@@ -1099,7 +1100,7 @@ Session information can be attached to the body of a custom-grant request using 
 ### OIDCProviderMetaData
 
 | Attribute                                                  | Type       | description                                                                                                                                                                                                                                                                                  |
-| ---------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `issuer`                                                   | `string`   | URL using the https scheme with no query or fragment component that the OP asserts as its Issuer Identifier.                                                                                                                                                                                 |
 | `authorization_endpoint`                                   | `string`   | URL of the OP's OAuth 2.0 Authorization Endpoint.                                                                                                                                                                                                                                            |
 | `token_endpoint`                                           | `string`   | URL of the OP's OAuth 2.0 Token Endpoint.                                                                                                                                                                                                                                                    |
@@ -1150,9 +1151,9 @@ Session information can be attached to the body of a custom-grant request using 
 ### TemporaryData
 
 Temporary data accepts any key-value pair.
-|Attribute|Type|
-|--|--|
-|[key: `string`]|`string`|
+| Attribute       | Type     |
+|-----------------|----------|
+| [key: `string`] | `string` |
 
 ### StoreValue
 
@@ -1165,7 +1166,7 @@ type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 ### BasicUserInfo
 
 | Attribute       | Type     | Description                                                                                        |
-| :-------------- | :------- | :------------------------------------------------------------------------------------------------- |
+|:----------------|:---------|:---------------------------------------------------------------------------------------------------|
 | `email`         | `string` | The email address of the user.                                                                     |
 | `username`      | `string` | The username of the user.                                                                          |
 | `displayName`   | `string` | The display name of the user. It is the `preferred_username` in the id token payload or the `sub`. |
@@ -1179,7 +1180,7 @@ In addition to the above attributes, this object will also contain any other cla
 ### JWKInterface
 
 | Attribute | Type     | Description                                                        |
-| --------- | -------- | ------------------------------------------------------------------ |
+|-----------|----------|--------------------------------------------------------------------|
 | `kty`     | `string` | The type of the key. Must be one of `RSA`, `EC`, `oct` or `OKP`.   |
 | `kid`     | `string` | The key ID.                                                        |
 | `use`     | `string` | The intended use of the public key. Must be one of `sig` or `enc`. |
@@ -1211,14 +1212,14 @@ Error code consist of four parts separated by a `-`.
 -   The third part is the abbreviation of the name of the method/function that threw the error. If there are more than one method/function with the same abbreviation, then a number based on the order of declaration is appended to the abbreviation. Example: `RAT1` refers to the `requestAccessToken` method. There are two methods that can be abbreviated to `RAT` but since `1` has been appended to `RAT`, we know it refers to `requestAccessToken` since it is declared first.
 -   The fourth part refers to the type of error and is position. Example: `NE02` refers to a network error and the fact that this is the second error in the method/function. The following error types are available:
 
-    |   Error Code  |   Description     |
-    | :-------------| :-----------------|
-    |   `NE`        |   Network Error   |
-    |   `HE`        |   Http Error      |
-    |   `IV`        |   Invalid         |
-    |   `NF`        |   Not Found       |
-    |   `TO`        |   Timeout         |
-    |   `SE`        |   Server Error    |
+    | Error Code | Description   |
+    |:-----------|:--------------|
+    | `NE`       | Network Error |
+    | `HE`       | Http Error    |
+    | `IV`       | Invalid       |
+    | `NF`       | Not Found     |
+    | `TO`       | Timeout       |
+    | `SE`       | Server Error  |
 
 ## Contribute
 
