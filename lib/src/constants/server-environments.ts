@@ -18,7 +18,7 @@
 
  export enum SERVER_ENVIRONMENTS {
     DEV = "dev",
-    STG = "stg",
+    STG = "stage",
     PROD = "prod"
 }
 
