@@ -140,6 +140,8 @@ export class AuthenticationHelper<T> {
                 organization ,SERVICE_RESOURCES.authorizationEndpoint),
             [ END_SESSION_ENDPOINT ]: this.constructServerEndpoint(environment, 
                 organization ,SERVICE_RESOURCES.endSessionEndpoint),
+            [ ISSUER ]: this.constructServerEndpoint(environment, organization,
+                SERVICE_RESOURCES.issuer),
             [ JWKS_ENDPOINT ]: this.constructServerEndpoint(environment, organization, 
                 SERVICE_RESOURCES.jwksUri),
             [ OIDC_SESSION_IFRAME_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
@@ -148,8 +150,6 @@ export class AuthenticationHelper<T> {
                 SERVICE_RESOURCES.revocationEndpoint),
             [ TOKEN_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
                 SERVICE_RESOURCES.tokenEndpoint),
-            [ ISSUER ]: this.constructServerEndpoint(environment, organization,
-                SERVICE_RESOURCES.issuer),
             [ USERINFO_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
                 SERVICE_RESOURCES.userinfoEndpoint)
         };

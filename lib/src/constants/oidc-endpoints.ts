@@ -22,12 +22,12 @@ export const SERVICE_RESOURCES: OIDCEndpoints  = {
     authorizationEndpoint: "/oauth2/authorize",
     checkSessionIframe: "/oidc/checksession",
     endSessionEndpoint: "/oidc/logout",
+    issuer: "/oauth2/token",
     jwksUri: "/oauth2/jwks",
     revocationEndpoint: "/oauth2/revoke",
     tokenEndpoint: "/oauth2/token",
-    wellKnownEndpoint: "/oauth2/token/.well-known/openid-configuration",
-    issuer: "/oauth2/token",
-    userinfoEndpoint: "/oauth2/userinfo"
+    userinfoEndpoint: "/oauth2/userinfo",
+    wellKnownEndpoint: "/oauth2/token/.well-known/openid-configuration"
 };
 
 export const AUTHORIZATION_ENDPOINT = "authorization_endpoint";
