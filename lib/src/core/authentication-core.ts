@@ -438,36 +438,64 @@ export class AuthenticationCore<T> {
             return Promise.resolve();
         }
 
-        const wellKnownEndpoint = await this._authenticationHelper.resolveWellKnownEndpoint();
+        if ((configData as any).wellKnownEndpoint) {
+            const wellKnownEndpoint = (configData as any).wellKnownEndpoint;
 
-        let response: Response;
+            let response: Response;
 
-        try {
-            if (!configData?.sendWellKnownEndpointRequest) {
-                throw new Error();
+            try {
+                response = await fetch(wellKnownEndpoint);
+                if (response.status !== 200 || !response.ok) {
+                    throw new Error();
+                }
+            } catch {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-HE01",
+                    "Invalid well-known response",
+                    "The well known endpoint response has been failed with an error."
+                );
             }
 
-            response = await fetch(wellKnownEndpoint);
-            if (response.status !== 200 || !response.ok) {
-                throw new Error();
-            }
-        } catch {
-            await this._dataLayer.setOIDCProviderMetaData(await this._authenticationHelper.resolveFallbackEndpoints());
+            await this._dataLayer.setOIDCProviderMetaData(
+                await this._authenticationHelper.resolveEndpoints(await response.json())
+            );
             await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
             return Promise.resolve();
+        } else if ((configData as any).organization) {
+            try {
+                await this._dataLayer.setOIDCProviderMetaData(
+                    await this._authenticationHelper.resolveEndpointsByOrganization());
+            } catch (error: any) {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-IV02",
+                    "Resolving endpoints failed.",
+                    error ?? "Resolving endpoints by organization failed."
+                );
+            }
+            await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+
+            return Promise.resolve();
+        }  else {
+            try {
+                await this._dataLayer.setOIDCProviderMetaData(
+                    await this._authenticationHelper.resolveEndpointsExplicitly());
+            } catch (error: any) {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-IV03",
+                    "Resolving endpoints failed.",
+                    error ?? "Resolving endpoints by explicitly failed."
+                );
+            }
+            await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+            
+            return Promise.resolve();
         }
-
-        await this._dataLayer.setOIDCProviderMetaData(
-            await this._authenticationHelper.resolveEndpoints(await response.json())
-        );
-        await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
-
-        return Promise.resolve();
     }
 
     public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
         const oidcProviderMetaData = await this._oidcProviderMetaData();
+        const configData = await this._config();
 
         return {
             authorizationEndpoint: oidcProviderMetaData.authorization_endpoint,
@@ -480,7 +508,7 @@ export class AuthenticationCore<T> {
             revocationEndpoint: oidcProviderMetaData.revocation_endpoint,
             tokenEndpoint: oidcProviderMetaData.token_endpoint,
             userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint,
-            wellKnownEndpoint: await this._authenticationHelper.resolveWellKnownEndpoint()
+            wellKnownEndpoint: (configData as any).wellKnownEndpoint ?? ""
         };
     }
 
@@ -559,12 +587,6 @@ export class AuthenticationCore<T> {
 
     public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
         await this._dataLayer.setConfigData(config);
-
-        if (config.overrideWellEndpointConfig) {
-            config?.endpoints &&
-                (await this._dataLayer.setOIDCProviderMetaData(await this._authenticationHelper.resolveEndpoints({})));
-        } else if (config?.endpoints) {
-            await this.getOIDCProviderMetaData(true);
-        }
+        await this.getOIDCProviderMetaData(true);
     }
 }

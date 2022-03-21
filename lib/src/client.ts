@@ -17,6 +17,7 @@
  */
 
 import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM, STATE } from "./constants";
+import { SERVER_ENVIRONMENTS } from "./constants/server-environments";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -38,10 +39,10 @@ import {
 const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     clockTolerance: 300,
     enablePKCE: true,
+    environment: SERVER_ENVIRONMENTS.PROD,
     responseMode: ResponseMode.query,
     scope: [OIDC_SCOPE],
     sendCookiesInRequests: true,
-    sendWellKnownEndpointRequest: true,
     validateIDToken: true
 };
 

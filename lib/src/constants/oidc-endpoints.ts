@@ -25,7 +25,9 @@ export const SERVICE_RESOURCES: OIDCEndpoints  = {
     jwksUri: "/oauth2/jwks",
     revocationEndpoint: "/oauth2/revoke",
     tokenEndpoint: "/oauth2/token",
-    wellKnownEndpoint: "/oauth2/token/.well-known/openid-configuration"
+    wellKnownEndpoint: "/oauth2/token/.well-known/openid-configuration",
+    issuer: "/oauth2/token",
+    userinfoEndpoint: "/oauth2/userinfo"
 };
 
 export const AUTHORIZATION_ENDPOINT = "authorization_endpoint";
@@ -42,3 +44,4 @@ export const OPEN_ID_CONFIG = "open_id_config";
 export const REGISTRATION_ENDPOINT = "registration_endpoint";
 export const USERINFO_ENDPOINT = "userinfo_endpoint";
 export const INTROSPECTION_ENDPOINT = "introspection_endpoint";
+export const ISSUER = "issuer"

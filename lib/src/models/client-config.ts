@@ -18,8 +18,9 @@
 
 import { OIDCEndpoints } from ".";
 import { ResponseMode } from "../constants";
+import { SERVER_ENVIRONMENTS } from "../constants/server-environments";
 
-export interface StrictAuthClientConfig {
+export interface DefaultAuthClientConfig {
     signInRedirectURL: string;
     signOutRedirectURL?: string;
     clientHost?: string;
@@ -29,10 +30,6 @@ export interface StrictAuthClientConfig {
     prompt?: string;
     responseMode?: ResponseMode;
     scope?: string[];
-    serverOrigin: string;
-    endpoints?: OIDCEndpoints;
-    overrideWellEndpointConfig?: boolean;
-    wellKnownEndpoint?: string;
     validateIDToken?: boolean;
     /**
      * Allowed leeway for id_tokens (in seconds).
@@ -49,7 +46,24 @@ export interface StrictAuthClientConfig {
      * Note that if this is set to false, then the needed endpoints should be provided through
      * the `endpoints` property.
      */
-    sendWellKnownEndpointRequest?: boolean;
+     environment?: SERVER_ENVIRONMENTS;
 }
+
+export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
+    wellKnownEndpoint: string;
+    endpoints?: OIDCEndpoints;
+}
+
+export interface OrganizationAuthClientConfig extends DefaultAuthClientConfig {
+    organization: string;
+    endpoints?: OIDCEndpoints;
+}
+
+export interface ExplicitAuthClientConfig extends DefaultAuthClientConfig {
+    endpoints: OIDCEndpoints;
+}
+
+export type StrictAuthClientConfig = WellKnownAuthClientConfig | 
+                OrganizationAuthClientConfig | ExplicitAuthClientConfig;
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
