@@ -16,7 +16,7 @@
 * under the License.
 */
 
-import { OIDCEndpoints } from ".";
+import { OIDCEndpoints } from "./oidc-provider-meta-data";
 import { ResponseMode } from "../constants";
 import { SERVER_ENVIRONMENTS } from "../constants/server-environments";
 
@@ -51,16 +51,27 @@ export interface DefaultAuthClientConfig {
 
 export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
     wellKnownEndpoint: string;
-    endpoints?: OIDCEndpoints;
+    endpoints?: Partial<OIDCEndpoints>;
 }
 
 export interface OrganizationAuthClientConfig extends DefaultAuthClientConfig {
     organization: string;
-    endpoints?: OIDCEndpoints;
+    endpoints?: Partial<OIDCEndpoints>;
 }
 
 export interface ExplicitAuthClientConfig extends DefaultAuthClientConfig {
-    endpoints: OIDCEndpoints;
+    endpoints: {
+        authorizationEndpoint: string;
+        tokenEndpoint: string;
+        userinfoEndpoint: string;
+        jwksUri: string;
+        registrationEndpoint: string;
+        revocationEndpoint: string;
+        introspectionEndpoint: string;
+        checkSessionIframe: string;
+        endSessionEndpoint: string;
+        issuer: string;
+    };
 }
 
 export type StrictAuthClientConfig = WellKnownAuthClientConfig | 
