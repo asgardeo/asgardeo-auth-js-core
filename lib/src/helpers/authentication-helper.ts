@@ -139,7 +139,7 @@ export class AuthenticationHelper<T> {
         
         const defaultEndpoints = {
             [ AUTHORIZATION_ENDPOINT ]: this.constructServerEndpoint(environment, 
-                organization ,SERVICE_RESOURCES.authorizationEndpoint),
+                organization, SERVICE_RESOURCES.authorizationEndpoint),
             [ END_SESSION_ENDPOINT ]: this.constructServerEndpoint(environment, 
                 organization ,SERVICE_RESOURCES.endSessionEndpoint),
             [ ISSUER ]: this.constructServerEndpoint(environment, organization,
