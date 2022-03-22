@@ -36,7 +36,7 @@ import {
     TOKEN_ENDPOINT,
     TOKEN_TAG,
     USERINFO_ENDPOINT,
-    USERNAME_TAG,
+    USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
 import { AsgardeoAuthException } from "../exception";
