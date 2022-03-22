@@ -16,8 +16,14 @@
  * under the License.
  */
 
-import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM, STATE } from "./constants";
-import { SERVER_ENVIRONMENTS } from "./constants/server-environments";
+import {
+    OIDC_SCOPE,
+    OP_CONFIG_INITIATED,
+    ResponseMode,
+    SERVER_ENVIRONMENTS,
+    SIGN_OUT_SUCCESS_PARAM,
+    STATE,
+} from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {

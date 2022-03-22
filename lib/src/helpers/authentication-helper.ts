@@ -31,13 +31,13 @@ import {
     PKCE_SEPARATOR,
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
+    SERVER_ENVIRONMENTS,
     SERVICE_RESOURCES,
     TOKEN_ENDPOINT,
     TOKEN_TAG,
     USERINFO_ENDPOINT,
-    USERNAME_TAG
+    USERNAME_TAG,
 } from "../constants";
-import { SERVER_ENVIRONMENTS } from "../constants/server-environments";
 import { DataLayer } from "../data";
 import { AsgardeoAuthException } from "../exception";
 import {
@@ -88,10 +88,12 @@ export class AuthenticationHelper<T> {
             OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, TOKEN_ENDPOINT, ISSUER, USERINFO_ENDPOINT];
 
         const isRequiredEndpointsContains = configData.endpoints ? 
-                Object.keys(configData?.endpoints).every(endpointName => {
-            const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-            return requiredEndpoints.includes(snakeCasedName);
-        }) : false;
+                Object.keys(configData?.endpoints).every(
+                    endpointName => {
+                        const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                        return requiredEndpoints.includes(snakeCasedName);
+                    }
+                ) : false;
 
         if(!isRequiredEndpointsContains) {
             throw new AsgardeoAuthException(
