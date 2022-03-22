@@ -22,7 +22,7 @@ import {
     ResponseMode,
     SERVER_ENVIRONMENTS,
     SIGN_OUT_SUCCESS_PARAM,
-    STATE,
+    STATE
 } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
