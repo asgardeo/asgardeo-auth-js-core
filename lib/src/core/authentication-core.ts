@@ -495,20 +495,18 @@ export class AuthenticationCore<T> {
 
     public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
         const oidcProviderMetaData = await this._oidcProviderMetaData();
-        const configData = await this._config();
 
         return {
-            authorizationEndpoint: oidcProviderMetaData.authorization_endpoint,
-            checkSessionIframe: oidcProviderMetaData.check_session_iframe,
-            endSessionEndpoint: oidcProviderMetaData.end_session_endpoint,
-            introspectionEndpoint: oidcProviderMetaData.introspection_endpoint,
-            issuer: oidcProviderMetaData.issuer,
-            jwksUri: oidcProviderMetaData.jwks_uri,
-            registrationEndpoint: oidcProviderMetaData.registration_endpoint,
-            revocationEndpoint: oidcProviderMetaData.revocation_endpoint,
-            tokenEndpoint: oidcProviderMetaData.token_endpoint,
-            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint,
-            wellKnownEndpoint: (configData as any).wellKnownEndpoint ?? ""
+            authorizationEndpoint: oidcProviderMetaData.authorization_endpoint ?? "",
+            checkSessionIframe: oidcProviderMetaData.check_session_iframe ?? "",
+            endSessionEndpoint: oidcProviderMetaData.end_session_endpoint ?? "",
+            introspectionEndpoint: oidcProviderMetaData.introspection_endpoint ?? "",
+            issuer: oidcProviderMetaData.issuer ?? "",
+            jwksUri: oidcProviderMetaData.jwks_uri ?? "",
+            registrationEndpoint: oidcProviderMetaData.registration_endpoint ?? "",
+            revocationEndpoint: oidcProviderMetaData.revocation_endpoint ?? "",
+            tokenEndpoint: oidcProviderMetaData.token_endpoint ?? "",
+            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint ?? ""
         };
     }
 

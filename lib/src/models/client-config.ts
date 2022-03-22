@@ -60,18 +60,7 @@ export interface OrganizationAuthClientConfig extends DefaultAuthClientConfig {
 }
 
 export interface ExplicitAuthClientConfig extends DefaultAuthClientConfig {
-    endpoints: {
-        authorizationEndpoint: string;
-        tokenEndpoint: string;
-        userinfoEndpoint: string;
-        jwksUri: string;
-        registrationEndpoint: string;
-        revocationEndpoint: string;
-        introspectionEndpoint: string;
-        checkSessionIframe: string;
-        endSessionEndpoint: string;
-        issuer: string;
-    };
+    endpoints: OIDCEndpoints
 }
 
 export type StrictAuthClientConfig = WellKnownAuthClientConfig | 
