@@ -393,7 +393,7 @@ export class AuthenticationCore<T> {
         if (customGrantParams.returnsSession) {
             return this._authenticationHelper.handleTokenResponse(response, userID);
         } else {
-            return Promise.resolve(response);
+            return Promise.resolve(await response.json());
         }
     }
 
