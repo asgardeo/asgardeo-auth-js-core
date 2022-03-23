@@ -89,7 +89,7 @@ const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
     signOutRedirectURL: "http://localhost:3000/dashboard",
     clientID: "client ID",
-    serverOrigin: "https://api.asgardeo.io/t/<org_name>"
+    organization: "<org_name>"
 };
 
 // Create a Store class to store the authentication data. The following implementation uses the session storage.
@@ -271,7 +271,7 @@ const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
     signOutRedirectURL: "http://localhost:3000/dashboard",
     clientID: "client ID",
-    serverOrigin: "https://api.asgardeo.io/t/<org_name>"
+    organization: "<org_name>"
 };
 
 await auth.initialize(config);
@@ -986,10 +986,10 @@ This model has the following attributes.
 |`prompt`|Optional| `string`|""|Specifies the prompt type of an OIDC request|
 |`responseMode`|Optional| `ResponseMode`|`"query"`|Specifies the response mode. The value can either be `query` or `form_post`|
 |`scope`|Optional| `string[]`|`["openid"]`|Specifies the requested scopes.|
-|`serverOrigin`|Required| `string`|""|The origin of the Identity Provider. eg: `https://api.asgardeo.io/t/<org_name>`|
-|`endpoints`|Optional| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS |using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be |used. However, if the `overrideWellEndpointConfig` is set to `true`, then this will override the endpoints obtained from the `.well-known` endpoint. |
+|`organization`|Required (If `wellKnownEndpoint` or `endpoints` are not provided)| `string`|""|The origin of the Identity Provider. eg: `https://api.asgardeo.io/t/<org_name>`|
+|`endpoints`|Optional (Required to provide all endpoints, if `wellKnownEndpoint` or `organization` are not provided)| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS |using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be |used. However, if the `overrideWellEndpointConfig` is set to `true`, then this will override the endpoints obtained from the `.well-known` endpoint. |
 |`overrideWellEndpointConfig`|Optional| `boolean` | `false` | If this option is set to `true`, then the `endpoints` object will override endpoints obtained |from the `.well-known` endpoint. If this is set to `false`, then this will be used as a fallback if the request to the `.well-known` endpoint fails.|
-|`wellKnownEndpoint`|Optional| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
+|`wellKnownEndpoint`|Optional (Required if `organization` or `endpoints` are not provided)| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
 |`validateIDToken`|Optional| `boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
 |`clockTolerance`|Optional| `number`|`60`|Allows you to configure the leeway when validating the id_token.|
 |`sendCookiesInRequests`|Optional| `boolean`|`true`|Specifies if cookies should be sent in the requests.|
@@ -1047,8 +1047,7 @@ const config: AuthClientConfig<Bar> ={
 | `introspectionEndpoint` | `string` | ""                                                 | The introspection endpoint.                                               |
 | `checkSessionIframe`    | `string` | `"/oidc/checksession"`                             | The check-session endpoint.                                               |
 | `endSessionEndpoint`    | `string` | `"/oidc/logout"`                                   | The end-session endpoint.                                                 |
-| `issuer`                | `string` | ""                                                 | The issuer of the token.                                                  |
-| `wellKnownEndpoint`     | `string` | `"/oauth2/token/.well-known/openid-configuration"` | The well-known endpoint. This is the default endpoint defined in the SDK. |
+| `issuer`                | `string` | ""                                                 | The issuer of the token.                                        
 
 ### DecodedIDTokenPayload
 
