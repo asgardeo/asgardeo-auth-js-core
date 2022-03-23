@@ -23,6 +23,7 @@ import {
     CLIENT_SECRET_TAG,
     END_SESSION_ENDPOINT,
     FetchCredentialTypes,
+    ISSUER,
     JWKS_ENDPOINT,
     OIDC_SCOPE,
     OIDC_SESSION_IFRAME_ENDPOINT,
@@ -30,9 +31,11 @@ import {
     PKCE_SEPARATOR,
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
+    SERVER_ENVIRONMENTS,
     SERVICE_RESOURCES,
     TOKEN_ENDPOINT,
     TOKEN_TAG,
+    USERINFO_ENDPOINT,
     USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
@@ -62,33 +65,7 @@ export class AuthenticationHelper<T> {
         this._cryptoHelper = cryptoHelper;
     }
 
-    public async resolveWellKnownEndpoint(): Promise<string> {
-        const configData = await this._config();
-        if (configData.wellKnownEndpoint) {
-            return configData.serverOrigin + configData.wellKnownEndpoint;
-        }
-
-        return configData.serverOrigin + SERVICE_RESOURCES.wellKnownEndpoint;
-    }
-
     public async resolveEndpoints(response: OIDCProviderMetaData): Promise<OIDCProviderMetaData> {
-        const oidcProviderMetaData = {};
-        const configData = await this._config();
-
-        if (configData.overrideWellEndpointConfig) {
-            configData.endpoints &&
-                Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                    oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
-                        ? configData.endpoints[ endpointName ]
-                        : "";
-                });
-        }
-
-        return { ...response, ...oidcProviderMetaData };
-    }
-
-    public async resolveFallbackEndpoints(): Promise<OIDCEndpointsInternal> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
@@ -100,16 +77,92 @@ export class AuthenticationHelper<T> {
                     : "";
             });
 
+        return { ...response, ...oidcProviderMetaData };
+    }
+
+    public async resolveEndpointsExplicitly(): Promise<OIDCEndpointsInternal> {
+        const oidcProviderMetaData = {};
+        const configData = await this._config();
+
+        const requiredEndpoints = [AUTHORIZATION_ENDPOINT, END_SESSION_ENDPOINT, JWKS_ENDPOINT, 
+            OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, TOKEN_ENDPOINT, ISSUER, USERINFO_ENDPOINT];
+
+        const isRequiredEndpointsContains = configData.endpoints ? 
+                Object.keys(configData?.endpoints).every(
+                    endpointName => {
+                        const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                        return requiredEndpoints.includes(snakeCasedName);
+                    }
+                ) : false;
+
+        if(!isRequiredEndpointsContains) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-REE-NF01",
+                "No required endpoints.",
+                "Required oidc endpoints are not defined"
+            );
+        }
+
+        configData.endpoints &&
+            Object.keys(configData.endpoints).forEach((endpointName: string) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
+                    : "";
+            });
+
+        return { ...oidcProviderMetaData };
+    }
+
+    public async resolveEndpointsByOrganization(): Promise<OIDCEndpointsInternal> {
+        const oidcProviderMetaData = {};
+        const configData = await this._config();
+
+        const environment = configData?.environment ?? SERVER_ENVIRONMENTS.PROD;
+        const organization = (configData as any)?.organization;
+
+        if(!organization) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER_REBO-NF01",
+                "Organization not defined.",
+                "Organization is not defined in AuthClient config."
+            );
+        }
+
+        configData.endpoints &&
+            Object.keys(configData.endpoints).forEach((endpointName: string) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
+                    : "";
+            });
+        
         const defaultEndpoints = {
-            [ AUTHORIZATION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
-            [ END_SESSION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
-            [ JWKS_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
-            [ OIDC_SESSION_IFRAME_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
-            [ REVOKE_TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
-            [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
+            [ AUTHORIZATION_ENDPOINT ]: this.constructServerEndpoint(environment, 
+                organization, SERVICE_RESOURCES.authorizationEndpoint),
+            [ END_SESSION_ENDPOINT ]: this.constructServerEndpoint(environment, 
+                organization ,SERVICE_RESOURCES.endSessionEndpoint),
+            [ ISSUER ]: this.constructServerEndpoint(environment, organization,
+                SERVICE_RESOURCES.issuer),
+            [ JWKS_ENDPOINT ]: this.constructServerEndpoint(environment, organization, 
+                SERVICE_RESOURCES.jwksUri),
+            [ OIDC_SESSION_IFRAME_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
+                SERVICE_RESOURCES.checkSessionIframe),
+            [ REVOKE_TOKEN_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
+                SERVICE_RESOURCES.revocationEndpoint),
+            [ TOKEN_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
+                SERVICE_RESOURCES.tokenEndpoint),
+            [ USERINFO_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
+                SERVICE_RESOURCES.userinfoEndpoint)
         };
 
         return { ...defaultEndpoints, ...oidcProviderMetaData };
+    }
+
+    private constructServerEndpoint(environment: string, organization: string, path?: string): string {
+        return (!environment || environment === SERVER_ENVIRONMENTS.PROD) ?
+            `https://api.asgardeo.io/t/${organization}${path}` : 
+            `https://${environment}.api.asgardeo.io/t/${organization}${path}`;
     }
 
     public async validateIdToken(idToken: string): Promise<boolean> {
@@ -150,18 +203,6 @@ export class AuthenticationHelper<T> {
         }
 
         const issuer = (await this._oidcProviderMetaData()).issuer;
-        const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
-
-        // Throw an error if the issuer in the open id config doesn't match
-        // the issuer in the well known endpoint URL.
-        if (!issuer || issuer !== issuerFromURL) {
-            throw new AsgardeoAuthException(
-                "JS-AUTH_HELPER_VIT-IV04",
-                "Issuer mismatch.",
-                "The issuer in the open id config doesn't match the issuer in the " +
-                "well known endpoint URL and response."
-            );
-        }
 
         const { keys }: { keys: JWKInterface[] } = await response.json();
 
@@ -170,7 +211,7 @@ export class AuthenticationHelper<T> {
             idToken,
             jwk,
             (await this._config()).clientID,
-            issuer,
+            issuer ?? "",
             this._cryptoHelper.decodeIDToken(idToken).sub,
             (await this._config()).clockTolerance
         );
