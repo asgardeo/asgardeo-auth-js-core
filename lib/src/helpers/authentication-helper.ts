@@ -84,18 +84,25 @@ export class AuthenticationHelper<T> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
-        const requiredEndpoints = [AUTHORIZATION_ENDPOINT, END_SESSION_ENDPOINT, JWKS_ENDPOINT, 
-            OIDC_SESSION_IFRAME_ENDPOINT, REVOKE_TOKEN_ENDPOINT, TOKEN_ENDPOINT, ISSUER, USERINFO_ENDPOINT];
+        const requiredEndpoints = [
+            AUTHORIZATION_ENDPOINT,
+            END_SESSION_ENDPOINT,
+            JWKS_ENDPOINT,
+            OIDC_SESSION_IFRAME_ENDPOINT,
+            REVOKE_TOKEN_ENDPOINT,
+            TOKEN_ENDPOINT,
+            ISSUER,
+            USERINFO_ENDPOINT
+        ];
 
-        const isRequiredEndpointsContains = configData.endpoints ? 
-                Object.keys(configData?.endpoints).every(
-                    endpointName => {
-                        const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                        return requiredEndpoints.includes(snakeCasedName);
-                    }
-                ) : false;
+        const isRequiredEndpointsContains = configData.endpoints
+            ? Object.keys(configData?.endpoints).every((endpointName) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                return requiredEndpoints.includes(snakeCasedName);
+            })
+            : false;
 
-        if(!isRequiredEndpointsContains) {
+        if (!isRequiredEndpointsContains) {
             throw new AsgardeoAuthException(
                 "JS-AUTH_HELPER-REE-NF01",
                 "No required endpoints.",
@@ -121,7 +128,7 @@ export class AuthenticationHelper<T> {
         const environment = configData?.environment ?? SERVER_ENVIRONMENTS.PROD;
         const organization = (configData as any)?.organization;
 
-        if(!organization) {
+        if (!organization) {
             throw new AsgardeoAuthException(
                 "JS-AUTH_HELPER_REBO-NF01",
                 "Organization not defined.",
@@ -136,33 +143,51 @@ export class AuthenticationHelper<T> {
                     ? configData.endpoints[ endpointName ]
                     : "";
             });
-        
+
         const defaultEndpoints = {
-            [ AUTHORIZATION_ENDPOINT ]: this.constructServerEndpoint(environment, 
-                organization, SERVICE_RESOURCES.authorizationEndpoint),
-            [ END_SESSION_ENDPOINT ]: this.constructServerEndpoint(environment, 
-                organization ,SERVICE_RESOURCES.endSessionEndpoint),
-            [ ISSUER ]: this.constructServerEndpoint(environment, organization,
-                SERVICE_RESOURCES.issuer),
-            [ JWKS_ENDPOINT ]: this.constructServerEndpoint(environment, organization, 
-                SERVICE_RESOURCES.jwksUri),
-            [ OIDC_SESSION_IFRAME_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
-                SERVICE_RESOURCES.checkSessionIframe),
-            [ REVOKE_TOKEN_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
-                SERVICE_RESOURCES.revocationEndpoint),
-            [ TOKEN_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
-                SERVICE_RESOURCES.tokenEndpoint),
-            [ USERINFO_ENDPOINT ]: this.constructServerEndpoint(environment, organization,
-                SERVICE_RESOURCES.userinfoEndpoint)
+            [ AUTHORIZATION_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.authorizationEndpoint
+            ),
+            [ END_SESSION_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.endSessionEndpoint
+            ),
+            [ ISSUER ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.issuer
+            ),
+            [ JWKS_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.jwksUri
+            ),
+            [ OIDC_SESSION_IFRAME_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.checkSessionIframe
+            ),
+            [ REVOKE_TOKEN_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.revocationEndpoint
+            ),
+            [ TOKEN_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.tokenEndpoint
+            ),
+            [ USERINFO_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
+                environment,
+                organization,
+                SERVICE_RESOURCES.userinfoEndpoint
+            )
         };
 
         return { ...defaultEndpoints, ...oidcProviderMetaData };
-    }
-
-    private constructServerEndpoint(environment: string, organization: string, path?: string): string {
-        return (!environment || environment === SERVER_ENVIRONMENTS.PROD) ?
-            `https://api.asgardeo.io/t/${organization}${path}` : 
-            `https://${environment}.api.asgardeo.io/t/${organization}${path}`;
     }
 
     public async validateIdToken(idToken: string): Promise<boolean> {
@@ -204,7 +229,7 @@ export class AuthenticationHelper<T> {
 
         const issuer = (await this._oidcProviderMetaData()).issuer;
 
-        const { keys }: { keys: JWKInterface[] } = await response.json();
+        const { keys }: { keys: JWKInterface[]; } = await response.json();
 
         const jwk: any = await this._cryptoHelper.getJWKForTheIdToken(idToken.split(".")[ 0 ], keys);
         return this._cryptoHelper.isValidIdToken(
