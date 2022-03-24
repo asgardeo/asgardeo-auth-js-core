@@ -462,15 +462,15 @@ export class AuthenticationCore<T> {
             await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
             return Promise.resolve();
-        } else if ((configData as any).organization) {
+        } else if ((configData as any).baseUrl || (configData as any).serverOrigin) {
             try {
                 await this._dataLayer.setOIDCProviderMetaData(
-                    await this._authenticationHelper.resolveEndpointsByOrganization());
+                    await this._authenticationHelper.resolveEndpointsByBaseURL());
             } catch (error: any) {
                 throw new AsgardeoAuthException(
                     "JS-AUTH_CORE-GOPMD-IV02",
                     "Resolving endpoints failed.",
-                    error ?? "Resolving endpoints by organization failed."
+                    error ?? "Resolving endpoints by base url failed."
                 );
             }
             await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);

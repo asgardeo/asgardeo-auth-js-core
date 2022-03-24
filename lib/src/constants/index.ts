@@ -24,4 +24,3 @@ export * from "./parameters";
 export * from "./scopes";
 export * from "./environments";
 export * from  "./fetch";
-export * from "./server-environments";

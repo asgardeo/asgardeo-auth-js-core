@@ -31,7 +31,6 @@ import {
     PKCE_SEPARATOR,
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
-    SERVER_ENVIRONMENTS,
     SERVICE_RESOURCES,
     TOKEN_ENDPOINT,
     TOKEN_TAG,
@@ -121,18 +120,17 @@ export class AuthenticationHelper<T> {
         return { ...oidcProviderMetaData };
     }
 
-    public async resolveEndpointsByOrganization(): Promise<OIDCEndpointsInternal> {
+    public async resolveEndpointsByBaseURL(): Promise<OIDCEndpointsInternal> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
-        const environment = configData?.environment ?? SERVER_ENVIRONMENTS.PROD;
-        const organization = (configData as any)?.organization;
+        const baseUrl = (configData as any).baseUrl || (configData as any).serverOrigin;
 
-        if (!organization) {
+        if (!baseUrl) {
             throw new AsgardeoAuthException(
                 "JS-AUTH_HELPER_REBO-NF01",
-                "Organization not defined.",
-                "Organization is not defined in AuthClient config."
+                "Base URL not defined.",
+                "Base URL is not defined in AuthClient config."
             );
         }
 
@@ -145,46 +143,14 @@ export class AuthenticationHelper<T> {
             });
 
         const defaultEndpoints = {
-            [ AUTHORIZATION_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.authorizationEndpoint
-            ),
-            [ END_SESSION_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.endSessionEndpoint
-            ),
-            [ ISSUER ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.issuer
-            ),
-            [ JWKS_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.jwksUri
-            ),
-            [ OIDC_SESSION_IFRAME_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.checkSessionIframe
-            ),
-            [ REVOKE_TOKEN_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.revocationEndpoint
-            ),
-            [ TOKEN_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.tokenEndpoint
-            ),
-            [ USERINFO_ENDPOINT ]: AuthenticationUtils.constructServerEndpoint(
-                environment,
-                organization,
-                SERVICE_RESOURCES.userinfoEndpoint
-            )
+            [ AUTHORIZATION_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.authorizationEndpoint}`,
+            [ END_SESSION_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.endSessionEndpoint}`,
+            [ ISSUER ]: `${baseUrl}${SERVICE_RESOURCES.issuer}`,
+            [ JWKS_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.jwksUri}`,
+            [ OIDC_SESSION_IFRAME_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.checkSessionIframe}`,
+            [ REVOKE_TOKEN_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.revocationEndpoint}`,
+            [ TOKEN_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.tokenEndpoint}`,
+            [ USERINFO_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.userinfoEndpoint}`
         };
 
         return { ...defaultEndpoints, ...oidcProviderMetaData };

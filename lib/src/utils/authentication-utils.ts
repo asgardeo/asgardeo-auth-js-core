@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { PKCE_CODE_VERIFIER, PKCE_SEPARATOR, SERVER_ENVIRONMENTS } from "../constants";
+import { PKCE_CODE_VERIFIER, PKCE_SEPARATOR } from "../constants";
 import { DecodedIDTokenPayload } from "../models";
 
 export class AuthenticationUtils {
@@ -101,11 +101,5 @@ export class AuthenticationUtils {
         const index: number = parseInt(stateParam.split("request_")[1]);
 
         return `${PKCE_CODE_VERIFIER}${PKCE_SEPARATOR}${index}`;
-    }
-
-    public static constructServerEndpoint(environment: string, organization: string, path?: string): string {
-        return !environment || environment === SERVER_ENVIRONMENTS.PROD
-            ? `https://api.asgardeo.io/t/${organization}${path}`
-            : `https://${environment}.api.asgardeo.io/t/${organization}${path}`;
     }
 }
