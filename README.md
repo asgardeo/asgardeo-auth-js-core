@@ -989,7 +989,7 @@ This model has the following attributes.
 |`scope`|Optional| `string[]`|`["openid"]`|Specifies the requested scopes.|
 |`baseUrl`|Required (If `wellKnownEndpoint` or `endpoints` is not provided)| `string`|""|The origin of the Identity Provider. eg: https://api.asgardeo.io/t/<org_name>.|
 |`endpoints`|Optional (Required to provide all endpoints, if `wellKnownEndpoint` or `baseUrl` is not provided)| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS |using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be |used.
-|`wellKnownEndpoint`|Optional (Required if `baseUrl` or `endpoints` are not provided)| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
+|`wellKnownEndpoint`|Optional (Required if `baseUrl` or `endpoints` is not provided)| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
 |`validateIDToken`|Optional| `boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
 |`clockTolerance`|Optional| `number`|`60`|Allows you to configure the leeway when validating the id_token.|
 |`sendCookiesInRequests`|Optional| `boolean`|`true`|Specifies if cookies should be sent in the requests.|
