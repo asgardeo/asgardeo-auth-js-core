@@ -31,6 +31,10 @@ export interface StrictAuthClientConfig {
     scope?: string[];
     serverOrigin: string;
     endpoints?: OIDCEndpoints;
+    /**
+     * The allow explicitly override oidc endpoints.
+     * @deprecated This will be removed in the next version bump 2.x.x.
+     */
     overrideWellEndpointConfig?: boolean;
     wellKnownEndpoint?: string;
     validateIDToken?: boolean;
