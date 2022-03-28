@@ -259,14 +259,15 @@ export interface OIDCEndpointsInternal {
     issuer?: string;
 }
 export interface OIDCEndpoints {
-    authorizationEndpoint: string;
-    tokenEndpoint: string;
-    userinfoEndpoint: string;
-    jwksUri: string;
+    authorizationEndpoint?: string;
+    tokenEndpoint?: string;
+    userinfoEndpoint?: string;
+    jwksUri?: string;
     registrationEndpoint?: string;
-    revocationEndpoint: string;
+    revocationEndpoint?: string;
     introspectionEndpoint?: string;
-    checkSessionIframe: string;
-    endSessionEndpoint: string;
-    issuer: string;
+    checkSessionIframe?: string;
+    endSessionEndpoint?: string;
+    issuer?: string;
+    wellKnownEndpoint?: string;
 }

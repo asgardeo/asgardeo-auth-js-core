@@ -16,13 +16,7 @@
  * under the License.
  */
 
-import {
-    OIDC_SCOPE,
-    OP_CONFIG_INITIATED,
-    ResponseMode,
-    SIGN_OUT_SUCCESS_PARAM,
-    STATE
-} from "./constants";
+import { OIDC_SCOPE, OP_CONFIG_INITIATED, ResponseMode, SIGN_OUT_SUCCESS_PARAM, STATE } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
 import {
@@ -47,6 +41,7 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     responseMode: ResponseMode.query,
     scope: [OIDC_SCOPE],
     sendCookiesInRequests: true,
+    sendWellKnownEndpointRequest: true,
     validateIDToken: true
 };
 
