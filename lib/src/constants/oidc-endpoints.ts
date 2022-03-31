@@ -27,7 +27,7 @@ export const SERVICE_RESOURCES: OIDCEndpoints  = {
     tokenEndpoint: "/oauth2/token",
     /**
      * The well known endpoint path.
-     * @deprecated this will be removed in the next version bump 2.x.x as this is already defined in the root config.
+     * @deprecated This will be removed in the next version bump 2.0.o as this is already defined in config.wellKnownEndpoint.
      */
     wellKnownEndpoint: "/oauth2/token/.well-known/openid-configuration"
 };
