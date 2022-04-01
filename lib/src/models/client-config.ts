@@ -31,6 +31,11 @@ export interface DefaultAuthClientConfig {
   scope?: string[];
   validateIDToken?: boolean;
   /**
+   * The allow explicitly override oidc endpoints.
+   * @deprecated This will be removed in the next version bump 2.x.x.
+   */
+  overrideWellEndpointConfig?: boolean;
+  /**
   * Allowed leeway for id_tokens (in seconds).
   */
   clockTolerance?: number;

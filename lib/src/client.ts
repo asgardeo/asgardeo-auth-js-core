@@ -47,7 +47,6 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
     responseMode: ResponseMode.query,
     scope: [OIDC_SCOPE],
     sendCookiesInRequests: true,
-    sendWellKnownEndpointRequest: true,
     validateIDToken: true
 };
 

@@ -73,10 +73,10 @@ export class AuthenticationHelper<T> {
         const baseUrl = (configData as any).baseUrl || (configData as any).serverOrigin;
 
         if (wellKnownEndpoint) {
-            return baseUrl + configData.wellKnownEndpoint || SERVICE_RESOURCES.wellKnownEndpoint;
+            return wellKnownEndpoint;
+        } else {
+            return baseUrl + SERVICE_RESOURCES.wellKnownEndpoint;
         }
-
-        return baseUrl + SERVICE_RESOURCES.wellKnownEndpoint;
     }
 
     public async resolveEndpoints(response: OIDCProviderMetaData): Promise<OIDCProviderMetaData> {
@@ -168,30 +168,6 @@ export class AuthenticationHelper<T> {
             [ REVOKE_TOKEN_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.revocationEndpoint}`,
             [ TOKEN_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.tokenEndpoint}`,
             [ USERINFO_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.userinfoEndpoint}`
-        };
-
-        return { ...defaultEndpoints, ...oidcProviderMetaData };
-    }
-
-    public async resolveFallbackEndpoints(): Promise<OIDCEndpointsInternal> {
-        const oidcProviderMetaData = {};
-        const configData = await this._config();
-
-        configData.endpoints &&
-            Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
-                    ? configData.endpoints[ endpointName ]
-                    : "";
-            });
-
-        const defaultEndpoints = {
-            [ AUTHORIZATION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
-            [ END_SESSION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
-            [ JWKS_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
-            [ OIDC_SESSION_IFRAME_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
-            [ REVOKE_TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
-            [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
         };
 
         return { ...defaultEndpoints, ...oidcProviderMetaData };

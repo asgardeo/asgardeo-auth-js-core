@@ -259,15 +259,20 @@ export interface OIDCEndpointsInternal {
     issuer?: string;
 }
 export interface OIDCEndpoints {
-    authorizationEndpoint?: string;
-    tokenEndpoint?: string;
-    userinfoEndpoint?: string;
-    jwksUri?: string;
+    authorizationEndpoint: string;
+    tokenEndpoint: string;
+    userinfoEndpoint: string;
+    jwksUri: string;
     registrationEndpoint?: string;
-    revocationEndpoint?: string;
+    revocationEndpoint: string;
     introspectionEndpoint?: string;
-    checkSessionIframe?: string;
-    endSessionEndpoint?: string;
-    issuer?: string;
+    checkSessionIframe: string;
+    endSessionEndpoint: string;
+    issuer: string;
+    /**
+     * The well known endpoint path.
+     * @deprecated This will be removed in the next version bump 2.0.0 
+     * as this is already defined in config.wellKnownEndpoint.
+     */
     wellKnownEndpoint?: string;
 }

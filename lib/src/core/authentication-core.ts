@@ -589,7 +589,7 @@ export class AuthenticationCore<T> {
     public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
         await this._dataLayer.setConfigData(config);
 
-        if (config.overrideWellEndpointConfig) {
+        if ((config as any).overrideWellEndpointConfig) {
             config?.endpoints &&
                 (await this._dataLayer.setOIDCProviderMetaData(await this._authenticationHelper.resolveEndpoints({})));
         } else if (config?.endpoints) {
