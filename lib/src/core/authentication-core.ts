@@ -438,8 +438,7 @@ export class AuthenticationCore<T> {
             return Promise.resolve();
         }
 
-        const wellKnownEndpoint = (configData as any).wellKnownEndpoint || 
-            configData?.endpoints?.wellKnownEndpoint;
+        const wellKnownEndpoint = (configData as any).wellKnownEndpoint;
 
         if (wellKnownEndpoint) {
 
@@ -464,7 +463,7 @@ export class AuthenticationCore<T> {
             await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
             return Promise.resolve();
-        } else if ((configData as any).baseUrl || (configData as any).serverOrigin) {
+        } else if ((configData as any).baseUrl) {
             try {
                 await this._dataLayer.setOIDCProviderMetaData(
                     await this._authenticationHelper.resolveEndpointsByBaseURL());
@@ -508,8 +507,7 @@ export class AuthenticationCore<T> {
             registrationEndpoint: oidcProviderMetaData.registration_endpoint ?? "",
             revocationEndpoint: oidcProviderMetaData.revocation_endpoint ?? "",
             tokenEndpoint: oidcProviderMetaData.token_endpoint ?? "",
-            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint ?? "",
-            wellKnownEndpoint: await this._authenticationHelper.resolveWellKnownEndpoint()
+            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint ?? ""
         };
     }
 
@@ -588,12 +586,6 @@ export class AuthenticationCore<T> {
 
     public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
         await this._dataLayer.setConfigData(config);
-
-        if ((config as any).overrideWellEndpointConfig) {
-            config?.endpoints &&
-                (await this._dataLayer.setOIDCProviderMetaData(await this._authenticationHelper.resolveEndpoints({})));
-        } else if (config?.endpoints) {
-            await this.getOIDCProviderMetaData(true);
-        }
+        await this.getOIDCProviderMetaData(true);
     }
 }

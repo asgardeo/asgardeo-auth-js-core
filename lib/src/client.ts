@@ -96,7 +96,7 @@ export class AsgardeoAuthClient<T> {
      * const config = {
      *     signInRedirectURL: "http://localhost:3000/sign-in",
      *     clientID: "client ID",
-     *     serverOrigin: "https://localhost:9443"
+     *     baseUrl: "https://localhost:9443"
      * }
      *
      * await auth.initialize(config);
@@ -604,7 +604,7 @@ export class AsgardeoAuthClient<T> {
      * const config = {
      *     signInRedirectURL: "http://localhost:3000/sign-in",
      *     clientID: "client ID",
-     *     serverOrigin: "https://localhost:9443"
+     *     baseUrl: "https://localhost:9443"
      * }
      *
      * await auth.updateConfig(config);

@@ -26,13 +26,7 @@ export const SERVICE_RESOURCES: OIDCEndpoints  = {
     jwksUri: "/oauth2/jwks",
     revocationEndpoint: "/oauth2/revoke",
     tokenEndpoint: "/oauth2/token",
-    userinfoEndpoint: "/oauth2/userinfo",
-    /**
-     * The well known endpoint path.
-     * @deprecated This will be removed in the next version bump 2.0.0 
-     * as this is already defined in config.wellKnownEndpoint.
-     */
-    wellKnownEndpoint: "/oauth2/token/.well-known/openid-configuration"
+    userinfoEndpoint: "/oauth2/userinfo"
 };
 
 export const AUTHORIZATION_ENDPOINT = "authorization_endpoint";
