@@ -269,4 +269,10 @@ export interface OIDCEndpoints {
     checkSessionIframe: string;
     endSessionEndpoint: string;
     issuer: string;
+    /**
+     * The well known endpoint path.
+     * @deprecated This will be removed in the next version bump 2.0.0 
+     * as this is already defined in config.wellKnownEndpoint.
+     */
+    wellKnownEndpoint?: string;
 }

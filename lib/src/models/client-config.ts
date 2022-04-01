@@ -31,14 +31,19 @@ export interface DefaultAuthClientConfig {
   scope?: string[];
   validateIDToken?: boolean;
   /**
-   * Allowed leeway for id_tokens (in seconds).
+   * The allow explicitly override oidc endpoints.
+   * @deprecated This will be removed in the next version bump 2.0.0.
    */
+  overrideWellEndpointConfig?: boolean;
+  /**
+  * Allowed leeway for id_tokens (in seconds).
+  */
   clockTolerance?: number;
   /**
-   * Specifies if cookies should be sent with access-token requests, refresh-token requests,
-   * custom-grant requests, etc.
-   *
-   */
+  * Specifies if cookies should be sent with access-token requests, refresh-token requests,
+  * custom-grant requests, etc.
+  *
+  */
   sendCookiesInRequests?: boolean;
 }
 
@@ -49,9 +54,9 @@ export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
 
 export interface ServerOriginAuthClientConfig extends DefaultAuthClientConfig {
   /**
-   * The asgardeo root domain url with the organization.
-   * @deprecated Use `baseUrl` instead, this will be removed in the next version bump 2.x.x.
-   */
+  * The asgardeo root domain url with the organization.
+  * @deprecated Use `baseUrl` instead, this will be removed in the next version bump 2.0.0.
+  */
   serverOrigin: string;
   endpoints?: Partial<OIDCEndpoints>;
 }
