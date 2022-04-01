@@ -393,7 +393,7 @@ export class AuthenticationCore<T> {
         if (customGrantParams.returnsSession) {
             return this._authenticationHelper.handleTokenResponse(response, userID);
         } else {
-            return Promise.resolve(response);
+            return Promise.resolve(await response.json());
         }
     }
 
@@ -438,48 +438,77 @@ export class AuthenticationCore<T> {
             return Promise.resolve();
         }
 
-        const wellKnownEndpoint = await this._authenticationHelper.resolveWellKnownEndpoint();
+        const wellKnownEndpoint = (configData as any).wellKnownEndpoint || 
+            configData?.endpoints?.wellKnownEndpoint;
 
-        let response: Response;
+        if (wellKnownEndpoint) {
 
-        try {
-            if (!configData?.sendWellKnownEndpointRequest) {
-                throw new Error();
+            let response: Response;
+
+            try {
+                response = await fetch(wellKnownEndpoint);
+                if (response.status !== 200 || !response.ok) {
+                    throw new Error();
+                }
+            } catch {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-HE01",
+                    "Invalid well-known response",
+                    "The well known endpoint response has been failed with an error."
+                );
             }
 
-            response = await fetch(wellKnownEndpoint);
-            if (response.status !== 200 || !response.ok) {
-                throw new Error();
-            }
-        } catch {
-            await this._dataLayer.setOIDCProviderMetaData(await this._authenticationHelper.resolveFallbackEndpoints());
+            await this._dataLayer.setOIDCProviderMetaData(
+                await this._authenticationHelper.resolveEndpoints(await response.json())
+            );
             await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
             return Promise.resolve();
+        } else if ((configData as any).baseUrl || (configData as any).serverOrigin) {
+            try {
+                await this._dataLayer.setOIDCProviderMetaData(
+                    await this._authenticationHelper.resolveEndpointsByBaseURL());
+            } catch (error: any) {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-IV02",
+                    "Resolving endpoints failed.",
+                    error ?? "Resolving endpoints by base url failed."
+                );
+            }
+            await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+
+            return Promise.resolve();
+        }  else {
+            try {
+                await this._dataLayer.setOIDCProviderMetaData(
+                    await this._authenticationHelper.resolveEndpointsExplicitly());
+            } catch (error: any) {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-IV03",
+                    "Resolving endpoints failed.",
+                    error ?? "Resolving endpoints by explicitly failed."
+                );
+            }
+            await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+            
+            return Promise.resolve();
         }
-
-        await this._dataLayer.setOIDCProviderMetaData(
-            await this._authenticationHelper.resolveEndpoints(await response.json())
-        );
-        await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
-
-        return Promise.resolve();
     }
 
     public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
         const oidcProviderMetaData = await this._oidcProviderMetaData();
 
         return {
-            authorizationEndpoint: oidcProviderMetaData.authorization_endpoint,
-            checkSessionIframe: oidcProviderMetaData.check_session_iframe,
-            endSessionEndpoint: oidcProviderMetaData.end_session_endpoint,
-            introspectionEndpoint: oidcProviderMetaData.introspection_endpoint,
-            issuer: oidcProviderMetaData.issuer,
-            jwksUri: oidcProviderMetaData.jwks_uri,
-            registrationEndpoint: oidcProviderMetaData.registration_endpoint,
-            revocationEndpoint: oidcProviderMetaData.revocation_endpoint,
-            tokenEndpoint: oidcProviderMetaData.token_endpoint,
-            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint,
+            authorizationEndpoint: oidcProviderMetaData.authorization_endpoint ?? "",
+            checkSessionIframe: oidcProviderMetaData.check_session_iframe ?? "",
+            endSessionEndpoint: oidcProviderMetaData.end_session_endpoint ?? "",
+            introspectionEndpoint: oidcProviderMetaData.introspection_endpoint ?? "",
+            issuer: oidcProviderMetaData.issuer ?? "",
+            jwksUri: oidcProviderMetaData.jwks_uri ?? "",
+            registrationEndpoint: oidcProviderMetaData.registration_endpoint ?? "",
+            revocationEndpoint: oidcProviderMetaData.revocation_endpoint ?? "",
+            tokenEndpoint: oidcProviderMetaData.token_endpoint ?? "",
+            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint ?? "",
             wellKnownEndpoint: await this._authenticationHelper.resolveWellKnownEndpoint()
         };
     }

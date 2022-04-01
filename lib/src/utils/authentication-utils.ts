@@ -21,7 +21,7 @@ import { DecodedIDTokenPayload } from "../models";
 
 export class AuthenticationUtils {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private constructor() { }
+    private constructor() {}
 
     public static filterClaimsFromIDTokenPayload(payload: DecodedIDTokenPayload): any {
         const optionalizedPayload: Partial<DecodedIDTokenPayload> = { ...payload };
@@ -42,7 +42,7 @@ export class AuthenticationUtils {
         delete optionalizedPayload?.sid;
 
         const camelCasedPayload = {};
-        Object.entries(optionalizedPayload).forEach(([ key, value ]) => {
+        Object.entries(optionalizedPayload).forEach(([key, value]) => {
             const keyParts = key.split("_");
             const camelCasedKey = keyParts
                 .map((key: string, index: number) => {
@@ -50,16 +50,19 @@ export class AuthenticationUtils {
                         return key;
                     }
 
-                    return [ key[ 0 ].toUpperCase(), ...key.slice(1) ].join("");
+                    return [key[0].toUpperCase(), ...key.slice(1)].join("");
                 })
                 .join("");
 
-            camelCasedPayload[ camelCasedKey ] = value;
+            camelCasedPayload[camelCasedKey] = value;
         });
 
         return camelCasedPayload;
     }
 
+    /**
+     * @deprecated since v1.0.6 and will be removed with the v2.0.0 release.
+     */
     public static getTenantDomainFromIdTokenPayload = (
         payload: DecodedIDTokenPayload,
         uidSeparator: string = "@"
@@ -70,7 +73,7 @@ export class AuthenticationUtils {
 
         // This works only when the email is used as the username
         // and the tenant domain is appended to the`sub` attribute.
-        return tokens.length > 2 ? tokens[ tokens.length - 1 ] : "";
+        return tokens.length > 2 ? tokens[tokens.length - 1] : "";
     };
 
     public static getTokenRequestHeaders(): HeadersInit {
@@ -89,14 +92,14 @@ export class AuthenticationUtils {
      * @returns {string} The state param value.
      */
     public static generateStateParamForRequestCorrelation(pkceKey: string, state?: string): string {
-        const index: number = parseInt(pkceKey.split(PKCE_SEPARATOR)[ 1 ]);
+        const index: number = parseInt(pkceKey.split(PKCE_SEPARATOR)[1]);
 
-        return state ? `${ state }_request_${ index }` : `request_${ index }`;
+        return state ? `${state}_request_${index}` : `request_${index}`;
     }
 
     public static extractPKCEKeyFromStateParam(stateParam: string): string {
-        const index: number = parseInt(stateParam.split("request_")[ 1 ]);
+        const index: number = parseInt(stateParam.split("request_")[1]);
 
-        return `${ PKCE_CODE_VERIFIER }${ PKCE_SEPARATOR }${ index }`;
+        return `${PKCE_CODE_VERIFIER}${PKCE_SEPARATOR}${index}`;
     }
 }
