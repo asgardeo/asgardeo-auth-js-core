@@ -31,11 +31,6 @@ export interface DefaultAuthClientConfig {
   scope?: string[];
   validateIDToken?: boolean;
   /**
-   * The allow explicitly override oidc endpoints.
-   * @deprecated This will be removed in the next version bump 2.0.0.
-   */
-  overrideWellEndpointConfig?: boolean;
-  /**
   * Allowed leeway for id_tokens (in seconds).
   */
   clockTolerance?: number;
@@ -52,15 +47,6 @@ export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
   endpoints?: Partial<OIDCEndpoints>;
 }
 
-export interface ServerOriginAuthClientConfig extends DefaultAuthClientConfig {
-  /**
-  * The asgardeo root domain url with the organization.
-  * @deprecated Use `baseUrl` instead, this will be removed in the next version bump 2.0.0.
-  */
-  serverOrigin: string;
-  endpoints?: Partial<OIDCEndpoints>;
-}
-
 export interface BaseURLAuthClientConfig extends DefaultAuthClientConfig {
   baseUrl: string;
   endpoints?: Partial<OIDCEndpoints>;
@@ -72,7 +58,7 @@ export interface ExplicitAuthClientConfig extends DefaultAuthClientConfig {
 
 export type StrictAuthClientConfig =
   | WellKnownAuthClientConfig
-  | (ServerOriginAuthClientConfig | BaseURLAuthClientConfig)
+  | BaseURLAuthClientConfig
   | ExplicitAuthClientConfig;
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;

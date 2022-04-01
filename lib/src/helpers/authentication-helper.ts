@@ -64,34 +64,17 @@ export class AuthenticationHelper<T> {
         this._cryptoHelper = cryptoHelper;
     }
 
-    public async resolveWellKnownEndpoint(): Promise<string> {
-        const configData = await this._config();
-
-        const wellKnownEndpoint = (configData as any).wellKnownEndpoint || 
-            configData?.endpoints?.wellKnownEndpoint;
-
-        const baseUrl = (configData as any).baseUrl || (configData as any).serverOrigin;
-
-        if (wellKnownEndpoint) {
-            return wellKnownEndpoint;
-        } else {
-            return baseUrl + SERVICE_RESOURCES.wellKnownEndpoint;
-        }
-    }
-
     public async resolveEndpoints(response: OIDCProviderMetaData): Promise<OIDCProviderMetaData> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
-        if (configData.overrideWellEndpointConfig) {
-            configData.endpoints &&
-                Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                    oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
-                        ? configData.endpoints[ endpointName ]
-                        : "";
-                });
-        }
+        configData.endpoints &&
+            Object.keys(configData.endpoints).forEach((endpointName: string) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
+                    : "";
+            });
 
         return { ...response, ...oidcProviderMetaData };
     }
@@ -141,7 +124,7 @@ export class AuthenticationHelper<T> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
-        const baseUrl = (configData as any).baseUrl || (configData as any).serverOrigin;
+        const baseUrl = (configData as any).baseUrl;
 
         if (!baseUrl) {
             throw new AsgardeoAuthException(
