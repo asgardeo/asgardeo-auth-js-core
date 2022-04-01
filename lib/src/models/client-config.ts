@@ -55,7 +55,7 @@ export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
 export interface ServerOriginAuthClientConfig extends DefaultAuthClientConfig {
   /**
   * The asgardeo root domain url with the organization.
-  * @deprecated Use `baseUrl` instead, this will be removed in the next version bump 2.x.x.
+  * @deprecated Use `baseUrl` instead, this will be removed in the next version bump 2.0.0.
   */
   serverOrigin: string;
   endpoints?: Partial<OIDCEndpoints>;
