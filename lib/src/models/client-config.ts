@@ -32,7 +32,7 @@ export interface DefaultAuthClientConfig {
   validateIDToken?: boolean;
   /**
    * The allow explicitly override oidc endpoints.
-   * @deprecated This will be removed in the next version bump 2.x.x.
+   * @deprecated This will be removed in the next version bump 2.0.0.
    */
   overrideWellEndpointConfig?: boolean;
   /**
