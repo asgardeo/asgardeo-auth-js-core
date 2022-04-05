@@ -45,6 +45,7 @@ export interface DefaultAuthClientConfig {
 export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
   wellKnownEndpoint: string;
   endpoints?: Partial<OIDCEndpoints>;
+  baseUrl?: string;
 }
 
 export interface BaseURLAuthClientConfig extends DefaultAuthClientConfig {
