@@ -51,10 +51,13 @@ export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
 export interface BaseURLAuthClientConfig extends DefaultAuthClientConfig {
   baseUrl: string;
   endpoints?: Partial<OIDCEndpoints>;
+  wellKnownEndpoint?: string;
 }
 
 export interface ExplicitAuthClientConfig extends DefaultAuthClientConfig {
   endpoints: OIDCEndpoints;
+  baseUrl?: string;
+  wellKnownEndpoint?: string;
 }
 
 export type StrictAuthClientConfig =
