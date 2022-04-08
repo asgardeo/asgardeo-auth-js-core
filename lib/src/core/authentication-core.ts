@@ -20,12 +20,12 @@ import {
     FetchCredentialTypes,
     OIDC_SCOPE,
     OP_CONFIG_INITIATED,
-    PKCE_CODE_VERIFIER,
     SESSION_STATE,
-    SIGN_OUT_SUCCESS_PARAM
+    SIGN_OUT_SUCCESS_PARAM,
+    STATE
 } from "../constants";
 import { DataLayer } from "../data";
-import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
+import { AsgardeoAuthException } from "../exception";
 import { AuthenticationHelper, CryptoHelper } from "../helpers";
 import {
     AuthClientConfig,
@@ -34,13 +34,10 @@ import {
     CryptoUtils,
     CustomGrantConfig,
     DecodedIDTokenPayload,
-    FetchError,
     FetchRequestConfig,
     FetchResponse,
     OIDCEndpoints,
     OIDCProviderMetaData,
-    OIDCProviderMetaDataResponse,
-    PKCECode,
     TokenResponse
 } from "../models";
 import { AuthenticationUtils } from "../utils";
@@ -62,7 +59,7 @@ export class AuthenticationCore<T> {
         this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public async getAuthorizationURL(sessionId:string, config?: AuthorizationURLParams): Promise<string> {
+    public async getAuthorizationURL(config?: AuthorizationURLParams, userID?: string): Promise<string> {
         const authorizeEndpoint = (await this._dataLayer.getOIDCProviderMetaDataParameter(
             AUTHORIZATION_ENDPOINT
         )) as string;
@@ -71,9 +68,7 @@ export class AuthenticationCore<T> {
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
-                "AUTH_CORE-GAU-NF01",
-                "authentication-core",
-                "getAuthorizationURL",
+                "JS-AUTH_CORE-GAU-NF01",
                 "No authorization endpoint found.",
                 "No authorization endpoint was found in the OIDC provider meta data from the well-known endpoint " +
                 "or the authorization endpoint passed to the SDK is empty."
@@ -101,33 +96,15 @@ export class AuthenticationCore<T> {
             authorizeRequest.searchParams.append("response_mode", configData.responseMode);
         }
 
+        const pkceKey: string = await this._authenticationHelper.generatePKCEKey(userID);
+
         if (configData.enablePKCE) {
-            //See if the PKCE code is already stored against the session ID
-            const exsitingCodeVerifier = await this._dataLayer.getPKCECode(sessionId);
-            //If not, create a new PKCE and store in the session
-            if (!exsitingCodeVerifier) {
-                const codeVerifier = this._cryptoHelper?.getCodeVerifier();
-                const codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
-                //Get the existing code array
-                const PKCEArray = JSON.parse(await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)
-                    .toString());
-                //Append the new session
-                PKCEArray.push({
-                    PKCE: codeVerifier,
-                    sessionId: sessionId //It is mandatory to send in a session ID with every function call?
-                });
-                //Store back the stringified session array
-                await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, JSON.stringify(PKCEArray));
-                authorizeRequest.searchParams.append("code_challenge_method", "S256");
-                authorizeRequest.searchParams.append("code_challenge", codeChallenge);
-            } else {
-                //Vaidate the session ID
-                if (exsitingCodeVerifier.sessionId === sessionId) {
-                    const codeChallenge = this._cryptoHelper?.getCodeChallenge(exsitingCodeVerifier.PKCE);
-                    authorizeRequest.searchParams.append("code_challenge_method", "S256");
-                    authorizeRequest.searchParams.append("code_challenge", codeChallenge);
-                }
-            }
+            const codeVerifier = this._cryptoHelper?.getCodeVerifier();
+            const codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
+
+            await this._dataLayer.setTemporaryDataParameter(pkceKey, codeVerifier, userID);
+            authorizeRequest.searchParams.append("code_challenge_method", "S256");
+            authorizeRequest.searchParams.append("code_challenge", codeChallenge);
         }
 
         if (configData.prompt) {
@@ -137,34 +114,42 @@ export class AuthenticationCore<T> {
         const customParams = config;
         if (customParams) {
             for (const [ key, value ] of Object.entries(customParams)) {
-                if (key != "" && value != "") {
+                if (key != "" && value != "" && key !== STATE) {
                     authorizeRequest.searchParams.append(key, value.toString());
                 }
             }
         }
 
+        authorizeRequest.searchParams.append(
+            STATE,
+            AuthenticationUtils.generateStateParamForRequestCorrelation(
+                pkceKey,
+                customParams ? customParams[ STATE ]?.toString() : ""
+            )
+        );
+
         return authorizeRequest.toString();
     }
 
-    public async requestAccessToken(authorizationCode: string, sessionState: string, sessionId: string)
-        : Promise<TokenResponse> {
+    public async requestAccessToken(
+        authorizationCode: string,
+        sessionState: string,
+        state: string,
+        userID?: string
+    ): Promise<TokenResponse> {
         const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
         const configData = await this._config();
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_CORE-RAT1-NF01",
-                    "authentication-core",
-                    "requestAccessToken",
-                    "Token endpoint not found.",
-                    "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                    "or the token endpoint passed to the SDK is empty."
-                )
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT1-NF01",
+                "Token endpoint not found.",
+                "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                "or the token endpoint passed to the SDK is empty."
             );
         }
 
-        sessionState && await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState);
+        sessionState && (await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState, userID));
 
         const body: string[] = [];
         body.push(`client_id=${ configData.clientID }`);
@@ -180,81 +165,68 @@ export class AuthenticationCore<T> {
         body.push(`redirect_uri=${ configData.signInRedirectURL }`);
 
         if (configData.enablePKCE) {
-            body.push(`code_verifier=${ await this._dataLayer.getPKCECode(sessionId) }`);
-            //TODO: Why removing?
-            await this._dataLayer.removeTemporaryDataParameter(PKCE_CODE_VERIFIER);
+            body.push(
+                `code_verifier=${ await this._dataLayer.getTemporaryDataParameter(
+                    AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+                    userID
+                ) }`
+            );
+
+            await this._dataLayer.removeTemporaryDataParameter(
+                AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+                userID
+            );
         }
 
-        return fetch(tokenEndpoint, {
-            body: body.join("&"),
-            credentials: configData.sendCookiesInRequests
-                ? FetchCredentialTypes.Include
-                : FetchCredentialTypes.SameOrigin,
-            headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
-            method: "POST"
-        })
-            .then((response) => {
-                return this._authenticationHelper
-                    .handleTokenResponse(response)
-                    .then((response: TokenResponse) => response)
-                    .catch((error) => {
-                        return Promise.reject(
-                            new AsgardeoAuthException(
-                                "AUTH_CORE-RAT1-ES02",
-                                "authentication-core",
-                                "requestAccessToken",
-                                undefined,
-                                undefined,
-                                error
-                            )
-                        );
-                    });
-            })
-            .catch((error: FetchError) => {
-                return Promise.reject(
-                    new AsgardeoAuthNetworkException(
-                        "AUTH_CORE-RAT1-NR03",
-                        "authentication-core",
-                        "requestAccessToken",
-                        "Requesting access token failed",
-                        "The request to get the access token from the server failed.",
-                        error?.code ?? "",
-                        error?.message,
-                        error?.response?.status,
-                        error?.response?.body
-                    )
-                );
+        let tokenResponse: Response;
+        try {
+            tokenResponse = await fetch(tokenEndpoint, {
+                body: body.join("&"),
+                credentials: configData.sendCookiesInRequests
+                    ? FetchCredentialTypes.Include
+                    : FetchCredentialTypes.SameOrigin,
+                headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
+                method: "POST"
             });
+        } catch (error: any) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT1-NE02",
+                "Requesting access token failed",
+                error ?? "The request to get the access token from the server failed."
+            );
+        }
+
+        if (!tokenResponse.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT1-HE03",
+                `Requesting access token failed with ${tokenResponse.statusText}`,
+                await tokenResponse.json()
+            );
+        }
+
+        return await this._authenticationHelper.handleTokenResponse(tokenResponse, userID);
     }
 
-    public async refreshAccessToken(): Promise<TokenResponse> {
+    public async refreshAccessToken(userID?: string): Promise<TokenResponse> {
         const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
         const configData = await this._config();
-        const sessionData = await this._dataLayer.getSessionData();
+        const sessionData = await this._dataLayer.getSessionData(userID);
 
         if (!sessionData.refresh_token) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_CORE-RAT2-NF01",
-                    "authentication-core",
-                    "refreshAccessToken",
-                    "No refresh token found.",
-                    "There was no refresh token found. Asgardeo doesn't return a " +
-                    "refresh token if the refresh token grant is not enabled."
-                )
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT2-NF01",
+                "No refresh token found.",
+                "There was no refresh token found. Asgardeo doesn't return a " +
+                "refresh token if the refresh token grant is not enabled."
             );
         }
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_CORE-RAT2-NF02",
-                    "authentication-core",
-                    "refreshAccessToken",
-                    "No refresh token endpoint found.",
-                    "No refresh token endpoint was in the OIDC provider meta data returned by the well-known " +
-                    "endpoint or the refresh token endpoint passed to the SDK is empty."
-                )
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT2-NF02",
+                "No refresh token endpoint found.",
+                "No refresh token endpoint was in the OIDC provider meta data returned by the well-known " +
+                "endpoint or the refresh token endpoint passed to the SDK is empty."
             );
         }
 
@@ -267,115 +239,89 @@ export class AuthenticationCore<T> {
             body.push(`client_secret=${ configData.clientSecret }`);
         }
 
-        return fetch(tokenEndpoint, {
-            body: body.join("&"),
-            credentials: configData.sendCookiesInRequests
-            ? FetchCredentialTypes.Include
-            : FetchCredentialTypes.SameOrigin,
-            headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
-            method: "POST"
-        })
-            .then((response) => {
-                return this._authenticationHelper
-                    .handleTokenResponse(response)
-                    .then((response: TokenResponse) => response)
-                    .catch((error) => {
-                        return Promise.reject(
-                            new AsgardeoAuthException(
-                                "AUTH_CORE-RAT2-ES03",
-                                "authentication-core",
-                                "refreshAccessToken",
-                                undefined,
-                                undefined,
-                                error
-                            )
-                        );
-                    });
-            })
-            .catch((error: FetchError) => {
-                return Promise.reject(
-                    new AsgardeoAuthNetworkException(
-                        "AUTH_CORE-RAT2-NR03",
-                        "authentication-core",
-                        "refreshAccessToken",
-                        "Refresh access token request failed.",
-                        "The request to refresh the access token failed.",
-                        error?.code ?? "",
-                        error?.message,
-                        error?.response?.status,
-                        error?.response?.body
-                    )
-                );
+        let tokenResponse: Response;
+
+        try {
+            tokenResponse = await fetch(tokenEndpoint, {
+                body: body.join("&"),
+                credentials: configData.sendCookiesInRequests
+                    ? FetchCredentialTypes.Include
+                    : FetchCredentialTypes.SameOrigin,
+                headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
+                method: "POST"
             });
+        } catch (error: any) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT2-NR03",
+                "Refresh access token request failed.",
+                error ?? "The request to refresh the access token failed."
+            );
+        }
+
+        if (!tokenResponse.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT2-HE04",
+                `Refreshing access token failed with ${tokenResponse.statusText}`,
+                await tokenResponse.json()
+            );
+        }
+
+        return this._authenticationHelper.handleTokenResponse(tokenResponse, userID);
     }
 
-    public async revokeAccessToken(): Promise<FetchResponse> {
+    public async revokeAccessToken(userID?: string): Promise<FetchResponse> {
         const revokeTokenEndpoint = (await this._oidcProviderMetaData()).revocation_endpoint;
         const configData = await this._config();
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_CORE-RAT3-NF01",
-                    "authentication-core",
-                    "revokeAccessToken",
-                    "No revoke access token endpoint found.",
-                    "No revoke access token endpoint was found in the OIDC provider meta data returned by " +
-                    "the well-known endpoint or the revoke access token endpoint passed to the SDK is empty."
-                )
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT3-NF01",
+                "No revoke access token endpoint found.",
+                "No revoke access token endpoint was found in the OIDC provider meta data returned by " +
+                "the well-known endpoint or the revoke access token endpoint passed to the SDK is empty."
             );
         }
 
         const body: string[] = [];
         body.push(`client_id=${ configData.clientID }`);
-        body.push(`token=${ (await this._dataLayer.getSessionData()).access_token }`);
+        body.push(`token=${ (await this._dataLayer.getSessionData(userID)).access_token }`);
         body.push("token_type_hint=access_token");
 
-        return fetch(revokeTokenEndpoint, {
-            body: body.join("&"),
-            credentials: configData.sendCookiesInRequests
-                ? FetchCredentialTypes.Include
-                : FetchCredentialTypes.SameOrigin,
-            headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
-            method: "POST"
-        })
-            .then((response) => {
-                if (response.status !== 200) {
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_CORE-RAT3-NR02",
-                            "authentication-core",
-                            "revokeAccessToken",
-                            "Invalid response status received for revoke access token request.",
-                            "The request sent to revoke the access token returned " +
-                            response.status +
-                            " , which is invalid."
-                        )
-                    );
-                }
-
-                this._authenticationHelper.clearUserSessionData();
-
-                return Promise.resolve(response);
-            })
-            .catch((error: FetchError) => {
-                return Promise.reject(
-                    new AsgardeoAuthNetworkException(
-                        "AUTH_CORE-RAT3-NR03",
-                        "authentication-core",
-                        "revokeAccessToken",
-                        "The request to revoke access token failed.",
-                        "The request sent to revoke the access token failed.",
-                        error?.code ?? "",
-                        error?.message,
-                        error?.response?.status,
-                        error?.response?.body
-                    )
-                );
+        let response: Response;
+        try {
+            response = await fetch(revokeTokenEndpoint, {
+                body: body.join("&"),
+                credentials: configData.sendCookiesInRequests
+                    ? FetchCredentialTypes.Include
+                    : FetchCredentialTypes.SameOrigin,
+                headers: new Headers(AuthenticationUtils.getTokenRequestHeaders()),
+                method: "POST"
             });
+        } catch (error: any) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT3-NE02",
+                "The request to revoke access token failed.",
+                error ?? "The request sent to revoke the access token failed."
+            );
+        }
+
+        if (response.status !== 200 || !response.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RAT3-HE03",
+                `Invalid response status received for revoke access token request (${response.statusText}).`,
+                await response.json()
+            );
+        }
+
+        this._authenticationHelper.clearUserSessionData(userID);
+
+        return Promise.resolve(response);
     }
 
-    public async requestCustomGrant(customGrantParams: CustomGrantConfig): Promise<TokenResponse | FetchResponse> {
+    public async requestCustomGrant(
+        customGrantParams: CustomGrantConfig,
+        userID?: string
+    ): Promise<TokenResponse | FetchResponse> {
         const oidcProviderMetadata = await this._oidcProviderMetaData();
         const configData = await this._config();
 
@@ -387,25 +333,23 @@ export class AuthenticationCore<T> {
         }
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_CORE-RCG-NF01",
-                    "authentication-core",
-                    "requestCustomGrant",
-                    "Token endpoint not found.",
-                    "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                    "or the token endpoint passed to the SDK is empty."
-                )
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RCG-NF01",
+                "Token endpoint not found.",
+                "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                "or the token endpoint passed to the SDK is empty."
             );
         }
 
-
-        const data: string[] = await Promise.all(Object.entries(customGrantParams.data)
-            .map(async ([ key, value ]) => {
-                const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(value as string);
+        const data: string[] = await Promise.all(
+            Object.entries(customGrantParams.data).map(async ([ key, value ]) => {
+                const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(
+                    value as string,
+                    userID
+                );
                 return `${ key }=${ newValue }`;
-            }));
-
+            })
+        );
 
         let requestHeaders = {
             ...AuthenticationUtils.getTokenRequestHeaders()
@@ -414,7 +358,7 @@ export class AuthenticationCore<T> {
         if (customGrantParams.attachToken) {
             requestHeaders = {
                 ...requestHeaders,
-                Authorization: `Bearer ${ (await this._dataLayer.getSessionData()).access_token }`
+                Authorization: `Bearer ${ (await this._dataLayer.getSessionData(userID)).access_token }`
             };
         }
 
@@ -427,66 +371,35 @@ export class AuthenticationCore<T> {
             method: "POST"
         };
 
-        return fetch(tokenEndpoint, requestConfig)
-            .then(
-                (response: FetchResponse): Promise<FetchResponse | TokenResponse> => {
-                    if (response.status !== 200) {
-                        return Promise.reject(
-                            new AsgardeoAuthException(
-                                "AUTH_CORE-RCG-NR02",
-                                "authentication-core",
-                                "requestCustomGrant",
-                                "Invalid response status received for the custom grant request.",
-                                "The request sent to get the custom grant returned " +
-                                response.status +
-                                " , which is invalid."
-                            )
-                        );
-                    }
+        let response: Response;
+        try {
+            response = await fetch(tokenEndpoint, requestConfig);
+        } catch (error: any) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RCG-NE02",
+                "The custom grant request failed.",
+                error ?? "The request sent to get the custom grant failed."
+            );
+        }
 
-                    if (customGrantParams.returnsSession) {
-                        return this._authenticationHelper
-                            .handleTokenResponse(response)
-                            .then((response: TokenResponse) => response)
-                            .catch((error) => {
-                                return Promise.reject(
-                                    new AsgardeoAuthException(
-                                        "AUTH_CORE-RCG-ES03",
-                                        "authentication-core",
-                                        "requestCustomGrant",
-                                        undefined,
-                                        undefined,
-                                        error
-                                    )
-                                );
-                            });
-                    } else {
-                        return Promise.resolve(response);
-                    }
-                }
-            )
-            .catch((error: FetchError) => {
-                return Promise.reject(
-                    new AsgardeoAuthNetworkException(
-                        "AUTH_CORE-RCG-NR04",
-                        "authentication-core",
-                        "requestCustomGrant",
-                        "The custom grant request failed.",
-                        "The request sent to get the custom grant failed.",
-                        error?.code ?? "",
-                        error?.message,
-                        error?.response?.status,
-                        error?.response?.body
-                    )
-                );
-            });
+        if (response.status !== 200 || !response.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-RCG-HE03",
+                `Invalid response status received for the custom grant request. (${response.statusText})`,
+                await response.json()
+            );
+        }
+
+        if (customGrantParams.returnsSession) {
+            return this._authenticationHelper.handleTokenResponse(response, userID);
+        } else {
+            return Promise.resolve(await response.json());
+        }
     }
 
-    public async getBasicUserInfo(): Promise<BasicUserInfo> {
-        const sessionData = await this._dataLayer.getSessionData();
-        const authenticatedUser = this._authenticationHelper.getAuthenticatedUserInfo(
-            sessionData?.id_token
-        );
+    public async getBasicUserInfo(userID?: string): Promise<BasicUserInfo> {
+        const sessionData = await this._dataLayer.getSessionData(userID);
+        const authenticatedUser = this._authenticationHelper.getAuthenticatedUserInfo(sessionData?.id_token);
 
         let basicUserInfo: BasicUserInfo = {
             allowedScopes: sessionData.scope,
@@ -497,7 +410,8 @@ export class AuthenticationCore<T> {
             if (
                 authenticatedUser[ key ] === undefined ||
                 authenticatedUser[ key ] === "" ||
-                authenticatedUser[ key ] === null) {
+                authenticatedUser[ key ] === null
+            ) {
                 delete authenticatedUser[ key ];
             }
         });
@@ -507,97 +421,114 @@ export class AuthenticationCore<T> {
         return basicUserInfo;
     }
 
-    public async getDecodedIDToken(): Promise<DecodedIDTokenPayload> {
-        const idToken = (await this._dataLayer.getSessionData()).id_token;
+    public async getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload> {
+        const idToken = (await this._dataLayer.getSessionData(userID)).id_token;
         const payload: DecodedIDTokenPayload = this._cryptoHelper.decodeIDToken(idToken);
 
         return payload;
     }
 
-    public async getIDToken(): Promise<string> {
-        return (await this._dataLayer.getSessionData()).id_token;
+    public async getIDToken(userID?: string): Promise<string> {
+        return (await this._dataLayer.getSessionData(userID)).id_token;
     }
 
-    public async getOIDCProviderMetaData(forceInit: boolean): Promise<boolean> {
-        if (!forceInit && await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
-            return Promise.resolve(true);
+    public async getOIDCProviderMetaData(forceInit: boolean): Promise<void> {
+        const configData = await this._config();
+        if (!forceInit && (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED))) {
+            return Promise.resolve();
         }
 
-        const wellKnownEndpoint = await this._authenticationHelper.resolveWellKnownEndpoint();
+        const wellKnownEndpoint = (configData as any).wellKnownEndpoint;
 
-        return fetch(wellKnownEndpoint)
-            .then(async (response: OIDCProviderMetaDataResponse) => {
-                if (response.status !== 200) {
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_CORE-GOPM-NR01",
-                            "authentication-core",
-                            "getOIDCProviderMetaData",
-                            "Invalid response status received for OIDC provider meta data request.",
-                            "The request sent to the well-known endpoint to get the OIDC provider meta data returned " +
-                            response.status +
-                            " , which is invalid."
-                        )
-                    );
+        if (wellKnownEndpoint) {
+
+            let response: Response;
+
+            try {
+                response = await fetch(wellKnownEndpoint);
+                if (response.status !== 200 || !response.ok) {
+                    throw new Error();
                 }
-
-                await this._dataLayer.setOIDCProviderMetaData(
-                    await this._authenticationHelper.resolveEndpoints(await response.json())
+            } catch {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-HE01",
+                    "Invalid well-known response",
+                    "The well known endpoint response has been failed with an error."
                 );
-                await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+            }
 
-                return Promise.resolve(true);
-            })
-            .catch(async () => {
+            await this._dataLayer.setOIDCProviderMetaData(
+                await this._authenticationHelper.resolveEndpoints(await response.json())
+            );
+            await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+
+            return Promise.resolve();
+        } else if ((configData as any).baseUrl) {
+            try {
                 await this._dataLayer.setOIDCProviderMetaData(
-                    await this._authenticationHelper.resolveFallbackEndpoints()
+                    await this._authenticationHelper.resolveEndpointsByBaseURL());
+            } catch (error: any) {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-IV02",
+                    "Resolving endpoints failed.",
+                    error ?? "Resolving endpoints by base url failed."
                 );
-                await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+            }
+            await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
-                return Promise.resolve(true);
-            });
+            return Promise.resolve();
+        }  else {
+            try {
+                await this._dataLayer.setOIDCProviderMetaData(
+                    await this._authenticationHelper.resolveEndpointsExplicitly());
+            } catch (error: any) {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GOPMD-IV03",
+                    "Resolving endpoints failed.",
+                    error ?? "Resolving endpoints by explicitly failed."
+                );
+            }
+            await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
+            
+            return Promise.resolve();
+        }
     }
 
     public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
         const oidcProviderMetaData = await this._oidcProviderMetaData();
 
         return {
-            authorizationEndpoint: oidcProviderMetaData.authorization_endpoint,
-            checkSessionIframe: oidcProviderMetaData.check_session_iframe,
-            endSessionEndpoint: oidcProviderMetaData.end_session_endpoint,
-            introspectionEndpoint: oidcProviderMetaData.introspection_endpoint,
-            issuer: oidcProviderMetaData.issuer,
-            jwksUri: oidcProviderMetaData.jwks_uri,
-            registrationEndpoint: oidcProviderMetaData.registration_endpoint,
-            revocationEndpoint: oidcProviderMetaData.revocation_endpoint,
-            tokenEndpoint: oidcProviderMetaData.token_endpoint,
-            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint,
-            wellKnownEndpoint: await this._authenticationHelper.resolveWellKnownEndpoint()
+            authorizationEndpoint: oidcProviderMetaData.authorization_endpoint ?? "",
+            checkSessionIframe: oidcProviderMetaData.check_session_iframe ?? "",
+            endSessionEndpoint: oidcProviderMetaData.end_session_endpoint ?? "",
+            introspectionEndpoint: oidcProviderMetaData.introspection_endpoint ?? "",
+            issuer: oidcProviderMetaData.issuer ?? "",
+            jwksUri: oidcProviderMetaData.jwks_uri ?? "",
+            registrationEndpoint: oidcProviderMetaData.registration_endpoint ?? "",
+            revocationEndpoint: oidcProviderMetaData.revocation_endpoint ?? "",
+            tokenEndpoint: oidcProviderMetaData.token_endpoint ?? "",
+            userinfoEndpoint: oidcProviderMetaData.userinfo_endpoint ?? ""
         };
     }
 
-    public async getSignOutURL(): Promise<string> {
+    public async getSignOutURL(userID?: string): Promise<string> {
         const logoutEndpoint = (await this._oidcProviderMetaData())?.end_session_endpoint;
         const configData = await this._config();
 
         if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
-                "AUTH_CORE-GSOU-NF01",
-                "authentication-core",
-                "getSignOutURL",
+                "JS-AUTH_CORE-GSOU-NF01",
                 "Sign-out endpoint not found.",
                 "No sign-out endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
                 "or the sign-out endpoint passed to the SDK is empty."
             );
         }
 
-        const idToken = (await this._dataLayer.getSessionData())?.id_token;
+        const idToken = (await this._dataLayer.getSessionData(userID))?.id_token;
 
         if (!idToken || idToken.trim().length === 0) {
             throw new AsgardeoAuthException(
-                "AUTH_CORE-GSOU-NF02",
-                "authentication-core",
-                "getSignOutURL",
+                "JS-AUTH_CORE-GSOU-NF02",
                 "ID token not found.",
                 "No ID token could be found. Either the session information is lost or you have not signed in."
             );
@@ -607,9 +538,7 @@ export class AuthenticationCore<T> {
 
         if (!callbackURL || callbackURL.trim().length === 0) {
             throw new AsgardeoAuthException(
-                "AUTH_CORE-GSOU-NF03",
-                "authentication-core",
-                "getSignOutURL",
+                "JS-AUTH_CORE-GSOU-NF03",
                 "No sign-out redirect URL found.",
                 "The sign-out redirect URL cannot be found or the URL passed to the SDK is empty. " +
                 "No sign-in redirect URL has been found either. "
@@ -625,48 +554,38 @@ export class AuthenticationCore<T> {
         return logoutCallback;
     }
 
-    public async signOut(): Promise<string> {
-        const signOutURL = await this.getSignOutURL();
-        this._authenticationHelper.clearUserSessionData();
+    public async signOut(userID?: string): Promise<string> {
+        const signOutURL = await this.getSignOutURL(userID);
+        this._authenticationHelper.clearUserSessionData(userID);
 
         return signOutURL;
     }
 
-    public async getAccessToken(): Promise<string> {
-        return (await this._dataLayer.getSessionData())?.access_token;
+    public async getAccessToken(userID?: string): Promise<string> {
+        return (await this._dataLayer.getSessionData(userID))?.access_token;
     }
 
-    public async isAuthenticated(): Promise<boolean> {
-        return Boolean(await this.getAccessToken());
+    public async isAuthenticated(userID?: string): Promise<boolean> {
+        return Boolean(await this.getAccessToken(userID));
     }
 
-    public async getPKCECode(sessionId: string): Promise<string> {
-        const PKCEArray = JSON.parse(await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER).toString());
-        const PKCEData = PKCEArray.filter((session: PKCECode) => {
-            return session.sessionId === sessionId;
-        });
-        return PKCEData.PKCE as string;
+    public async getPKCECode(state: string, userID?: string): Promise<string> {
+        return (await this._dataLayer.getTemporaryDataParameter(
+            AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+            userID
+        )) as string;
     }
 
-    public async setPKCECode(pkce: string, sessionId: string): Promise<void> {
-        const PKCEArray = JSON.parse(await this._dataLayer.getTemporaryDataParameter(PKCE_CODE_VERIFIER)
-            .toString());
-        PKCEArray.push({
-            PKCE: pkce,
-            sessionId: sessionId
-        });
-        return await this._dataLayer.setTemporaryDataParameter(PKCE_CODE_VERIFIER, JSON.stringify(PKCEArray));
+    public async setPKCECode(pkce: string, state: string, userID?: string): Promise<void> {
+        return await this._dataLayer.setTemporaryDataParameter(
+            AuthenticationUtils.extractPKCEKeyFromStateParam(state),
+            pkce,
+            userID
+        );
     }
 
     public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
         await this._dataLayer.setConfigData(config);
-
-        if (config.overrideWellEndpointConfig) {
-            config?.endpoints && (await this._dataLayer.setOIDCProviderMetaData(
-                await this._authenticationHelper.resolveEndpoints({})
-            ));
-        } else if (config?.endpoints) {
-            await this.getOIDCProviderMetaData(true);
-        }
+        await this.getOIDCProviderMetaData(true);
     }
 }

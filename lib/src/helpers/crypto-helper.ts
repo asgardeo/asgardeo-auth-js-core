@@ -20,17 +20,17 @@ import { SUPPORTED_SIGNATURE_ALGORITHMS } from "../constants";
 import { AsgardeoAuthException } from "../exception";
 import { CryptoUtils, DecodedIDTokenPayload, JWKInterface } from "../models";
 
-export class CryptoHelper<T = any, R = any> {
-    private _cryptoUtils: CryptoUtils<T, R>;
+export class CryptoHelper<T = any> {
+    private _cryptoUtils: CryptoUtils<T>;
 
-    public constructor(cryptoUtils: CryptoUtils<T, R>) {
+    public constructor(cryptoUtils: CryptoUtils<T>) {
         this._cryptoUtils = cryptoUtils;
     }
 
     /**
      * Generate code verifier.
      *
-     * @returns {string} code verifier.
+     * @return {string} code verifier.
      */
     public getCodeVerifier(): string {
         return this._cryptoUtils.base64URLEncode(this._cryptoUtils.generateRandomBytes(32));
@@ -40,7 +40,8 @@ export class CryptoHelper<T = any, R = any> {
      * Derive code challenge from the code verifier.
      *
      * @param {string} verifier.
-     * @returns {string} code challenge.
+     *
+     * @return {string} code challenge.
      */
     public getCodeChallenge(verifier: string): string {
         return this._cryptoUtils.base64URLEncode(this._cryptoUtils.hashSha256(verifier));
@@ -51,34 +52,28 @@ export class CryptoHelper<T = any, R = any> {
      *
      * @param {string} jwtHeader header of the id_token.
      * @param {JWKInterface[]} keys jwks response.
-     * @returns {any} public key.
+     *
+     * @return {JWKInterface} public key.
+     *
+     * @throws {AsgardeoAuthException}
      */
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    public getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): Promise<R> {
+    public getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): JWKInterface {
         const headerJSON = JSON.parse(this._cryptoUtils.base64URLDecode(jwtHeader));
 
         for (const key of keys) {
             if (headerJSON.kid === key.kid) {
-                return this._cryptoUtils.parseJwk({
-                    alg: key.alg,
-                    e: key.e,
-                    kty: key.kty,
-                    n: key.n
-                });
+                return key;
             }
         }
 
-        return Promise.reject(
-            new AsgardeoAuthException(
-                "CRYPTO_UTIL-GTFTIT-IV01",
-                "crypto-utils",
-                "getJWKForTheIdToken",
-                "kid not found.",
-                "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
-                    headerJSON.kid +
-                    ", Expected values: " +
-                    keys.map((key) => key.kid).join(", ")
-            )
+        throw new AsgardeoAuthException(
+            "JS-CRYPTO_UTIL-GJFTIT-IV01",
+            "kid not found.",
+            "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
+            headerJSON.kid +
+            ", Expected values: " +
+            keys.map((key) => key.kid).join(", ")
         );
     }
 
@@ -86,16 +81,19 @@ export class CryptoHelper<T = any, R = any> {
      * Verify id token.
      *
      * @param idToken id_token received from the IdP.
-     * @param jwk public key used for signing.
+     * @param {JWKInterface} jwk public key used for signing.
      * @param {string} clientID app identification.
      * @param {string} issuer id_token issuer.
      * @param {string} username Username.
      * @param {number} clockTolerance - Allowed leeway for id_tokens (in seconds).
-     * @returns {Promise<boolean>} whether the id_token is valid.
+     *
+     * @return {Promise<boolean>} whether the id_token is valid.
+     *
+     * @throws {AsgardeoAuthException} if the id_token is invalid.
      */
     public isValidIdToken(
         idToken: string,
-        jwk: R,
+        jwk: JWKInterface,
         clientID: string,
         issuer: string,
         username: string,
@@ -103,17 +101,16 @@ export class CryptoHelper<T = any, R = any> {
     ): Promise<boolean> {
         return this._cryptoUtils
             .verifyJwt(idToken, jwk, SUPPORTED_SIGNATURE_ALGORITHMS, clientID, issuer, username, clockTolerance)
-            .then(() => {
-                return Promise.resolve(true);
-            })
-            .catch((error) => {
+            .then((response: boolean) => {
+                if (response) {
+                    return Promise.resolve(true);
+                }
+
                 return Promise.reject(
                     new AsgardeoAuthException(
-                        "CRYPTO_UTIL-IVIT-IV02",
-                        "crypto-utils",
-                        "isValidIdToken",
-                        "Validating ID token failed",
-                        error
+                        "JS-CRYPTO_HELPER-IVIT-IV01",
+                        "Invalid ID token.",
+                        "ID token validation returned false"
                     )
                 );
             });
@@ -125,21 +122,17 @@ export class CryptoHelper<T = any, R = any> {
      * @param {string} idToken - The id token to be decoded.
      *
      * @return {DecodedIdTokenPayloadInterface} - The decoded payload of the id token.
+     *
+     * @throws {AsgardeoAuthException}
      */
     public decodeIDToken(idToken: string): DecodedIDTokenPayload {
         try {
-            const utf8String = this._cryptoUtils.base64URLDecode(idToken.split(".")[1]);
+            const utf8String = this._cryptoUtils.base64URLDecode(idToken.split(".")[ 1 ]);
             const payload = JSON.parse(utf8String);
 
             return payload;
         } catch (error: any) {
-            throw new AsgardeoAuthException(
-                "CRYPTO_UTIL-DIT-IV01",
-                "crypto-utils",
-                "decodeIDToken",
-                "Decoding ID token failed.",
-                error
-            );
+            throw new AsgardeoAuthException("JS-CRYPTO_UTIL-DIT-IV01", "Decoding ID token failed.", error);
         }
     }
 }

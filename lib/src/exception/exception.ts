@@ -16,31 +16,19 @@
  * under the License.
  */
 
-import { AsgardeoAuthNetworkException } from ".";
-
-export class AsgardeoAuthException extends Error {
+export class AsgardeoAuthException {
     public name: string;
     public code: string | undefined;
-    public file: string;
-    public method: string;
-    public description: string | undefined;
-    public error: AsgardeoAuthException | AsgardeoAuthNetworkException | undefined;
+    public message: string;
 
     public constructor(
-        code: string | undefined,
-        file: string,
-        method: string,
-        message?: string,
-        description?: string,
-        error?: AsgardeoAuthException | AsgardeoAuthNetworkException | undefined
+        code: string,
+        name: string,
+        message: string
     ) {
-        super(message ?? error?.message);
-        this.name = this.constructor.name;
+        this.message = message;
+        this.name = name;
         this.code = code;
-        this.file = file;
-        this.method = method;
-        this.description = description;
-        this.error = error;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }

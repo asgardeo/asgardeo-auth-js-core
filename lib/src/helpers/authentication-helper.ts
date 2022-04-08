@@ -23,26 +23,30 @@ import {
     CLIENT_SECRET_TAG,
     END_SESSION_ENDPOINT,
     FetchCredentialTypes,
+    ISSUER,
     JWKS_ENDPOINT,
     OIDC_SCOPE,
     OIDC_SESSION_IFRAME_ENDPOINT,
+    PKCE_CODE_VERIFIER,
+    PKCE_SEPARATOR,
     REVOKE_TOKEN_ENDPOINT,
     SCOPE_TAG,
     SERVICE_RESOURCES,
     TOKEN_ENDPOINT,
     TOKEN_TAG,
+    USERINFO_ENDPOINT,
     USERNAME_TAG
 } from "../constants";
 import { DataLayer } from "../data";
-import { AsgardeoAuthException, AsgardeoAuthNetworkException } from "../exception";
+import { AsgardeoAuthException } from "../exception";
 import {
     AuthClientConfig,
     AuthenticatedUserInfo,
     DecodedIDTokenPayload,
-    FetchError,
-    FetchResponse,
+    JWKInterface,
     OIDCEndpointsInternal,
     OIDCProviderMetaData,
+    TemporaryData,
     TokenResponse
 } from "../models";
 import { AuthenticationUtils } from "../utils";
@@ -60,56 +64,96 @@ export class AuthenticationHelper<T> {
         this._cryptoHelper = cryptoHelper;
     }
 
-    public async resolveWellKnownEndpoint(): Promise<string> {
-        const configData = await this._config();
-        if (configData.wellKnownEndpoint) {
-            return configData.serverOrigin + configData.wellKnownEndpoint;
-        }
-
-        return configData.serverOrigin + SERVICE_RESOURCES.wellKnownEndpoint;
-    }
-
     public async resolveEndpoints(response: OIDCProviderMetaData): Promise<OIDCProviderMetaData> {
-        const oidcProviderMetaData = {};
-        const configData = await this._config();
-
-        if (configData.overrideWellEndpointConfig) {
-            configData.endpoints &&
-                Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                    const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                    oidcProviderMetaData[ snakeCasedName ] =
-                        configData?.endpoints
-                            ? configData.endpoints[ endpointName ]
-                            : "";
-                });
-        }
-
-        return { ...response, ...oidcProviderMetaData };
-    }
-
-    public async resolveFallbackEndpoints(): Promise<OIDCEndpointsInternal> {
         const oidcProviderMetaData = {};
         const configData = await this._config();
 
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
                 const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
-                oidcProviderMetaData[ snakeCasedName ] =
-                    configData?.endpoints
-                        ? configData.endpoints[ endpointName ]
-                        : "";
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
+                    : "";
+            });
+
+        return { ...response, ...oidcProviderMetaData };
+    }
+
+    public async resolveEndpointsExplicitly(): Promise<OIDCEndpointsInternal> {
+        const oidcProviderMetaData = {};
+        const configData = await this._config();
+
+        const requiredEndpoints = [
+            AUTHORIZATION_ENDPOINT,
+            END_SESSION_ENDPOINT,
+            JWKS_ENDPOINT,
+            OIDC_SESSION_IFRAME_ENDPOINT,
+            REVOKE_TOKEN_ENDPOINT,
+            TOKEN_ENDPOINT,
+            ISSUER,
+            USERINFO_ENDPOINT
+        ];
+
+        const isRequiredEndpointsContains = configData.endpoints
+            ? Object.keys(configData?.endpoints).every((endpointName) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                return requiredEndpoints.includes(snakeCasedName);
+            })
+            : false;
+
+        if (!isRequiredEndpointsContains) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-REE-NF01",
+                "No required endpoints.",
+                "Required oidc endpoints are not defined"
+            );
+        }
+
+        configData.endpoints &&
+            Object.keys(configData.endpoints).forEach((endpointName: string) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
+                    : "";
+            });
+
+        return { ...oidcProviderMetaData };
+    }
+
+    public async resolveEndpointsByBaseURL(): Promise<OIDCEndpointsInternal> {
+        const oidcProviderMetaData = {};
+        const configData = await this._config();
+
+        const baseUrl = (configData as any).baseUrl;
+
+        if (!baseUrl) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER_REBO-NF01",
+                "Base URL not defined.",
+                "Base URL is not defined in AuthClient config."
+            );
+        }
+
+        configData.endpoints &&
+            Object.keys(configData.endpoints).forEach((endpointName: string) => {
+                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
+                    ? configData.endpoints[ endpointName ]
+                    : "";
             });
 
         const defaultEndpoints = {
-            [ AUTHORIZATION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.authorizationEndpoint,
-            [ END_SESSION_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.endSessionEndpoint,
-            [ JWKS_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.jwksUri,
-            [ OIDC_SESSION_IFRAME_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.checkSessionIframe,
-            [ REVOKE_TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.revocationEndpoint,
-            [ TOKEN_ENDPOINT ]: configData.serverOrigin + SERVICE_RESOURCES.tokenEndpoint
+            [ AUTHORIZATION_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.authorizationEndpoint}`,
+            [ END_SESSION_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.endSessionEndpoint}`,
+            [ ISSUER ]: `${baseUrl}${SERVICE_RESOURCES.issuer}`,
+            [ JWKS_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.jwksUri}`,
+            [ OIDC_SESSION_IFRAME_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.checkSessionIframe}`,
+            [ REVOKE_TOKEN_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.revocationEndpoint}`,
+            [ TOKEN_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.tokenEndpoint}`,
+            [ USERINFO_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.userinfoEndpoint}`
         };
 
-        return { ...oidcProviderMetaData, ...defaultEndpoints };
+        return { ...defaultEndpoints, ...oidcProviderMetaData };
     }
 
     public async validateIdToken(idToken: string): Promise<boolean> {
@@ -117,101 +161,51 @@ export class AuthenticationHelper<T> {
         const configData = await this._config();
 
         if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_HELPER-VIT-NF01",
-                    "authentication-helper",
-                    "validateIdToken",
-                    "JWKS endpoint not found.",
-                    "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
-                    "or the JWKS endpoint passed to the SDK is empty."
-                )
+            throw new AsgardeoAuthException(
+                "JS_AUTH_HELPER-VIT-NF01",
+                "JWKS endpoint not found.",
+                "No JWKS endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
+                "or the JWKS endpoint passed to the SDK is empty."
             );
         }
 
-        // eslint-disable-next-line max-len
-        return fetch(jwksEndpoint, {
-            credentials: configData.sendCookiesInRequests
-                ? FetchCredentialTypes.Include
-                : FetchCredentialTypes.SameOrigin
-        })
-            .then(async (response) => {
-                if (response.status !== 200) {
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_HELPER-VIT-NR02",
-                            "authentication-helper",
-                            "validateIdToken",
-                            "Invalid response status received for jwks request.",
-                            "The request sent to get the jwks returned " + response.status + " , which is invalid."
-                        )
-                    );
-                }
+        let response: Response;
 
-                const issuer = (await this._oidcProviderMetaData()).issuer;
-                const issuerFromURL = (await this.resolveWellKnownEndpoint()).split("/.well-known")[ 0 ];
-
-                // Return false if the issuer in the open id config doesn't match
-                // the issuer in the well known endpoint URL.
-                if (!issuer || issuer !== issuerFromURL) {
-                    return Promise.resolve(false);
-                }
-				const parsedResponse = await response.json();
-
-                return this._cryptoHelper
-                    .getJWKForTheIdToken(idToken.split(".")[0], parsedResponse.keys)
-                    .then(async (jwk: any) => {
-                        return this._cryptoHelper
-                            .isValidIdToken(
-                                idToken,
-                                jwk,
-                                (await this._config()).clientID,
-                                issuer,
-                                this._cryptoHelper.decodeIDToken(idToken).sub,
-                                (await this._config()).clockTolerance
-                            )
-                            .then((response) => response)
-                            .catch((error) => {
-                                return Promise.reject(
-                                    new AsgardeoAuthException(
-                                        "AUTH_HELPER-VIT-ES03",
-                                        "authentication-helper",
-                                        "validateIdToken",
-                                        undefined,
-                                        undefined,
-                                        error
-                                    )
-                                );
-                            });
-                    })
-                    .catch((error) => {
-                        return Promise.reject(
-                            new AsgardeoAuthException(
-                                "AUTH_HELPER-VIT-ES04",
-                                "authentication-helper",
-                                "validateIdToken",
-                                undefined,
-                                undefined,
-                                error
-                            )
-                        );
-                    });
-            })
-            .catch((error: FetchError) => {
-                return Promise.reject(
-                    new AsgardeoAuthNetworkException(
-                        "AUTH_HELPER-VIT-NR05",
-                        "authentication-helper",
-                        "validateIdToken",
-                        "Request to jwks endpoint failed.",
-                        "The request sent to get the jwks from the server failed.",
-                        error?.code ?? "",
-                        error?.message,
-                        error?.response?.status,
-                        error?.response?.body
-                    )
-                );
+        try {
+            response = await fetch(jwksEndpoint, {
+                credentials: configData.sendCookiesInRequests
+                    ? FetchCredentialTypes.Include
+                    : FetchCredentialTypes.SameOrigin
             });
+        } catch (error: any) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-VIT-NE02",
+                "Request to jwks endpoint failed.",
+                error ?? "The request sent to get the jwks from the server failed."
+            );
+        }
+
+        if (response.status !== 200 || !response.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-VIT-HE03",
+                `Invalid response status received for jwks request (${ response.statusText }).`,
+                await response.json()
+            );
+        }
+
+        const issuer = (await this._oidcProviderMetaData()).issuer;
+
+        const { keys }: { keys: JWKInterface[]; } = await response.json();
+
+        const jwk: any = await this._cryptoHelper.getJWKForTheIdToken(idToken.split(".")[ 0 ], keys);
+        return this._cryptoHelper.isValidIdToken(
+            idToken,
+            jwk,
+            (await this._config()).clientID,
+            issuer ?? "",
+            this._cryptoHelper.decodeIDToken(idToken).sub,
+            (await this._config()).clockTolerance
+        );
     }
 
     public getAuthenticatedUserInfo(idToken: string): AuthenticatedUserInfo {
@@ -238,10 +232,10 @@ export class AuthenticationHelper<T> {
         };
     }
 
-    public async replaceCustomGrantTemplateTags(text: string): Promise<string> {
+    public async replaceCustomGrantTemplateTags(text: string, userID?: string): Promise<string> {
         let scope = OIDC_SCOPE;
         const configData = await this._config();
-        const sessionData = await this._dataLayer.getSessionData();
+        const sessionData = await this._dataLayer.getSessionData(userID);
 
         if (configData.scope && configData.scope.length > 0) {
             if (!configData.scope.includes(OIDC_SCOPE)) {
@@ -252,89 +246,82 @@ export class AuthenticationHelper<T> {
 
         return text
             .replace(TOKEN_TAG, sessionData.access_token)
-            .replace(
-                USERNAME_TAG,
-                this.getAuthenticatedUserInfo(sessionData.id_token).username
-            )
+            .replace(USERNAME_TAG, this.getAuthenticatedUserInfo(sessionData.id_token).username)
             .replace(SCOPE_TAG, scope)
             .replace(CLIENT_ID_TAG, configData.clientID)
             .replace(CLIENT_SECRET_TAG, configData.clientSecret ?? "");
     }
 
-    public async clearUserSessionData(): Promise<void> {
-        await this._dataLayer.removeOIDCProviderMetaData();
-        await this._dataLayer.removeTemporaryData();
-        await this._dataLayer.removeSessionData();
+    public async clearUserSessionData(userID?: string): Promise<void> {
+        await this._dataLayer.removeTemporaryData(userID);
+        await this._dataLayer.removeSessionData(userID);
     }
 
-    public async handleTokenResponse(response: FetchResponse): Promise<TokenResponse> {
-        if (response.status !== 200) {
-            return Promise.reject(
-                new AsgardeoAuthException(
-                    "AUTH_HELPER-HTR-NR01",
-                    "authentication-helper",
-                    "handleTokenResponse",
-                    "Invalid response status received for token request.",
-                    "The request sent to get the token returned " + response.status + " , which is invalid."
-                )
+    public async handleTokenResponse(response: Response, userID?: string): Promise<TokenResponse> {
+        if (response.status !== 200 || !response.ok) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_HELPER-HTR-NE01",
+                `Invalid response status received for token request (${ response.statusText }).`,
+                await response.json()
             );
         }
 
         //Get the response in JSON
         const parsedResponse = await response.json();
+        parsedResponse.created_at = new Date().getTime();
 
         if ((await this._config()).validateIDToken) {
-            return this.validateIdToken(parsedResponse.id_token)
-                .then(async (valid) => {
-                    if (valid) {
-                        await this._dataLayer.setSessionData(parsedResponse);
+            return this.validateIdToken(parsedResponse.id_token).then(async () => {
+                await this._dataLayer.setSessionData(parsedResponse, userID);
 
-                        const tokenResponse: TokenResponse = {
-                            accessToken: parsedResponse.access_token,
-                            expiresIn: parsedResponse.expires_in,
-                            idToken: parsedResponse.id_token,
-                            refreshToken: parsedResponse.refresh_token,
-                            scope: parsedResponse.scope,
-                            tokenType: parsedResponse.token_type
-                        };
+                const tokenResponse: TokenResponse = {
+                    accessToken: parsedResponse.access_token,
+                    createdAt: parsedResponse.created_at,
+                    expiresIn: parsedResponse.expires_in,
+                    idToken: parsedResponse.id_token,
+                    refreshToken: parsedResponse.refresh_token,
+                    scope: parsedResponse.scope,
+                    tokenType: parsedResponse.token_type
+                };
 
-                        return Promise.resolve(tokenResponse);
-                    }
-
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_HELPER-HTR-IV02",
-                            "authentication-helper",
-                            "handleTokenResponse",
-                            "The id token returned is not valid.",
-                            "The id token returned has failed the validation check."
-                        )
-                    );
-                })
-                .catch((error) => {
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "AUTH_HELPER-HAT-ES03",
-                            "authentication-helper",
-                            "handleTokenResponse",
-                            undefined,
-                            undefined,
-                            error
-                        )
-                    );
-                });
+                return Promise.resolve(tokenResponse);
+            });
         } else {
             const tokenResponse: TokenResponse = {
                 accessToken: parsedResponse.access_token,
+                createdAt: parsedResponse.created_at,
                 expiresIn: parsedResponse.expires_in,
                 idToken: parsedResponse.id_token,
                 refreshToken: parsedResponse.refresh_token,
                 scope: parsedResponse.scope,
                 tokenType: parsedResponse.token_type
             };
-            await this._dataLayer.setSessionData(parsedResponse);
+            await this._dataLayer.setSessionData(parsedResponse, userID);
 
             return Promise.resolve(tokenResponse);
         }
+    }
+
+    /**
+     * This generates a PKCE key with the right index value.
+     *
+     * @param {string} userID The userID to identify a user in a multi-user scenario.
+     *
+     * @returns {string} The PKCE key.
+     */
+    public async generatePKCEKey(userID?: string): Promise<string> {
+        const tempData: TemporaryData = await this._dataLayer.getTemporaryData(userID);
+        const keys: string[] = [];
+
+        Object.keys(tempData).forEach((key: string) => {
+            if (key.startsWith(PKCE_CODE_VERIFIER)) {
+                keys.push(key);
+            }
+        });
+
+        const lastKey: string | undefined = keys.sort().pop();
+        const index: number = parseInt(lastKey?.split(PKCE_SEPARATOR)[ 1 ] ?? "-1");
+
+        return `${ PKCE_CODE_VERIFIER }${ PKCE_SEPARATOR }${ index + 1 }`;
     }
 }

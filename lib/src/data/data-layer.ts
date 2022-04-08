@@ -66,8 +66,8 @@ export class DataLayer<T> {
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
-    private _resolveKey(store: Stores): string {
-        return `${ store }-${ this._id }`;
+    private _resolveKey(store: Stores, userID?: string): string {
+        return userID ? `${ store }-${ this._id }-${ userID }` : `${ store }-${ this._id }`;
     }
 
     public async setConfigData(config: Partial<AuthClientConfig<T>>): Promise<void> {
@@ -78,12 +78,12 @@ export class DataLayer<T> {
         this.setDataInBulk(this._resolveKey(Stores.OIDCProviderMetaData), oidcProviderMetaData);
     }
 
-    public async setTemporaryData(temporaryData: Partial<TemporaryData>): Promise<void> {
-        this.setDataInBulk(this._resolveKey(Stores.TemporaryData), temporaryData);
+    public async setTemporaryData(temporaryData: Partial<TemporaryData>, userID?: string): Promise<void> {
+        this.setDataInBulk(this._resolveKey(Stores.TemporaryData, userID), temporaryData);
     }
 
-    public async setSessionData(sessionData: Partial<SessionData>): Promise<void> {
-        this.setDataInBulk(this._resolveKey(Stores.SessionData), sessionData);
+    public async setSessionData(sessionData: Partial<SessionData>, userID?: string): Promise<void> {
+        this.setDataInBulk(this._resolveKey(Stores.SessionData, userID), sessionData);
     }
 
     public async getConfigData(): Promise<AuthClientConfig<T>> {
@@ -94,12 +94,12 @@ export class DataLayer<T> {
         return JSON.parse((await this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData))) ?? null);
     }
 
-    public async getTemporaryData(): Promise<TemporaryData> {
-        return JSON.parse((await this._store.getData(this._resolveKey(Stores.TemporaryData))) ?? null);
+    public async getTemporaryData(userID?: string): Promise<TemporaryData> {
+        return JSON.parse((await this._store.getData(this._resolveKey(Stores.TemporaryData, userID))) ?? null);
     }
 
-    public async getSessionData(): Promise<SessionData> {
-        return JSON.parse((await this._store.getData(this._resolveKey(Stores.SessionData))) ?? null);
+    public async getSessionData(userID?: string): Promise<SessionData> {
+        return JSON.parse((await this._store.getData(this._resolveKey(Stores.SessionData, userID))) ?? null);
     }
 
     public async removeConfigData(): Promise<void> {
@@ -110,12 +110,12 @@ export class DataLayer<T> {
         await this._store.removeData(this._resolveKey(Stores.OIDCProviderMetaData));
     }
 
-    public async removeTemporaryData(): Promise<void> {
-        await this._store.removeData(this._resolveKey(Stores.TemporaryData));
+    public async removeTemporaryData(userID?: string): Promise<void> {
+        await this._store.removeData(this._resolveKey(Stores.TemporaryData, userID));
     }
 
-    public async removeSessionData(): Promise<void> {
-        await this._store.removeData(this._resolveKey(Stores.SessionData));
+    public async removeSessionData(userID?: string): Promise<void> {
+        await this._store.removeData(this._resolveKey(Stores.SessionData, userID));
     }
 
     public async getConfigDataParameter(key: keyof AuthClientConfig<T>): Promise<StoreValue> {
@@ -130,23 +130,14 @@ export class DataLayer<T> {
         return data && JSON.parse(data)[ key ];
     }
 
-    public async getTemporaryDataParameter(key: keyof TemporaryData): Promise<StoreValue> {
-        const data = await this._store.getData(this._resolveKey(Stores.TemporaryData));
+    public async getTemporaryDataParameter(key: keyof TemporaryData, userID?: string): Promise<StoreValue> {
+        const data = await this._store.getData(this._resolveKey(Stores.TemporaryData, userID));
 
         return data && JSON.parse(data)[ key ];
     }
 
-    public async getPKCECode(sessionId: string): Promise<PKCECode> {
-        const data = JSON.parse(await this._store.getData(this._resolveKey(Stores.TemporaryData)))[PKCE_CODE_VERIFIER];
-        const PKCEData = data.filter((session: PKCECode) => {
-            return session.sessionId === sessionId;
-        });
-
-        return PKCEData;
-    }
-
-    public async getSessionDataParameter(key: keyof SessionData): Promise<StoreValue> {
-        const data = await this._store.getData(this._resolveKey(Stores.SessionData));
+    public async getSessionDataParameter(key: keyof SessionData, userID?: string): Promise<StoreValue> {
+        const data = await this._store.getData(this._resolveKey(Stores.SessionData, userID));
 
         return data && JSON.parse(data)[ key ];
     }
@@ -159,12 +150,16 @@ export class DataLayer<T> {
         await this.setValue(this._resolveKey(Stores.OIDCProviderMetaData), key, value);
     }
 
-    public async setTemporaryDataParameter(key: keyof TemporaryData, value: StoreValue): Promise<void> {
-        await this.setValue(this._resolveKey(Stores.TemporaryData), key, value);
+    public async setTemporaryDataParameter(
+        key: keyof TemporaryData,
+        value: StoreValue,
+        userID?: string
+    ): Promise<void> {
+        await this.setValue(this._resolveKey(Stores.TemporaryData, userID), key, value);
     }
 
-    public async setSessionDataParameter(key: keyof SessionData, value: StoreValue): Promise<void> {
-        await this.setValue(this._resolveKey(Stores.SessionData), key, value);
+    public async setSessionDataParameter(key: keyof SessionData, value: StoreValue, userID?: string): Promise<void> {
+        await this.setValue(this._resolveKey(Stores.SessionData, userID), key, value);
     }
 
     public async removeConfigDataParameter(key: keyof AuthClientConfig<T>): Promise<void> {
@@ -175,11 +170,11 @@ export class DataLayer<T> {
         await this.removeValue(this._resolveKey(Stores.OIDCProviderMetaData), key);
     }
 
-    public async removeTemporaryDataParameter(key: keyof TemporaryData): Promise<void> {
-        await this.removeValue(this._resolveKey(Stores.TemporaryData), key);
+    public async removeTemporaryDataParameter(key: keyof TemporaryData, userID?: string): Promise<void> {
+        await this.removeValue(this._resolveKey(Stores.TemporaryData, userID), key);
     }
 
-    public async removeSessionDataParameter(key: keyof SessionData): Promise<void> {
-        await this.removeValue(this._resolveKey(Stores.SessionData), key);
+    public async removeSessionDataParameter(key: keyof SessionData, userID?: string): Promise<void> {
+        await this.removeValue(this._resolveKey(Stores.SessionData, userID), key);
     }
 }

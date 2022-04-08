@@ -26,5 +26,5 @@ export interface TokenResponse {
     scope: string;
     refreshToken: string;
     tokenType: string;
+    createdAt: number;
 }
-

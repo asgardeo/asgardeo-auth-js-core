@@ -33,7 +33,7 @@ export interface JWKInterface {
  *
  * T is the type of the data passed as the argument into the `base64URLEncode` method.
  */
-export interface CryptoUtils<T = any, R = any> {
+export interface CryptoUtils<T = any> {
     /**
      * Encode the provided data in base64url format.
      *
@@ -71,30 +71,23 @@ export interface CryptoUtils<T = any, R = any> {
     hashSha256(data: string): T;
 
     /**
-     * Parse the provided JWK.
-     *
-     * @param {JWKInterface} key  JWK to be parsed.
-     *
-     * @returns {Promise<R>} Parsed JWK.
-     */
-    parseJwk(key: Partial<JWKInterface>): Promise<R>;
-
-    /**
      * Verify the provided JWT.
      *
      * @param {string} idToken ID Token to be verified.
-     * @param {R} jwk JWK to be used for verification. The output of the parseJwk method.
+     * @param {JWKInterface} jwk JWK to be used for verification.
      * @param {string[]} algorithms Algorithms to be used for verification.
      * @param {string} clientID Client ID to be used for verification.
      * @param {string} issuer Issuer to be used for verification.
      * @param {string} subject Subject to be used for verification.
      * @param {string} clockTolerance Clock tolerance to be used for verification.
      *
-     * @returns {Promise<boolean>} True if the ID Token is valid, false otherwise.
+     * @returns {Promise<boolean>} True if the ID Token is valid.
+     *
+     * @throws {AsgardeoAuthException} if the id_token is invalid.
      */
     verifyJwt(
         idToken: string,
-        jwk: R,
+        jwk: JWKInterface,
         algorithms: string[],
         clientID: string,
         issuer: string,

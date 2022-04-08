@@ -34,6 +34,7 @@
     -   [getPKCECode](#getPKCECode)
     -   [setPKCECode](#setPKCECode)
     -   [isSignOutSuccessful](#isSignOutSuccessful)
+    -   [didSignOutFail](#didSignOutFail)
     -   [updateConfig](#updateConfig)
 -   [Data Storage](#data-storage)
     -   [Data Layer](#data-layer)
@@ -53,12 +54,15 @@
     -   [BasicUserInfo](#BasicUserInfo)
     -   [JWKInterface](#JWKInterface)
 -   [Develop](#develop)
+    -   [Prerequisites](#prerequisites)
+    -   [Installing Dependencies](#installing-dependencies)
+-   [Error Codes](#error-codes)
 -   [Contribute](#contribute)
 -   [License](#license)
 
 ## Introduction
 
-Asgardeo Auth JavaScript SDK provides the core methods that are needed to implement OIDC authentication in JavaScript/TypeScript based apps. This SDK can be used to build SDKs for Single Page Applications, React Native, Node.JS and various other frameworks that use JavaScript.
+Asgardeo Auth JavaScript SDK provides the core methods that are needed to implement OIDC authentication in JavaScript/TypeScript-based apps. This SDK can be used to build SDKs for Single-Page Applications, React Native, Node.JS and various other frameworks that use JavaScript.
 
 ## Prerequisite
 
@@ -85,7 +89,7 @@ const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
     signOutRedirectURL: "http://localhost:3000/dashboard",
     clientID: "client ID",
-    serverOrigin: "https://api.asgardeo.io/t/<org_name>"
+    baseUrl: "https://api.asgardeo.io/t/<org_name>"
 };
 
 // Create a Store class to store the authentication data. The following implementation uses the session storage.
@@ -127,16 +131,6 @@ class CryptoUtils {
         return randombytes(length);
     }
 
-    // Parses the key object into a format that would be accepted by verifyJwt()
-    public parseJwk(key) {
-        return parseJwk({
-            alg: key.alg,
-            e: key.e,
-            kty: key.kty,
-            n: key.n
-        });
-    }
-
     // Verifies the JWT signature.
     public verifyJwt(
         idToken,
@@ -147,6 +141,9 @@ class CryptoUtils {
         subject,
         clockTolerance
     ) {
+        // Parses the key object into a format that would be accepted by verifyJwt()
+        const key = parseJwk(jwk);
+
         return jwtVerify(idToken, jwk, {
             algorithms: algorithms,
             audience: clientID,
@@ -181,7 +178,7 @@ auth.getAuthorizationURL()
 
 // Once you obtain the authentication code and the session state from the server, you can use this method
 // to get the access token.
-auth.requestAccessToken()
+auth.requestAccessToken("code", "session-state", "state")
     .then((response) => {
         // Obtain the token and other related from the response;
         console.log(response);
@@ -274,7 +271,7 @@ const config = {
     signInRedirectURL: "http://localhost:3000/sign-in",
     signOutRedirectURL: "http://localhost:3000/dashboard",
     clientID: "client ID",
-    serverOrigin: "https://api.asgardeo.io/t/<org_name>"
+    baseUrl: "https://api.asgardeo.io/t/<org_name>"
 };
 
 await auth.initialize(config);
@@ -309,7 +306,7 @@ const dataLayer = auth.getDataLayer();
 ### getAuthorizationURL
 
 ```TypeScript
-getAuthorizationURL(config?: GetAuthURLConfig): Promise<string>
+getAuthorizationURL(config?: GetAuthURLConfig, userID?: string): Promise<string>
 ```
 
 #### Arguments
@@ -319,6 +316,10 @@ getAuthorizationURL(config?: GetAuthURLConfig): Promise<string>
     An optional config object that has the necessary attributes to configure this method. The `forceInit` attribute can be set to `true` to trigger a request to the `.well-known` endpoint and obtain the OIDC endpoints. By default, a request to the `.well-known` endpoint will be sent only if a request to it had not been sent before. If you wish to force a request to the endpoint, you can use this attribute.
 
     The object can only contain key-value pairs that you wish to append as path parameters to the authorization URL. For example, to set the `fidp` parameter, you can insert `fidp` as a key and its value to this object.
+
+2. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here to generate an authorization URL specific to that user. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -348,7 +349,7 @@ auth.getAuthorizationURL(config).then((url)=>{
 ### requestAccessToken
 
 ```TypeScript
-requestAccessToken(authorizationCode: string, sessionState: string): Promise<TokenResponse>
+requestAccessToken(authorizationCode: string, sessionState: string, state: string, userID?: string): Promise<TokenResponse>
 ```
 
 #### Arguments
@@ -360,6 +361,13 @@ requestAccessToken(authorizationCode: string, sessionState: string): Promise<Tok
 2. sessionState: `string`
 
     This is the session state obtained from Asgardeo after a user signs in.
+
+3. state: `string`
+   This is the the state parameter passed in the authorization URL.
+
+4. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here to request an access token specific to that user. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -374,7 +382,7 @@ This method uses the authorization code and the session state that are passed as
 #### Example
 
 ```TypeScript
-auth.requestAccessToken("auth-code", "session-state").then((tokenResponse)=>{
+auth.requestAccessToken("auth-code", "session-state", "request_0").then((tokenResponse)=>{
     console.log(tokenResponse);
 }).catch((error)=>{
     console.error(error);
@@ -386,8 +394,14 @@ auth.requestAccessToken("auth-code", "session-state").then((tokenResponse)=>{
 ### signOut
 
 ```TypeScript
-signOut(): Promise<string>
+signOut(userID?: string): Promise<string>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -411,8 +425,14 @@ const signOutURL = await auth.signOut();
 ### getSignOutURL
 
 ```TypeScript
-getSignOutURL(): Promise<string>
+getSignOutURL(userID?: string): Promise<string>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -461,8 +481,14 @@ const oidcEndpoints = await auth.getOIDCServiceEndpoints();
 ### getDecodedIDToken
 
 ```TypeScript
-getDecodedIDToken(): Promise<DecodedIDTokenPayload>
+getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -484,8 +510,14 @@ const decodedIDTokenPayload = await auth.getDecodedIDToken();
 ### getIDToken
 
 ```TypeScript
-getIDToken(): Promise<string>
+getIDToken(userID?: string): Promise<string>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -507,8 +539,14 @@ const idToken = await auth.getIDToken();
 ### getBasicUserInfo
 
 ```TypeScript
-getBasicUserInfo(): Promise<BasicUserInfo>
+getBasicUserInfo(userID?: string): Promise<BasicUserInfo>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -531,8 +569,14 @@ const basicUserInfo = await auth.getBasicUserInfo();
 ### revokeAccessToken
 
 ```TypeScript
-revokeAccessToken(): Promise<AxiosResponse>
+revokeAccessToken(userID?: string): Promise<AxiosResponse>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -557,8 +601,14 @@ auth.revokeAccessToken().then((response)=>{
 ### refreshAccessToken
 
 ```TypeScript
-refreshAccessToken(): Promise<TokenResponse>
+refreshAccessToken(userID?: string): Promise<TokenResponse>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -583,8 +633,14 @@ auth.refreshAccessToken().then((response)=>{
 ### getAccessToken
 
 ```TypeScript
-getAccessToken(): Promise<string>
+getAccessToken(userID?: string): Promise<string>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -607,13 +663,16 @@ const accessToken = await auth.getAccessToken();
 ### requestCustomGrant
 
 ```TypeScript
-requestCustomGrant(config: CustomGrantConfig): Promise<TokenResponse | AxiosResponse>
+requestCustomGrant(config: CustomGrantConfig, userID?: string): Promise<TokenResponse | AxiosResponse>
 ```
 
 #### Arguments
 
 1. config: [`CustomGrantConfig`](#CustomGrantConfig)
    The config object contains attributes that would be used to configure the custom grant request. To learn more about the different configurations available, checkout the [`CustomGrantConfig`](#CustomGrantConfig) model.
+2. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -652,8 +711,14 @@ This method can be used to send custom-grant requests to Asgardeo.
 ### isAuthenticated
 
 ```TypeScript
-isAuthenticated(): Promise<boolean>
+isAuthenticated(userID?: string): Promise<boolean>
 ```
+
+#### Argument
+
+1. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -676,8 +741,17 @@ const isAuth = await auth.isAuthenticated();
 ### getPKCECode
 
 ```TypeScript
-getPKCECode(): string
+getPKCECode(state: string, userID?: string): string
 ```
+
+#### Argument
+
+1. state: `string`
+   The state parameter that was passed in the authorization request.
+
+2. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Returns
 
@@ -692,7 +766,7 @@ This code returns the PKCE code generated when the authorization URL is generate
 #### Example
 
 ```TypeScript
-const pkce = auth.getPKCECode();
+const pkce = auth.getPKCECode(state);
 ```
 
 ---
@@ -700,14 +774,17 @@ const pkce = auth.getPKCECode();
 ### setPKCECode
 
 ```TypeScript
-setPKCECode(pkce: string): void
+setPKCECode(pkce: string, state: string, userID?: string): void
 ```
 
 #### Arguments
 
 1. pkce: `string`
 
-The PKCE code generated by the [`getAuthorizationURL`](#getAuthorizationURL) method.
+The PKCE code generated by the [`getAuthorizationURL`](#getAuthorizationURL) method. 2. state: `string`
+The state parameter that was passed in the authorization request. 3. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
 
 #### Description
 
@@ -716,7 +793,7 @@ This method sets the PKCE code to the store. The PKCE code is usually stored in 
 #### Example
 
 ```TypeScript
-auth.setPKCECode("pkce");
+auth.setPKCECode(pkce, state);
 ```
 
 ---
@@ -743,7 +820,39 @@ A boolean value indicating if the user has been signed out or not.
 
 #### Description
 
-This method returns if the user has been successfully signed out or not. When a user signs out from the server, the user is redirected to the URL specified by the `signOutRedirectURL` in the config object passed into the constructor of the `AsgardeoAuthClient`. The server appends path parameters indicating if the sign-out is successful. This method reads the URL and returns if the sign-out is successful or not. So, make sure you pass as the argument, the URL to which the user has been redirected to after signing out from the server.
+This method returns if the user has been successfully signed out or not. When a user signs out from the server, the user is redirected to the URL specified by the `signOutRedirectURL` in the config object passed into the constructor of the `AsgardeoAuthClient`. The server appends path parameters indicating if the sign-out is successful. This method reads the URL and returns if the sign-out is successful or not. So, make sure you pass as the argument the URL to which the user has been redirected to after signing out from the server.
+
+#### Example
+
+```TypeScript
+const isSignedOut = auth.isSignOutSuccessful(window.location.href);
+```
+
+---
+
+### didSignOutFail
+
+```TypeScript
+static didSignOutFail(signOutRedirectURL: string): boolean
+```
+
+**This is a static method.**
+
+#### Arguments
+
+1. signOutRedirectURL: `string`
+
+    The URL to which the user is redirected to after signing out from the server.
+
+#### Returns
+
+didSignOutFail: `boolean`
+
+A boolean value indicating if sign-out failed or not.
+
+#### Description
+
+This method returns if sign-out failed or not. When a user signs out from the server, the user is redirected to the URL specified by the `signOutRedirectURL` in the config object passed into the constructor of the `AsgardeoAuthClient`. The server appends path parameters indicating if the sign-out is successful. This method reads the URL and returns if the sign-out failed or not. So, make sure you pass as the argument the URL to which the user has been redirected to after signing out from the server.
 
 #### Example
 
@@ -820,44 +929,43 @@ The data layer is implemented within the SDK encapsulating the `Store` object pa
    Stores data that is temporary. In most cases, you wouldn't need this.
 
 All these four keys get methods to set, get and remove data as whole. In addition to this, all these keys get methods to set, get, and remove specific data referred to by their respective keys. The following table describes the methods provided by the data layer.
-|Method|Arguments|Returns|Description|
-|--|--|--|--|
-|setSessionData |sessionData: [`SessionData`](#SessionData) | `Promise<void>` | Saves session data in bulk.|
-|setOIDCProviderMetaData |oidcProviderMetaData: [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` |Saves OIDC Provider Meta data in bulk.|
-|setConfigData |config: [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<void>` | Saves config data in bulk.|
-|setTemporaryData |data: [`TemporaryData`](#TemporaryData) | `Promise<void>` | Saves temporary data in bulk.|
-|getSessionData | | `Promise<`[`SessionData`](#SessionData)`>` | Retrieves session data in bulk.|
-|getOIDCProviderMetaData | |`Promise<`[`OIDCProviderMetaData`](#OIDCProviderMetaData)`>` | Retrieves OIDC Provider Meta data in bulk.|
-|getConfigData | | `Promise<`[`AuthClientConfig<T>`](#`AuthClientConfig<T>`)`>` | Retrieves config data in bulk.|
-|getTemporaryData | | `Promise<`{ [key: `string`]: [`StoreValue` ](#StoreValue)}`>` | Retrieves temporary data in bulk.|
-|removeSessionData | | `Promise<void>` | Removes session data in bulk.|
-|removeOIDCProviderMetaData | | `Promise<void>` | Removes OIDC Provider Meta data in bulk.|
-|removeConfigData | | `Promise<void>` | Removes config data in bulk.|
-|removeTemporaryData | | `Promise<void>` | Removes temporary data in bulk.|
-|setSessionDataParameter |key: keyof [`SessionData`](#SessionData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the session data.|
-|setOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData), value: [`StoreValue`](#StoreValue) | `Promise<void>` | Saves the passed data against the specified key in the OIDC Provider Meta data.|
-|setConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT), value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the config data.|
-|setTemporaryDataParameter |key: `string`, value: [`StoreValue`](#`StoreValue`) | `Promise<void>` | Saves the passed data against the specified key in the temporary data.|
-|getSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the session data.|
-|getOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the OIDC Provider Meta data.|
-|getConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<`[`StoreValue`](#StoreValue)`>`| Retrieves the data for the specified key from the config data.|
-|getTemporaryDataParameter |key: `string` | `Promise<`[`StoreValue`](#StoreValue)`>` | Retrieves the data for the specified key from the temporary data.|
-|removeSessionDataParameter |key: keyof [`SessionData`](#SessionData) | `Promise<void>` | Removes the data with the specified key from the session data.|
-|removeOIDCProviderMetaDataParameter |key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData) | `Promise<void>` | Removes the data with the specified key from the OIDC Provider Meta data.|
-|removeConfigDataParameter |key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT) | `Promise<void>` | Removes the data with the specified key from the config data.|
-|removeTemporaryDataParameter |key: `string` | `Promise<void>` | Removes the data with the specified key from the temporary data.|
+| Method                              | Arguments                                                                                      | Returns                                                      | Description                                                                     |
+|-------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------|---------------------------------------------------------------------------------|
+| setSessionData                      | sessionData: [`SessionData`](#SessionData)                                                     | `Promise<void>`                                              | Saves session data in bulk.                                                     |
+| setOIDCProviderMetaData             | oidcProviderMetaData: [`OIDCProviderMetaData`](#OIDCProviderMetaData)                          | `Promise<void>`                                              | Saves OIDC Provider Meta data in bulk.                                          |
+| setConfigData                       | config: [`AuthClientConfig<T>`](#AuthClientConfigT)                                            | `Promise<void>`                                              | Saves config data in bulk.                                                      |
+| setTemporaryData                    | data: [`TemporaryData`](#TemporaryData)                                                        | `Promise<void>`                                              | Saves temporary data in bulk.                                                   |
+| getSessionData                      |                                                                                                | `Promise<`[`SessionData`](#SessionData)`>`                   | Retrieves session data in bulk.                                                 |
+| getOIDCProviderMetaData             |                                                                                                | `Promise<`[`OIDCProviderMetaData`](#OIDCProviderMetaData)`>` | Retrieves OIDC Provider Meta data in bulk.                                      |
+| getConfigData                       |                                                                                                | `Promise<`[`AuthClientConfig<T>`](#`AuthClientConfig<T>`)`>` | Retrieves config data in bulk.                                                  |
+| getTemporaryData                    |                                                                                                | `Promise<`{ [key: `string`]: [StoreValue](#StoreValue)}`>`   | Retrieves temporary data in bulk.                                               |
+| removeSessionData                   |                                                                                                | `Promise<void>`                                              | Removes session data in bulk.                                                   |
+| removeOIDCProviderMetaData          |                                                                                                | `Promise<void>`                                              | Removes OIDC Provider Meta data in bulk.                                        |
+| removeConfigData                    |                                                                                                | `Promise<void>`                                              | Removes config data in bulk.                                                    |
+| removeTemporaryData                 |                                                                                                | `Promise<void>`                                              | Removes temporary data in bulk.                                                 |
+| setSessionDataParameter             | key: keyof [`SessionData`](#SessionData), value: [`StoreValue`](#StoreValue)                   | `Promise<void>`                                              | Saves the passed data against the specified key in the session data.            |
+| setOIDCProviderMetaDataParameter    | key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData), value: [`StoreValue`](#StoreValue) | `Promise<void>`                                              | Saves the passed data against the specified key in the OIDC Provider Meta data. |
+| setConfigDataParameter              | key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT), value: [`StoreValue`](#`StoreValue`)   | `Promise<void>`                                              | Saves the passed data against the specified key in the config data.             |
+| setTemporaryDataParameter           | key: `string`, value: [`StoreValue`](#`StoreValue`)                                            | `Promise<void>`                                              | Saves the passed data against the specified key in the temporary data.          |
+| getSessionDataParameter             | key: keyof [`SessionData`](#SessionData)                                                       | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the session data.                 |
+| getOIDCProviderMetaDataParameter    | key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData)                                     | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the OIDC Provider Meta data.      |
+| getConfigDataParameter              | key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT)                                         | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the config data.                  |
+| getTemporaryDataParameter           | key: `string`                                                                                  | `Promise<`[`StoreValue`](#StoreValue)`>`                     | Retrieves the data for the specified key from the temporary data.               |
+| removeSessionDataParameter          | key: keyof [`SessionData`](#SessionData)                                                       | `Promise<void>`                                              | Removes the data with the specified key from the session data.                  |
+| removeOIDCProviderMetaDataParameter | key: keyof [`OIDCProviderMetaData`](#OIDCProviderMetaData)                                     | `Promise<void>`                                              | Removes the data with the specified key from the OIDC Provider Meta data.       |
+| removeConfigDataParameter           | key: keyof [`AuthClientConfig<T>`](#AuthClientConfigT)                                         | `Promise<void>`                                              | Removes the data with the specified key from the config data.                   |
+| removeTemporaryDataParameter        | key: `string`                                                                                  | `Promise<void>`                                              | Removes the data with the specified key from the temporary data.                |
 
 ## CryptoUtils
 
 The CryptoUtils interface defines the methods required to perform cryptographic operations such as producing a PKCE code and verifying ID tokens. The following table describes the methods provided by the CryptoUtils interface.
-|Method|Arguments|Returns|Description|
-|--|--|--|--|
-|`base64urlEncode` |input: `T` | `string` | Encodes the passed input string to a base64url encoded string.|
-|`base64urlDecode` |input: `string` | `string` | Decodes the passed input string from a base64url encoded string.|
-|`hashSha256` |input: `string` | `T` | Hashes the passed input string using SHA-256.|
-|`generateRandomBytes` |length: `number` | `T` | Generates random bytes of the specified length.|
-|`parseJwk` |jwk: [`JWKInterface`](#JWKInterface) | `Promise<R>` | Parses the passed JWK string to a JWK object.|
-|`verifyJwt`|jwt: `string`, jwk: `R` | `Promise<boolean>` | Verifies the passed JWT using the passed JWK.|
+| Method                | Arguments                          | Returns            | Description                                                      |
+|-----------------------|------------------------------------|--------------------|------------------------------------------------------------------|
+| `base64urlEncode`     | input: `T`                         | `string`           | Encodes the passed input string to a base64url encoded string.   |
+| `base64urlDecode`     | input: `string`                    | `string`           | Decodes the passed input string from a base64url encoded string. |
+| `hashSha256`          | input: `string`                    | `T`                | Hashes the passed input string using SHA-256.                    |
+| `generateRandomBytes` | length: `number`                   | `T`                | Generates random bytes of the specified length.                  |
+| `verifyJwt`           | jwt: `string`, jwk: `JWKInterface` | `Promise<boolean>` | Verifies the passed JWT using the passed JWK.                    |
 
 **NOTE: The return type of the `hashSha256` and `generateRandomBytes` method should be the same as the type of the argument of the `base64urlEncode` method.**
 
@@ -879,10 +987,9 @@ This model has the following attributes.
 |`prompt`|Optional| `string`|""|Specifies the prompt type of an OIDC request|
 |`responseMode`|Optional| `ResponseMode`|`"query"`|Specifies the response mode. The value can either be `query` or `form_post`|
 |`scope`|Optional| `string[]`|`["openid"]`|Specifies the requested scopes.|
-|`serverOrigin`|Required| `string`|""|The origin of the Identity Provider. eg: `https://api.asgardeo.io/t/<org_name>`|
-|`endpoints`|Optional| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS |using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be |used. However, if the `overrideWellEndpointConfig` is set to `true`, then this will override the endpoints obtained from the `.well-known` endpoint. |
-|`overrideWellEndpointConfig`|Optional| `boolean` | `false` | If this option is set to `true`, then the `endpoints` object will override endpoints obtained |from the `.well-known` endpoint. If this is set to `false`, then this will be used as a fallback if the request to the `.well-known` endpoint fails.|
-|`wellKnownEndpoint`|Optional| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
+|`baseUrl`|Required (If `wellKnownEndpoint` or `endpoints` is not provided)| `string`|""|The origin of the Identity Provider. eg: https://api.asgardeo.io/t/<org_name>.|
+|`endpoints`|Optional (Required to provide all endpoints, if `wellKnownEndpoint` or `baseUrl` is not provided)| `OIDCEndpoints`|[OIDC Endpoints Default Values](#oidc-endpoints)|The OIDC endpoint URLs. The SDK will try to obtain the endpoint URLS |using the `.well-known` endpoint. If this fails, the SDK will use these endpoint URLs. If this attribute is not set, then the default endpoint URLs will be |used.
+|`wellKnownEndpoint`|Optional (Required if `baseUrl` or `endpoints` is not provided)| `string`|`"/oauth2/token/.well-known/openid-configuration"`| The URL of the `.well-known` endpoint.|
 |`validateIDToken`|Optional| `boolean`|`true`|Allows you to enable/disable JWT ID token validation after obtaining the ID token.|
 |`clockTolerance`|Optional| `number`|`60`|Allows you to configure the leeway when validating the id_token.|
 |`sendCookiesInRequests`|Optional| `boolean`|`true`|Specifies if cookies should be sent in the requests.|
@@ -902,15 +1009,15 @@ const config: AuthClientConfig<Bar> ={
 ### Store
 
 | Method       | Required/Optional | Arguments                      | Returns                                                                                                                                                                         | Description                                                                                                                         |
-| ------------ | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+|--------------|-------------------|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | `setData`    | Required          | key: `string`, value: `string` | `Promise<void>`                                                                                                                                                                 | This method saves the passed value to the store. The data to be saved is JSON stringified so will be passed by the SDK as a string. |
-| `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns a Promise that resolves with it. Since the SDK stores the data as a JSON string, the returned value will be a string. |
+| `getData`    | Required          | key: `string`\|`string`        | This method retrieves the data from the store and returns a Promise that resolves with it. Since the SDK stores the data as a JSON string, the returned value will be a string. |                                                                                                                                     |
 | `removeData` | Required          | key: `string`                  | `Promise<void>`                                                                                                                                                                 | Removes the data with the specified key from the store.                                                                             |
 
 ### GetAuthURLConfig
 
 | Method        | Required/Optional | Type                  | Default Value | Description                                                                                                                                                            |
-| ------------- | ----------------- | --------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------|-------------------|-----------------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fidp`        | Optional          | `string`              | ""            | The `fidp` parameter that can be used to redirect a user directly to an IdP's sign-in page.                                                                            |
 | `forceInit`   | Optional          | `boolean`             | `false`       | Forces obtaining the OIDC endpoints from the `.well-known` endpoint. A request to this endpoint is not sent if a request has already been sent. This forces a request. |
 | key: `string` | Optional          | `string` \| `boolean` | ""            | Any key-value pair to be appended as path parameters to the authorization URL.                                                                                         |
@@ -918,7 +1025,7 @@ const config: AuthClientConfig<Bar> ={
 ### TokenResponse
 
 | Method         | Type     | Description                 |
-| -------------- | -------- | --------------------------- |
+|----------------|----------|-----------------------------|
 | `accessToken`  | `string` | The access token.           |
 | `idToken`      | `string` | The id token.               |
 | `expiresIn`    | `string` | The expiry time in seconds. |
@@ -929,7 +1036,7 @@ const config: AuthClientConfig<Bar> ={
 ### OIDCEndpoints
 
 | Method                  | Type     | Default Value                                      | Description                                                               |
-| ----------------------- | -------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+|-------------------------|----------|----------------------------------------------------|---------------------------------------------------------------------------|
 | `authorizationEndpoint` | `string` | `"/oauth2/authorize"`                              | The authorization endpoint.                                               |
 | `tokenEndpoint`         | `string` | `"/oauth2/token"`                                  | The token endpoint.                                                       |
 | `userinfoEndpoint`      | `string` | ""                                                 | The user-info endpoint.                                                   |
@@ -939,13 +1046,12 @@ const config: AuthClientConfig<Bar> ={
 | `introspectionEndpoint` | `string` | ""                                                 | The introspection endpoint.                                               |
 | `checkSessionIframe`    | `string` | `"/oidc/checksession"`                             | The check-session endpoint.                                               |
 | `endSessionEndpoint`    | `string` | `"/oidc/logout"`                                   | The end-session endpoint.                                                 |
-| `issuer`                | `string` | ""                                                 | The issuer of the token.                                                  |
-| `wellKnownEndpoint`     | `string` | `"/oauth2/token/.well-known/openid-configuration"` | The well-known endpoint. This is the default endpoint defined in the SDK. |
+| `issuer`                | `string` | ""                                                 | The issuer of the token.                                        
 
 ### DecodedIDTokenPayload
 
 | Method             | Type                   | Description                                    |
-| ------------------ | ---------------------- | ---------------------------------------------- |
+|--------------------|------------------------|------------------------------------------------|
 | aud                | `string` \| `string[]` | The audience.                                  |
 | sub                | `string`               | The subject. This is the username of the user. |
 | iss                | `string`               | The token issuer.                              |
@@ -956,7 +1062,7 @@ const config: AuthClientConfig<Bar> ={
 ### CustomGrantConfig
 
 | Attribute        | Required/Optional | Type      | Default Value | Description                                                                                                                                                                                                                   |
-| ---------------- | ----------------- | --------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------|-------------------|-----------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `id`             | Required          | `string`  | ""            | Every custom-grant request should have an id. This attributes takes that id.                                                                                                                                                  |
 | `data`           | Required          | `any`     | `null`        | The data that should be sent in the body of the custom-grant request. You can use template tags to send session information. Refer to the [Custom Grant Template Tags](#custom-grant-template-tags) section for more details. |
 | `signInRequired` | Required          | `boolean` | `false`       | Specifies if the user should be sign-in or not to dispatch this custom-grant request.                                                                                                                                         |
@@ -967,18 +1073,18 @@ const config: AuthClientConfig<Bar> ={
 #### Custom Grant Template Tags
 
 Session information can be attached to the body of a custom-grant request using template tags. This is useful when the session information is not exposed outside the SDK but you want such information to be used in custom-grant requests. The following table lists the available template tags.
-|Tag|Data|
-|--|--|
-|"{{token}}" | The access token.|
-|{{username}}" | The username.|
-|"{{scope}}" | The scope.|
-|{{clientID}}" | The client ID.|
-|"{{clientSecret}}" | The client secret.|
+| Tag                | Data               |
+|--------------------|--------------------|
+| "{{token}}"        | The access token.  |
+| {{username}}"      | The username.      |
+| "{{scope}}"        | The scope.         |
+| {{clientID}}"      | The client ID.     |
+| "{{clientSecret}}" | The client secret. |
 
 ### SessionData
 
 | Attribute       | Type     | description                                      |
-| --------------- | -------- | ------------------------------------------------ |
+|-----------------|----------|--------------------------------------------------|
 | `access_token`  | `string` | The access token.                                |
 | `id_token`      | `string` | The id token.                                    |
 | `expires_in`    | `string` | The expiry time.                                 |
@@ -986,11 +1092,12 @@ Session information can be attached to the body of a custom-grant request using 
 | `refresh_token` | `string` | The refresh token.                               |
 | `token_type`    | `string` | The token type.                                  |
 | `session_state` | `string` | The session state obtained after authentication. |
+| `created_at`    | `number` | The time when the session was created.           |
 
 ### OIDCProviderMetaData
 
 | Attribute                                                  | Type       | description                                                                                                                                                                                                                                                                                  |
-| ---------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `issuer`                                                   | `string`   | URL using the https scheme with no query or fragment component that the OP asserts as its Issuer Identifier.                                                                                                                                                                                 |
 | `authorization_endpoint`                                   | `string`   | URL of the OP's OAuth 2.0 Authorization Endpoint.                                                                                                                                                                                                                                            |
 | `token_endpoint`                                           | `string`   | URL of the OP's OAuth 2.0 Token Endpoint.                                                                                                                                                                                                                                                    |
@@ -1041,9 +1148,9 @@ Session information can be attached to the body of a custom-grant request using 
 ### TemporaryData
 
 Temporary data accepts any key-value pair.
-|Attribute|Type|
-|--|--|
-|[key: `string`]|`string`|
+| Attribute       | Type     |
+|-----------------|----------|
+| [key: `string`] | `string` |
 
 ### StoreValue
 
@@ -1056,7 +1163,7 @@ type StoreValue = string | string[] | boolean | number | OIDCEndpoints;
 ### BasicUserInfo
 
 | Attribute       | Type     | Description                                                                                        |
-| :-------------- | :------- | :------------------------------------------------------------------------------------------------- |
+|:----------------|:---------|:---------------------------------------------------------------------------------------------------|
 | `email`         | `string` | The email address of the user.                                                                     |
 | `username`      | `string` | The username of the user.                                                                          |
 | `displayName`   | `string` | The display name of the user. It is the `preferred_username` in the id token payload or the `sub`. |
@@ -1070,7 +1177,7 @@ In addition to the above attributes, this object will also contain any other cla
 ### JWKInterface
 
 | Attribute | Type     | Description                                                        |
-| --------- | -------- | ------------------------------------------------------------------ |
+|-----------|----------|--------------------------------------------------------------------|
 | `kty`     | `string` | The type of the key. Must be one of `RSA`, `EC`, `oct` or `OKP`.   |
 | `kid`     | `string` | The key ID.                                                        |
 | `use`     | `string` | The intended use of the public key. Must be one of `sig` or `enc`. |
@@ -1083,7 +1190,7 @@ In addition to the above attributes, this object will also contain any other cla
 ### Prerequisites
 
 -   `Node.js` (version 10 or above).
--   `npm` package manager.
+-   `yarn` package manager.
 
 ### Installing Dependencies
 
@@ -1092,6 +1199,24 @@ The repository is a mono repository. The SDK repository is found in the [lib](ht
 ```
 yarn build
 ```
+
+## Error Codes
+
+Error code consist of four parts separated by a `-`.
+
+-   The first part refers to the SDK. Example: `JS` refers to this SDK.
+-   The second part refers to the code file. Example: `AUTH_CORE` refers to the `authentication-core.ts` file.
+-   The third part is the abbreviation of the name of the method/function that threw the error. If there are more than one method/function with the same abbreviation, then a number based on the order of declaration is appended to the abbreviation. Example: `RAT1` refers to the `requestAccessToken` method. There are two methods that can be abbreviated to `RAT` but since `1` has been appended to `RAT`, we know it refers to `requestAccessToken` since it is declared first.
+-   The fourth part refers to the type of error and is position. Example: `NE02` refers to a network error and the fact that this is the second error in the method/function. The following error types are available:
+
+    | Error Code | Description   |
+    |:-----------|:--------------|
+    | `NE`       | Network Error |
+    | `HE`       | Http Error    |
+    | `IV`       | Invalid       |
+    | `NF`       | Not Found     |
+    | `TO`       | Timeout       |
+    | `SE`       | Server Error  |
 
 ## Contribute
 
