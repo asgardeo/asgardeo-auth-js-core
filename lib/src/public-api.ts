@@ -26,3 +26,4 @@ export * from "./constants/parameters";
 export * from "./constants/scopes";
 export * from "./utils";
 export * from "./exception";
+export * from "./data";
