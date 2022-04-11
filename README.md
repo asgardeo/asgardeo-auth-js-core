@@ -857,7 +857,7 @@ This method returns if sign-out failed or not. When a user signs out from the se
 #### Example
 
 ```TypeScript
-const isSignedOut = auth.isSignOutSuccessful(window.location.href);
+const didSignOutFail = auth.didSignOutFail(window.location.href);
 ```
 
 ---
