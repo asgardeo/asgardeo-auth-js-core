@@ -113,6 +113,24 @@ export class CryptoHelper<T = any> {
                         "ID token validation returned false"
                     )
                 );
+            }).catch((error) => {
+                if(error?.code === "ERR_JWT_CLAIM_VALIDATION_FAILED" && error?.claim === "nbf") {
+                    return Promise.reject(
+                        new AsgardeoAuthException(
+                            "JS-CRYPTO_UTILS-IVIT-IV02",
+                            "JWT NBF CLAIM VALIDATION FAILED",
+                            "JWT NBF claim validation has been failed"
+                        )
+                    );
+                } else {
+                    return Promise.reject(
+                        new AsgardeoAuthException(
+                            "JS-CRYPTO_UTILS-IVIT-IV03",
+                            "JWT VALIDATION FAILED",
+                            "JWT validation has been failed"
+                        )
+                    );
+                }
             });
     }
 
