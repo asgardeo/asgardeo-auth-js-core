@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { SUPPORTED_SIGNATURE_ALGORITHMS } from "../constants";
+import { CLAIM_VALIDATION_ERROR, NBF_CLAIM, SUPPORTED_SIGNATURE_ALGORITHMS } from "../constants";
 import { AsgardeoAuthException } from "../exception";
 import { CryptoUtils, DecodedIDTokenPayload, JWKInterface } from "../models";
 
@@ -111,6 +111,24 @@ export class CryptoHelper<T = any> {
                         "JS-CRYPTO_HELPER-IVIT-IV01",
                         "Invalid ID token.",
                         "ID token validation returned false"
+                    )
+                );
+            }).catch((error) => {
+                if(error?.code === CLAIM_VALIDATION_ERROR && error?.claim === NBF_CLAIM) {
+                    return Promise.reject(
+                        new AsgardeoAuthException(
+                            "JS-CRYPTO_UTILS-IVIT-IV02",
+                            "JWT NBF CLAIM VALIDATION FAILED",
+                            "JWT NBF claim validation has been failed"
+                        )
+                    );
+                }
+
+                return Promise.reject(
+                    new AsgardeoAuthException(
+                        "JS-CRYPTO_UTILS-IVIT-IV03",
+                        "JWT VALIDATION FAILED",
+                        "JWT validation has been failed"
                     )
                 );
             });
