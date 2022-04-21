@@ -31,5 +31,5 @@ export const SUPPORTED_SIGNATURE_ALGORITHMS = [
     "RS256", "RS512", "RS384", "PS256"
 ];
 
-export const JOSE_CLAIM_VALIDATION_ERROR: string = "ERR_JWT_CLAIM_VALIDATION_FAILED";
-export const JOSE_NBF_CLAIM: string= "nbf";
+export const CLAIM_VALIDATION_ERROR: string = "ERR_JWT_CLAIM_VALIDATION_FAILED";
+export const NBF_CLAIM: string= "nbf";

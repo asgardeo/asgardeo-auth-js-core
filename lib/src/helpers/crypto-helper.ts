@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { JOSE_CLAIM_VALIDATION_ERROR, JOSE_NBF_CLAIM, SUPPORTED_SIGNATURE_ALGORITHMS } from "../constants";
+import { CLAIM_VALIDATION_ERROR, NBF_CLAIM, SUPPORTED_SIGNATURE_ALGORITHMS } from "../constants";
 import { AsgardeoAuthException } from "../exception";
 import { CryptoUtils, DecodedIDTokenPayload, JWKInterface } from "../models";
 
@@ -114,7 +114,7 @@ export class CryptoHelper<T = any> {
                     )
                 );
             }).catch((error) => {
-                if(error?.code === JOSE_CLAIM_VALIDATION_ERROR && error?.claim === JOSE_NBF_CLAIM) {
+                if(error?.code === CLAIM_VALIDATION_ERROR && error?.claim === NBF_CLAIM) {
                     return Promise.reject(
                         new AsgardeoAuthException(
                             "JS-CRYPTO_UTILS-IVIT-IV02",
@@ -123,7 +123,7 @@ export class CryptoHelper<T = any> {
                         )
                     );
                 }
-                
+
                 return Promise.reject(
                     new AsgardeoAuthException(
                         "JS-CRYPTO_UTILS-IVIT-IV03",
