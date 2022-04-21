@@ -122,15 +122,15 @@ export class CryptoHelper<T = any> {
                             "JWT NBF claim validation has been failed"
                         )
                     );
-                } else {
-                    return Promise.reject(
-                        new AsgardeoAuthException(
-                            "JS-CRYPTO_UTILS-IVIT-IV03",
-                            "JWT VALIDATION FAILED",
-                            "JWT validation has been failed"
-                        )
-                    );
                 }
+                
+                return Promise.reject(
+                    new AsgardeoAuthException(
+                        "JS-CRYPTO_UTILS-IVIT-IV03",
+                        "JWT VALIDATION FAILED",
+                        "JWT validation has been failed"
+                    )
+                );
             });
     }
 
