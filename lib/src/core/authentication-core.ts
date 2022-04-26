@@ -77,8 +77,10 @@ export class AuthenticationCore<T> {
 
         const authorizeRequest = new URL(authorizeEndpoint);
 
-        authorizeRequest.searchParams.append("response_type", "code");
-        authorizeRequest.searchParams.append("client_id", configData.clientID);
+        const authorizeRequestParams = new Map();
+
+        authorizeRequestParams.set("response_type", "code");
+        authorizeRequestParams.set("client_id", configData.clientID);
 
         let scope = OIDC_SCOPE;
 
@@ -89,11 +91,11 @@ export class AuthenticationCore<T> {
             scope = configData.scope.join(" ");
         }
 
-        authorizeRequest.searchParams.append("scope", scope);
-        authorizeRequest.searchParams.append("redirect_uri", configData.signInRedirectURL);
+        authorizeRequestParams.set("scope", scope);
+        authorizeRequestParams.set("redirect_uri", configData.signInRedirectURL);
 
         if (configData.responseMode) {
-            authorizeRequest.searchParams.append("response_mode", configData.responseMode);
+            authorizeRequestParams.set("response_mode", configData.responseMode);
         }
 
         const pkceKey: string = await this._authenticationHelper.generatePKCEKey(userID);
@@ -103,30 +105,34 @@ export class AuthenticationCore<T> {
             const codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
 
             await this._dataLayer.setTemporaryDataParameter(pkceKey, codeVerifier, userID);
-            authorizeRequest.searchParams.append("code_challenge_method", "S256");
-            authorizeRequest.searchParams.append("code_challenge", codeChallenge);
+            authorizeRequestParams.set("code_challenge_method", "S256");
+            authorizeRequestParams.set("code_challenge", codeChallenge);
         }
 
         if (configData.prompt) {
-            authorizeRequest.searchParams.append("prompt", configData.prompt);
+            authorizeRequestParams.set("prompt", configData.prompt);
         }
 
         const customParams = config;
         if (customParams) {
             for (const [ key, value ] of Object.entries(customParams)) {
                 if (key != "" && value != "" && key !== STATE) {
-                    authorizeRequest.searchParams.append(key, value.toString());
+                    authorizeRequestParams.set(key, value.toString());
                 }
             }
         }
 
-        authorizeRequest.searchParams.append(
+        authorizeRequestParams.set(
             STATE,
             AuthenticationUtils.generateStateParamForRequestCorrelation(
                 pkceKey,
                 customParams ? customParams[ STATE ]?.toString() : ""
             )
         );
+
+        for (const [key, value] of authorizeRequestParams.entries()) {
+            authorizeRequest.searchParams.append(key, value);
+        }
 
         return authorizeRequest.toString();
     }
