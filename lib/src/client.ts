@@ -25,6 +25,7 @@ import {
 } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
+import { AuthenticationHelper, CryptoHelper } from "./helpers";
 import {
     AuthClientConfig,
     BasicUserInfo,
@@ -59,6 +60,8 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
 export class AsgardeoAuthClient<T> {
     private _dataLayer: DataLayer<T>;
     private _authenticationCore: AuthenticationCore<T>;
+    private _cryptoHelper: CryptoHelper;
+    private _authenticationHelper: AuthenticationHelper<T>;
 
     private static _instanceID: number;
 
@@ -83,7 +86,9 @@ export class AsgardeoAuthClient<T> {
             AsgardeoAuthClient._instanceID += 1;
         }
         this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
+        this._cryptoHelper = new CryptoHelper(cryptoUtils);
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
+        this._authenticationHelper = new AuthenticationHelper(this._dataLayer, this._cryptoHelper);
     }
 
     /**
@@ -568,6 +573,12 @@ export class AsgardeoAuthClient<T> {
         const error = Boolean(url.searchParams.get("error"));
 
         return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error : false;
+    }
+
+    public handleSignOutSuccessful(signOutRedirectURL: string, userID?: string) {
+        if(AsgardeoAuthClient.isSignOutSuccessful(signOutRedirectURL)) {
+            this._authenticationHelper.clearUserSessionData(userID);
+        }
     }
 
     /**
