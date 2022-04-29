@@ -570,6 +570,12 @@ export class AsgardeoAuthClient<T> {
         return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error : false;
     }
 
+    public async handleSignOutSuccessful(signOutRedirectURL: string, userID?: string) {
+        if(AsgardeoAuthClient.isSignOutSuccessful(signOutRedirectURL)) {
+            await this._authenticationCore.clearUserSessionData(userID);
+        }
+    }
+
     /**
      * This method returns if the sign-out has failed or not.
      *

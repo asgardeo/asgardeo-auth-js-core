@@ -563,9 +563,12 @@ export class AuthenticationCore<T> {
 
     public async signOut(userID?: string): Promise<string> {
         const signOutURL = await this.getSignOutURL(userID);
-        this._authenticationHelper.clearUserSessionData(userID);
 
         return signOutURL;
+    }
+
+    public async clearUserSessionData(userID?: string): Promise<void> {
+        await this._authenticationHelper.clearUserSessionData(userID);
     }
 
     public async getAccessToken(userID?: string): Promise<string> {
