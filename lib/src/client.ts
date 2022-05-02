@@ -61,6 +61,7 @@ export class AsgardeoAuthClient<T> {
     private _authenticationCore: AuthenticationCore<T>;
 
     private static _instanceID: number;
+    static _authenticationCore: any;
 
     /**
      * This is the constructor method that returns an instance of the .
@@ -84,6 +85,7 @@ export class AsgardeoAuthClient<T> {
         }
         this._dataLayer = new DataLayer<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
+        AsgardeoAuthClient._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
     }
 
     /**
@@ -570,12 +572,6 @@ export class AsgardeoAuthClient<T> {
         return stateParam ? stateParam === SIGN_OUT_SUCCESS_PARAM && !error : false;
     }
 
-    public async handleSignOutSuccessful(signOutRedirectURL: string, userID?: string) {
-        if(AsgardeoAuthClient.isSignOutSuccessful(signOutRedirectURL)) {
-            await this._authenticationCore.clearUserSessionData(userID);
-        }
-    }
-
     /**
      * This method returns if the sign-out has failed or not.
      *
@@ -623,5 +619,9 @@ export class AsgardeoAuthClient<T> {
      */
     public async updateConfig(config: Partial<AuthClientConfig<T>>): Promise<void> {
         await this._authenticationCore.updateConfig(config);
+    }
+
+    public static async clearUserSessionData(userID?: string): Promise<void> {
+        await this._authenticationCore.clearUserSessionData(userID);
     }
 }
