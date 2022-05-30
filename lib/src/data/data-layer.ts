@@ -66,7 +66,7 @@ export class DataLayer<T> {
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
-    private _resolveKey(store: Stores, userID?: string): string {
+    private _resolveKey(store: Stores | string, userID?: string): string {
         return userID ? `${ store }-${ this._id }-${ userID }` : `${ store }-${ this._id }`;
     }
 
@@ -86,6 +86,10 @@ export class DataLayer<T> {
         this.setDataInBulk(this._resolveKey(Stores.SessionData, userID), sessionData);
     }
 
+    public async setCustomData<K>(key: string, customData: Partial<K>, userID?: string): Promise<void> {
+        this.setDataInBulk(this._resolveKey(key, userID), customData);
+    }
+
     public async getConfigData(): Promise<AuthClientConfig<T>> {
         return JSON.parse((await this._store.getData(this._resolveKey(Stores.ConfigData))) ?? null);
     }
@@ -100,6 +104,10 @@ export class DataLayer<T> {
 
     public async getSessionData(userID?: string): Promise<SessionData> {
         return JSON.parse((await this._store.getData(this._resolveKey(Stores.SessionData, userID))) ?? null);
+    }
+
+    public async getCustomData<K>(key: string, userID?: string): Promise<K> {
+        return JSON.parse((await this._store.getData(this._resolveKey(key, userID))) ?? null);
     }
 
     public async removeConfigData(): Promise<void> {
