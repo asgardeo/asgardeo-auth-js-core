@@ -20,14 +20,14 @@ import { Stores } from "../constants";
 import { AuthClientConfig, OIDCProviderMetaData, SessionData, Store, StoreValue, TemporaryData } from "../models";
 
 export class DataLayer<T> {
-    private _id: string;
-    private _store: Store;
+    protected _id: string;
+    protected _store: Store;
     public constructor(instanceID: string, store: Store) {
         this._id = instanceID;
         this._store = store;
     }
 
-    private async setDataInBulk(
+    protected async setDataInBulk(
         key: string,
         data: Partial<AuthClientConfig<T> | OIDCProviderMetaData | SessionData | TemporaryData>
     ): Promise<void> {
@@ -39,7 +39,7 @@ export class DataLayer<T> {
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
-    private async setValue(
+    protected async setValue(
         key: string,
         attribute: keyof AuthClientConfig<T> | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData,
         value: StoreValue
@@ -53,7 +53,7 @@ export class DataLayer<T> {
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
-    private async removeValue(
+    protected async removeValue(
         key: string,
         attribute: keyof AuthClientConfig<T> | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData
     ): Promise<void> {
@@ -66,7 +66,7 @@ export class DataLayer<T> {
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
-    private _resolveKey(store: Stores | string, userID?: string): string {
+    protected _resolveKey(store: Stores | string, userID?: string): string {
         return userID ? `${ store }-${ this._id }-${ userID }` : `${ store }-${ this._id }`;
     }
 
