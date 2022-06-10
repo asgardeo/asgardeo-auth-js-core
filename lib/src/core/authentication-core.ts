@@ -428,9 +428,16 @@ export class AuthenticationCore<T> {
         return basicUserInfo;
     }
 
-    public async getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload> {
-        const idToken = (await this._dataLayer.getSessionData(userID)).id_token;
-        const payload: DecodedIDTokenPayload = this._cryptoHelper.decodeIDToken(idToken);
+    public async getDecodedIDToken(userID?: string, idToken?: string): Promise<DecodedIDTokenPayload> {
+        let encodedIdToken;
+
+        if(!idToken || idToken?.length === 0) {
+            encodedIdToken = (await this._dataLayer.getSessionData(userID)).id_token;
+        } else {
+            encodedIdToken = idToken;
+        }
+
+        const payload: DecodedIDTokenPayload = this._cryptoHelper.decodeIDToken(encodedIdToken);
 
         return payload;
     }

@@ -304,8 +304,8 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload> {
-        return this._authenticationCore.getDecodedIDToken(userID);
+    public async getDecodedIDToken(userID?: string, idToken?: string): Promise<DecodedIDTokenPayload> {
+        return this._authenticationCore.getDecodedIDToken(userID, idToken);
     }
 
     /**
