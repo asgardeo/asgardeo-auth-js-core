@@ -25,6 +25,7 @@
     -   [getOIDCServiceEndpoints](#getOIDCServiceEndpoints)
     -   [getDecodedIDToken](#getDecodedIDToken)
     -   [getIDToken](#getIDToken)
+    -   [getCryptoHelper](#getCryptoHelper)
     -   [getBasicUserInfo](#getBasicUserInfo)
     -   [revokeAccessToken](#revokeAccessToken)
     -   [refreshAccessToken](#refreshAccessToken)
@@ -299,6 +300,31 @@ This method returns the `DataLayer` object used by the SDK to store authenticati
 
 ```TypeScript
 const dataLayer = auth.getDataLayer();
+```
+
+---
+
+
+### getCryptoHelper
+
+```TypeScript
+getCryptoHelper(): Promise<CryptoHelper>
+```
+
+#### Returns
+
+cryptoHelper : [`CryptoHelper`](#CryptoUtils)
+
+A `CryptoHelper` provides support performing cryptographic operation for such as producing a PKCE code and verifying ID tokens.. To learn more about the various types of interfaces provide by the `CryptoHelper`, refer to the [Crypto Utils](#CryptoUtils) section.
+
+#### Description
+
+This method returns the `CryptoHelper` object used by the SDK to perform cryptographic operations.
+
+#### Example
+
+```TypeScript
+const cryptoHelper = auth.getCryptoHelper();
 ```
 
 ---
