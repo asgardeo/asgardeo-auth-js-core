@@ -435,6 +435,10 @@ export class AuthenticationCore<T> {
         return payload;
     }
 
+    public async getCryptoHelper(): Promise<CryptoHelper> {
+        return this._cryptoHelper;
+    }
+
     public async getIDToken(userID?: string): Promise<string> {
         return (await this._dataLayer.getSessionData(userID)).id_token;
     }

@@ -24,6 +24,7 @@ export * from "./constants/parameters";
 export * from "./constants/data";
 export * from "./constants/parameters";
 export * from "./constants/scopes";
+export * from "./helpers/crypto-helper";
 export * from "./utils";
 export * from "./exception";
 export * from "./data";
