@@ -25,6 +25,7 @@ import {
 } from "./constants";
 import { AuthenticationCore } from "./core";
 import { DataLayer } from "./data";
+import { CryptoHelper } from "./helpers";
 import {
     AuthClientConfig,
     BasicUserInfo,
@@ -352,6 +353,26 @@ export class AsgardeoAuthClient<T> {
      */
     public async getBasicUserInfo(userID?: string): Promise<BasicUserInfo> {
         return this._authenticationCore.getBasicUserInfo(userID);
+    }
+
+    /**
+     * This method returns the crypto helper object.
+     *
+     * @return {Promise<CryptoHelper>} - A Promise that resolves with a CryptoHelper object.
+     *
+     * @example
+     * ```
+     * const cryptoHelper = await auth.CryptoHelper();
+     * ```
+     *
+     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getCryptoHelper
+     *
+     * @memberof AsgardeoAuthClient
+     *
+     * @preserve
+     */
+     public async getCryptoHelper(): Promise<CryptoHelper> {
+        return this._authenticationCore.getCryptoHelper();
     }
 
     /**
