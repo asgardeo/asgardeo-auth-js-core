@@ -315,7 +315,7 @@ getCryptoHelper(): Promise<CryptoHelper>
 
 cryptoHelper : [`CryptoHelper`](#CryptoUtils)
 
-A `CryptoHelper` provides support performing cryptographic operation for such as producing a PKCE code and verifying ID tokens.. To learn more about the various types of interfaces provide by the `CryptoHelper`, refer to the [Crypto Utils](#CryptoUtils) section.
+A `CryptoHelper` provides support for performing a cryptographic operation such as producing a PKCE code and verifying ID tokens. To learn more about the various types of interfaces provided by the `CryptoHelper`, refer to the [Crypto Utils](#CryptoUtils) section.
 
 #### Description
 
