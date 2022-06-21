@@ -62,7 +62,7 @@ export interface ExplicitAuthClientConfig extends DefaultAuthClientConfig {
 
 export type StrictAuthClientConfig =
   | WellKnownAuthClientConfig
-  | BaseURLAuthClientConfig
-  | ExplicitAuthClientConfig;
+  | ExplicitAuthClientConfig
+  | BaseURLAuthClientConfig;
 
 export type AuthClientConfig<T = unknown> = StrictAuthClientConfig & T;
