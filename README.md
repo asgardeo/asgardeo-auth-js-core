@@ -20,7 +20,6 @@
     -   [getDataLayer](#getDataLayer)
     -   [getAuthorizationURL](#getAuthorizationURL)
     -   [requestAccessToken](#requestAccessToken)
-    -   [signOut](#signOut)
     -   [getSignOutURL](#getSignOutURL)
     -   [getOIDCServiceEndpoints](#getOIDCServiceEndpoints)
     -   [getDecodedIDToken](#getDecodedIDToken)
@@ -417,37 +416,6 @@ auth.requestAccessToken("auth-code", "session-state", "request_0").then((tokenRe
 
 ---
 
-### signOut
-
-```TypeScript
-signOut(userID?: string): Promise<string>
-```
-
-#### Argument
-
-1. userID: `string` (optional)
-
-    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here. This can be useful when this SDK is used in backend applications.
-
-#### Returns
-
-signOutURL: `Promise<string>`
-
-The user should be redirected to this URL in order to sign out of the server.
-
-#### Description
-
-This clears the authentication data from the store, generates the sign-out URL and returns it. This should be used only if you want to sign out the user from the Asgardeo as well. If you only want to revoke the access token, then use the [`revokeAccessToken`](#revokeAccessToken) method.
-
-#### Example
-
-```TypeScript
-// This should be within an async function.
-const signOutURL = await auth.signOut();
-```
-
----
-
 ### getSignOutURL
 
 ```TypeScript
@@ -468,7 +436,7 @@ The user should be redirected to this URL in order to sign out of the server.
 
 #### Description
 
-This method returns the sign-out URL to which the user should be redirected to be signed out from the server. This is different to the [`signOut`](#signOut) method because **this doesn't clear the authentication data** from the store.
+This method returns the sign-out URL to which the user should be redirected to be signed out from the server. 
 
 #### Example
 

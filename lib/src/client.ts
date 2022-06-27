@@ -217,30 +217,6 @@ export class AsgardeoAuthClient<T> {
             return this._authenticationCore.requestAccessToken(authorizationCode, sessionState, state, userID);
         });
     }
-
-    /**
-     * This method clears all authentication data and returns the sign-out URL.
-     *
-     * @param {string} userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
-     * scenarios where each user should be uniquely identified.
-     *
-     * @return {Promise<string>} - A Promise that resolves with the sign-out URL.
-     *
-     * @example
-     * ```
-     * const signOutUrl = await auth.signOut();
-     * ```
-     *
-     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#signOut
-     *
-     * @memberof AsgardeoAuthClient
-     *
-     * @preserve
-     */
-    public async signOut(userID?: string): Promise<string> {
-        return this._authenticationCore.signOut(userID);
-    }
-
     /**
      * This method returns the sign-out URL.
      *
