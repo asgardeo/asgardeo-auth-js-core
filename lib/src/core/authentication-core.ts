@@ -565,12 +565,6 @@ export class AuthenticationCore<T> {
         return logoutCallback;
     }
 
-    public async signOut(userID?: string): Promise<string> {
-        const signOutURL = await this.getSignOutURL(userID);
-
-        return signOutURL;
-    }
-
     public async clearUserSessionData(userID?: string): Promise<void> {
         await this._authenticationHelper.clearUserSessionData(userID);
     }
