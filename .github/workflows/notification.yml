@@ -1,89 +1,109 @@
 name: Send Notification
 
 on:
-  issues:
-    types: [opened]
-  pull_request:
-    types: [opened]
+    issues:
+        types: [opened]
+    pull_request:
+        types: [opened]
 
 jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send notification on issue creation
-        if: ${{github.event.issue}}
-        run: |
-          curl --location --request POST '${{secrets.WEBHOOK_CHAT}}' \
-          --header 'Content-Type: application/json' \
-          --data-raw '{
-              "cards": [
-                  {
-                      "header": {
-                          "title": "ISSUE: ${{ github.event.issue.title }}",
-                          "subtitle": "By ${{ github.event.issue.user.login }} in Asgardeo JS SDK repo",
-                          "imageUrl": "https://avatars.githubusercontent.com/u/583231?v=4",
-                          "imageStyle": "IMAGE"
-                      },
-                      "sections": {
-                          "widgets": [
-                              {
-                                  "buttons": [
-                                      {
-                                          "textButton": {
-                                              "text": "Open Issue",
-                                              "onClick": {
-                                                  "openLink": {
-                                                      "url": "${{ github.event.issue.html_url }}"
-                                                  }
-                                              }
-                                          }
-                                      }
-                                  ],
-                                  "textParagraph": {
-                                      "text": "${{ github.event.issue.body }}"
-                                  }
-                              }
-                          ]
-                      }
-                  }
-              ]
-          }'
-
-      - name: Send notification on pull request creation
-        if: ${{github.event.pull_request}}
-        run: |
-            curl --location --request POST '${{secrets.WEBHOOK_CHAT}}' \
-            --header 'Content-Type: application/json' \
-            --data-raw '{
-                "cards": [
-                    {
-                        "header": {
-                            "title": "PR: ${{ github.event.pull_request.title }}",
-                            "subtitle": "By ${{ github.event.pull_request.user.login }} in Asgardeo JS SDK Repo",
-                            "imageUrl": "https://avatars.githubusercontent.com/u/583231?v=4",
-                            "imageStyle": "IMAGE"
-                        },
-                        "sections": {
-                            "widgets": [
-                                {
-                                    "buttons": [
+    issue-notify:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Send notification on issue creation
+              if: ${{github.event.issue}}
+              run: |
+                  curl --location --request POST '${{secrets.WEBHOOK_CHAT}}' \
+                  --header 'Content-Type: application/json' \
+                  --data-raw '{
+                        "cardsV2": [
+                            {
+                                "card": {
+                                    "header": {
+                                        "title": "PR: ${{ github.event.issue.title }}",
+                                        "subtitle": "By ${{ github.event.issue.user.login }} in Asgardeo JS SDK Repo",
+                                        "imageUrl": "https://avatars.githubusercontent.com/u/583231?v=4",
+                                        "imageType": "CIRCLE",
+                                        "imageAltText": "GitHub Avatar"
+                                    },
+                                    "sections": [
                                         {
-                                            "textButton": {
-                                                "text": "Open PR",
-                                                "onClick": {
-                                                    "openLink": {
-                                                        "url": "${{ github.event.pull_request.html_url }}"
+                                            "header": "Issue Details",
+                                            "collapsible": false,
+                                            "widgets": [
+                                                {
+                                                    "buttonList": {
+                                                        "buttons": [
+                                                            {
+                                                                "text": "Open Issue",
+                                                                "onClick": {
+                                                                    "openLink": {
+                                                                        "url": "${{ github.event.issue.html_url }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "textParagraph": {
+                                                        "text": "${{ github.event.issue.body }}"
                                                     }
                                                 }
-                                            }
+                                            ]
                                         }
-                                    ],
-                                    "textParagraph": {
-                                        "text": "${{ github.event.pull_request.body }}"
-                                    }
+                                    ]
                                 }
-                            ]
-                        }
-                    }
-                ]
-            }'
+                            }
+                        ]
+                  }'
+    pr-notify:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Send notification on pull request creation
+              if: ${{github.event.pull_request}}
+              run: |
+                  curl --location --request POST '${{secrets.WEBHOOK_CHAT}}' \
+                  --header 'Content-Type: application/json' \
+                  --data-raw '{
+                      "cardsV2": [
+                          {
+                              "card": {
+                                  "header": {
+                                      "title": "PR: ${{ github.event.pull_request.title }}",
+                                      "subtitle": "By ${{ github.event.pull_request.user.login }} in Asgardeo JS SDK Repo",
+                                      "imageUrl": "https://avatars.githubusercontent.com/u/583231?v=4",
+                                      "imageType": "CIRCLE",
+                                      "imageAltText": "GitHub Avatar"
+                                  },
+                                  "sections": [
+                                      {
+                                          "header": "PR Details",
+                                          "collapsible": false,
+                                          "widgets": [
+                                              {
+                                                  "buttonList": {
+                                                      "buttons": [
+                                                          {
+                                                              "text": "Open PR",
+                                                              "onClick": {
+                                                                  "openLink": {
+                                                                      "url": "${{ github.event.pull_request.html_url }}"
+                                                                  }
+                                                              }
+                                                          }
+                                                      ]
+                                                  }
+                                              },
+                                              {
+                                                  "textParagraph": {
+                                                      "text": "${{ github.event.pull_request.body }}"
+                                                  }
+                                              }
+                                          ]
+                                      }
+                                  ]
+                              }
+                          }
+                      ]
+                  }'
