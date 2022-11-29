@@ -3,15 +3,15 @@ name: Send Notification
 on:
     issues:
         types: [opened]
-    pull_request:
+    pull_request_target:
         types: [opened]
 
 jobs:
     issue-notify:
         runs-on: ubuntu-latest
+        if: ${{github.event.issue}}
         steps:
             - name: Send notification on issue creation
-              if: ${{github.event.issue}}
               run: |
                   curl --location --request POST '${{secrets.WEBHOOK_CHAT}}' \
                   --header 'Content-Type: application/json' \
@@ -59,9 +59,9 @@ jobs:
                   }'
     pr-notify:
         runs-on: ubuntu-latest
+        if: ${{github.event.pull_request}}
         steps:
             - name: Send notification on pull request creation
-              if: ${{github.event.pull_request}}
               run: |
                   curl --location --request POST '${{secrets.WEBHOOK_CHAT}}' \
                   --header 'Content-Type: application/json' \
