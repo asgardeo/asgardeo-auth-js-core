@@ -94,11 +94,6 @@ jobs:
                                                           }
                                                       ]
                                                   }
-                                              },
-                                              {
-                                                  "textParagraph": {
-                                                      "text": "${{ github.event.pull_request.body }}"
-                                                  }
                                               }
                                           ]
                                       }
