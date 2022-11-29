@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@ import { AsgardeoAuthException } from "../exception";
 import { AuthenticationHelper, CryptoHelper } from "../helpers";
 import {
     AuthClientConfig,
+    AuthenticatedUserInfo,
     AuthorizationURLParams,
     BasicUserInfo,
     CryptoUtils,
@@ -38,6 +39,8 @@ import {
     FetchResponse,
     OIDCEndpoints,
     OIDCProviderMetaData,
+    SessionData,
+    StrictAuthClientConfig,
     TokenResponse
 } from "../models";
 import { AuthenticationUtils } from "../utils";
@@ -60,11 +63,11 @@ export class AuthenticationCore<T> {
     }
 
     public async getAuthorizationURL(config?: AuthorizationURLParams, userID?: string): Promise<string> {
-        const authorizeEndpoint = (await this._dataLayer.getOIDCProviderMetaDataParameter(
-            AUTHORIZATION_ENDPOINT
+        const authorizeEndpoint: string = (await this._dataLayer.getOIDCProviderMetaDataParameter(
+            AUTHORIZATION_ENDPOINT as keyof OIDCProviderMetaData
         )) as string;
 
-        const configData = await this._config();
+        const configData: StrictAuthClientConfig = await this._config();
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -75,14 +78,14 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const authorizeRequest = new URL(authorizeEndpoint);
+        const authorizeRequest: URL = new URL(authorizeEndpoint);
 
-        const authorizeRequestParams = new Map();
+        const authorizeRequestParams: Map<string, string> = new Map<string, string>();
 
         authorizeRequestParams.set("response_type", "code");
         authorizeRequestParams.set("client_id", configData.clientID);
 
-        let scope = OIDC_SCOPE;
+        let scope: string = OIDC_SCOPE;
 
         if (configData.scope && configData.scope.length > 0) {
             if (!configData.scope.includes(OIDC_SCOPE)) {
@@ -101,8 +104,8 @@ export class AuthenticationCore<T> {
         const pkceKey: string = await this._authenticationHelper.generatePKCEKey(userID);
 
         if (configData.enablePKCE) {
-            const codeVerifier = this._cryptoHelper?.getCodeVerifier();
-            const codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
+            const codeVerifier: string = this._cryptoHelper?.getCodeVerifier();
+            const codeChallenge: string = this._cryptoHelper?.getCodeChallenge(codeVerifier);
 
             await this._dataLayer.setTemporaryDataParameter(pkceKey, codeVerifier, userID);
             authorizeRequestParams.set("code_challenge_method", "S256");
@@ -113,11 +116,14 @@ export class AuthenticationCore<T> {
             authorizeRequestParams.set("prompt", configData.prompt);
         }
 
-        const customParams = config;
+        const customParams: AuthorizationURLParams | undefined = config;
+
         if (customParams) {
             for (const [ key, value ] of Object.entries(customParams)) {
                 if (key != "" && value != "" && key !== STATE) {
-                    const snakeCasedKey = key.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                    const snakeCasedKey: string = key.replace(/[A-Z]/g,
+                        (letter: string) => `_${ letter.toLowerCase() }`);
+
                     authorizeRequestParams.set(snakeCasedKey, value.toString());
                 }
             }
@@ -131,7 +137,7 @@ export class AuthenticationCore<T> {
             )
         );
 
-        for (const [key, value] of authorizeRequestParams.entries()) {
+        for (const [ key, value ] of authorizeRequestParams.entries()) {
             authorizeRequest.searchParams.append(key, value);
         }
 
@@ -144,8 +150,8 @@ export class AuthenticationCore<T> {
         state: string,
         userID?: string
     ): Promise<TokenResponse> {
-        const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
-        const configData = await this._config();
+        const tokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).token_endpoint;
+        const configData: StrictAuthClientConfig = await this._config();
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -156,16 +162,19 @@ export class AuthenticationCore<T> {
             );
         }
 
-        sessionState && (await this._dataLayer.setSessionDataParameter(SESSION_STATE, sessionState, userID));
+        sessionState && (await this._dataLayer.setSessionDataParameter(
+            SESSION_STATE as keyof SessionData, sessionState, userID));
 
         const body: string[] = [];
+
         body.push(`client_id=${ configData.clientID }`);
 
         if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
             body.push(`client_secret=${ configData.clientSecret }`);
         }
 
-        const code = authorizationCode;
+        const code: string = authorizationCode;
+
         body.push(`code=${ code }`);
 
         body.push("grant_type=authorization_code");
@@ -186,6 +195,7 @@ export class AuthenticationCore<T> {
         }
 
         let tokenResponse: Response;
+
         try {
             tokenResponse = await fetch(tokenEndpoint, {
                 body: body.join("&"),
@@ -215,9 +225,9 @@ export class AuthenticationCore<T> {
     }
 
     public async refreshAccessToken(userID?: string): Promise<TokenResponse> {
-        const tokenEndpoint = (await this._oidcProviderMetaData()).token_endpoint;
-        const configData = await this._config();
-        const sessionData = await this._dataLayer.getSessionData(userID);
+        const tokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).token_endpoint;
+        const configData: StrictAuthClientConfig = await this._config();
+        const sessionData: SessionData = await this._dataLayer.getSessionData(userID);
 
         if (!sessionData.refresh_token) {
             throw new AsgardeoAuthException(
@@ -238,6 +248,7 @@ export class AuthenticationCore<T> {
         }
 
         const body: string[] = [];
+
         body.push(`client_id=${ configData.clientID }`);
         body.push(`refresh_token=${ sessionData.refresh_token }`);
         body.push("grant_type=refresh_token");
@@ -277,8 +288,8 @@ export class AuthenticationCore<T> {
     }
 
     public async revokeAccessToken(userID?: string): Promise<FetchResponse> {
-        const revokeTokenEndpoint = (await this._oidcProviderMetaData()).revocation_endpoint;
-        const configData = await this._config();
+        const revokeTokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).revocation_endpoint;
+        const configData: StrictAuthClientConfig = await this._config();
 
         if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -290,11 +301,13 @@ export class AuthenticationCore<T> {
         }
 
         const body: string[] = [];
+
         body.push(`client_id=${ configData.clientID }`);
         body.push(`token=${ (await this._dataLayer.getSessionData(userID)).access_token }`);
         body.push("token_type_hint=access_token");
 
         let response: Response;
+
         try {
             response = await fetch(revokeTokenEndpoint, {
                 body: body.join("&"),
@@ -329,10 +342,11 @@ export class AuthenticationCore<T> {
         customGrantParams: CustomGrantConfig,
         userID?: string
     ): Promise<TokenResponse | FetchResponse> {
-        const oidcProviderMetadata = await this._oidcProviderMetaData();
-        const configData = await this._config();
+        const oidcProviderMetadata: OIDCProviderMetaData = await this._oidcProviderMetaData();
+        const configData: StrictAuthClientConfig = await this._config();
 
-        let tokenEndpoint;
+        let tokenEndpoint: string | undefined;
+
         if (customGrantParams.tokenEndpoint && customGrantParams.tokenEndpoint.trim().length !== 0) {
             tokenEndpoint = customGrantParams.tokenEndpoint;
         } else {
@@ -349,16 +363,17 @@ export class AuthenticationCore<T> {
         }
 
         const data: string[] = await Promise.all(
-            Object.entries(customGrantParams.data).map(async ([ key, value ]) => {
-                const newValue = await this._authenticationHelper.replaceCustomGrantTemplateTags(
+            Object.entries(customGrantParams.data).map(async ([ key, value ]: [ key: string, value: any ]) => {
+                const newValue: string = await this._authenticationHelper.replaceCustomGrantTemplateTags(
                     value as string,
                     userID
                 );
+
                 return `${ key }=${ newValue }`;
             })
         );
 
-        let requestHeaders = {
+        let requestHeaders: Record<string, any> = {
             ...AuthenticationUtils.getTokenRequestHeaders()
         };
 
@@ -379,6 +394,7 @@ export class AuthenticationCore<T> {
         };
 
         let response: Response;
+
         try {
             response = await fetch(tokenEndpoint, requestConfig);
         } catch (error: any) {
@@ -405,15 +421,16 @@ export class AuthenticationCore<T> {
     }
 
     public async getBasicUserInfo(userID?: string): Promise<BasicUserInfo> {
-        const sessionData = await this._dataLayer.getSessionData(userID);
-        const authenticatedUser = this._authenticationHelper.getAuthenticatedUserInfo(sessionData?.id_token);
+        const sessionData: SessionData = await this._dataLayer.getSessionData(userID);
+        const authenticatedUser: AuthenticatedUserInfo = this._authenticationHelper
+            .getAuthenticatedUserInfo(sessionData?.id_token);
 
         let basicUserInfo: BasicUserInfo = {
             allowedScopes: sessionData.scope,
             sessionState: sessionData.session_state
         };
 
-        Object.keys(authenticatedUser).forEach((key) => {
+        Object.keys(authenticatedUser).forEach((key: string) => {
             if (
                 authenticatedUser[ key ] === undefined ||
                 authenticatedUser[ key ] === "" ||
@@ -429,7 +446,7 @@ export class AuthenticationCore<T> {
     }
 
     public async getDecodedIDToken(userID?: string): Promise<DecodedIDTokenPayload> {
-        const idToken = (await this._dataLayer.getSessionData(userID)).id_token;
+        const idToken: string = (await this._dataLayer.getSessionData(userID)).id_token;
         const payload: DecodedIDTokenPayload = this._cryptoHelper.decodeIDToken(idToken);
 
         return payload;
@@ -444,12 +461,13 @@ export class AuthenticationCore<T> {
     }
 
     public async getOIDCProviderMetaData(forceInit: boolean): Promise<void> {
-        const configData = await this._config();
+        const configData: StrictAuthClientConfig = await this._config();
+
         if (!forceInit && (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED))) {
             return Promise.resolve();
         }
 
-        const wellKnownEndpoint = (configData as any).wellKnownEndpoint;
+        const wellKnownEndpoint: string = (configData as any).wellKnownEndpoint;
 
         if (wellKnownEndpoint) {
 
@@ -500,13 +518,13 @@ export class AuthenticationCore<T> {
                 );
             }
             await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
-            
+
             return Promise.resolve();
         }
     }
 
     public async getOIDCServiceEndpoints(): Promise<OIDCEndpoints> {
-        const oidcProviderMetaData = await this._oidcProviderMetaData();
+        const oidcProviderMetaData: OIDCProviderMetaData = await this._oidcProviderMetaData();
 
         return {
             authorizationEndpoint: oidcProviderMetaData.authorization_endpoint ?? "",
@@ -523,8 +541,8 @@ export class AuthenticationCore<T> {
     }
 
     public async getSignOutURL(userID?: string): Promise<string> {
-        const logoutEndpoint = (await this._oidcProviderMetaData())?.end_session_endpoint;
-        const configData = await this._config();
+        const logoutEndpoint: string | undefined = (await this._oidcProviderMetaData())?.end_session_endpoint;
+        const configData: StrictAuthClientConfig = await this._config();
 
         if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -535,7 +553,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const idToken = (await this._dataLayer.getSessionData(userID))?.id_token;
+        const idToken: string = (await this._dataLayer.getSessionData(userID))?.id_token;
 
         if (!idToken || idToken.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -545,7 +563,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const callbackURL = configData?.signOutRedirectURL ?? configData?.signInRedirectURL;
+        const callbackURL: string = configData?.signOutRedirectURL ?? configData?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -556,7 +574,7 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const logoutCallback =
+        const logoutCallback: string =
             `${ logoutEndpoint }?` +
             `id_token_hint=${ idToken }` +
             `&post_logout_redirect_uri=${ callbackURL }&state=` +

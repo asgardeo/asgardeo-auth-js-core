@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,8 @@
 import { Stores } from "../constants";
 import { AuthClientConfig, OIDCProviderMetaData, SessionData, Store, StoreValue, TemporaryData } from "../models";
 
+type PartialData<T> = Partial<AuthClientConfig<T> | OIDCProviderMetaData | SessionData | TemporaryData>;
+
 export class DataLayer<T> {
     protected _id: string;
     protected _store: Store;
@@ -29,13 +31,14 @@ export class DataLayer<T> {
 
     protected async setDataInBulk(
         key: string,
-        data: Partial<AuthClientConfig<T> | OIDCProviderMetaData | SessionData | TemporaryData>
+        data: PartialData<T>
     ): Promise<void> {
-        const existingDataJSON = (await this._store.getData(key)) ?? null;
-        const existingData = existingDataJSON && JSON.parse(existingDataJSON);
+        const existingDataJSON: string = (await this._store.getData(key)) ?? null;
+        const existingData: PartialData<T> = existingDataJSON && JSON.parse(existingDataJSON);
 
-        const dataToBeSaved = { ...existingData, ...data };
-        const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
+        const dataToBeSaved: PartialData<T> = { ...existingData, ...data };
+        const dataToBeSavedJSON: string = JSON.stringify(dataToBeSaved);
+
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
@@ -44,25 +47,28 @@ export class DataLayer<T> {
         attribute: keyof AuthClientConfig<T> | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData,
         value: StoreValue
     ): Promise<void> {
-        const existingDataJSON = (await this._store.getData(key)) ?? null;
-        const existingData = existingDataJSON && JSON.parse(existingDataJSON);
+        const existingDataJSON: string = (await this._store.getData(key)) ?? null;
+        const existingData: PartialData<T> = existingDataJSON && JSON.parse(existingDataJSON);
 
-        const dataToBeSaved = { ...existingData, [ attribute ]: value };
-        const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
+        const dataToBeSaved: PartialData<T> = { ...existingData, [ attribute ]: value };
+        const dataToBeSavedJSON: string = JSON.stringify(dataToBeSaved);
 
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
     protected async removeValue(
         key: string,
-        attribute: keyof AuthClientConfig<T> | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData
+        attribute: (keyof AuthClientConfig<T> | keyof OIDCProviderMetaData | keyof SessionData | keyof TemporaryData)
     ): Promise<void> {
-        const existingDataJSON = (await this._store.getData(key)) ?? null;
-        const existingData = existingDataJSON && JSON.parse(existingDataJSON);
+        const existingDataJSON: string = (await this._store.getData(key)) ?? null;
+        const existingData: PartialData<T> = existingDataJSON && JSON.parse(existingDataJSON);
 
-        const dataToBeSaved = { ...existingData };
-        delete dataToBeSaved[ attribute ];
-        const dataToBeSavedJSON = JSON.stringify(dataToBeSaved);
+        const dataToBeSaved: PartialData<T> = { ...existingData };
+
+        delete dataToBeSaved[ attribute as string ];
+
+        const dataToBeSavedJSON: string = JSON.stringify(dataToBeSaved);
+
         await this._store.setData(key, dataToBeSavedJSON);
     }
 
@@ -127,25 +133,25 @@ export class DataLayer<T> {
     }
 
     public async getConfigDataParameter(key: keyof AuthClientConfig<T>): Promise<StoreValue> {
-        const data = await this._store.getData(this._resolveKey(Stores.ConfigData));
+        const data: string = await this._store.getData(this._resolveKey(Stores.ConfigData));
 
         return data && JSON.parse(data)[ key ];
     }
 
     public async getOIDCProviderMetaDataParameter(key: keyof OIDCProviderMetaData): Promise<StoreValue> {
-        const data = await this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData));
+        const data: string = await this._store.getData(this._resolveKey(Stores.OIDCProviderMetaData));
 
         return data && JSON.parse(data)[ key ];
     }
 
     public async getTemporaryDataParameter(key: keyof TemporaryData, userID?: string): Promise<StoreValue> {
-        const data = await this._store.getData(this._resolveKey(Stores.TemporaryData, userID));
+        const data: string = await this._store.getData(this._resolveKey(Stores.TemporaryData, userID));
 
         return data && JSON.parse(data)[ key ];
     }
 
     public async getSessionDataParameter(key: keyof SessionData, userID?: string): Promise<StoreValue> {
-        const data = await this._store.getData(this._resolveKey(Stores.SessionData, userID));
+        const data: string = await this._store.getData(this._resolveKey(Stores.SessionData, userID));
 
         return data && JSON.parse(data)[ key ];
     }
