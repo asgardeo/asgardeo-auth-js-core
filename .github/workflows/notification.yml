@@ -65,7 +65,7 @@ jobs:
               run: |
                   curl --location --request POST '${{secrets.WEBHOOK_CHAT}}' \
                   --header 'Content-Type: application/json' \
-                  --data-raw '{
+                  --data-urlencode '{
                       "cardsV2": [
                           {
                               "card": {
