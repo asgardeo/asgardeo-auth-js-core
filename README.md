@@ -6,6 +6,16 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/wso2/product-is/blob/master/LICENSE)
 [![Twitter](https://img.shields.io/twitter/follow/wso2.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=wso2)
 
+⚠️ *This is a core SDK that is not supposed to be used in applications.*
+
+If you are looking for an SDK to use in your application, then you can find the relevant information in the table below:
+| Framework/Library                                                 | Link                                                  |
+|-------------------------------------------------------------------|-------------------------------------------------------|
+| React                                                             | https://github.com/asgardeo/asgardeo-auth-react-sdk   |
+| Angular                                                           | https://github.com/asgardeo/asgardeo-auth-angular-sdk |
+| Vanilla JavaScript / jQuery / any other frontend frameworks/libraries | https://github.com/asgardeo/asgardeo-auth-spa-sdk     |
+| Node.js                                                           | https://github.com/asgardeo/asgardeo-auth-node-sdk    |
+| Express.js                                                        | https://github.com/asgardeo/asgardeo-auth-express-sdk |
 ## Table of Content
 
 -   [Introduction](#introduction)
@@ -436,7 +446,7 @@ The user should be redirected to this URL in order to sign out of the server.
 
 #### Description
 
-This method returns the sign-out URL to which the user should be redirected to be signed out from the server. 
+This method returns the sign-out URL to which the user should be redirected to be signed out from the server.
 
 #### Example
 
@@ -1040,7 +1050,7 @@ const config: AuthClientConfig<Bar> ={
 | `introspectionEndpoint` | `string` | ""                                                 | The introspection endpoint.                                               |
 | `checkSessionIframe`    | `string` | `"/oidc/checksession"`                             | The check-session endpoint.                                               |
 | `endSessionEndpoint`    | `string` | `"/oidc/logout"`                                   | The end-session endpoint.                                                 |
-| `issuer`                | `string` | ""                                                 | The issuer of the token.                                        
+| `issuer`                | `string` | ""                                                 | The issuer of the token.
 
 ### DecodedIDTokenPayload
 
