@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,53 +37,53 @@ export interface CryptoUtils<T = any> {
     /**
      * Encode the provided data in base64url format.
      *
-     * @param {T} value Data to be encoded.
+     * @param value - Data to be encoded.
      *
-     * @returns {string} Encoded data.
+     * @returns Encoded data.
      */
     base64URLEncode(value: T): string;
 
     /**
      * Decode the provided data encoded in base64url format.
      *
-     * @param {string} value Data to be decoded.
+     * @param value - Data to be decoded.
      *
-     * @returns {string} Decoded data.
+     * @returns Decoded data.
      */
     base64URLDecode(value: string): string;
 
     /**
      * Generate random bytes.
      *
-     * @param {number} length Length of the random bytes to be generated.
+     * @param length - Length of the random bytes to be generated.
      *
-     * @returns {T} Random bytes.
+     * @returns Random bytes.
      */
     generateRandomBytes(length: number): T;
 
     /**
      * Hash the provided data using SHA-256.
      *
-     * @param {string} data  Data to be hashed.
+     * @param data - Data to be hashed.
      *
-     * @returns {T} Hashed data.
+     * @returns Hashed data.
      */
     hashSha256(data: string): T;
 
     /**
      * Verify the provided JWT.
      *
-     * @param {string} idToken ID Token to be verified.
-     * @param {JWKInterface} jwk JWK to be used for verification.
-     * @param {string[]} algorithms Algorithms to be used for verification.
-     * @param {string} clientID Client ID to be used for verification.
-     * @param {string} issuer Issuer to be used for verification.
-     * @param {string} subject Subject to be used for verification.
-     * @param {string} clockTolerance Clock tolerance to be used for verification.
+     * @param idToken - ID Token to be verified.
+     * @param jwk - JWK to be used for verification.
+     * @param algorithms - Algorithms to be used for verification.
+     * @param clientID - Client ID to be used for verification.
+     * @param issuer - Issuer to be used for verification.
+     * @param subject - Subject to be used for verification.
+     * @param clockTolerance - Clock tolerance to be used for verification.
      *
-     * @returns {Promise<boolean>} True if the ID Token is valid.
+     * @returns True if the ID Token is valid.
      *
-     * @throws {AsgardeoAuthException} if the id_token is invalid.
+     * @throws if the id_token is invalid.
      */
     verifyJwt(
         idToken: string,

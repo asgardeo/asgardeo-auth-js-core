@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,6 +46,9 @@ import {
     JWKInterface,
     OIDCEndpointsInternal,
     OIDCProviderMetaData,
+    RawTokenResponse,
+    SessionData,
+    StrictAuthClientConfig,
     TemporaryData,
     TokenResponse
 } from "../models";
@@ -65,12 +68,14 @@ export class AuthenticationHelper<T> {
     }
 
     public async resolveEndpoints(response: OIDCProviderMetaData): Promise<OIDCProviderMetaData> {
-        const oidcProviderMetaData = {};
-        const configData = await this._config();
+        const oidcProviderMetaData: OIDCProviderMetaData = {};
+        const configData: StrictAuthClientConfig = await this._config();
 
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                const snakeCasedName: string = endpointName
+                    .replace(/[A-Z]/g, (letter: string) => `_${ letter.toLowerCase() }`);
+
                 oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
                     ? configData.endpoints[ endpointName ]
                     : "";
@@ -80,10 +85,10 @@ export class AuthenticationHelper<T> {
     }
 
     public async resolveEndpointsExplicitly(): Promise<OIDCEndpointsInternal> {
-        const oidcProviderMetaData = {};
-        const configData = await this._config();
+        const oidcProviderMetaData: OIDCProviderMetaData = {};
+        const configData: StrictAuthClientConfig = await this._config();
 
-        const requiredEndpoints = [
+        const requiredEndpoints: string[] = [
             AUTHORIZATION_ENDPOINT,
             END_SESSION_ENDPOINT,
             JWKS_ENDPOINT,
@@ -94,9 +99,11 @@ export class AuthenticationHelper<T> {
             USERINFO_ENDPOINT
         ];
 
-        const isRequiredEndpointsContains = configData.endpoints
-            ? Object.keys(configData?.endpoints).every((endpointName) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+        const isRequiredEndpointsContains: boolean = configData.endpoints
+            ? Object.keys(configData?.endpoints).every((endpointName: string) => {
+                const snakeCasedName: string = endpointName
+                    .replace(/[A-Z]/g, (letter: string) => `_${ letter.toLowerCase() }`);
+
                 return requiredEndpoints.includes(snakeCasedName);
             })
             : false;
@@ -111,7 +118,9 @@ export class AuthenticationHelper<T> {
 
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                const snakeCasedName: string = endpointName
+                    .replace(/[A-Z]/g, (letter: string) => `_${ letter.toLowerCase() }`);
+
                 oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
                     ? configData.endpoints[ endpointName ]
                     : "";
@@ -121,10 +130,10 @@ export class AuthenticationHelper<T> {
     }
 
     public async resolveEndpointsByBaseURL(): Promise<OIDCEndpointsInternal> {
-        const oidcProviderMetaData = {};
-        const configData = await this._config();
+        const oidcProviderMetaData: OIDCEndpointsInternal = {};
+        const configData: StrictAuthClientConfig = await this._config();
 
-        const baseUrl = (configData as any).baseUrl;
+        const baseUrl: string = (configData as any).baseUrl;
 
         if (!baseUrl) {
             throw new AsgardeoAuthException(
@@ -136,13 +145,15 @@ export class AuthenticationHelper<T> {
 
         configData.endpoints &&
             Object.keys(configData.endpoints).forEach((endpointName: string) => {
-                const snakeCasedName = endpointName.replace(/[A-Z]/g, (letter) => `_${ letter.toLowerCase() }`);
+                const snakeCasedName: string = endpointName
+                    .replace(/[A-Z]/g, (letter: string) => `_${ letter.toLowerCase() }`);
+
                 oidcProviderMetaData[ snakeCasedName ] = configData?.endpoints
                     ? configData.endpoints[ endpointName ]
                     : "";
             });
 
-        const defaultEndpoints = {
+        const defaultEndpoints: OIDCProviderMetaData = {
             [ AUTHORIZATION_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.authorizationEndpoint}`,
             [ END_SESSION_ENDPOINT ]: `${baseUrl}${SERVICE_RESOURCES.endSessionEndpoint}`,
             [ ISSUER ]: `${baseUrl}${SERVICE_RESOURCES.issuer}`,
@@ -157,8 +168,8 @@ export class AuthenticationHelper<T> {
     }
 
     public async validateIdToken(idToken: string): Promise<boolean> {
-        const jwksEndpoint = (await this._dataLayer.getOIDCProviderMetaData()).jwks_uri;
-        const configData = await this._config();
+        const jwksEndpoint: string | undefined = (await this._dataLayer.getOIDCProviderMetaData()).jwks_uri;
+        const configData: StrictAuthClientConfig = await this._config();
 
         if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -193,11 +204,12 @@ export class AuthenticationHelper<T> {
             );
         }
 
-        const issuer = (await this._oidcProviderMetaData()).issuer;
+        const issuer: string | undefined = (await this._oidcProviderMetaData()).issuer;
 
         const { keys }: { keys: JWKInterface[]; } = await response.json();
 
         const jwk: any = await this._cryptoHelper.getJWKForTheIdToken(idToken.split(".")[ 0 ], keys);
+
         return this._cryptoHelper.isValidIdToken(
             idToken,
             jwk,
@@ -233,9 +245,9 @@ export class AuthenticationHelper<T> {
     }
 
     public async replaceCustomGrantTemplateTags(text: string, userID?: string): Promise<string> {
-        let scope = OIDC_SCOPE;
-        const configData = await this._config();
-        const sessionData = await this._dataLayer.getSessionData(userID);
+        let scope: string = OIDC_SCOPE;
+        const configData: StrictAuthClientConfig = await this._config();
+        const sessionData: SessionData = await this._dataLayer.getSessionData(userID);
 
         if (configData.scope && configData.scope.length > 0) {
             if (!configData.scope.includes(OIDC_SCOPE)) {
@@ -267,7 +279,8 @@ export class AuthenticationHelper<T> {
         }
 
         //Get the response in JSON
-        const parsedResponse = await response.json();
+        const parsedResponse: RawTokenResponse = await response.json();
+
         parsedResponse.created_at = new Date().getTime();
 
         if ((await this._config()).validateIDToken) {
@@ -296,6 +309,7 @@ export class AuthenticationHelper<T> {
                 scope: parsedResponse.scope,
                 tokenType: parsedResponse.token_type
             };
+
             await this._dataLayer.setSessionData(parsedResponse, userID);
 
             return Promise.resolve(tokenResponse);
@@ -305,9 +319,9 @@ export class AuthenticationHelper<T> {
     /**
      * This generates a PKCE key with the right index value.
      *
-     * @param {string} userID The userID to identify a user in a multi-user scenario.
+     * @param userID - The userID to identify a user in a multi-user scenario.
      *
-     * @returns {string} The PKCE key.
+     * @returns The PKCE key.
      */
     public async generatePKCEKey(userID?: string): Promise<string> {
         const tempData: TemporaryData = await this._dataLayer.getTemporaryData(userID);

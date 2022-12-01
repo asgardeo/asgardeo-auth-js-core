@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,7 +30,7 @@ export class CryptoHelper<T = any> {
     /**
      * Generate code verifier.
      *
-     * @return {string} code verifier.
+     * @returns code verifier.
      */
     public getCodeVerifier(): string {
         return this._cryptoUtils.base64URLEncode(this._cryptoUtils.generateRandomBytes(32));
@@ -39,9 +39,9 @@ export class CryptoHelper<T = any> {
     /**
      * Derive code challenge from the code verifier.
      *
-     * @param {string} verifier.
+     * @param verifier - Code verifier.
      *
-     * @return {string} code challenge.
+     * @returns - code challenge.
      */
     public getCodeChallenge(verifier: string): string {
         return this._cryptoUtils.base64URLEncode(this._cryptoUtils.hashSha256(verifier));
@@ -50,16 +50,16 @@ export class CryptoHelper<T = any> {
     /**
      * Get JWK used for the id_token
      *
-     * @param {string} jwtHeader header of the id_token.
-     * @param {JWKInterface[]} keys jwks response.
+     * @param jwtHeader - header of the id_token.
+     * @param keys - jwks response.
      *
-     * @return {JWKInterface} public key.
+     * @returns public key.
      *
-     * @throws {AsgardeoAuthException}
+     * @throws
      */
     /* eslint-disable @typescript-eslint/no-explicit-any */
     public getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): JWKInterface {
-        const headerJSON = JSON.parse(this._cryptoUtils.base64URLDecode(jwtHeader));
+        const headerJSON: Record<string, string> = JSON.parse(this._cryptoUtils.base64URLDecode(jwtHeader));
 
         for (const key of keys) {
             if (headerJSON.kid === key.kid) {
@@ -73,23 +73,23 @@ export class CryptoHelper<T = any> {
             "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
             headerJSON.kid +
             ", Expected values: " +
-            keys.map((key) => key.kid).join(", ")
+            keys.map((key: JWKInterface) => key.kid).join(", ")
         );
     }
 
     /**
      * Verify id token.
      *
-     * @param idToken id_token received from the IdP.
-     * @param {JWKInterface} jwk public key used for signing.
-     * @param {string} clientID app identification.
-     * @param {string} issuer id_token issuer.
-     * @param {string} username Username.
-     * @param {number} clockTolerance - Allowed leeway for id_tokens (in seconds).
+     * @param idToken - id_token received from the IdP.
+     * @param jwk - public key used for signing.
+     * @param clientID - app identification.
+     * @param issuer - id_token issuer.
+     * @param username - Username.
+     * @param clockTolerance - Allowed leeway for id_tokens (in seconds).
      *
-     * @return {Promise<boolean>} whether the id_token is valid.
+     * @returns whether the id_token is valid.
      *
-     * @throws {AsgardeoAuthException} if the id_token is invalid.
+     * @throws
      */
     public isValidIdToken(
         idToken: string,
@@ -119,16 +119,16 @@ export class CryptoHelper<T = any> {
     /**
      * This function decodes the payload of an id token and returns it.
      *
-     * @param {string} idToken - The id token to be decoded.
+     * @param idToken - The id token to be decoded.
      *
-     * @return {DecodedIdTokenPayloadInterface} - The decoded payload of the id token.
+     * @returns - The decoded payload of the id token.
      *
-     * @throws {AsgardeoAuthException}
+     * @throws
      */
     public decodeIDToken(idToken: string): DecodedIDTokenPayload {
         try {
-            const utf8String = this._cryptoUtils.base64URLDecode(idToken.split(".")[ 1 ]);
-            const payload = JSON.parse(utf8String);
+            const utf8String: string = this._cryptoUtils.base64URLDecode(idToken.split(".")[ 1 ]);
+            const payload: DecodedIDTokenPayload = JSON.parse(utf8String);
 
             return payload;
         } catch (error: any) {

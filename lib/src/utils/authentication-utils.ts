@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,16 +41,18 @@ export class AuthenticationUtils {
         delete optionalizedPayload?.isk;
         delete optionalizedPayload?.sid;
 
-        const camelCasedPayload = {};
-        Object.entries(optionalizedPayload).forEach(([key, value]) => {
-            const keyParts = key.split("_");
-            const camelCasedKey = keyParts
+        const camelCasedPayload : any= {};
+
+        Object.entries(optionalizedPayload).forEach(([ key, value ]: [ key: string, value: unknown ]) => {
+            const keyParts: string[] = key.split("_");
+
+            const camelCasedKey: string = keyParts
                 .map((key: string, index: number) => {
                     if (index === 0) {
                         return key;
                     }
 
-                    return [key[0].toUpperCase(), ...key.slice(1)].join("");
+                    return [ key[ 0 ].toUpperCase(), ...key.slice(1) ].join("");
                 })
                 .join("");
 
@@ -68,8 +70,8 @@ export class AuthenticationUtils {
         uidSeparator: string = "@"
     ): string => {
         // Try to extract the tenant domain from the `sub` claim.
-        const uid = payload.sub;
-        const tokens = uid.split(uidSeparator);
+        const uid: string = payload.sub;
+        const tokens: string[] = uid.split(uidSeparator);
 
         // This works only when the email is used as the username
         // and the tenant domain is appended to the`sub` attribute.
@@ -86,10 +88,10 @@ export class AuthenticationUtils {
     /**
      * This generates the state param value to be sent with an authorization request.
      *
-     * @param {string} pkceKey The PKCE key.
-     * @param {string} state The state value to be passed. (The correlation ID will be appended to this state value.)
+     * @param pkceKey - The PKCE key.
+     * @param state - The state value to be passed. (The correlation ID will be appended to this state value.)
      *
-     * @returns {string} The state param value.
+     * @returns The state param value.
      */
     public static generateStateParamForRequestCorrelation(pkceKey: string, state?: string): string {
         const index: number = parseInt(pkceKey.split(PKCE_SEPARATOR)[1]);

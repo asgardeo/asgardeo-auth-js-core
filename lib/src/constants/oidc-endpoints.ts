@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,18 +29,18 @@ export const SERVICE_RESOURCES: OIDCEndpoints  = {
     userinfoEndpoint: "/oauth2/userinfo"
 };
 
-export const AUTHORIZATION_ENDPOINT = "authorization_endpoint";
-export const TOKEN_ENDPOINT = "token_endpoint";
-export const REVOKE_TOKEN_ENDPOINT = "revocation_endpoint";
-export const END_SESSION_ENDPOINT = "end_session_endpoint";
-export const JWKS_ENDPOINT = "jwks_uri";
-export const OP_CONFIG_INITIATED = "op_config_initiated";
-export const TENANT = "tenant";
-export const SIGN_IN_REDIRECT_URL = "sign_in_redirect_url";
-export const SIGN_OUT_REDIRECT_URL = "sign_out_redirect_url";
-export const OIDC_SESSION_IFRAME_ENDPOINT = "check_session_iframe";
-export const OPEN_ID_CONFIG = "open_id_config";
-export const REGISTRATION_ENDPOINT = "registration_endpoint";
-export const USERINFO_ENDPOINT = "userinfo_endpoint";
-export const INTROSPECTION_ENDPOINT = "introspection_endpoint";
-export const ISSUER = "issuer"
+export const AUTHORIZATION_ENDPOINT: string = "authorization_endpoint";
+export const TOKEN_ENDPOINT: string = "token_endpoint";
+export const REVOKE_TOKEN_ENDPOINT: string = "revocation_endpoint";
+export const END_SESSION_ENDPOINT: string = "end_session_endpoint";
+export const JWKS_ENDPOINT: string = "jwks_uri";
+export const OP_CONFIG_INITIATED: string = "op_config_initiated";
+export const TENANT: string = "tenant";
+export const SIGN_IN_REDIRECT_URL: string = "sign_in_redirect_url";
+export const SIGN_OUT_REDIRECT_URL: string = "sign_out_redirect_url";
+export const OIDC_SESSION_IFRAME_ENDPOINT: string = "check_session_iframe";
+export const OPEN_ID_CONFIG: string = "open_id_config";
+export const REGISTRATION_ENDPOINT: string = "registration_endpoint";
+export const USERINFO_ENDPOINT: string = "userinfo_endpoint";
+export const INTROSPECTION_ENDPOINT: string = "introspection_endpoint";
+export const ISSUER: string = "issuer";
