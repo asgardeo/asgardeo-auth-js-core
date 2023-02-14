@@ -86,7 +86,7 @@ export class AsgardeoAuthClient<T> {
         if (!clientId) {
             this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
         } else {
-            this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }-${clientId}`, store);
+            this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }-${ clientId }`, store);
         }
         this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
         AsgardeoAuthClient._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
