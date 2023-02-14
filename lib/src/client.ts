@@ -55,8 +55,8 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
  * This class provides the necessary methods needed to implement authentication.
 */
 export class AsgardeoAuthClient<T> {
-    private _dataLayer: DataLayer<T>;
-    private _authenticationCore: AuthenticationCore<T>;
+    private _dataLayer!: DataLayer<T>;
+    private _authenticationCore!: AuthenticationCore<T>;
 
     private static _instanceID: number;
     static _authenticationCore: any;
@@ -76,16 +76,7 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public constructor(store: Store, cryptoUtils: CryptoUtils) {
-        if (!AsgardeoAuthClient._instanceID) {
-            AsgardeoAuthClient._instanceID = 0;
-        } else {
-            AsgardeoAuthClient._instanceID += 1;
-        }
-        this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
-        this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
-        AsgardeoAuthClient._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
-    }
+    public constructor() {}
 
     /**
      *
@@ -106,7 +97,24 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async initialize(config: AuthClientConfig<T>): Promise<void> {
+    public async initialize(config: AuthClientConfig<T>, store: Store, cryptoUtils: CryptoUtils): Promise<void> {
+        const clientId: string = config.clientID;
+
+        if (!AsgardeoAuthClient._instanceID) {
+            AsgardeoAuthClient._instanceID = 0;
+        } else {
+            AsgardeoAuthClient._instanceID += 1;
+        }
+
+        if (!clientId) {
+            this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }`, store);
+        } else {
+            this._dataLayer = new DataLayer<T>(`instance_${ AsgardeoAuthClient._instanceID }-${ clientId }`, store);
+        }
+
+        this._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
+        AsgardeoAuthClient._authenticationCore = new AuthenticationCore(this._dataLayer, cryptoUtils);
+
         await this._dataLayer.setConfigData({
             ...DefaultConfig,
             ...config,
