@@ -12,8 +12,7 @@ If you are looking for an SDK to use in your application, then you can find the 
 | Framework/Library                                                 | Link                                                  |
 |-------------------------------------------------------------------|-------------------------------------------------------|
 | React                                                             | https://github.com/asgardeo/asgardeo-auth-react-sdk   |
-| Angular                                                           | https://github.com/asgardeo/asgardeo-auth-angular-sdk |
-| Vanilla JavaScript / jQuery / any other frontend frameworks/libraries | https://github.com/asgardeo/asgardeo-auth-spa-sdk     |
+| Vanilla JavaScript / jQuery / any other frontend frameworks/libraries | https://github.com/asgardeo/asgardeo-auth-spa-sdk |
 | Node.js                                                           | https://github.com/asgardeo/asgardeo-auth-node-sdk    |
 | Express.js                                                        | https://github.com/asgardeo/asgardeo-auth-express-sdk |
 ## Table of Content
@@ -169,11 +168,14 @@ class CryptoUtils {
 // Instantiate the SessionStore class
 const store = new SessionStore();
 
+// Instantiate the CryptoUtils class
+const cryptoUtils = new CryptoUtils();
+
 // Instantiate the AsgardeoAuthClient and pass the store object as an argument into the constructor.
-const auth = new AsgardeoAuthClient(store);
+const auth = new AsgardeoAuthClient();
 
 // Initialize the instance with the config object.
-auth.initialize(config);
+auth.initialize(config, store, cryptoUtils);
 
 // To get the authorization URL, simply call this method.
 auth.getAuthorizationURL()
@@ -208,18 +210,8 @@ You can instantiate the class and use the object to access the provided methods.
 ### constructor
 
 ```TypeScript
-new AsgardeoAuthClient(store: Store, cryptoUtils: CryptoUtils);
+new AsgardeoAuthClient();
 ```
-
-#### Arguments
-
-1. store: [`Store`](#Store)
-
-    This is the object of interface [`Store`](#Store) that is used by the SDK to store all the necessary data used ranging from the configuration data to the access token. You can implement the Store to create a class with your own implementation logic and pass an instance of the class as the second argument. This way, you will be able to get the data stored in your preferred place. To know more about implementing the [`Store`](#Store) interface, refer to the [Data Storage](#data-storage) section.
-
-2. cryptoUtils: [`CryptoUtils`](#CryptoUtils)
-
-    This is the object of the interface [`CryptoUtils`](#CryptoUtils) that is used by the SDK to perform cryptographic functions. Since the crypto implementation varies from environment to environment, this object is used to inject environment-specific crypto implementation. So, developers are expected to implement this interface and pass an object of this interface as an argument to the constructor. To know more about implementing this interface, refer to the [`CryptoUtils`](#CryptoUtils) section.
 
 #### Description
 
@@ -228,23 +220,7 @@ This creates an instance of the `AsgardeoAuthClient` class and returns it.
 #### Example
 
 ```TypeScript
-class SessionStore implements Store {
-    public async setData(key: string, value: string): void {
-        sessionStorage.setItem(key, value);
-    }
-
-    public async getData(key: string): string {
-        return sessionStorage.getItem(key);
-    }
-
-    public async removeData(key: string): void {
-        sessionStorage.removeItem(key);
-    }
-}
-
-const store = new SessionStore();
-
-const auth = new AsgardeoAuthClient(store);
+const auth = new AsgardeoAuthClient();
 ```
 
 ---
@@ -252,7 +228,7 @@ const auth = new AsgardeoAuthClient(store);
 ### initialize
 
 ```TypeScript
-initialize(config: AuthClientConfig<T>): Promise<void>;
+initialize(config: AuthClientConfig<T>, store: Store, cryptoUtils: CryptoUtils): Promise<void>;
 ```
 
 #### Arguments
@@ -266,9 +242,17 @@ initialize(config: AuthClientConfig<T>): Promise<void>;
         foo: string
     }
 
-    const auth = new AsgardeoAuthClient(config: AuthClientConfig<Bar>);
-    }
+    const auth = new AsgardeoAuthClient(config: AuthClientConfig<Bar>, store: Store, cryptoUtils: CryptoUtils);
     ```
+
+
+2. store: [`Store`](#Store)
+
+    This is the object of interface [`Store`](#Store) that is used by the SDK to store all the necessary data used ranging from the configuration data to the access token. You can implement the Store to create a class with your own implementation logic and pass an instance of the class as the second argument. This way, you will be able to get the data stored in your preferred place. To know more about implementing the [`Store`](#Store) interface, refer to the [Data Storage](#data-storage) section.
+
+3. cryptoUtils: [`CryptoUtils`](#CryptoUtils)
+
+    This is the object of the interface [`CryptoUtils`](#CryptoUtils) that is used by the SDK to perform cryptographic functions. Since the crypto implementation varies from environment to environment, this object is used to inject environment-specific crypto implementation. So, developers are expected to implement this interface and pass an object of this interface as an argument to the constructor. To know more about implementing this interface, refer to the [`CryptoUtils`](#CryptoUtils) section.
 
 #### Description
 
@@ -283,8 +267,12 @@ const config = {
     clientID: "client ID",
     baseUrl: "https://api.asgardeo.io/t/<org_name>"
 };
+const _store: Store = initiateStore(config.storage);
+const _cryptoUtils: SPACryptoUtils = new SPACryptoUtils();
 
-await auth.initialize(config);
+const auth = new AsgardeoAuthClient<MainThreadClientConfig>();
+
+await auth.initialize(config, _store, _cryptoUtils);
 ```
 
 ---
