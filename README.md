@@ -12,8 +12,7 @@ If you are looking for an SDK to use in your application, then you can find the 
 | Framework/Library                                                 | Link                                                  |
 |-------------------------------------------------------------------|-------------------------------------------------------|
 | React                                                             | https://github.com/asgardeo/asgardeo-auth-react-sdk   |
-| Angular                                                           | https://github.com/asgardeo/asgardeo-auth-angular-sdk |
-| Vanilla JavaScript / jQuery / any other frontend frameworks/libraries | https://github.com/asgardeo/asgardeo-auth-spa-sdk     |
+| Vanilla JavaScript / jQuery / any other frontend frameworks/libraries | https://github.com/asgardeo/asgardeo-auth-spa-sdk |
 | Node.js                                                           | https://github.com/asgardeo/asgardeo-auth-node-sdk    |
 | Express.js                                                        | https://github.com/asgardeo/asgardeo-auth-express-sdk |
 ## Table of Content
