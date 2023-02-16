@@ -97,13 +97,22 @@ export class AsgardeoAuthClient<T> {
      *
      * @preserve
      */
-    public async initialize(config: AuthClientConfig<T>, store: Store, cryptoUtils: CryptoUtils): Promise<void> {
+    public async initialize(
+        config: AuthClientConfig<T>,
+        store: Store,
+        cryptoUtils: CryptoUtils,
+        instanceID?: number
+    ): Promise<void> {
         const clientId: string = config.clientID;
 
         if (!AsgardeoAuthClient._instanceID) {
             AsgardeoAuthClient._instanceID = 0;
         } else {
             AsgardeoAuthClient._instanceID += 1;
+        }
+
+        if (instanceID) {
+            AsgardeoAuthClient._instanceID = instanceID;
         }
 
         if (!clientId) {
@@ -141,6 +150,22 @@ export class AsgardeoAuthClient<T> {
      */
     public getDataLayer(): DataLayer<T> {
         return this._dataLayer;
+    }
+
+    /**
+     * This method returns the `instanceID` variable of the given instance.
+     *
+     * @returns - The `instanceID` number.
+     *
+     * @example
+     * ```
+     * const instanceId = auth.getInstanceID();
+     * ```
+     *
+     * @preserve
+     */
+    public getInstanceID(): number {
+        return AsgardeoAuthClient._instanceID;
     }
 
     /**
