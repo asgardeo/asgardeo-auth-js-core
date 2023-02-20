@@ -78,6 +78,19 @@ export class DataLayer<T> {
         return userID ? `${ store }-${ this._id }-${ userID }` : `${ store }-${ this._id }`;
     }
 
+    protected isStorageAvailable(store: Storage): boolean {
+        try {
+            const testValue:string  = "test";
+
+            store.setData(testValue, testValue);
+            store.removeData(testValue);
+
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     public async setConfigData(config: Partial<AuthClientConfig<T>>): Promise<void> {
         await this.setDataInBulk(this._resolveKey(Stores.ConfigData), config);
     }
@@ -120,15 +133,17 @@ export class DataLayer<T> {
 
     public setSessionStatus(status: string): void {
         // Using local storage to store the session status as it is required to be available across tabs.
-        localStorage.setItem(`${ASGARDEO_SESSION_ACTIVE}`, status);
+        this.isStorageAvailable(localStorage) && localStorage.setItem(`${ASGARDEO_SESSION_ACTIVE}`, status);
     }
 
     public getSessionStatus(): string {
-        return localStorage.getItem(`${ASGARDEO_SESSION_ACTIVE}`) ?? "";
+        return this.isStorageAvailable(localStorage) 
+            ? localStorage.getItem(`${ASGARDEO_SESSION_ACTIVE}`) ?? ""
+            : "";
     }
 
     public removeSessionStatus(): void {
-        localStorage.removeItem(`${ASGARDEO_SESSION_ACTIVE}`);
+        this.isStorageAvailable(localStorage) && localStorage.removeItem(`${ASGARDEO_SESSION_ACTIVE}`);
     }
 
     public async removeConfigData(): Promise<void> {
