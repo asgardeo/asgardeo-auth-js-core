@@ -21,6 +21,8 @@ import { AuthClientConfig, OIDCProviderMetaData, SessionData, Store, StoreValue,
 
 type PartialData<T> = Partial<AuthClientConfig<T> | OIDCProviderMetaData | SessionData | TemporaryData>;
 
+export const ASGARDEO_SESSION_ACTIVE: string = "asgardeo-session-active";
+
 export class DataLayer<T> {
     protected _id: string;
     protected _store: Store;
@@ -76,6 +78,19 @@ export class DataLayer<T> {
         return userID ? `${ store }-${ this._id }-${ userID }` : `${ store }-${ this._id }`;
     }
 
+    protected isStorageAvailable(store: Storage): boolean {
+        try {
+            const testValue:string  = "test";
+
+            store.setData(testValue, testValue);
+            store.removeData(testValue);
+
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     public async setConfigData(config: Partial<AuthClientConfig<T>>): Promise<void> {
         await this.setDataInBulk(this._resolveKey(Stores.ConfigData), config);
     }
@@ -114,6 +129,21 @@ export class DataLayer<T> {
 
     public async getCustomData<K>(key: string, userID?: string): Promise<K> {
         return JSON.parse((await this._store.getData(this._resolveKey(key, userID))) ?? null);
+    }
+
+    public setSessionStatus(status: string): void {
+        // Using local storage to store the session status as it is required to be available across tabs.
+        this.isStorageAvailable(localStorage) && localStorage.setItem(`${ASGARDEO_SESSION_ACTIVE}`, status);
+    }
+
+    public getSessionStatus(): string {
+        return this.isStorageAvailable(localStorage) 
+            ? localStorage.getItem(`${ASGARDEO_SESSION_ACTIVE}`) ?? ""
+            : "";
+    }
+
+    public removeSessionStatus(): void {
+        this.isStorageAvailable(localStorage) && localStorage.removeItem(`${ASGARDEO_SESSION_ACTIVE}`);
     }
 
     public async removeConfigData(): Promise<void> {

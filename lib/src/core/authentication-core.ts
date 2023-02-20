@@ -592,7 +592,11 @@ export class AuthenticationCore<T> {
     }
 
     public async isAuthenticated(userID?: string): Promise<boolean> {
-        return Boolean(await this.getAccessToken(userID));
+        const isAuthenticated: boolean = Boolean(await this.getAccessToken(userID));
+
+        this._dataLayer.setSessionStatus(isAuthenticated.toString());
+
+        return isAuthenticated;
     }
 
     public async getPKCECode(state: string, userID?: string): Promise<string> {
