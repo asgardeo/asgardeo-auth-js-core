@@ -78,7 +78,7 @@ export class DataLayer<T> {
         return userID ? `${ store }-${ this._id }-${ userID }` : `${ store }-${ this._id }`;
     }
 
-    protected isStorageAvailable(store: Storage): boolean {        
+    protected isStorageAvailable(store: Storage): boolean {
         try {
             const testValue:string  = "test";
 
