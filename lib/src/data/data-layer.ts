@@ -82,8 +82,8 @@ export class DataLayer<T> {
         try {
             const testValue:string  = "test";
 
-            store.setData(testValue, testValue);
-            store.removeData(testValue);
+            store.setItem(testValue, testValue);
+            store.removeItem(testValue);
 
             return true;
         } catch (error) {
