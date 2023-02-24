@@ -78,12 +78,12 @@ export class DataLayer<T> {
         return userID ? `${ store }-${ this._id }-${ userID }` : `${ store }-${ this._id }`;
     }
 
-    protected isStorageAvailable(store: Storage): boolean {
+    protected isLocalStorageAvailable(): boolean {
         try {
             const testValue:string  = "test";
 
-            store.setItem(testValue, testValue);
-            store.removeItem(testValue);
+            localStorage.setItem(testValue, testValue);
+            localStorage.removeItem(testValue);
 
             return true;
         } catch (error) {
@@ -133,17 +133,17 @@ export class DataLayer<T> {
 
     public setSessionStatus(status: string): void {
         // Using local storage to store the session status as it is required to be available across tabs.
-        this.isStorageAvailable(localStorage) && localStorage.setItem(`${ASGARDEO_SESSION_ACTIVE}`, status);
+        this.isLocalStorageAvailable() && localStorage.setItem(`${ASGARDEO_SESSION_ACTIVE}`, status);
     }
 
     public getSessionStatus(): string {
-        return this.isStorageAvailable(localStorage) 
+        return this.isLocalStorageAvailable() 
             ? localStorage.getItem(`${ASGARDEO_SESSION_ACTIVE}`) ?? ""
             : "";
     }
 
     public removeSessionStatus(): void {
-        this.isStorageAvailable(localStorage) && localStorage.removeItem(`${ASGARDEO_SESSION_ACTIVE}`);
+        this.isLocalStorageAvailable() && localStorage.removeItem(`${ASGARDEO_SESSION_ACTIVE}`);
     }
 
     public async removeConfigData(): Promise<void> {
