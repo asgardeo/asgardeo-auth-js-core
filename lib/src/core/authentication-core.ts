@@ -594,8 +594,6 @@ export class AuthenticationCore<T> {
     public async isAuthenticated(userID?: string): Promise<boolean> {
         const isAuthenticated: boolean = Boolean(await this.getAccessToken(userID));
 
-        this._dataLayer.setSessionStatus(isAuthenticated.toString());
-
         return isAuthenticated;
     }
 
