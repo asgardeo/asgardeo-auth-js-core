@@ -80,7 +80,7 @@ export class DataLayer<T> {
 
     protected isLocalStorageAvailable(): boolean {
         try {
-            const testValue:string  = "test";
+            const testValue: string = "__ASGARDEO_AUTH_CORE_LOCAL_STORAGE_TEST__";
 
             localStorage.setItem(testValue, testValue);
             localStorage.removeItem(testValue);
