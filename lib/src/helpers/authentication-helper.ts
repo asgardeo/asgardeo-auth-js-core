@@ -100,11 +100,17 @@ export class AuthenticationHelper<T> {
         ];
 
         const isRequiredEndpointsContains: boolean = configData.endpoints
-            ? Object.keys(configData?.endpoints).every((endpointName: string) => {
-                const snakeCasedName: string = endpointName
-                    .replace(/[A-Z]/g, (letter: string) => `_${ letter.toLowerCase() }`);
+            ? requiredEndpoints.every((reqEndpointName: string) => {
+                return configData.endpoints
+                    ? Object.keys(configData.endpoints).some((endpointName: string) => {
+                        const snakeCasedName: string = endpointName.replace(
+                            /[A-Z]/g,
+                            (letter: string) => `_${ letter.toLowerCase() }`
+                        );
 
-                return requiredEndpoints.includes(snakeCasedName);
+                        return snakeCasedName === reqEndpointName;
+                    })
+                    : false;
             })
             : false;
 
