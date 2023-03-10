@@ -507,16 +507,9 @@ export class AuthenticationCore<T> {
 
             return Promise.resolve();
         }  else {
-            try {
-                await this._dataLayer.setOIDCProviderMetaData(
-                    await this._authenticationHelper.resolveEndpointsExplicitly());
-            } catch (error: any) {
-                throw new AsgardeoAuthException(
-                    "JS-AUTH_CORE-GOPMD-IV03",
-                    "Resolving endpoints failed.",
-                    error ?? "Resolving endpoints by explicitly failed."
-                );
-            }
+            await this._dataLayer.setOIDCProviderMetaData(
+                await this._authenticationHelper.resolveEndpointsExplicitly());
+
             await this._dataLayer.setTemporaryDataParameter(OP_CONFIG_INITIATED, true);
 
             return Promise.resolve();

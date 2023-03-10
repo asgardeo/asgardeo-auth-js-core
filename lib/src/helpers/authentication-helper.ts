@@ -117,8 +117,9 @@ export class AuthenticationHelper<T> {
         if (!isRequiredEndpointsContains) {
             throw new AsgardeoAuthException(
                 "JS-AUTH_HELPER-REE-NF01",
-                "No required endpoints.",
-                "Required oidc endpoints are not defined"
+                "Required endpoints missing",
+                "Some or all of the required endpoints are missing in the object passed to the `endpoints` " +
+                "attribute of the`AuthConfig` object."
             );
         }
 
