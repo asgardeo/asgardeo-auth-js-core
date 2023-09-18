@@ -881,7 +881,7 @@ await auth.updateConfig({
 
 ## Data Storage
 
-Since the SDK was developed with the view of being able to support various platforms such as mobile apps, browsers and node.js servers, the SDK allows developers to use their preferred mode of storage. To that end, the SDK allows you to pass a store object when instantiating the `AsgardeoAuthClient`. This store object contains methods that can be used to store, retrieve and delete data. The SDK provides a Store interface that you can implement to create your own Store class. You can refer to the [`Store`](#store) section to learn mire about the `Store` interface.
+Since the SDK was developed with the view of being able to support various platforms such as mobile apps, browsers and node.js servers, the SDK allows developers to use their preferred mode of storage. To that end, the SDK allows you to pass a store object when instantiating the `AsgardeoAuthClient`. This store object contains methods that can be used to store, retrieve and delete data. The SDK provides a Store interface that you can implement to create your own Store class. You can refer to the [`Store`](#store) section to learn more about the `Store` interface.
 
 There are three methods that are to be implemented by the developer. They are
 
