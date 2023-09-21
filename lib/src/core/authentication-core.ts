@@ -569,7 +569,7 @@ export class AuthenticationCore<T> {
 
         const logoutCallback: string =
             `${ logoutEndpoint }?` +
-            `id_token_hint=${ idToken }` +
+            `client_id=${ configData.clientID }` +
             `&post_logout_redirect_uri=${ callbackURL }&state=` +
             SIGN_OUT_SUCCESS_PARAM;
 
