@@ -546,16 +546,6 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const idToken: string = (await this._dataLayer.getSessionData(userID))?.id_token;
-
-        if (!idToken || idToken.trim().length === 0) {
-            throw new AsgardeoAuthException(
-                "JS-AUTH_CORE-GSOU-NF02",
-                "ID token not found.",
-                "No ID token could be found. Either the session information is lost or you have not signed in."
-            );
-        }
-
         const callbackURL: string = configData?.signOutRedirectURL ?? configData?.signInRedirectURL;
 
         if (!callbackURL || callbackURL.trim().length === 0) {
@@ -567,9 +557,24 @@ export class AuthenticationCore<T> {
             );
         }
 
+        let parameter: string = `client_id=${ configData.clientID }`;
+
+        if (configData.sendIdTokenInLogoutRequest) {
+            const idToken: string = (await this._dataLayer.getSessionData(userID))?.id_token;
+
+            if (!idToken || idToken.trim().length === 0) {
+                throw new AsgardeoAuthException(
+                    "JS-AUTH_CORE-GSOU-NF02",
+                    "ID token not found.",
+                    "No ID token could be found. Either the session information is lost or you have not signed in."
+                );
+            }
+            parameter = `id_token_hint=${ idToken }`;
+        }
+
         const logoutCallback: string =
             `${ logoutEndpoint }?` +
-            `client_id=${ configData.clientID }` +
+            parameter +
             `&post_logout_redirect_uri=${ callbackURL }&state=` +
             SIGN_OUT_SUCCESS_PARAM;
 
