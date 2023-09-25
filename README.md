@@ -989,7 +989,7 @@ This model has the following attributes.
 
 The `AuthClientConfig<T>` can be extended by passing an interface as the generic type. For example, if you want to add an attribute called `foo` to the config object, you can create an interface called `Bar` and pass that as the generic type into the `AuthClientConfig<T>` interface.
 
-```TypeScripthttps://github.com/asgardeo/asgardeo-auth-js-core/pull/236
+```TypeScript
 interface Bar {
     foo: string
 }
