@@ -40,6 +40,7 @@ export interface DefaultAuthClientConfig {
   *
   */
   sendCookiesInRequests?: boolean;
+  sendIdTokenInLogoutRequest?: boolean;
 }
 
 export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
