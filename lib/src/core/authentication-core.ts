@@ -165,27 +165,25 @@ export class AuthenticationCore<T> {
         sessionState && (await this._dataLayer.setSessionDataParameter(
             SESSION_STATE as keyof SessionData, sessionState, userID));
 
-        const body: string[] = [];
-
-        body.push(`client_id=${ configData.clientID }`);
+        const body: URLSearchParams = new URLSearchParams();
+        body.set("client_id", configData.clientID);
 
         if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
-            body.push(`client_secret=${ configData.clientSecret }`);
+            body.set("client_secret", configData.clientSecret);
         }
 
-        const code: string = authorizationCode;
+        const code = authorizationCode;
+        body.set("code", code);
 
-        body.push(`code=${ code }`);
-
-        body.push("grant_type=authorization_code");
-        body.push(`redirect_uri=${ configData.signInRedirectURL }`);
+        body.set("grant_type", "authorization_code");
+        body.set("redirect_uri", configData.signInRedirectURL);
 
         if (configData.enablePKCE) {
-            body.push(
-                `code_verifier=${ await this._dataLayer.getTemporaryDataParameter(
+            body.set(
+                "code_verifier", `${await this._dataLayer.getTemporaryDataParameter(
                     AuthenticationUtils.extractPKCEKeyFromStateParam(state),
                     userID
-                ) }`
+                )}`
             );
 
             await this._dataLayer.removeTemporaryDataParameter(
@@ -198,7 +196,7 @@ export class AuthenticationCore<T> {
 
         try {
             tokenResponse = await fetch(tokenEndpoint, {
-                body: body.join("&"),
+                body: body,
                 credentials: configData.sendCookiesInRequests
                     ? FetchCredentialTypes.Include
                     : FetchCredentialTypes.SameOrigin,
