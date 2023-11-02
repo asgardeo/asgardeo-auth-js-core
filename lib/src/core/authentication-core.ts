@@ -166,13 +166,15 @@ export class AuthenticationCore<T> {
             SESSION_STATE as keyof SessionData, sessionState, userID));
 
         const body: URLSearchParams = new URLSearchParams();
+
         body.set("client_id", configData.clientID);
 
         if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
             body.set("client_secret", configData.clientSecret);
         }
 
-        const code = authorizationCode;
+        const code: string = authorizationCode;
+
         body.set("code", code);
 
         body.set("grant_type", "authorization_code");
