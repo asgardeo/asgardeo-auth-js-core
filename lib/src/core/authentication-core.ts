@@ -556,7 +556,8 @@ export class AuthenticationCore<T> {
                 "No sign-in redirect URL has been found either. "
             );
         }
-        const queryParams = new URLSearchParams();
+        const queryParams: URLSearchParams = new URLSearchParams();
+
         queryParams.set("post_logout_redirect_uri", callbackURL);
 
         if (configData.sendIdTokenInLogoutRequest) {
@@ -575,6 +576,7 @@ export class AuthenticationCore<T> {
         }
 
         queryParams.set("state", SIGN_OUT_SUCCESS_PARAM);
+
         return `${logoutEndpoint}?${queryParams.toString()}`;
     }
 
