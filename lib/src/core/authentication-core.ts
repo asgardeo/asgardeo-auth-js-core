@@ -556,8 +556,9 @@ export class AuthenticationCore<T> {
                 "No sign-in redirect URL has been found either. "
             );
         }
+        const queryParams: URLSearchParams = new URLSearchParams();
 
-        let parameter: string = `client_id=${ configData.clientID }`;
+        queryParams.set("post_logout_redirect_uri", callbackURL);
 
         if (configData.sendIdTokenInLogoutRequest) {
             const idToken: string = (await this._dataLayer.getSessionData(userID))?.id_token;
@@ -569,16 +570,14 @@ export class AuthenticationCore<T> {
                     "No ID token could be found. Either the session information is lost or you have not signed in."
                 );
             }
-            parameter = `id_token_hint=${ idToken }`;
+            queryParams.set("id_token_hint", idToken);
+        } else {
+            queryParams.set("client_id", configData.clientID);
         }
 
-        const logoutCallback: string =
-            `${ logoutEndpoint }?` +
-            parameter +
-            `&post_logout_redirect_uri=${ callbackURL }&state=` +
-            SIGN_OUT_SUCCESS_PARAM;
+        queryParams.set("state", SIGN_OUT_SUCCESS_PARAM);
 
-        return logoutCallback;
+        return `${logoutEndpoint}?${queryParams.toString()}`;
     }
 
     public async clearUserSessionData(userID?: string): Promise<void> {
