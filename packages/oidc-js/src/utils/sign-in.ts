@@ -230,8 +230,9 @@ export function validateIdToken(
             }
 
             // Return false if the issuer in the open id config doesn't match
-            // the issuer in the well known endpoint URL.
-            if (!issuer || issuer !== issuerFromURL) {
+            // the issuer in the well known endpoint URL when issuer validation is enabled.
+            // This is enabled by default.
+            if (requestParams.validateIDTokenIssuer && (!issuer || issuer !== issuerFromURL)) {
                 return Promise.resolve(false);
             }
 

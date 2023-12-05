@@ -293,8 +293,7 @@ export const initOPConfiguration = (
                 new Error(
                     "Initialized OpenID Provider configuration from default configuration." +
                         "Because failed to access wellknown endpoint: " +
-                        serverHost +
-                        SERVICE_RESOURCES.wellKnown
+                        wellKnownEndpoint
                 )
             );
         });
