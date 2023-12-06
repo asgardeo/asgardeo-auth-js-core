@@ -38,6 +38,7 @@ interface BaseConfigInterface {
     authorizationCode?: string;
     sessionState?: string;
     validateIDToken?: boolean;
+    validateIDTokenIssuer?: boolean;
     customParams?: CustomParamsInterface;
     /**
      * Allowed leeway for id_tokens (in seconds).
