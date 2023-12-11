@@ -31,4 +31,5 @@ jobs:
         NODE_AUTH_TOKEN: ${{secrets.DEPRECATED_SDK_NPM_TOKEN}}
       run: |
         cd packages/oidc-js
+        echo "//registry.npmjs.org/:_authToken=${{ secrets.DEPRECATED_SDK_NPM_TOKEN }}" > ~/.npmrc
         npm publish --access public
