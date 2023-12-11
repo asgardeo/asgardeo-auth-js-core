@@ -588,8 +588,38 @@ export class AuthenticationCore<T> {
         return (await this._dataLayer.getSessionData(userID))?.access_token;
     }
 
+    /**
+     * The created timestamp of the token response in milliseconds.
+     * 
+     * @param userID - User ID
+     * @returns Created at timestamp of the token response in milliseconds.
+     */
+    public async getCreatedAt(userID?: string): Promise<number> {
+        return (await this._dataLayer.getSessionData(userID))?.created_at;
+    }
+
+    /**
+     * The expires timestamp of the token response in seconds.
+     * 
+     * @param userID - User ID
+     * @returns Expires in timestamp of the token response in seconds.
+     */
+    public async getExpiresIn(userID?: string): Promise<string> {
+        return (await this._dataLayer.getSessionData(userID))?.expires_in;
+    }
+
     public async isAuthenticated(userID?: string): Promise<boolean> {
-        const isAuthenticated: boolean = Boolean(await this.getAccessToken(userID));
+        const isAccessTokenAvailable: boolean = Boolean(await this.getAccessToken(userID));
+
+        // Check if the access token is expired.
+        const createdAt: number = await this.getCreatedAt(userID);
+
+        // Convert to milliseconds.
+        const expiresIn: number = parseInt(await this.getExpiresIn(userID)) * 1000;
+        const currentTime: number = new Date().getTime();
+        const isAccessTokenValid: boolean = (createdAt + expiresIn) > currentTime;
+
+        const isAuthenticated: boolean = isAccessTokenAvailable && isAccessTokenValid;
 
         return isAuthenticated;
     }
