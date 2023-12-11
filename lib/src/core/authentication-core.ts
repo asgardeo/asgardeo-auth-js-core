@@ -614,7 +614,7 @@ export class AuthenticationCore<T> {
         // Check if the access token is expired.
         const createdAt: number = await this.getCreatedAt(userID);
 
-         // Convert to milliseconds.
+        // Convert to milliseconds.
         const expiresIn: number = parseInt(await this.getExpiresIn(userID)) * 1000;
         const currentTime: number = new Date().getTime();
         const isAccessTokenValid: boolean = (createdAt + expiresIn) > currentTime;
