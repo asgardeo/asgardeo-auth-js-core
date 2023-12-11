@@ -97,10 +97,20 @@ export class CryptoHelper<T = any> {
         clientID: string,
         issuer: string,
         username: string,
-        clockTolerance: number | undefined
+        clockTolerance: number | undefined,
+        validateJwtIssuer: boolean | undefined
     ): Promise<boolean> {
         return this._cryptoUtils
-            .verifyJwt(idToken, jwk, SUPPORTED_SIGNATURE_ALGORITHMS, clientID, issuer, username, clockTolerance)
+            .verifyJwt(
+                idToken, 
+                jwk, 
+                SUPPORTED_SIGNATURE_ALGORITHMS, 
+                clientID, 
+                issuer, 
+                username, 
+                clockTolerance, 
+                validateJwtIssuer
+            )
             .then((response: boolean) => {
                 if (response) {
                     return Promise.resolve(true);
