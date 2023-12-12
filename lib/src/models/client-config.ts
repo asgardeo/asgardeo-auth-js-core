@@ -30,6 +30,7 @@ export interface DefaultAuthClientConfig {
   responseMode?: ResponseMode;
   scope?: string[];
   validateIDToken?: boolean;
+  validateIDTokenIssuer?: boolean;
   /**
   * Allowed leeway for id_tokens (in seconds).
   */

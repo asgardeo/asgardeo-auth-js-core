@@ -223,7 +223,8 @@ export class AuthenticationHelper<T> {
             (await this._config()).clientID,
             issuer ?? "",
             this._cryptoHelper.decodeIDToken(idToken).sub,
-            (await this._config()).clockTolerance
+            (await this._config()).clockTolerance, 
+            (await this._config()).validateIDTokenIssuer ?? true
         );
     }
 

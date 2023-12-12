@@ -92,6 +92,7 @@ export interface CryptoUtils<T = any> {
         clientID: string,
         issuer: string,
         subject: string,
-        clockTolerance?: number
+        clockTolerance?: number,
+        validateJwtIssuer?: boolean
     ): Promise<boolean>;
 }
