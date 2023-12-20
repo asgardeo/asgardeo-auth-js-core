@@ -121,10 +121,7 @@ export class AuthenticationCore<T> {
         if (customParams) {
             for (const [ key, value ] of Object.entries(customParams)) {
                 if (key != "" && value != "" && key !== STATE) {
-                    const snakeCasedKey: string = key.replace(/[A-Z]/g,
-                        (letter: string) => `_${ letter.toLowerCase() }`);
-
-                    authorizeRequestParams.set(snakeCasedKey, value.toString());
+                    authorizeRequestParams.set(key, value.toString());
                 }
             }
         }
