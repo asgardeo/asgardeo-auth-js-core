@@ -62,12 +62,83 @@ export class AuthenticationCore<T> {
         this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
     }
 
+    public async getAuthorizationURLParams(
+        config?: AuthorizationURLParams,
+        userID?: string
+    ): Promise<Map<string, string>> {
+        const configData: StrictAuthClientConfig = await this._config();
+  
+        const authorizeRequestParams: Map<string, string> = new Map<
+        string,
+        string
+      >();
+  
+        authorizeRequestParams.set("response_type", "code");
+        authorizeRequestParams.set("client_id", configData.clientID);
+  
+        let scope: string = OIDC_SCOPE;
+  
+        if (configData.scope && configData.scope.length > 0) {
+            if (!configData.scope.includes(OIDC_SCOPE)) {
+                configData.scope.push(OIDC_SCOPE);
+            }
+            scope = configData.scope.join(" ");
+        }
+  
+        authorizeRequestParams.set("scope", scope);
+        authorizeRequestParams.set("redirect_uri", configData.signInRedirectURL);
+  
+        if (configData.responseMode) {
+            authorizeRequestParams.set("response_mode", configData.responseMode);
+        }
+  
+        const pkceKey: string = await this._authenticationHelper.generatePKCEKey(
+            userID
+        );
+  
+        if (configData.enablePKCE) {
+            const codeVerifier: string = this._cryptoHelper?.getCodeVerifier();
+            const codeChallenge: string =
+          this._cryptoHelper?.getCodeChallenge(codeVerifier);
+  
+            await this._dataLayer.setTemporaryDataParameter(
+                pkceKey,
+                codeVerifier,
+                userID
+            );
+            authorizeRequestParams.set("code_challenge_method", "S256");
+            authorizeRequestParams.set("code_challenge", codeChallenge);
+        }
+  
+        if (configData.prompt) {
+            authorizeRequestParams.set("prompt", configData.prompt);
+        }
+  
+        const customParams: AuthorizationURLParams | undefined = config;
+  
+        if (customParams) {
+            for (const [ key, value ] of Object.entries(customParams)) {
+                if (key != "" && value != "" && key !== STATE) {
+                    authorizeRequestParams.set(key, value.toString());
+                }
+            }
+        }
+  
+        authorizeRequestParams.set(
+            STATE,
+            AuthenticationUtils.generateStateParamForRequestCorrelation(
+                pkceKey,
+                customParams ? customParams[STATE]?.toString() : ""
+            )
+        );
+  
+        return authorizeRequestParams;
+    }
+
     public async getAuthorizationURL(config?: AuthorizationURLParams, userID?: string): Promise<string> {
         const authorizeEndpoint: string = (await this._dataLayer.getOIDCProviderMetaDataParameter(
             AUTHORIZATION_ENDPOINT as keyof OIDCProviderMetaData
         )) as string;
-
-        const configData: StrictAuthClientConfig = await this._config();
 
         if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
             throw new AsgardeoAuthException(
@@ -78,65 +149,14 @@ export class AuthenticationCore<T> {
             );
         }
 
-        const authorizeRequest: URL = new URL(authorizeEndpoint);
+       const authorizeRequest: URL = new URL(authorizeEndpoint);
 
-        const authorizeRequestParams: Map<string, string> = new Map<string, string>();
+      const authorizeRequestParams: Map<string, string> =
+      await this.getAuthorizationURLParams(config, userID);
 
-        authorizeRequestParams.set("response_type", "code");
-        authorizeRequestParams.set("client_id", configData.clientID);
-
-        let scope: string = OIDC_SCOPE;
-
-        if (configData.scope && configData.scope.length > 0) {
-            if (!configData.scope.includes(OIDC_SCOPE)) {
-                configData.scope.push(OIDC_SCOPE);
-            }
-            scope = configData.scope.join(" ");
-        }
-
-        authorizeRequestParams.set("scope", scope);
-        authorizeRequestParams.set("redirect_uri", configData.signInRedirectURL);
-
-        if (configData.responseMode) {
-            authorizeRequestParams.set("response_mode", configData.responseMode);
-        }
-
-        const pkceKey: string = await this._authenticationHelper.generatePKCEKey(userID);
-
-        if (configData.enablePKCE) {
-            const codeVerifier: string = this._cryptoHelper?.getCodeVerifier();
-            const codeChallenge: string = this._cryptoHelper?.getCodeChallenge(codeVerifier);
-
-            await this._dataLayer.setTemporaryDataParameter(pkceKey, codeVerifier, userID);
-            authorizeRequestParams.set("code_challenge_method", "S256");
-            authorizeRequestParams.set("code_challenge", codeChallenge);
-        }
-
-        if (configData.prompt) {
-            authorizeRequestParams.set("prompt", configData.prompt);
-        }
-
-        const customParams: AuthorizationURLParams | undefined = config;
-
-        if (customParams) {
-            for (const [ key, value ] of Object.entries(customParams)) {
-                if (key != "" && value != "" && key !== STATE) {
-                    authorizeRequestParams.set(key, value.toString());
-                }
-            }
-        }
-
-        authorizeRequestParams.set(
-            STATE,
-            AuthenticationUtils.generateStateParamForRequestCorrelation(
-                pkceKey,
-                customParams ? customParams[ STATE ]?.toString() : ""
-            )
-        );
-
-        for (const [ key, value ] of authorizeRequestParams.entries()) {
-            authorizeRequest.searchParams.append(key, value);
-        }
+      for (const [ key, value ] of authorizeRequestParams.entries()) {
+          authorizeRequest.searchParams.append(key, value);
+      }
 
         return authorizeRequest.toString();
     }

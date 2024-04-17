@@ -104,6 +104,7 @@ export class AsgardeoAuthClient<T> {
         cryptoUtils: CryptoUtils,
         instanceID?: number
     ): Promise<void> {
+        console.log("Newest Local PACKAGE!!");
         const clientId: string = config.clientID;
 
         if (!AsgardeoAuthClient._instanceID) {
@@ -167,6 +168,54 @@ export class AsgardeoAuthClient<T> {
      */
     public getInstanceID(): number {
         return AsgardeoAuthClient._instanceID;
+    }
+
+    /**
+   * This is an async method that returns a Promise that resolves with the authorization URL parameters.
+   *
+   * @param config - (Optional) A config object to force initialization and pass
+   * custom path parameters such as the fidp parameter.
+   * @param userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
+   * scenarios where each user should be uniquely identified.
+   *
+   * @returns - A promise that resolves with the authorization URL parameters.
+   *
+   * @example
+   * ```
+   * auth.getAuthorizationURLParams().then((params)=>{
+   *  // console.log(params);
+   * }).catch((error)=>{
+   *  // console.error(error);
+   * });
+   * ```
+   *
+   * {@link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getAuthorizationURLParams}
+   *
+   * @preserve
+   */
+    public async getAuthorizationURLParams(
+        config?: GetAuthURLConfig,
+        userID?: string
+    ): Promise<Map<string, string>> {
+        const authRequestConfig: GetAuthURLConfig = { ...config };
+
+        delete authRequestConfig?.forceInit;
+
+        if (await this._dataLayer.getTemporaryDataParameter(OP_CONFIG_INITIATED)) {
+            return this._authenticationCore.getAuthorizationURLParams(
+                authRequestConfig,
+                userID
+            );
+        }
+
+        return this._authenticationCore
+            .getOIDCProviderMetaData(config?.forceInit as boolean)
+            .then(() => {
+                return this._authenticationCore.getAuthorizationURLParams(
+                    authRequestConfig,
+                    userID
+                );
+            });
     }
 
     /**

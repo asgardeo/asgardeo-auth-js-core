@@ -27,6 +27,7 @@ If you are looking for an SDK to use in your application, then you can find the 
     -   [constructor](#constructor)
     -   [initialize](#initialize)
     -   [getDataLayer](#getDataLayer)
+    -   [getAuthorizationURLParams](#getAuthorizationURLParams)
     -   [getAuthorizationURL](#getAuthorizationURL)
     -   [requestAccessToken](#requestAccessToken)
     -   [getSignOutURL](#getSignOutURL)
@@ -322,6 +323,48 @@ This method returns the `CryptoHelper` object used by the SDK to perform cryptog
 
 ```TypeScript
 const cryptoHelper = auth.getCryptoHelper();
+```
+---
+
+### getAuthorizationURLParams
+
+```TypeScript
+getAuthorizationURLParams(config?: GetAuthURLConfig, userID?: string): Promise<Map<string, string>>
+```
+
+#### Arguments
+
+1. config: [`GetAuthURLConfig`](#GetAuthURLConfig) (optional)
+
+    An optional config object that has the necessary attributes to configure this method. The `forceInit` attribute can be set to `true` to trigger a request to the `.well-known` endpoint and obtain the OIDC endpoints. By default, a request to the `.well-known` endpoint will be sent only if a request to it had not been sent before. If you wish to force a request to the endpoint, you can use this attribute.
+
+    The object can only contain key-value pairs that you wish to append as path parameters to the authorization URL. For example, to set the `fidp` parameter, you can insert `fidp` as a key and its value to this object.
+
+2. userID: `string` (optional)
+
+    If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here to generate an authorization URL specific to that user. This can be useful when this SDK is used in backend applications.
+
+#### Returns
+
+A Promise that resolves with the authorization URL Parameters.
+
+#### Description
+
+This method returns a Promise that resolves with the authorization URL Parameters. The user can use these parametres to build the authorization request.
+
+#### Example
+
+```TypeScript
+const config = {
+    forceInit: true,
+    fidp: "fb"
+}
+
+auth.getAuthorizationURLParams(config).then((params)=>{
+    
+}).catch((error)=>{
+    console.error(error);
+});
 ```
 
 ---

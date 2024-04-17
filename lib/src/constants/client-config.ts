@@ -18,5 +18,6 @@
 
 export enum ResponseMode {
     formPost = "form_post",
-    query = "query"
+    query = "query",
+    direct = "direct"
 }
