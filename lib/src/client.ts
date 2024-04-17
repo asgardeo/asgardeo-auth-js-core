@@ -104,7 +104,6 @@ export class AsgardeoAuthClient<T> {
         cryptoUtils: CryptoUtils,
         instanceID?: number
     ): Promise<void> {
-        console.log("Newest Local PACKAGE!!");
         const clientId: string = config.clientID;
 
         if (!AsgardeoAuthClient._instanceID) {

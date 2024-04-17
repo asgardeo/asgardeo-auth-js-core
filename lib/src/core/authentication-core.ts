@@ -75,19 +75,19 @@ export class AuthenticationCore<T> {
   
         authorizeRequestParams.set("response_type", "code");
         authorizeRequestParams.set("client_id", configData.clientID);
-  
+
         let scope: string = OIDC_SCOPE;
-  
+
         if (configData.scope && configData.scope.length > 0) {
             if (!configData.scope.includes(OIDC_SCOPE)) {
                 configData.scope.push(OIDC_SCOPE);
             }
             scope = configData.scope.join(" ");
         }
-  
+
         authorizeRequestParams.set("scope", scope);
         authorizeRequestParams.set("redirect_uri", configData.signInRedirectURL);
-  
+
         if (configData.responseMode) {
             authorizeRequestParams.set("response_mode", configData.responseMode);
         }
@@ -109,13 +109,13 @@ export class AuthenticationCore<T> {
             authorizeRequestParams.set("code_challenge_method", "S256");
             authorizeRequestParams.set("code_challenge", codeChallenge);
         }
-  
+
         if (configData.prompt) {
             authorizeRequestParams.set("prompt", configData.prompt);
         }
-  
+
         const customParams: AuthorizationURLParams | undefined = config;
-  
+
         if (customParams) {
             for (const [ key, value ] of Object.entries(customParams)) {
                 if (key != "" && value != "" && key !== STATE) {
@@ -123,7 +123,7 @@ export class AuthenticationCore<T> {
                 }
             }
         }
-  
+
         authorizeRequestParams.set(
             STATE,
             AuthenticationUtils.generateStateParamForRequestCorrelation(
@@ -149,14 +149,14 @@ export class AuthenticationCore<T> {
             );
         }
 
-       const authorizeRequest: URL = new URL(authorizeEndpoint);
+        const authorizeRequest: URL = new URL(authorizeEndpoint);
 
-      const authorizeRequestParams: Map<string, string> =
+        const authorizeRequestParams: Map<string, string> =
       await this.getAuthorizationURLParams(config, userID);
 
-      for (const [ key, value ] of authorizeRequestParams.entries()) {
-          authorizeRequest.searchParams.append(key, value);
-      }
+        for (const [ key, value ] of authorizeRequestParams.entries()) {
+            authorizeRequest.searchParams.append(key, value);
+        }
 
         return authorizeRequest.toString();
     }
