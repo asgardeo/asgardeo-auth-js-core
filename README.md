@@ -350,7 +350,7 @@ A Promise that resolves with the authorization URL Parameters.
 
 #### Description
 
-This method returns a Promise that resolves with the authorization URL Parameters. The user can use these parametres to build the authorization request.
+This method returns a Promise that resolves with the authorization URL Parameters, which then can be used to build the authorization request.
 
 #### Example
 
