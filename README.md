@@ -361,7 +361,7 @@ const config = {
 }
 
 auth.getAuthorizationURLParams(config).then((params)=>{
-    
+    console.log(params);
 }).catch((error)=>{
     console.error(error);
 });
