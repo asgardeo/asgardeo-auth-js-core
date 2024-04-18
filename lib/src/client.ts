@@ -173,7 +173,7 @@ export class AsgardeoAuthClient<T> {
    * This is an async method that returns a Promise that resolves with the authorization URL parameters.
    *
    * @param config - (Optional) A config object to force initialization and pass
-   * custom path parameters such as the fidp parameter.
+   * custom path parameters such as the `fidp` parameter.
    * @param userID - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
    * scenarios where each user should be uniquely identified.
    *
