@@ -62,26 +62,17 @@ export class AuthenticationCore<T> {
         this._oidcProviderMetaData = async () => await this._dataLayer.getOIDCProviderMetaData();
     }
 
-    public async getAuthorizationURL(config?: AuthorizationURLParams, userID?: string): Promise<string> {
-        const authorizeEndpoint: string = (await this._dataLayer.getOIDCProviderMetaDataParameter(
-            AUTHORIZATION_ENDPOINT as keyof OIDCProviderMetaData
-        )) as string;
-
+    public async getAuthorizationURLParams(
+        config?: AuthorizationURLParams,
+        userID?: string
+    ): Promise<Map<string, string>> {
         const configData: StrictAuthClientConfig = await this._config();
-
-        if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
-            throw new AsgardeoAuthException(
-                "JS-AUTH_CORE-GAU-NF01",
-                "No authorization endpoint found.",
-                "No authorization endpoint was found in the OIDC provider meta data from the well-known endpoint " +
-                "or the authorization endpoint passed to the SDK is empty."
-            );
-        }
-
-        const authorizeRequest: URL = new URL(authorizeEndpoint);
-
-        const authorizeRequestParams: Map<string, string> = new Map<string, string>();
-
+  
+        const authorizeRequestParams: Map<string, string> = new Map<
+        string,
+        string
+      >();
+  
         authorizeRequestParams.set("response_type", "code");
         authorizeRequestParams.set("client_id", configData.clientID);
 
@@ -100,14 +91,21 @@ export class AuthenticationCore<T> {
         if (configData.responseMode) {
             authorizeRequestParams.set("response_mode", configData.responseMode);
         }
-
-        const pkceKey: string = await this._authenticationHelper.generatePKCEKey(userID);
-
+  
+        const pkceKey: string = await this._authenticationHelper.generatePKCEKey(
+            userID
+        );
+  
         if (configData.enablePKCE) {
             const codeVerifier: string = this._cryptoHelper?.getCodeVerifier();
-            const codeChallenge: string = this._cryptoHelper?.getCodeChallenge(codeVerifier);
-
-            await this._dataLayer.setTemporaryDataParameter(pkceKey, codeVerifier, userID);
+            const codeChallenge: string =
+          this._cryptoHelper?.getCodeChallenge(codeVerifier);
+  
+            await this._dataLayer.setTemporaryDataParameter(
+                pkceKey,
+                codeVerifier,
+                userID
+            );
             authorizeRequestParams.set("code_challenge_method", "S256");
             authorizeRequestParams.set("code_challenge", codeChallenge);
         }
@@ -130,9 +128,31 @@ export class AuthenticationCore<T> {
             STATE,
             AuthenticationUtils.generateStateParamForRequestCorrelation(
                 pkceKey,
-                customParams ? customParams[ STATE ]?.toString() : ""
+                customParams ? customParams[STATE]?.toString() : ""
             )
         );
+  
+        return authorizeRequestParams;
+    }
+
+    public async getAuthorizationURL(config?: AuthorizationURLParams, userID?: string): Promise<string> {
+        const authorizeEndpoint: string = (await this._dataLayer.getOIDCProviderMetaDataParameter(
+            AUTHORIZATION_ENDPOINT as keyof OIDCProviderMetaData
+        )) as string;
+
+        if (!authorizeEndpoint || authorizeEndpoint.trim().length === 0) {
+            throw new AsgardeoAuthException(
+                "JS-AUTH_CORE-GAU-NF01",
+                "No authorization endpoint found.",
+                "No authorization endpoint was found in the OIDC provider meta data from the well-known endpoint " +
+                "or the authorization endpoint passed to the SDK is empty."
+            );
+        }
+
+        const authorizeRequest: URL = new URL(authorizeEndpoint);
+
+        const authorizeRequestParams: Map<string, string> =
+      await this.getAuthorizationURLParams(config, userID);
 
         for (const [ key, value ] of authorizeRequestParams.entries()) {
             authorizeRequest.searchParams.append(key, value);
