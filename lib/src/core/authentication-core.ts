@@ -165,9 +165,12 @@ export class AuthenticationCore<T> {
         authorizationCode: string,
         sessionState: string,
         state: string,
-        userID?: string
+        userID?: string,
+        tokenRequestConfig?: {
+            params: Record<string, unknown>
+        }
     ): Promise<TokenResponse> {
-        const tokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).token_endpoint;
+        let tokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).token_endpoint;
         const configData: StrictAuthClientConfig = await this._config();
 
         if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
@@ -177,6 +180,15 @@ export class AuthenticationCore<T> {
                 "No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint " +
                 "or the token endpoint passed to the SDK is empty."
             );
+        }
+
+        if (tokenRequestConfig && tokenRequestConfig.params) {
+            const url: URL = new URL(tokenEndpoint);
+            
+            Object.entries(tokenRequestConfig.params).forEach(([ key, value ]: [key: string, value: unknown]) => {
+                url.searchParams.append(key, value as string);
+            });
+            tokenEndpoint = url.toString();
         }
 
         sessionState && (await this._dataLayer.setSessionDataParameter(
