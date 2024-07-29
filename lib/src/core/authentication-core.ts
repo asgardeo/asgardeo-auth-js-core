@@ -200,7 +200,7 @@ export class AuthenticationCore<T> {
         body.set("grant_type", "authorization_code");
         body.set("redirect_uri", configData.signInRedirectURL);
 
-        if (tokenRequestConfig && tokenRequestConfig.params) {
+        if (tokenRequestConfig?.params) {
             Object.entries(tokenRequestConfig.params).forEach(([ key, value ]: [key: string, value: unknown]) => {
                 body.append(key, value as string);
             });
