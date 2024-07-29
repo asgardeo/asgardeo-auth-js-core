@@ -415,7 +415,7 @@ auth.getAuthorizationURL(config).then((url)=>{
 ### requestAccessToken
 
 ```TypeScript
-requestAccessToken(authorizationCode: string, sessionState: string, state: string, userID?: string): Promise<TokenResponse>
+requestAccessToken(authorizationCode: string, sessionState: string, state: string, userID?: string, tokenRequestConfig: { params: Record<string, unknown> }): Promise<TokenResponse>
 ```
 
 #### Arguments
@@ -435,6 +435,15 @@ requestAccessToken(authorizationCode: string, sessionState: string, state: strin
 
     If you want to use the SDK to manage multiple user sessions, you can pass a unique ID here to request an access token specific to that user. This can be useful when this SDK is used in backend applications.
 
+5. tokenRequestConfig: `object` (optional)
+
+   An optional object that can contain additional parameters to be sent in the token request payload. The object should have a `params` property, which is a record of key-value pairs where the key is a string and the value can be of any type.
+
+   ```typescript
+   tokenRequestConfig: {
+       params: Record<string, unknown>
+   }
+   ```
 #### Returns
 
 A Promise that resolves with the [`TokenResponse`](#TokenResponse) object.
