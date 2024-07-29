@@ -165,7 +165,10 @@ export class AuthenticationCore<T> {
         authorizationCode: string,
         sessionState: string,
         state: string,
-        userID?: string
+        userID?: string,
+        tokenRequestConfig?: {
+            params: Record<string, unknown>
+        }
     ): Promise<TokenResponse> {
         const tokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).token_endpoint;
         const configData: StrictAuthClientConfig = await this._config();
@@ -196,6 +199,12 @@ export class AuthenticationCore<T> {
 
         body.set("grant_type", "authorization_code");
         body.set("redirect_uri", configData.signInRedirectURL);
+
+        if (tokenRequestConfig?.params) {
+            Object.entries(tokenRequestConfig.params).forEach(([ key, value ]: [key: string, value: unknown]) => {
+                body.append(key, value as string);
+            });
+        }
 
         if (configData.enablePKCE) {
             body.set(
