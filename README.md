@@ -437,13 +437,16 @@ requestAccessToken(authorizationCode: string, sessionState: string, state: strin
 
 5. tokenRequestConfig: `object` (optional)
 
-   An optional object that can contain additional parameters to be sent in the token request payload. The object should have a `params` property, which is a record of key-value pairs where the key is a string and the value can be of any type.
+    An optional configuration object that allows you to augment the token request.
 
-   ```typescript
-   tokenRequestConfig: {
-       params: Record<string, unknown>
-   }
-   ```
+    - `params` (Mandatory): Key-value pairs to be sent as additional parameters in the token request payload.
+
+
+       ```TypeScript
+       tokenRequestConfig: {
+           params: Record<string, unknown>
+       }
+       ```
 #### Returns
 
 A Promise that resolves with the [`TokenResponse`](#TokenResponse) object.
