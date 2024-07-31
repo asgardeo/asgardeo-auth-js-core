@@ -76,6 +76,10 @@ export class AuthenticationCore<T> {
         authorizeRequestParams.set("response_type", "code");
         authorizeRequestParams.set("client_id", configData.clientID);
 
+        if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
+            authorizeRequestParams.set("client_secret", configData.clientSecret);
+        }
+
         let scope: string = OIDC_SCOPE;
 
         if (configData.scope && configData.scope.length > 0) {
