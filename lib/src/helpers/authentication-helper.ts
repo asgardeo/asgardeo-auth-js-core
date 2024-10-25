@@ -291,7 +291,9 @@ export class AuthenticationHelper<T> {
 
         parsedResponse.created_at = new Date().getTime();
 
-        if ((await this._config()).validateIDToken) {
+        const shouldValidateIdToken: boolean | undefined = (await this._config()).validateIDToken;
+
+        if (shouldValidateIdToken) {
             return this.validateIdToken(parsedResponse.id_token).then(async () => {
                 await this._dataLayer.setSessionData(parsedResponse, userID);
 
