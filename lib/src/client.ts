@@ -43,6 +43,7 @@ import {
  * Default configurations.
  */
 const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
+    autoLogoutOnTokenError: true,
     clockTolerance: 300,
     enablePKCE: true,
     responseMode: ResponseMode.query,

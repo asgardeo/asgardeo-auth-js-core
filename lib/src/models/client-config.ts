@@ -20,6 +20,7 @@ import { OIDCEndpoints } from "./oidc-provider-meta-data";
 import { ResponseMode } from "../constants";
 
 export interface DefaultAuthClientConfig {
+  autoLogoutOnTokenError?: boolean;
   signInRedirectURL: string;
   signOutRedirectURL?: string;
   clientHost?: string;
