@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/wso2/product-is/blob/master/LICENSE)
 [![Twitter](https://img.shields.io/twitter/follow/wso2.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=wso2)
 
-⚠️ *This is a core SDK that is not supposed to be used in applications.*
+# ⚠️ *This is a core SDK that is not supposed to be used in applications.*
 
 If you are looking for an SDK to use in your application, then you can find the relevant information in the table below:
 | Framework/Library                                                 | Link                                                  |
