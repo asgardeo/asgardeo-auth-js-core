@@ -336,6 +336,10 @@ export class AuthenticationCore<T> {
         body.push(`token=${ (await this._dataLayer.getSessionData(userID)).access_token }`);
         body.push("token_type_hint=access_token");
 
+        if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
+            body.push(`client_secret=${ configData.clientSecret }`);
+        }
+
         let response: Response;
 
         try {
