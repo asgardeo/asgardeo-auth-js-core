@@ -1,5 +1,16 @@
 # Asgardeo Auth JavaScript SDK
 
+> [!WARNING]
+> **Deprecation Notice**
+>
+> This repository (**asgardeo-auth-js-core**) has been **deprecated** and is **no longer maintained** by WSO2.
+> The functionality of this SDK has been replaced by the [**@asgardeo/javascript Package**](https://github.com/asgardeo/javascript/tree/main/packages/javascript), which is now part of the official [**Asgardeo JavaScript SDK Suite**](https://github.com/asgardeo/javascript).
+>
+> 👉 You can find the new implementation here:
+> [https://github.com/asgardeo/javascript/tree/main/packages/javascript](https://github.com/asgardeo/javascript/tree/main/packages/javascript)
+>
+> Please migrate your projects to the new SDK to receive the latest updates, features, and security improvements.
+
 ![Builder](https://github.com/asgardeo/asgardeo-auth-js-sdk/workflows/Builder/badge.svg)
 [![Stackoverflow](https://img.shields.io/badge/Ask%20for%20help%20on-Stackoverflow-orange)](https://stackoverflow.com/questions/tagged/wso2is)
 [![Join the chat at https://discord.gg/wso2](https://img.shields.io/badge/Join%20us%20on-Discord-%23e01563.svg)](https://discord.gg/wso2)
