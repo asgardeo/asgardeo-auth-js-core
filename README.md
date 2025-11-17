@@ -4,7 +4,7 @@
 > **Deprecation Notice**
 >
 > Asgardeo Auth JS Core has been **deprecated** and is **no longer maintained**.  
-> It is now replaced by [**@asgardeo/javascript Package**](https://github.com/asgardeo/javascript/tree/main/packages/javascript), which is part of the official [**Asgardeo JavaScript SDK Suite**](https://github.com/asgardeo/javascript).
+> It is now replaced by [**@asgardeo/javascript**](https://github.com/asgardeo/javascript/tree/main/packages/javascript), which is part of the official [**Asgardeo JavaScript SDK Suite**](https://github.com/asgardeo/javascript).
 >
 > Please migrate your projects to the new SDK to receive the latest updates, features, and security improvements.
 
